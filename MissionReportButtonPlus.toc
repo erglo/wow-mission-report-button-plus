@@ -1,0 +1,22 @@
+## Interface: 90100
+## Title: Mission Report Button Plus
+## Notes: Adds a right-click menu to the mission report button on the minimap|nfor selecting reports of previous extensions as well.
+## Notes-deDE: Erweitert den Missionsbericht-Button der Minimap um eine Auswahl|nmit Berichten früherer Erweiterungen.
+## Version: 2021.09.08 (beta)
+## Author: erglo
+## X-Email: erglo.coder@gmail.com
+## X-Project-Homepage: https://www.curseforge.com/wow/addons/mission-report-button-plus
+
+## X-License: GNU General Public License Version 3
+## X-Category: Garrison, Map & Minimap, Miscellaneous
+
+## DefaultState: enabled
+
+## SavedVariables: MRBP_GlobalSettings, MRBP_GlobalMissions
+## SavedVariablesPerCharacter: MRBP_PerCharSettings
+
+locales\includes.xml
+
+MissionReportButtonPlus_Utils.lua
+MissionReportButtonPlus_Options.lua
+MissionReportButtonPlus.lua
