@@ -44,10 +44,8 @@ _log.USER = -10;
 -- _log.level = _log.NOTSET;
 _log.level = _log.USER;
 
-function _log:debug(...) 
-	--
-	-- Convenience function for additional output for debugging.
-	--
+-- Convenience functions for additional output for debugging.
+function _log:debug(...)
 	if (_log.level == _log.DEBUG) then
 		print(ns.AddonColor:WrapTextInColorCode(ns.AddonTitleShort),
 			  DIM_RED_FONT_COLOR:WrapTextInColorCode("DEBUG:"),
@@ -56,10 +54,7 @@ function _log:debug(...)
 	end
 end
 
-function _log:info(...) 
-	--
-	-- Convenience function for additional output for debugging.
-	--
+function _log:info(...)
 	if (_log.level <= _log.INFO and _log.level > _log.NOTSET) then
 		print(ns.AddonColor:WrapTextInColorCode(ns.AddonTitleShort),
 			  DIM_GREEN_FONT_COLOR:WrapTextInColorCode("INFO:"),
@@ -68,11 +63,9 @@ function _log:info(...)
 	end
 end
 
-local function cprint(...) 
-	--
-	-- Convenience function for informing the user with a chat message. 
-	-- (chat_print --> cprint) 
-	--
+-- Convenience function for informing the user with a chat message.
+-- (cprint --> chat_print)
+local function cprint(...)
 	if (_log.level == _log.USER) then
 		print(ns.AddonColor:WrapTextInColorCode(ns.AddonTitleShort..":"), ...);
 	end
@@ -84,10 +77,8 @@ ns.cprint = cprint;
 local util = {};
 ns.utilities = util;
 
+-- Print the current add-on's version infos to chat.
 function util:printVersion(shortVersionOnly)
-	-- 
-	-- Print the current add-on's version infos to chat.
-	--
 	local version = GetAddOnMetadata(AddonID, "Version");
 	if shortVersionOnly then
 		print(ns.AddonColor:WrapTextInColorCode(version));
@@ -102,24 +93,22 @@ function util:printVersion(shortVersionOnly)
 	end
 end
 
+-- Print garrison related event messages, ie. finished missons/buildings
+-- etc. to chat.
 function util:cprintEvent(locationName, eventMsg, typeName, instructions, isHyperlink)
-	--
-	-- Print garrison related event messages, ie. misson/building finished 
-	-- etc. to chat.
-	--
 	if ( typeName and not isHyperlink ) then
 		-- typeName = YELLOW_FONT_COLOR:WrapTextInColorCode(PARENS_TEMPLATE:format(typeName));  --> WoW global string
 		typeName = LIGHTYELLOW_FONT_COLOR:WrapTextInColorCode(typeName);
 	end
 	cprint(DARKYELLOW_FONT_COLOR:WrapTextInColorCode(FROM_A_DUNGEON:format(locationName)),  --> WoW global string
-		   eventMsg, typeName and typeName or '', instructions and instructions or '');
+		   eventMsg, typeName and typeName or '', instructions and '|n'..instructions or '');
 end
 
 ----- Atlas + Textures ---------------------------------------------------------
 
+-- REF.: <FrameXML/Blizzard_Deprecated/Deprecated_8_1_0.lua>
+-- REF.: <FrameXML/Blizzard_APIDocumentation/TextureUtilsDocumentation.lua>
 function util:GetAtlasInfo(atlas)
-	-- REF.: <FrameXML/Blizzard_Deprecated/Deprecated_8_1_0.lua>
-	-- REF.: <FrameXML/Blizzard_APIDocumentation/TextureUtilsDocumentation.lua>
 	local info = C_Texture.GetAtlasInfo(atlas);
 	if info then
 		local file = info.filename or info.file;
@@ -127,17 +116,13 @@ function util:GetAtlasInfo(atlas)
 	end
 end
 
-function util:CreateInlineIcon(atlasNameOrTexID, size, xOffset, yOffset)
-	--
-	-- Return given atlas texture in string format.
-	--
-	-- REF.: <FrameXML/TextureUtil.lua>
-	-- REF.: <https://wowpedia.fandom.com/wiki/UI_escape_sequences#Textures>
-	--
+-- REF.: <FrameXML/TextureUtil.lua>
+-- REF.: <https://wowpedia.fandom.com/wiki/UI_escape_sequences#Textures>
+function util:CreateInlineIcon(atlasNameOrTexID, size, xOffset, yOffset)  --> Returns: string
 	size = size or 16;
 	xOffset = xOffset or 0;
 	yOffset = yOffset or -1;
-	
+
 	local isNumberString = tonumber(atlasNameOrTexID) ~= nil;
 	if isNumberString then
 		atlasNameOrTexID = tonumber(atlasNameOrTexID);
@@ -155,17 +140,14 @@ end
 
 ----- Data handler -------------------------------------------------------------
 
+-- Collects infos about the current expansion, eg. name, banner, etc.
+--> Returns: "table" (attributes: {name, expansionLevel, maxLevel, minLevel[, logo, banner]})
+--
+-- REF.: <FrameXML/Blizzard_ClassTrial/Blizzard_ClassTrial.lua>
+-- REF.: <FrameXMLBlizzard_APIDocumentation/ExpansionDocumentation.lua>
+-- REF.: <FrameXML/GlobalStrings.lua>
+-- REF.: <FrameXML/AccountUtil.lua>
 function util:GetExpansionInfo(expansionLevel)
-	--
-	-- Collects infos about the current expansion, eg. name, banner, etc.
-	--
-	-- Returns: "table" (attributes: {name, expansionLevel, maxLevel, minLevel[, logo, banner]})
-	--
-	-- REF.: <FrameXML/Blizzard_ClassTrial/Blizzard_ClassTrial.lua>
-	-- REF.: <FrameXMLBlizzard_APIDocumentation/ExpansionDocumentation.lua>
-	-- REF.: <FrameXML/GlobalStrings.lua>
-	-- REF.: <FrameXML/AccountUtil.lua>
-	--
 	local expansionInfo = {};
 	local expansionNames = {
 		      -- EXPANSION_NAME0,  --> "Classic"
@@ -178,45 +160,34 @@ function util:GetExpansionInfo(expansionLevel)
 		EXPANSION_NAME7,  --> "Battle for Azeroth"
 		EXPANSION_NAME8,  --> "Shadowlands"
 	};
-	
+
 	if not expansionLevel then
 		_log:debug("Expansion level not given; using clamped level instead.");
 		local currentExpansionLevel = GetClampedCurrentExpansionLevel();
 		expansionLevel = currentExpansionLevel;
 	end
-	
-	-- local expansionDisplayInfo = GetExpansionDisplayInfo(expansionLevel);
-	-- if expansionDisplayInfo then
-	-- 	expansionInfo.logo = expansionDisplayInfo.logo;
-	-- 	expansionInfo.banner = expansionDisplayInfo.banner;
-	-- end
-	
+
 	expansionInfo.expansionLevel = expansionLevel;
 	expansionInfo.name = expansionNames[expansionLevel];
 	expansionInfo.maxLevel = GetMaxLevelForExpansionLevel(expansionLevel);
 	expansionInfo.minLevel = GetMaxLevelForExpansionLevel(expansionLevel-1);  --> TODO - needed ???
-	
-	-- _log:debug("expansionInfo:", expansionInfo.name, expansionInfo.expansionLevel,  expansionInfo.minLevel, "-", expansionInfo.maxLevel);
-	
+
 	return expansionInfo;
 end
 
+-- Check wether the given garrison type has running or completed missions
+-- and return the number of those in-progress missions.
+--> Returns: 2-array   --> {numInProgress, numCompleted}
+--
+-- REF.: <FrameXML/Blizzard_APIDocumentation/GarrisonConstantsDocumentation.lua>
+-- REF.: <FrameXML/GarrisonBaseUtils.lua>
+-- REF.: <FrameXML/Blizzard_GarrisonUI/Blizzard_GarrisonMissionUI.lua>
 function util:GetInProgressMissionCount(garrTypeID)
-	--
-	-- Check wether the given garrison type has running or completed missions
-	-- and return the number of those in-progress missions.
-	--
-	-- Returns: 2-array   --> {numInProgress, numCompleted}
-	--
-	-- REF.: <FrameXML/Blizzard_APIDocumentation/GarrisonConstantsDocumentation.lua>
-	-- REF.: <FrameXML/GarrisonBaseUtils.lua>
-	-- REF.: <FrameXML/Blizzard_GarrisonUI/Blizzard_GarrisonMissionUI.lua>
-	--
 	local numInProgress, numCompleted = 0, 0;
 	local missions;
-	
+
 	_log:info("Counting in-progress missions for garrison type", garrTypeID);
-	
+
 	for followerType, followerOptions in pairs(GarrisonFollowerOptions) do
 		if (followerOptions.garrisonType == garrTypeID) then
 			missions = C_Garrison.GetInProgressMissions(followerType);
@@ -235,23 +206,16 @@ function util:GetInProgressMissionCount(garrTypeID)
 		end
 	end
 	_log:debug(string.format("Got %d missions active and %d completed.", numInProgress, numCompleted));
-	
+
 	return numInProgress, numCompleted;  -- TODO - Also count building missions/assignments.
 end
 
 ----- WorldMap and Positioning -------------------------------------------------
 
--- util.map = {};
-
-function util:GetContinentZones(mapID, allDescendants)
--- function GetContinentZones(mapID, allDescendants)
-	--
-	-- Retrieve the zones of given continent's map ID.
-	--
-	-- Returns: table
-	--
-	-- REF.: <FrameXML/Blizzard_APIDocumentation/MapDocumentation.lua>
-	--
+-- Retrieve the zones of given continent's map ID.
+--
+-- REF.: <FrameXML/Blizzard_APIDocumentation/MapDocumentation.lua>
+function util:GetContinentZones(mapID, allDescendants)  --> Returns: table
 	local infos = {};
 	local ALL_DESCENDANTS = allDescendants or false;
 
@@ -263,17 +227,13 @@ function util:GetContinentZones(mapID, allDescendants)
 	return infos;
 end
 
-function util:GetActiveWorldMapThreats()
-	--
-	-- Find active threats in the world, if active for current player; eg. the
-	-- covenant attacks in The Maw or the N'Zoth's attacks in Battle for Azeroth.
-	--
-	-- Returns: table
-	--
-	-- REF.: <FrameXML/Blizzard_WorldMap/Blizzard_WorldMapTemplates.lua>
-	-- REF.: <FrameXML/Blizzard_APIDocumentation/QuestTaskInfoDocumentation.lua>
-	-- REF.: <https://wowpedia.fandom.com/wiki/UI_escape_sequences>
-	--
+-- Find active threats in the world, if active for current player; eg. the
+-- covenant attacks in The Maw or the N'Zoth's attacks in Battle for Azeroth.
+--
+-- REF.: <FrameXML/Blizzard_WorldMap/Blizzard_WorldMapTemplates.lua>
+-- REF.: <FrameXML/Blizzard_APIDocumentation/QuestTaskInfoDocumentation.lua>
+-- REF.: <https://wowpedia.fandom.com/wiki/UI_escape_sequences>
+function util:GetActiveWorldMapThreats()  --> Returns: table
 	if C_QuestLog.HasActiveThreats() then
 		local threatQuests = C_TaskQuest.GetThreatQuests();
 		local activeThreats = {};
@@ -294,7 +254,7 @@ function util:GetActiveWorldMapThreats()
 				end
 				tinsert(activeThreats[questExpansionLevel], {questID, questName, mapInfo.name});
 		   end
-		end		-- TODO - Turn infos into hyperlinks with icons; try factionID.
+		end
 		return activeThreats;
 	 end
 	-- local posX, posY = C_TaskQuest.GetQuestLocation(questID, mapID);
@@ -303,14 +263,11 @@ end
 
 ----- Specials -----------------------------------------------------------------
 
+-- Check the calendar if currently a world quest event is happening.
+--> Returns: 3-array (<boolean>, <eventTable>, <formattedEventTextMessage>)
+--
+-- REF.: <FrameXML/CalendarUtil.lua>
 function util:IsTodayWorldQuestDayEvent()
-	--
-	-- Check the calendar if currently a world quest event is happening.
-	--
-	-- Returns: 3-array (<boolean>, <eventTable>, <formattedEventTextMessage>)
-	--
-	-- REF.: <FrameXML/CalendarUtil.lua>
-	--
 	_log:info("Scanning calendar for day events...");
 	local event;
 	local eventID_WORLDQUESTS = 613;
@@ -330,7 +287,7 @@ function util:IsTodayWorldQuestDayEvent()
 
 		if ( event.eventID == eventID_WORLDQUESTS ) then
 			_log:debug("Got:", event.title, event.endTime.monthDay - currentCalendarTime.monthDay, "days left");
-			
+
 			if ( event.sequenceType == "END" and currentCalendarTime.hour >= event.endTime.hour ) then
 				-- Don't show anything on last day after event ends
 				break;
@@ -343,7 +300,7 @@ function util:IsTodayWorldQuestDayEvent()
 			local timeString, suffixString;
 			local eventLinkText = GetCalendarEventLink(monthOffset, currentCalendarTime.monthDay, eventIndex);
 			local eventLink = LINK_FONT_COLOR:WrapTextInColorCode(COMMUNITIES_CALENDAR_CHAT_EVENT_TITLE_FORMAT:format(eventLinkText));
-			
+
 			if ( event.sequenceType == "ONGOING" ) then
 				-- Show on days between the first and the last day
 				timeString = COMMUNITIES_CALENDAR_ONGOING_EVENT_PREFIX;
@@ -357,18 +314,18 @@ function util:IsTodayWorldQuestDayEvent()
 				end
 				if ( event.sequenceType == "END" ) then
 					timeString = GameTime_GetFormattedTime(event.endTime.hour, event.endTime.minute, true);
-					
+
 				end
 				-- Add localized text whether the today's event starts or ends
 				eventLink = _G["CALENDAR_EVENTNAME_FORMAT_"..event.sequenceType]:format(eventLink);
 				timeString = COMMUNITIES_CALENDAR_EVENT_FORMAT:format(COMMUNITIES_CALENDAR_TODAY, timeString);
 			end
 			local chatMsg = YELLOW_FONT_COLOR:WrapTextInColorCode(COMMUNITIES_CALENDAR_CHAT_EVENT_BROADCAST_FORMAT:format(timeString, eventLink, suffixString or ''));
-			
+
 			return true, event, chatMsg;
 		end
 	end
-	
+
 	_log:debug("Wanted day event not found.")
 	return false, nil, nil;
 end
