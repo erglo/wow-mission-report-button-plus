@@ -5,6 +5,9 @@ end
 local ns = select(2, ...);
 
 ns.L = {
+	--[[ TOC file notes ]]--
+	TOC_FILE_NOTES = "Erweitert den Missionsbericht-Button der Minimap um eine Auswahl|nmit Berichten früherer Erweiterungen.",
+	--[[ Minimap button ]]--
 	TOOLTIP_CLICKTEXT_MINIMAPBUTTON = "Rechtsklicken, um Erweiterung auszuwählen",
 	--[[ Slash command descriptions ]]--
 	SLASHCMD_DESC_VERSION = "Liest die aktuelle Version dieses Addons aus",

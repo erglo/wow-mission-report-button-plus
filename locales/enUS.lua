@@ -3,6 +3,9 @@ local ns = select( 2, ... );
 -- default / fallback locale
 
 ns.L = {
+	--[[ TOC file notes ]]--
+	TOC_FILE_NOTES = "Adds a right-click menu to the mission report button on the minimap|nfor selecting reports of previous extensions as well.",
+	--[[ Minimap button ]]--
 	TOOLTIP_CLICKTEXT_MINIMAPBUTTON = "Right-click to select expansion",
 	--[[ Slash command descriptions ]]--
 	SLASHCMD_DESC_VERSION = "Prints this add-on's current version info",
