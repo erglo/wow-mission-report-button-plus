@@ -530,12 +530,13 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled)
 		for threatExpansionLevel, threatData in pairs(activeThreats) do
 			-- Add the infos to the corresponding expansions only
 			if ( threatExpansionLevel == garrInfo.expansionInfo.expansionLevel ) then
-				-- Show the header only once per expansion
+				-- Show the header *only once* per expansion
 				local EXPANSION_LEVEL_BFA = 7;
 				if ( threatExpansionLevel == EXPANSION_LEVEL_BFA ) then
 					tooltipText = tooltipText.."|n|n"..WORLD_MAP_THREATS;
 				else
-					tooltipText = tooltipText.."|n|n"..garrInfo.expansionInfo.name;
+					local zoneName = select(3, unpack(threatData[1]));
+					tooltipText = tooltipText.."|n|n"..zoneName;
 				end
 				for i, threatInfo in ipairs(threatData) do
 					local questID, questName, zoneName = unpack(threatInfo);
