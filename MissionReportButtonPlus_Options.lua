@@ -49,6 +49,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showWorldmapBounties"] = true,
 	["showWorldmapThreats"] = true,
 	-- ["hideMinimapButton"] = false,  --> GarrisonLandingPageMinimapButton -- TODO
+	["showMinimapButton"] = true,
 };
 
 -- Loads the global or character-specific settings.

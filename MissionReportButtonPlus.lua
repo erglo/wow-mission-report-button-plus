@@ -55,6 +55,8 @@ FrameUtil.RegisterFrameForEvents(MRBP, {
 	"QUEST_TURNED_IN",
 	"QUEST_AUTOCOMPLETE",
 	"COVENANT_CALLINGS_UPDATED",
+	"GARRISON_SHOW_LANDING_PAGE",
+	"GARRISON_HIDE_LANDING_PAGE",
 	}
 );
 
@@ -197,6 +199,27 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			if isReloadingUi then
 				printDayEvent();
 			end
+
+		elseif (event == "GARRISON_SHOW_LANDING_PAGE" or event == "GARRISON_HIDE_LANDING_PAGE") then
+			-- ns.cprint(event, ...);
+			-- REF.: <FrameXML/Minimap.lua>
+
+			if (event == "GARRISON_HIDE_LANDING_PAGE") then
+				-- local isButtonShown = GarrisonLandingPageMinimapButton:IsShown();
+				-- ns.cprint("IsShown:", isButtonShown);
+				-- ns.cprint("IsVisible:", GarrisonLandingPageMinimapButton:IsVisible());
+				-- ns.cprint("showMinimapButton:",ns.settings.showMinimapButton);
+
+				if ( ns.settings.showMinimapButton and C_Garrison.GetLandingPageGarrisonType() > 0 ) then
+					-- print("Showing minmap button...")
+					GarrisonLandingPageMinimapButton_UpdateIcon(GarrisonLandingPageMinimapButton);
+					GarrisonLandingPageMinimapButton:Show();
+				end
+			else
+				ns.cprint(event, ...);
+				-- C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType_orig;
+			end
+
 		end
 	end
 
@@ -262,21 +285,7 @@ local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
 		["reqLevel"] = 60,	--> Source: WoW (2021-09)
 	},
 };
-
--- MRBP_BOUNTY_BOARD_MESSAGES = {
--- 	["default"] = {  --> WoW global strings; since Legion (WoW 7.x) only
--- 		["title"] = BOUNTY_BOARD_LOCKED_TITLE,
--- 		["day3"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
--- 		["day2"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_2,
--- 		["day1"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_3,
--- 	},
--- 	[Enum.GarrisonType.Type_9_0] = {  --> WoW global strings
--- 		["title"] = CALLINGS_QUESTS,
--- 		["day3"] = BOUNTY_BOARD_NO_CALLINGS_DAYS_1,
--- 		["day2"] = BOUNTY_BOARD_NO_CALLINGS_DAYS_2,
--- 		["day1"] = BOUNTY_BOARD_NO_CALLINGS_DAYS_3,
--- 	},
--- };
+-- C_QuestLog.IsQuestFlaggedCompleted(36614)
 
 -- Preparing this data on start-up results sometimes, in empty (nil) values,
 -- eg. the covenant data. So simply load this after the add-on has
@@ -678,13 +687,6 @@ end
 function MRBP:SetButtonHooks()
 	if GarrisonLandingPageMinimapButton then
 		_log:info("Hooking into minimap button's tooltip + clicking behaviour...");
-		_log:debug("IsShown:", GarrisonLandingPageMinimapButton:IsShown());
-
-		-- if ( not GarrisonLandingPageMinimapButton:IsShown() ) then
-		-- 	-- Fallback, in case the button is still hidden.
-		-- 	--> User hasn't unlocked the current expansion's garrison type, yet.
-		-- 	GarrisonLandingPageMinimapButton_UpdateIcon(GarrisonLandingPageMinimapButton);
-		-- end
 
 		-- Tooltip hook
 		GarrisonLandingPageMinimapButton:HookScript("OnEnter", MRBP_OnEnter);
@@ -692,7 +694,7 @@ function MRBP:SetButtonHooks()
 		-- Mouse button hooks; by default only the left button is registered.
 		GarrisonLandingPageMinimapButton:RegisterForClicks("LeftButtonUp", "RightButtonUp");
 		GarrisonLandingPageMinimapButton:SetScript("OnClick", MRBP_OnClick);
-		-- GarrisonLandingPageMinimapButton:HookScript("OnClick", MRBP_OnClick);  --> safer, but doesn't work properly
+		-- GarrisonLandingPageMinimapButton:HookScript("OnClick", MRBP_OnClick);  --> safer, but doesn't work!
 	end
 
 	-- GarrisonLandingPage (report frame) hook
@@ -762,6 +764,41 @@ local function MRBP_ReloadDropdown()
 end
 ns.MRBP_ReloadDropdown = MRBP_ReloadDropdown;
 
+-- Return the garrison type of the previous expansion, as long as the
+-- player level hasn't reached the maximum level.
+--
+-- Note: First log-in always returns 0 (== no garrison at all).  --> TODO
+--
+-- REF.: <FrameXML/Blizzard_APIDocumentation/ExpansionDocumentation.lua>
+function MRBP_GetLandingPageGarrisonType()
+	_log:info("Starting garrison type adjustment...");
+
+	local garrTypeID = MRBP_GetLandingPageGarrisonType_orig();
+
+	if ( garrTypeID > 0 and not MRBP_IsGarrisonRequirementMet(garrTypeID) ) then
+		local playerExpansionID = GetExpansionForLevel( UnitLevel("player") );
+		local maxExpansionID = GetMaximumExpansionLevel(); --> max. available, eg. 8 Shadowlands
+		local minExpansionID = GetMinimumExpansionLevel(); --> min. available, eg. 7 Battle for Azeroth
+
+		-- ns.cprint("playerExpansionID:", playerExpansionID);
+		-- ns.cprint("maxExpansionID:", maxExpansionID);
+		-- ns.cprint("minExpansionID:", minExpansionID);
+
+		-- Build garrison type, eg. Enum.GarrisonType.Type_8_0
+		local garrTypeID_Player = Enum.GarrisonType["Type_"..tostring(playerExpansionID+1).."_0"];
+		local garrTypeID_Minimum = Enum.GarrisonType["Type_"..tostring(minExpansionID+1).."_0"];
+
+		-- ns.cprint("garrTypeID_Player:", garrTypeID_Player);
+		-- ns.cprint("garrTypeID_Minimum:", garrTypeID_Minimum);
+
+		garrTypeID = garrTypeID_Minimum;
+	end
+
+	return garrTypeID;
+end
+MRBP_GetLandingPageGarrisonType_orig = C_Garrison.GetLandingPageGarrisonType;
+C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType;
+
 -----[[ Slash commands ]]-------------------------------------------------------
 
 local SLASH_CMD_ARGLIST = {
@@ -805,22 +842,23 @@ function MRBP:RegisterSlashCommands()
 				InterfaceOptionsFrame_OpenToCategory(MRBP_InterfaceOptionsPanel);
 				InterfaceOptionsFrame_OpenToCategory(MRBP_InterfaceOptionsPanel);
 
-			-- TODO - Availability is still hidden from user; need more test runs. (experimental)
 			elseif (msg == 'show') then
-				_log:debug("IsShown:", GarrisonLandingPageMinimapButton:IsShown());
-				_log:debug("IsVisible:", GarrisonLandingPageMinimapButton:IsVisible());
+				if (C_Garrison.GetLandingPageGarrisonType() == 0) then
+					ns.cprint("Bedingungen nicht erfüllt. Es muss mindestens ein Befehlstisch freigeschaltet sein.");  --> TODO - L10n
+					return;
+				end
 				if ( not GarrisonLandingPageMinimapButton:IsShown() ) then
 					GarrisonLandingPageMinimapButton:Show()
 					-- if ( C_Garrison.GetLandingPageGarrisonType() == Enum.GarrisonType.Type_9_0 ) then
 					GarrisonLandingPageMinimapButton_UpdateIcon(GarrisonLandingPageMinimapButton);
 					-- end
+					ns.settings.showMinimapButton = true;
 				end
 
 			elseif (msg == 'hide') then
-				_log:debug("IsShown:", GarrisonLandingPageMinimapButton:IsShown());
-				_log:debug("IsVisible:", GarrisonLandingPageMinimapButton:IsVisible());
 				if GarrisonLandingPageMinimapButton:IsShown() then
 					GarrisonLandingPageMinimapButton:Hide();
+					ns.settings.showMinimapButton = false;
 				end
 
 			-----[[ Tests ]]-----
