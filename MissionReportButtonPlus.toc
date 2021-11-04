@@ -1,4 +1,4 @@
-## Interface: 90100
+## Interface: 90105
 ## Title: Mission Report Button Plus
 ## Notes: Adds a right-click menu to the mission report button on the minimap|nfor selecting reports of previous extensions as well.
 ## Notes-deDE: Erweitert den Missionsbericht-Button der Minimap um eine Auswahl|nmit Berichten früherer Erweiterungen.
