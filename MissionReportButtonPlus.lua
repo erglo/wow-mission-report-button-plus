@@ -51,7 +51,7 @@ FrameUtil.RegisterFrameForEvents(MRBP, {
 	"GARRISON_INVASION_AVAILABLE",
 	"GARRISON_MISSION_FINISHED",
 	"GARRISON_TALENT_COMPLETE",
-	-- "GARRISON_MISSION_STARTED",  --> TODO
+	-- "GARRISON_MISSION_STARTED",  	--> TODO - Track twinks' missions
 	"QUEST_TURNED_IN",
 	"QUEST_AUTOCOMPLETE",
 	"COVENANT_CALLINGS_UPDATED",
@@ -125,8 +125,8 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			local missionIcon = missionInfo.typeTextureKit and missionInfo.typeTextureKit.."-Map" or missionInfo.typeAtlas;
 			local missionName = util:CreateInlineIcon(missionIcon).." "..missionLink;
 			_log:debug(event, "followerTypeID:", followerTypeID, "missionID:", missionID, missionInfo.name);
-			-- TODO - Count and show number of twinks' finished missions ???  --> MRBP_GlobalMissions
-			-- TODO - Remove from MRBP_GlobalMissions
+			--> TODO - Count and show number of twinks' finished missions ???  --> MRBP_GlobalMissions
+			--> TODO - Remove from MRBP_GlobalMissions
 			util:cprintEvent(garrInfo.expansionInfo.name, eventMsg, missionName, nil, true);
 
 		elseif (event == "GARRISON_TALENT_COMPLETE") then
@@ -159,7 +159,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			_log:debug(event, questID, questName);
 			if MRBP_IsQuestGarrisonRequirement(questID) then
 				_log:info("Required quest completed!", questID, questName);
-				-- TODO - Add 'is unlocked/complete' info to data table
+				--> TODO - Add 'is unlocked/complete' info to data table
 			end
 
 		elseif (event == "COVENANT_CALLINGS_UPDATED") then
@@ -193,7 +193,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 					end
 				end
 				C_Timer.After(5, printDayEvent);
-				--> FIXME - Still not working on first account-login :(
+				--> FIXME - Not working on first account-login :(
 				-- But works after manual UI reload.
 			end
 			if isReloadingUi then
@@ -201,29 +201,24 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			end
 
 		elseif (event == "GARRISON_SHOW_LANDING_PAGE" or event == "GARRISON_HIDE_LANDING_PAGE") then
-			-- ns.cprint(event, ...);
-			-- REF.: <FrameXML/Minimap.lua>
-
+			-- print(event, ...);
 			if (event == "GARRISON_HIDE_LANDING_PAGE") then
-				-- local isButtonShown = GarrisonLandingPageMinimapButton:IsShown();
-				-- ns.cprint("IsShown:", isButtonShown);
-				-- ns.cprint("IsVisible:", GarrisonLandingPageMinimapButton:IsVisible());
-				-- ns.cprint("showMinimapButton:",ns.settings.showMinimapButton);
-
-				if ( ns.settings.showMinimapButton and C_Garrison.GetLandingPageGarrisonType() > 0 ) then
-					-- print("Showing minmap button...")
-					GarrisonLandingPageMinimapButton_UpdateIcon(GarrisonLandingPageMinimapButton);
-					GarrisonLandingPageMinimapButton:Show();
-				end
+				-- if (not ns.settings.disableShowMinimapButtonSetting) then
+				-- 	self:ShowMinimapButton();
+				-- end
+				self:ShowMinimapButton();
 			else
-				ns.cprint(event, ...);
-				-- C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType_orig;
+				-- Minimap already visible through WoW default process
+				-- ns.settings.disableShowMinimapButtonSetting = true;  --> temporary solution for beta2
+				if (not ns.settings.showMinimapButton) then
+					MRBP:HideMinimapButton();
+				end
 			end
-
 		end
 	end
 
 );
+
 -- Load this add-on's functions when the MR minimap button is ready.
 function MRBP:OnLoad()
 	_log:info(string.format("Loading %s...", ns.AddonColor:WrapTextInColorCode(ns.AddonTitle)));
@@ -253,7 +248,7 @@ local MRBP_GARRISON_TYPE_INFOS_SORTORDER = {
 local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
 	-- questID, questName_English (fallback)
 	[Enum.GarrisonType.Type_6_0] = {
-		["Horde"] = {36614, "My Very Own Fortress"},
+		["Horde"] = {36614, "My Very Own Fortress"},	--> FIXME - This doesn't seem to work for upgraded characters; class dependent?
 		["Alliance"] = {36615, "My Very Own Castle"},
 		["reqLevel"] = 40,	--> Source: WoW (2021-09)
 	},
@@ -285,7 +280,6 @@ local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
 		["reqLevel"] = 60,	--> Source: WoW (2021-09)
 	},
 };
--- C_QuestLog.IsQuestFlaggedCompleted(36614)
 
 -- Preparing this data on start-up results sometimes, in empty (nil) values,
 -- eg. the covenant data. So simply load this after the add-on has
@@ -341,7 +335,7 @@ function MRBP:LoadData()
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
-				["bounties"] = C_QuestLog.GetBountiesForMapID(650),  --> any child zone from "continents" seems to work.
+				["bounties"] = C_QuestLog.GetBountiesForMapID(650),  --> any child zone from "continents" in Legion seems to work
 				["areBountiesUnlocked"] = MapUtil.MapHasUnlockedBounties(650),
 			},
 		},
@@ -365,7 +359,7 @@ function MRBP:LoadData()
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
 				["bounties"] = C_QuestLog.GetBountiesForMapID(875),  --> or any child zone from "continents" seems to work as well.
-				["areBountiesUnlocked"] = MapUtil.MapHasUnlockedBounties(875),
+				["areBountiesUnlocked"] = MapUtil.MapHasUnlockedBounties(875),  --> checking only Zandalar should be enough
 			},
 		},
 		-----[[ Shadowlands ]]-----
@@ -417,10 +411,10 @@ end
 -- Check if the requirement for the given garrison type is met in order to
 -- unlock the command table.
 -- Note: Currently only the required quest is checked for completion and
---       nothing more. In Shadowlands there would be one more step needed,		-- FIXME - This doesn't work for upgraded characters.
---       eg. if the talent is completed for unlocking the command table.			 	 - but works for Deathnight / Demonhunter
+--       nothing more. In Shadowlands there would be one more step needed,
+--       eg. if the talent is completed for unlocking the command table.			 	 - but works for Deathknight / Demonhunter
+--> Returns: boolean
 function MRBP_IsGarrisonRequirementMet(garrTypeID)
-	--> Returns: boolean
 	local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID];
 	_log:info("IsGarrisonRequirementMet:", garrTypeID, garrInfo.expansionInfo.name);
 
@@ -435,16 +429,30 @@ function MRBP_IsGarrisonRequirementMet(garrTypeID)
 	local questID = garrInfo.unlockQuest[1];
 	local isQuestCompleted = C_QuestLog.IsQuestFlaggedCompleted(questID);
 
-	-- ns.cprint("IsGarrisonRequirementMet:", garrTypeID, garrInfo.expansionInfo.name);
-	-- ns.cprint("playerOwnsExpansion:", playerOwnsExpansion);
-	-- ns.cprint("hasGarrison:", hasGarrison);
-	-- ns.cprint("hasReqLevel:", hasReqLevel);
-	-- ns.cprint("isQuestCompleted:", isQuestCompleted);
+	if (_log.level == _log.DEBUG) then
+		ns.cprint(YELLOW_FONT_COLOR:WrapTextInColorCode("Garrison Type: "..tostring(garrTypeID).." "..garrInfo.expansionInfo.name));
+		ns.cprint("hasGarrison:", hasGarrison);
+		ns.cprint("isQuestCompleted:", isQuestCompleted);
+		ns.cprint("hasReqLevel:", hasReqLevel);
+		ns.cprint("playerOwnsExpansion:", playerOwnsExpansion);
+	end
 
-	_log:debug("...", isQuestCompleted);
-	return isQuestCompleted;
+	return hasGarrison and isQuestCompleted and hasReqLevel and playerOwnsExpansion;
 end
--- MRBP_IsGarrisonRequirementMet(Enum.GarrisonType.Type_9_0)
+
+-- Check if at least one garrison is unlocked.
+--> Returns: boolean
+function MRBP_IsAnyGarrisonRequirementMet()
+	local reqList = {};
+	for _, garrTypeID in ipairs(MRBP_GARRISON_TYPE_INFOS_SORTORDER) do
+		local result = MRBP_IsGarrisonRequirementMet(garrTypeID);
+		if result then
+			return true;
+		end
+	end
+
+	return false;
+end
 
 -----[[ Dropdown Menu ]]--------------------------------------------------------
 
@@ -452,7 +460,7 @@ end
 -- with the user preferences and adds to the menu entry's description tooltip
 -- informations about completed missions according to the user preferences.
 local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled)
-	-- Returns: {string, strting}
+	-- Returns: {string, string}
 	local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID];
 	local numInProgress, numCompleted = util:GetInProgressMissionCount(garrTypeID);
 
@@ -467,7 +475,7 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled)
 		end
 	end
 
-	--[[ In-progress mission infos ]]--  									  	-- TODO - add numAvailable to mission infos
+	--[[ In-progress mission infos ]]--  									  	--> TODO - add numAvailable to mission infos
 	local tooltipText = isDisabled and DISABLED_FONT_COLOR:WrapTextInColorCode(garrInfo.description) or garrInfo.description;
 	if ( ns.settings.showMissionCountInTooltip and not isDisabled ) then
 		-- Add category title for missions
@@ -485,8 +493,8 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled)
 			tooltipText = tooltipText.."|n|n"..garrInfo.msg.missionsComplete;
 		end
 	end
-	-- Show requirement for unlocking the given garrison type 				  	-- TODO - Refine requirement infos
-	if isDisabled then
+	-- Show requirement for unlocking the given garrison type 				  	--> TODO - Refine requirement infos
+	if (isDisabled and ns.settings.showEntryRequirements) then
 		if garrInfo.msg.unlockReason then
 			-- tooltipText = tooltipText.."|n|n"..garrInfo.msg.unlockReason;
 			tooltipText = tooltipText.."|n|n"..DIM_RED_FONT_COLOR:WrapTextInColorCode(garrInfo.msg.unlockReason);
@@ -519,7 +527,7 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled)
 					end
 					local bountyString = HIGHLIGHT_FONT_COLOR:WrapTextInColorCode("%s %s"):format(icon, questName);
 					tooltipText = tooltipText.."|n"..bountyString;
-					if bountyData.turninRequirementText then			--> TODO - Needed ???
+					if bountyData.turninRequirementText then					--> TODO - Check if really needed
 						--> REF.: <FrameXML//WorldMapBountyBoard.lua>
 						local reqString = RED_FONT_COLOR:WrapTextInColorCode(bountyData.turninRequirementText);
 						tooltipText = tooltipText.."|n"..reqString;
@@ -531,25 +539,25 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled)
 		end
 		-- local color = finished and GRAY_FONT_COLOR or HIGHLIGHT_FONT_COLOR; -- NORMAL_FONT_COLOR
  		-- local formattedTime, color, secondsRemaining = WorldMap_GetQuestTimeForTooltip(questID);
-	end
 
-	--[[ World map threat infos ]]--
-	local activeThreats = util:GetActiveWorldMapThreats();
-	if ( activeThreats and ns.settings.showWorldmapThreats ) then
-		for threatExpansionLevel, threatData in pairs(activeThreats) do
-			-- Add the infos to the corresponding expansions only
-			if ( threatExpansionLevel == garrInfo.expansionInfo.expansionLevel ) then
-				-- Show the header *only once* per expansion
-				local EXPANSION_LEVEL_BFA = 7;
-				if ( threatExpansionLevel == EXPANSION_LEVEL_BFA ) then
-					tooltipText = tooltipText.."|n|n"..WORLD_MAP_THREATS;
-				else
-					local zoneName = select(3, unpack(threatData[1]));
-					tooltipText = tooltipText.."|n|n"..zoneName;
-				end
-				for i, threatInfo in ipairs(threatData) do
-					local questID, questName, zoneName = unpack(threatInfo);
-					tooltipText = tooltipText.."|n"..HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(questName);
+		--[[ World map threat infos ]]--
+		local activeThreats = util:GetActiveWorldMapThreats();
+		if ( activeThreats and ns.settings.showWorldmapThreats ) then
+			for threatExpansionLevel, threatData in pairs(activeThreats) do
+				-- Add the infos to the corresponding expansions only
+				if ( threatExpansionLevel == garrInfo.expansionInfo.expansionLevel ) then
+					-- Show the header *only once* per expansion
+					local EXPANSION_LEVEL_BFA = 7;
+					if ( threatExpansionLevel == EXPANSION_LEVEL_BFA ) then
+						tooltipText = tooltipText.."|n|n"..WORLD_MAP_THREATS;
+					else
+						local zoneName = select(3, SafeUnpack(threatData[1]));
+						tooltipText = tooltipText.."|n|n"..zoneName;
+					end
+					for i, threatInfo in ipairs(threatData) do
+						local questID, questName, zoneName = SafeUnpack(threatInfo);
+						tooltipText = tooltipText.."|n"..HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(questName);
+					end
 				end
 			end
 		end
@@ -573,8 +581,9 @@ end
 -- Create the dropdown menu items.
 -- Note: 'self' refers to the dropdown menu frame.
 function MRBP:GarrisonLandingPageDropDown_Initialize(level)
+	_log:info("Init. drop-down menu...");
 	-- Sort display order *only once* per changed setting
-	local isInitialSortOrder = max(unpack(MRBP_GARRISON_TYPE_INFOS_SORTORDER)) == MRBP_GARRISON_TYPE_INFOS_SORTORDER[1];
+	local isInitialSortOrder = max(SafeUnpack(MRBP_GARRISON_TYPE_INFOS_SORTORDER)) == MRBP_GARRISON_TYPE_INFOS_SORTORDER[1];
 
 	if (ns.settings.reverseSortorder and isInitialSortOrder) then
 		local sortFunc = function(a,b) return a<b end;  --> 0-9
@@ -680,13 +689,71 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 	end
 end
 
+-- Display the GarrisonLandingPageMinimapButton
+function MRBP:ShowMinimapButton(isCalledByUser)
+	if (_log.level == _log.DEBUG) then
+		ns.cprint("IsShown:", GarrisonLandingPageMinimapButton:IsShown());
+		ns.cprint("IsVisible:", GarrisonLandingPageMinimapButton:IsVisible());
+		ns.cprint("showMinimapButton:", ns.settings.showMinimapButton);
+		ns.cprint("isCalledByUser:", isCalledByUser or false);
+		ns.cprint("garrisonType:", MRBP_GetLandingPageGarrisonType());
+	end
+	if (MRBP_GetLandingPageGarrisonType() > 0) then
+		if isCalledByUser then
+			if ( not GarrisonLandingPageMinimapButton:IsShown() ) then
+				GarrisonLandingPageMinimapButton:Show();
+				GarrisonLandingPageMinimapButton_UpdateIcon(GarrisonLandingPageMinimapButton);
+				-- Manually set by user
+				ns.settings.showMinimapButton = true;
+				_log:debug("--> Minimap button should be visible.");
+				ns.settings.disableShowMinimapButtonSetting = false;
+			else
+				-- Give user feedback, if button is already visible
+				ns.cprint(L.CHATMSG_MINIMAPBUTTON_ALREADY_SHOWN);
+			end
+		else
+			-- Fired by GARRISON_HIDE_LANDING_PAGE event
+			if ( ns.settings.showMinimapButton and (not GarrisonLandingPageMinimapButton:IsShown()) )then
+				GarrisonLandingPageMinimapButton_UpdateIcon(GarrisonLandingPageMinimapButton);
+				GarrisonLandingPageMinimapButton:Show();
+				_log:debug("--> Minimap button should be visible.");
+				ns.settings.disableShowMinimapButtonSetting = false;
+			end
+		end
+	end
+end
+
+-- Hide the GarrisonLandingPageMinimapButton
+function MRBP:HideMinimapButton()
+	if GarrisonLandingPageMinimapButton:IsShown() then
+		GarrisonLandingPageMinimapButton:Hide();
+	end
+end
+ns.HideMinimapButton = MRBP.HideMinimapButton;
+
+-- Handle user action of showing the minimap button. Show it only if any command
+-- table is unlocked.
+function MRBP:ShowMinimapButton_User(isCalledByCancelFunc)
+	local isAnyUnlocked = MRBP_IsAnyGarrisonRequirementMet();
+	if (not isAnyUnlocked) then
+		-- Do nothing, as long as user hasn't unlocked any of the command tables available
+		-- Inform user about this, and disable checkbutton in config.
+		ns.cprint(L.CHATMSG_UNLOCKED_COMMANDTABLES_REQUIRED);
+		ns.settings.disableShowMinimapButtonSetting = true;
+	else
+		local isCalledByUser = not isCalledByCancelFunc;
+		MRBP:ShowMinimapButton(isCalledByUser);
+	end
+end
+ns.ShowMinimapButton_User = MRBP.ShowMinimapButton_User;
+
 -----[[ Hooks ]]----------------------------------------------------------------
 
 -- Hook some functions related to the GarrisonLandingPage's minimap button
 -- and frame (report frame).
 function MRBP:SetButtonHooks()
 	if GarrisonLandingPageMinimapButton then
-		_log:info("Hooking into minimap button's tooltip + clicking behaviour...");
+		_log:info("Hooking into minimap button's tooltip + clicking behavior...");
 
 		-- Tooltip hook
 		GarrisonLandingPageMinimapButton:HookScript("OnEnter", MRBP_OnEnter);
@@ -701,7 +768,7 @@ function MRBP:SetButtonHooks()
 	hooksecurefunc("ShowGarrisonLandingPage", MRBP_ShowGarrisonLandingPage);
 end
 
--- Handle mouse-over behaviour of the minimap button.
+-- Handle mouse-over behavior of the minimap button.
 -- Note: 'self' refers to the GarrisonLandingPageMinimapButton, the parent frame.
 --
 -- REF.: <FrameXML/Minimap.xml>
@@ -724,7 +791,7 @@ function MRBP_OnEnter(self)
 	GameTooltip:Show();
 end
 
--- Handle click behaviour of the minimap button.
+-- Handle click behavior of the minimap button.
 -- Note: 'self' is the parent frame --> 'GarrisonLandingPageMinimapButton'.
 function MRBP_OnClick(self, button, isDown)
 	_log:debug(string.format("Got mouse click: %s, isDown: %s", button, tostring(isDown)));
@@ -767,7 +834,7 @@ ns.MRBP_ReloadDropdown = MRBP_ReloadDropdown;
 -- Return the garrison type of the previous expansion, as long as the
 -- player level hasn't reached the maximum level.
 --
--- Note: First log-in always returns 0 (== no garrison at all).  --> TODO
+-- Note: At first log-in this always returns 0 (== no garrison at all).		--> TODO - Find a solution for this
 --
 -- REF.: <FrameXML/Blizzard_APIDocumentation/ExpansionDocumentation.lua>
 function MRBP_GetLandingPageGarrisonType()
@@ -780,16 +847,17 @@ function MRBP_GetLandingPageGarrisonType()
 		local maxExpansionID = GetMaximumExpansionLevel(); --> max. available, eg. 8 Shadowlands
 		local minExpansionID = GetMinimumExpansionLevel(); --> min. available, eg. 7 Battle for Azeroth
 
-		-- ns.cprint("playerExpansionID:", playerExpansionID);
-		-- ns.cprint("maxExpansionID:", maxExpansionID);
-		-- ns.cprint("minExpansionID:", minExpansionID);
-
 		-- Build garrison type, eg. Enum.GarrisonType.Type_8_0
-		local garrTypeID_Player = Enum.GarrisonType["Type_"..tostring(playerExpansionID+1).."_0"];
 		local garrTypeID_Minimum = Enum.GarrisonType["Type_"..tostring(minExpansionID+1).."_0"];
 
-		-- ns.cprint("garrTypeID_Player:", garrTypeID_Player);
-		-- ns.cprint("garrTypeID_Minimum:", garrTypeID_Minimum);
+		if (_log.level == _log.DEBUG) then
+			local garrTypeID_Player = Enum.GarrisonType["Type_"..tostring(playerExpansionID+1).."_0"];
+			ns.cprint("playerExpansionID:", playerExpansionID);
+			ns.cprint("maxExpansionID:", maxExpansionID);
+			ns.cprint("minExpansionID:", minExpansionID);
+			ns.cprint("garrTypeID_Player:", garrTypeID_Player);
+			ns.cprint("garrTypeID_Minimum:", garrTypeID_Minimum);
+		end
 
 		garrTypeID = garrTypeID_Minimum;
 	end
@@ -802,13 +870,12 @@ C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType;
 -----[[ Slash commands ]]-------------------------------------------------------
 
 local SLASH_CMD_ARGLIST = {
-	-- arg, desc
+	-- arg, description
 	{"version", L.SLASHCMD_DESC_VERSION},
 	{"chatmsg", L.SLASHCMD_DESC_CHATMSG},
 	{"show", "Blendet den Missionsbericht-Button der Minimap ein."},
 	{"hide", "Blendet den Missionsbericht-Button der Minimap aus."},
 	{"config", BASIC_OPTIONS_TOOLTIP},  --> WoW global string
-	-- {"help", L.SLASHCMD_DESC_HELP},
 };
 
 -- CHAT_HELP_TEXT_LINE1 = "Chat-Befehle:";
@@ -843,35 +910,35 @@ function MRBP:RegisterSlashCommands()
 				InterfaceOptionsFrame_OpenToCategory(MRBP_InterfaceOptionsPanel);
 
 			elseif (msg == 'show') then
-				if (C_Garrison.GetLandingPageGarrisonType() == 0) then
-					ns.cprint("Bedingungen nicht erfüllt. Es muss mindestens ein Befehlstisch freigeschaltet sein.");  --> TODO - L10n
-					return;
-				end
-				if ( not GarrisonLandingPageMinimapButton:IsShown() ) then
-					GarrisonLandingPageMinimapButton:Show()
-					-- if ( C_Garrison.GetLandingPageGarrisonType() == Enum.GarrisonType.Type_9_0 ) then
-					GarrisonLandingPageMinimapButton_UpdateIcon(GarrisonLandingPageMinimapButton);
-					-- end
-					ns.settings.showMinimapButton = true;
-				end
+				-- local isAnyUnlocked = MRBP_IsAnyGarrisonRequirementMet();
+				-- if (not isAnyUnlocked) then
+				-- 	-- Do nothing, as long as user hasn't unlocked any of the command tables available
+				-- 	-- Inform user about this, and disable checkbutton in config.
+				-- 	ns.cprint(L.CHATMSG_UNLOCKED_COMMANDTABLES_REQUIRED);
+				-- 	ns.settings.disableShowMinimapButtonSetting = true;
+				-- else
+				-- 	local isCalledByUser = true;
+				-- 	MRBP:ShowMinimapButton(isCalledByUser);
+				-- end
+				-- Manually set by user
+				MRBP:ShowMinimapButton_User();
 
 			elseif (msg == 'hide') then
-				if GarrisonLandingPageMinimapButton:IsShown() then
-					GarrisonLandingPageMinimapButton:Hide();
-					ns.settings.showMinimapButton = false;
-				end
+				MRBP:HideMinimapButton();
+				-- Manually set by user
+				ns.settings.showMinimapButton = false;
 
 			-----[[ Tests ]]-----
 			elseif (msg == 'garrtest') then
 				local prev_loglvl = _log.level;
 				_log.level = _log.DEBUG;
-				_log:info("Current GarrisonType:", C_Garrison.GetLandingPageGarrisonType());
+				_log:info("Current GarrisonType:", MRBP_GetLandingPageGarrisonType());
 
 				for i, garrTypeID in ipairs(MRBP_GARRISON_TYPE_INFOS_SORTORDER) do
 					local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID];
 				   _log:debug("HasGarrison:", C_Garrison.HasGarrison(garrTypeID),
-							  "- type:", string.format("%-3d", garrTypeID),
-							  "-", garrInfo.expansionInfo.name);
+							  "-", string.format("%-3d", garrTypeID), garrInfo.expansionInfo.name,
+							  "- req:", MRBP_IsGarrisonRequirementMet(garrTypeID));
 				end
 
 				local playerLevel = UnitLevel("player");
@@ -879,7 +946,7 @@ function MRBP:RegisterSlashCommands()
 				local playerMaxLevelForExpansion = GetMaxLevelForPlayerExpansion();
 				local expansionInfo = util:GetExpansionInfo(expansionLevelForPlayer);
 
-				_log:debug("expansionLevelForPlayer:", expansionLevelForPlayer, "-", expansionInfo.name);
+				_log:debug("expansionLevelForPlayer:", expansionLevelForPlayer, ",", expansionInfo.name);
 				_log:debug("playerLevel:", playerLevel);
 				_log:debug("playerMaxLevelForExpansion:", playerMaxLevelForExpansion);
 
@@ -895,7 +962,7 @@ function MRBP:RegisterSlashCommands()
 			ns.cprint(YELLOW_FONT_COLOR:WrapTextInColorCode(L.CHATMSG_SYNTAX_INFO_S:format(SLASH_MRBP1)).."|n");
 			local name, desc;
 			for _, info in pairs(SLASH_CMD_ARGLIST) do
-				name, desc = unpack(info);
+				name, desc = SafeUnpack(info);
 				print("   "..YELLOW_FONT_COLOR:WrapTextInColorCode(name)..": "..desc);
 			end
 

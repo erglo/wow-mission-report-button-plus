@@ -29,97 +29,153 @@
 local AddonID, ns = ...;
 local L = ns.L;
 local _log = ns.dbg_logger;
+local util = ns.utilities;
 
 ----- User settings ------------------------------------------------------------
 
-ns.settings = {};  --> user settings
+ns.settings = {};  --> user settings for current char
 ns.defaultSettings = {  --> default + fallback settings
-	["showAddonNameInTooltip"] = true,
 	["showChatNotifications"] = true,
-	["menuStyleID"] = "1",
+	["showMinimapButton"] = true,
+	["showAddonNameInTooltip"] = true,
 	["preferExpansionName"] = true,
+	["reverseSortorder"] = false,
+	["showMissionTypeIcons"] = true,
 	["showMissionCompletedHint"] = true,
 	["showMissionCompletedHintOnlyForAll"] = false,
 	["showEntryTooltip"] = true,
 	["showMissionCountInTooltip"] = true,
-	["reverseSortorder"] = false,
-	["showMissionTypeIcons"] = true,
-	-- ["preferGlobalSettings"] = true,						--> TODO
-	["activeMenuEntries"] = {"5", "6", "7", "8", "9"},
 	["showWorldmapBounties"] = true,
 	["showWorldmapThreats"] = true,
-	-- ["hideMinimapButton"] = false,  --> GarrisonLandingPageMinimapButton -- TODO
-	["showMinimapButton"] = true,
+	["showEntryRequirements"] = true,
+	["activeMenuEntries"] = {"5", "6", "7", "8", "9"},
+	["menuStyleID"] = "1",
+	["disableShowMinimapButtonSetting"] = false,   --> temp. solution for beta2
 };
 
--- Loads the global or character-specific settings.
+-- Loads the saved settings dynamically.
+-- Note: ns.settings always holds ALL setting infos after loading.
 --
 -- REF.: <FrameXML/TableUtil.lua>
 local function LoadSettings()
 	_log:info("Loading settings...");
+	-- Step 1 - Load the default settings first and
+	-- overwrite each entry of the user settings with
+	-- those from the global and char-specific settings.
+	ns.settings = CopyTable(ns.defaultSettings);
+	_log:debug(format(".. defaults loaded: %d settings.", util:tcount(ns.settings)));
+
+	-- Step 2 - Load global settings
 	if (MRBP_GlobalSettings == nil) then
-		MRBP_GlobalSettings = CopyTable(ns.defaultSettings);
-	end
-	-- if (not MRBP_GlobalSettings.preferGlobalSettings) then
-		-- -- Load character-specific settings
-		-- if (MRBP_PerCharSettings == nil) then
-			-- MRBP_PerCharSettings = CopyTable(MRBP_GlobalSettings);
-		-- end
-		-- ns.settings = MRBP_PerCharSettings;
-		-- _log:debug("--> character-specific");
-	-- else
-	-- Load global settings
-	ns.settings = MRBP_GlobalSettings;
-	_log:debug("--> account-specific (global)");
-	-- end
-
-	--[[ Settings table maintenance ]]--
-
-	-- Fill missing settings with default settings
-	for key, value in pairs(ns.defaultSettings) do
-		if ( ns.settings[key] == nil ) then
-			ns.settings[key] = value;
-			_log:debug("Added new default setting:", key);
-		end
+		-- Init. table for account-wide settings
+		MRBP_GlobalSettings = {};
+	else
+		-- Update settings with the globally saved values
+		MergeTable(ns.settings, MRBP_GlobalSettings);
+		_log:debug(".. updated by account-wide (global) settings");
 	end
 
-	-- Clean-up old settings from the saved variables
+	-- Step 3 - Load character-specific settings
+	if (MRBP_PerCharSettings == nil) then
+		-- Init. table for individual settings
+		MRBP_PerCharSettings = {};
+	else
+		-- Update settings with current char's values
+		MergeTable(ns.settings, MRBP_PerCharSettings);
+		_log:debug(".. updated by character-specific settings");
+	end
+
+	--[[ Maintenance ]]--
+
+	-- Clean-up old settings from the saved variables, eg.
+	-- from previous versions to avoid clutter. Only keep
+	-- entries which exist in the default settings as well.
 	for key, value in pairs(ns.settings) do
 		if ( ns.defaultSettings[key] == nil ) then
 			ns.settings[key] = nil;
 			_log:debug("Removed old setting:", key);
 		end
 	end
+
+	_log:info("Settings are up-to-date.");
+end
+
+-- Set the settings of the current char as default (global) setting
+-- for all other chars.
+local function SetAsGlobalSettings()
+	_log:info("Setting current settings globally");
+	MRBP_GlobalSettings = CopyTable(MRBP_PerCharSettings);
+end
+
+-- Save user settings dynamically; If current char settings differ
+-- from global settings, create individual settings.
+local function SaveSettings()
+	-- Compare with global and default settings and save only changed values.
+	_log:info("Saving current char's settings...");
+	for key, value in pairs(ns.settings) do
+		MRBP_PerCharSettings[key] = nil;  -- Reset previous value
+		-- local valueIsTable = type(value) == "table";							--> TODO - Add table values comparison
+		if (MRBP_GlobalSettings[key] == nil) then
+			if (ns.defaultSettings[key] ~= value ) then
+				MRBP_PerCharSettings[key] = value;
+				_log:debug(".. saved char setting:", key, "-->", value, "def:", ns.defaultSettings[key]);
+			end
+		else
+			if (MRBP_GlobalSettings[key] ~= value) then
+				MRBP_PerCharSettings[key] = value;
+				_log:debug(".. saved char setting:", key, "-->", value, "glob:", MRBP_GlobalSettings[key]);
+			end
+		end
+	end
+	-- On first use, set a char-settings also as global settings
+	if (util:tcount(MRBP_GlobalSettings) == 0) then
+		_log:debug(".. global settings are empty; using current ones.")
+		SetAsGlobalSettings();
+	end
+	_log:info("Done saving.");
 end
 
 -- Print a user-friendly chat message about the currently selected setting.
-local function printOption(text, isEnabled)
-	ns.cprint(text, "-", NORMAL_FONT_COLOR:WrapTextInColorCode(isEnabled and
-		      VIDEO_OPTIONS_ENABLED or VIDEO_OPTIONS_DISABLED)
-	);  --> WoW global strings
+local function printOption(text, isEnabled, ignore)
+	if (not ignore) then
+		local msg = isEnabled and VIDEO_OPTIONS_ENABLED or VIDEO_OPTIONS_DISABLED;  --> WoW global strings
+		ns.cprint(text, "-", NORMAL_FONT_COLOR:WrapTextInColorCode(msg));
+	end
 end
 
 -- Set given value to a checkbutton, but only on manual change.
 -- Note: 'value' is for some reason a binary string value. This function
 -- changes it into a real boolean value.
-local function CheckButton_SetValue(control, value, isRefreshing)
+local function CheckButton_SetValue(control, value, isRefreshing, isCancelled)
 	local booleanValue = value and value ~= "0";
-	control.newValue = booleanValue;
+	if (not isRefreshing) then
+		control.newValue = booleanValue;
+	end
 	control:SetChecked(booleanValue);
 
 	_log:debug("value:", value, "-->", booleanValue, control:GetValue());
 	-- print("value:", value, "-->", booleanValue, control:GetValue());
 
-	if ( ns.settings.showChatNotifications and not isRefreshing ) then
-		printOption(control.text:GetText(), booleanValue);
+	if (ns.settings.showChatNotifications and not isRefreshing) then
+		-- Print user feedback on selected setting to chat
+		printOption(control.text:GetText(), booleanValue, isCancelled);
 	end
-	if ( control.varname == "showChatNotifications" and not isRefreshing ) then
+	if (control.varname == "showChatNotifications" and not isRefreshing) then
 		if not booleanValue then
-			printOption(control.text:GetText(), booleanValue);
+			printOption(control.text:GetText(), booleanValue, isCancelled);
 			_log.level = _log.NOTSET;  --> silent
 		else
 			_log.level = _log.USER;  --> verbose
-			printOption(control.text:GetText(), booleanValue);
+			printOption(control.text:GetText(), booleanValue, isCancelled);
+		end
+	end
+	if (control.varname == "showMinimapButton" and not isRefreshing) then
+		-- Manually set by user
+		local shouldShowMinimapButton = control.newValue;
+		if shouldShowMinimapButton then
+			ns:ShowMinimapButton_User(isCancelled);
+		else
+			ns:HideMinimapButton();
 		end
 	end
 
@@ -137,7 +193,7 @@ local function CheckButton_GetValue(control)
 	return booleanValue;
 end
 
------[[ Interface options ]]-----
+----- Interface options --------------------------------------------------------
 
 MRBP_InterfaceOptionsPanel = CreateFrame("Frame", "MissionReportButtonPlusInterfaceOptionsFrame");
 
@@ -153,79 +209,76 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	self.name = addonTitle;
 	self.labelTitle = addonTitle;
 	self.labelDesc = addonNotes;
-	self.okay =
-		function(self)
-			-- Optional function
-			-- This method will run when the player clicks "okay" in the Interface Options.
-			_log:info("Applying changed options...", #self.controls);
-
-			for i, control in ipairs(self.controls) do
-				if ( control.newValue ) then
-					control.value = control.newValue;
-					control.newValue = nil;
-					_log:debug(i, "Ok:", control:GetValue(), control.newValue);
-				end
+	self.okay = function(self)
+		-- Optional function
+		-- This method will run when the player clicks "okay" in the Interface Options.
+		_log:info("Applying changed options...");
+		SaveSettings();
+	end
+	self.cancel = function(self)
+		-- Optional function
+		-- This method will run when the player clicks "cancel" in the Interface Options.
+		-- Use this to revert their changes.
+		-- Note: Do NOT use control.value since BlizzardOptionsPanel_* functions are
+		-- messing them up. They only use the string values of 0 and 1: "0" and "1".
+		for i, control in ipairs(self.controls) do
+			if ( control.newValue ~= nil ) then
+				ns.settings[control.varname] = not control.newValue;  --> restore value
+				_log:info("Restoring", control.varname, control.newValue, "-", control.value, ns.settings[control.varname]);
+				control.newValue = nil;
+				local isCancelled = true;
+				control:SetValue(ns.settings[control.varname], nil, isCancelled);
 			end
-			MRBP_GlobalSettings = ns.settings;  --> save changes
 		end
-	self.cancel =
-		function (self)
-			-- Optional function
-			-- This method will run when the player clicks "cancel" in the Interface Options.
-			-- Use this to revert their changes.
-			_log:info("Restoring changed options...", #self.controls);
-
-			for i, control in ipairs(self.controls) do
-				if ( control.newValue ) then
-					ns.settings[control.varname] = control.value;  --> previous value
-					control.newValue = nil;
-					_log:debug(i, "N-Ok:", control:GetValue(), control.newValue);
-				end
-			end
-			ns.settings = MRBP_GlobalSettings;
-		end
-	self.default =
-		function(self)
-			-- Optional function
-			-- This method will run when the player clicks "defaults". Use this to revert their changes to your defaults.
-			_log:info("Using default options...", #self.controls);
-
-			MRBP_GlobalSettings = nil;
-			ns.settings = {};
-			LoadSettings();
-		end
-	self.refresh =
-		function(self)
-			-- Optional function
-			-- This method will run when the Interface Options frame calls its OnShow function and after defaults
-			-- have been applied via the panel.default method described above.
-			-- Use this to refresh your panel's UI in case settings were changed without player interaction.
-			_log:info("Refreshing options...", #self.controls);
-
-			local isRefreshing = true;
-			for i, control in ipairs(self.controls) do
-				if ( control.type == CONTROLTYPE_CHECKBOX ) then
-					control.value = ns.settings[control.varname];
-					control:SetValue(control.value, isRefreshing);
-					_log:debug(i, control.varname, ns.settings[control.varname], control.value);
-					if control.dependentControls then
-						-- BlizzardOptionsPanel_SetDependentControlsEnabled(control, control:GetChecked());
-						for _, subcontrol in ipairs(control.dependentControls) do
-							if control:GetChecked() then
-								local isWhiteColor = true;
-								BlizzardOptionsPanel_CheckButton_Enable(subcontrol, isWhiteColor);
-							else
-								BlizzardOptionsPanel_CheckButton_Disable(subcontrol);
-							end
+	end
+	self.default = function(self)
+		-- Optional function
+		-- This method will run when the player clicks "defaults". Use this to revert their changes to your defaults.
+		_log:info("Restoring default settings...");
+		MRBP_GlobalSettings = {};
+		MRBP_PerCharSettings = {};
+		ns.settings = {};
+		LoadSettings();
+	end
+	self.refresh = function(self)
+		-- Optional function
+		-- This method will run when the Interface Options frame calls its OnShow function and after defaults
+		-- have been applied via the panel.default method described above.
+		-- Use this to refresh your panel's UI in case settings were changed without player interaction.
+		_log:info("Refreshing options...");
+		local isRefreshing = true;
+		for i, control in ipairs(self.controls) do
+			control.newValue = nil;  --> reset to remember temp./cancel-able settings
+			if ( control.type == CONTROLTYPE_CHECKBOX ) then
+				control.value = ns.settings[control.varname];
+				control:SetValue(control.value, isRefreshing);
+				_log:debug(i, control.varname, ns.settings[control.varname], control.value);
+				if control.dependentControls then
+					for _, subcontrol in ipairs(control.dependentControls) do
+						-- if control:GetChecked() then
+						if ( control.value and ns.settings.showMinimapButton ) then
+							local isWhiteTextColor = true;
+							BlizzardOptionsPanel_CheckButton_Enable(subcontrol, isWhiteTextColor);
+						else
+							BlizzardOptionsPanel_CheckButton_Disable(subcontrol);
 						end
 					end
-				elseif ( control.type == CONTROLTYPE_DROPDOWN ) then
-					ns.settings[control.varname] = ns.settings[control.varname];
-					control:RefreshValue();
-					-- BlizzardOptionsPanel_DropDown_Refresh(control);
 				end
+				if (control.varname == "showMinimapButton") then  --> temporary solution for beta2
+					-- Show config button disabled if no command table is unlocked
+					if (ns.settings.disableShowMinimapButtonSetting == false) then
+						local isWhiteColor = true;
+						BlizzardOptionsPanel_CheckButton_Enable(control, isWhiteColor);
+					else
+						BlizzardOptionsPanel_CheckButton_Disable(control);
+					end
+				end
+			elseif ( control.type == CONTROLTYPE_DROPDOWN ) then
+				-- ns.settings[control.varname] = ns.settings[control.varname];
+				control:RefreshValues();
 			end
 		end
+	end
 
 	InterfaceOptions_AddCategory(self);
 
@@ -280,72 +333,66 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 		else
 			metaValue:SetText( GetAddOnMetadata(AddonID, infoLabel) );
 		end
-		-- TODO - Make email and website links clickable.
+		--> TODO - Make email and website links clickable.
 
 		parentFrame = metaLabel;
 	end
 
-	-- --[[ Individual / Account-wide option settings ]]--
-
-	-- -- TODO - Separate settings; global vs. per-char
-
-	-- -- <Interface/AddOns/Blizzard_BindingUI/Blizzard_BindingUI.xml#L158>
-	-- local perCharButton = CreateFrame("CheckButton", self:GetName().."perCharButton", self, "UICheckButtonTemplate");
-	-- perCharButton:SetSize(20, 20);
-	-- perCharButton:SetPoint("TOPLEFT", self, "TOPRIGHT", -245, 20);
-	-- perCharButton:SetHitRectInsets(0, -100, 0, 0);
-	-- perCharButton.text = _G[perCharButton:GetName().."Text"];
-	-- perCharButton.text:SetText( HIGHLIGHT_FONT_COLOR:WrapTextInColorCode("Individuelle Addon-Einstellungen") );
-	-- perCharButton:SetScript("OnClick", function(self, button, isDown)
-		-- if (self.enabled) then
-			-- PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
-		-- else
-			-- PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF);
-		-- end
-	-- end);
-	-- perCharButton:SetScript("OnEnter", function(self)
-		-- GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
-		-- GameTooltip:SetText(CHARACTER_SPECIFIC_KEYBINDING_TOOLTIP.."|n(Not yet implemented!)", nil, nil, nil, nil, true);	--> TODO
-	-- end);
-	-- perCharButton:SetScript("OnLeave", GameTooltip_Hide);
-
 	local separatorTexture = self:CreateTexture(self:GetName().."Separator", "ARTWORK");
 	separatorTexture:SetSize(panelContainerWidth, 1);
-	separatorTexture:SetPoint("TOPLEFT", parentFrame, "BOTTOMLEFT", 0, -16);
+	separatorTexture:SetPoint("TOPLEFT", parentFrame, "BOTTOMLEFT", 0, -12);
 	separatorTexture:SetColorTexture(0.25, 0.25, 0.25);
 
 	--[[ General settings ]]--
 
-	local addonNameCB = CreateFrame("CheckButton", self:GetName().."AddonNameCB", self, "InterfaceOptionsCheckButtonTemplate");
-	addonNameCB:SetPoint("TOPLEFT", separatorTexture, "BOTTOMLEFT", 0, -16);
-	addonNameCB.type = CONTROLTYPE_CHECKBOX;
-	addonNameCB.text = _G[addonNameCB:GetName().."Text"];
-	addonNameCB.text:SetText(L.CFG_BUTTONTOOLTIP_SHOW_ABBREV_TEXT);
-	addonNameCB.tooltipText = L.CFG_BUTTONTOOLTIP_SHOW_ABBREV_TOOLTIP;
-	addonNameCB.varname = "showAddonNameInTooltip";  --> Links this checkbutton with a saved variable
-	addonNameCB.value = ns.settings[addonNameCB.varname];
-	addonNameCB.GetValue = CheckButton_GetValue;
-	addonNameCB.SetValue = CheckButton_SetValue;
-	BlizzardOptionsPanel_RegisterControl(addonNameCB, self);
-
 	local chatMsgCB = CreateFrame("CheckButton", self:GetName().."ChatMsgCB", self, "InterfaceOptionsCheckButtonTemplate");
-	chatMsgCB:SetPoint("TOPLEFT", addonNameCB.text, "TOPLEFT", panelContainerWidth/2, 0);
+	chatMsgCB:SetPoint("TOPLEFT", separatorTexture, "BOTTOMLEFT", 0, -12);
 	chatMsgCB.type = CONTROLTYPE_CHECKBOX;
 	chatMsgCB.text = _G[chatMsgCB:GetName().."Text"];
 	chatMsgCB.text:SetText(L.CFG_CHAT_NOTIFY_TEXT);
 	chatMsgCB.tooltipText = L.CFG_CHAT_NOTIFY_TOOLTIP;
 	chatMsgCB.varname = "showChatNotifications";
-	chatMsgCB.value = ns.settings[chatMsgCB.varname];
+	-- chatMsgCB.value = ns.settings[chatMsgCB.varname];
 	chatMsgCB.GetValue = CheckButton_GetValue;
 	chatMsgCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(chatMsgCB, self);
 
-	-- TODO - Hide WoD garrison invasion badge (GarrisonLandingPage.InvasionBadge)
+	local showMinimapButtonCB = CreateFrame("CheckButton", self:GetName().."ShowMinimapButtonCB", self, "InterfaceOptionsCheckButtonTemplate");
+	showMinimapButtonCB:SetPoint("LEFT", chatMsgCB, "LEFT", (panelContainerWidth/2)-16, 0);
+	showMinimapButtonCB.type = CONTROLTYPE_CHECKBOX;
+	showMinimapButtonCB.text = _G[showMinimapButtonCB:GetName().."Text"];
+	showMinimapButtonCB.text:SetText(strjoin(" ", L.CFG_MINIMAPBUTTON_SHOWBUTTON_TEXT, GRAY_FONT_COLOR:WrapTextInColorCode(L.WORK_IS_EXPERIMENTAL)));
+	showMinimapButtonCB.tooltipText = strjoin("|n|n", L.CFG_MINIMAPBUTTON_SHOWBUTTON_TOOLTIP, L.WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION);
+	showMinimapButtonCB.varname = "showMinimapButton";
+	-- showMinimapButtonCB.value = ns.settings[showMinimapButtonCB.varname];
+	showMinimapButtonCB.GetValue = CheckButton_GetValue;
+	showMinimapButtonCB.SetValue = CheckButton_SetValue;
+	showMinimapButtonCB:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+		GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true);
+	end);
+	showMinimapButtonCB:SetScript("OnLeave", GameTooltip_Hide);
+	BlizzardOptionsPanel_RegisterControl(showMinimapButtonCB, self);
+
+	local addonNameCB = CreateFrame("CheckButton", self:GetName().."AddonNameCB", self, "InterfaceOptionsCheckButtonTemplate");
+	addonNameCB:SetPoint("TOPLEFT", chatMsgCB, "BOTTOMLEFT", 0, -8);
+	addonNameCB.type = CONTROLTYPE_CHECKBOX;  --> WoW global
+	addonNameCB.text = _G[addonNameCB:GetName().."Text"];
+	addonNameCB.text:SetText(L.CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TEXT);
+	addonNameCB.tooltipText = L.CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TOOLTIP;
+	addonNameCB.varname = "showAddonNameInTooltip";  --> Links this checkbutton with a saved variable
+	-- addonNameCB.value = ns.settings[addonNameCB.varname];
+	addonNameCB.GetValue = CheckButton_GetValue;
+	addonNameCB.SetValue = CheckButton_SetValue;
+	BlizzardOptionsPanel_RegisterControl(addonNameCB, self);
+	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, addonNameCB);
+
+	--> TODO - Hide WoD garrison invasion badge (GarrisonLandingPage.InvasionBadge)
 
 	--[[ Dropdown menu settings ]]--
 
 	local dropdownHeading = self:CreateFontString(self:GetName().."DropdownHeading", "ARTWORK", "GameFontNormal");
-	dropdownHeading:SetPoint("TOPLEFT", addonNameCB, "BOTTOMLEFT", 0, -16);
+	dropdownHeading:SetPoint("TOPLEFT", addonNameCB, "BOTTOMLEFT", 0, -12);
 	dropdownHeading:SetJustifyH("LEFT");
 	dropdownHeading:SetJustifyV("TOP");
 	dropdownHeading:SetText(L.CFG_DDMENU_SEPARATOR_HEADING);
@@ -356,16 +403,17 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	sepTexDropdown:SetColorTexture(0.25, 0.25, 0.25);
 
 	local entryNameCB = CreateFrame("CheckButton", self:GetName().."EntryNameCB", self, "InterfaceOptionsCheckButtonTemplate");
-	entryNameCB:SetPoint("TOPLEFT", dropdownHeading, "BOTTOMLEFT", 0, -16);
+	entryNameCB:SetPoint("TOPLEFT", dropdownHeading, "BOTTOMLEFT", 0, -12);
 	entryNameCB.type = CONTROLTYPE_CHECKBOX;
 	entryNameCB.text = _G[entryNameCB:GetName().."Text"];
 	entryNameCB.text:SetText(L.CFG_DDMENU_NAMING_TEXT);
 	entryNameCB.tooltipText = L.CFG_DDMENU_NAMING_TOOLTIP;
 	entryNameCB.varname = "preferExpansionName";
-	entryNameCB.value = ns.settings[entryNameCB.varname];
+	-- entryNameCB.value = ns.settings[entryNameCB.varname];
 	entryNameCB.GetValue = CheckButton_GetValue;
 	entryNameCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryNameCB, self);
+	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, entryNameCB);
 
 	local sortorderCB = CreateFrame("CheckButton", self:GetName().."SortorderCB", self, "InterfaceOptionsCheckButtonTemplate");
 	sortorderCB:SetPoint("TOPLEFT", entryNameCB, "BOTTOMLEFT", 0, -8);
@@ -374,10 +422,11 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	sortorderCB.text:SetText(L.CFG_DDMENU_SORTORDER_TEXT);
 	sortorderCB.tooltipText = L.CFG_DDMENU_SORTORDER_TOOLTIP;
 	sortorderCB.varname = "reverseSortorder";
-	sortorderCB.value = ns.settings[sortorderCB.varname];
+	-- sortorderCB.value = ns.settings[sortorderCB.varname];
 	sortorderCB.GetValue = CheckButton_GetValue;
 	sortorderCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(sortorderCB, self);
+	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, sortorderCB);
 
 	local missionReportIconCB = CreateFrame("CheckButton", self:GetName().."MissionReportIconCB", self, "InterfaceOptionsCheckButtonTemplate");
 	missionReportIconCB:SetPoint("TOPLEFT", sortorderCB, "BOTTOMLEFT", 0, -8);
@@ -386,10 +435,11 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	missionReportIconCB.text:SetText(L.CFG_DDMENU_REPORTICONS_TEXT);
 	missionReportIconCB.tooltipText = L.CFG_DDMENU_REPORTICONS_TOOLTIP;
 	missionReportIconCB.varname = "showMissionTypeIcons";
-	missionReportIconCB.value = ns.settings[missionReportIconCB.varname];
+	-- missionReportIconCB.value = ns.settings[missionReportIconCB.varname];
 	missionReportIconCB.GetValue = CheckButton_GetValue;
 	missionReportIconCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(missionReportIconCB, self);
+	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, missionReportIconCB);
 
 	local entryHintCB = CreateFrame("CheckButton", self:GetName().."EntryHintCB", self, "InterfaceOptionsCheckButtonTemplate");
 	entryHintCB:SetPoint("TOPLEFT", missionReportIconCB, "BOTTOMLEFT", 0, -8);
@@ -398,10 +448,11 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryHintCB.text:SetText(L.CFG_DDMENU_ICONHINT_TEXT);
 	entryHintCB.tooltipText = L.CFG_DDMENU_ICONHINT_TOOLTIP;
 	entryHintCB.varname = "showMissionCompletedHint";
-	entryHintCB.value = ns.settings[entryHintCB.varname];
+	-- entryHintCB.value = ns.settings[entryHintCB.varname];
 	entryHintCB.GetValue = CheckButton_GetValue;
 	entryHintCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryHintCB, self);
+	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, entryHintCB);
 
 	local entryHintAllCB = CreateFrame("CheckButton", self:GetName().."EntryHintAllCB", self, "InterfaceOptionsCheckButtonTemplate");
 	entryHintAllCB:SetPoint("TOPLEFT", entryHintCB, "BOTTOMLEFT", 16, -8);
@@ -410,23 +461,27 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryHintAllCB.text:SetText(L.CFG_DDMENU_ICONHINTALL_TEXT);
 	entryHintAllCB.tooltipText = L.CFG_DDMENU_ICONHINTALL_TOOLTIP;
 	entryHintAllCB.varname = "showMissionCompletedHintOnlyForAll";
-	entryHintAllCB.value = ns.settings[entryHintAllCB.varname];
+	-- entryHintAllCB.value = ns.settings[entryHintAllCB.varname];
 	entryHintAllCB.GetValue = CheckButton_GetValue;
 	entryHintAllCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryHintAllCB, self);
 	BlizzardOptionsPanel_SetupDependentControl(entryHintCB, entryHintAllCB);
+	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, entryHintAllCB);
+
+	--[[ Menu entries' tooltip ]]--
 
 	local entryTooltipCB = CreateFrame("CheckButton", self:GetName().."EntryTooltipCB", self, "InterfaceOptionsCheckButtonTemplate");
-	entryTooltipCB:SetPoint("TOPLEFT", entryHintAllCB, "BOTTOMLEFT", -16, -8);
+	entryTooltipCB:SetPoint("LEFT", entryNameCB, "LEFT", (panelContainerWidth/2)-16, 0);
 	entryTooltipCB.type = CONTROLTYPE_CHECKBOX;
 	entryTooltipCB.text = _G[entryTooltipCB:GetName().."Text"];
 	entryTooltipCB.text:SetText(L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_TEXT);
 	entryTooltipCB.tooltipText = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_TOOLTIP;
 	entryTooltipCB.varname = "showEntryTooltip";
-	entryTooltipCB.value = ns.settings[entryTooltipCB.varname];
+	-- entryTooltipCB.value = ns.settings[entryTooltipCB.varname];
 	entryTooltipCB.GetValue = CheckButton_GetValue;
 	entryTooltipCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryTooltipCB, self);
+	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, entryTooltipCB);
 
 	local entryTooltipInProgressCB = CreateFrame("CheckButton", self:GetName().."EntryTooltipInProgressCB", self, "InterfaceOptionsCheckButtonTemplate");
 	entryTooltipInProgressCB:SetPoint("TOPLEFT", entryTooltipCB, "BOTTOMLEFT", 16, -8);
@@ -435,11 +490,12 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryTooltipInProgressCB.text:SetText(L.CFG_DDMENU_ENTRYTOOLTIP_INPROGRESS_TEXT);
 	entryTooltipInProgressCB.tooltipText = L.CFG_DDMENU_ENTRYTOOLTIP_INPROGRESS_TOOLTIP;
 	entryTooltipInProgressCB.varname = "showMissionCountInTooltip";
-	entryTooltipInProgressCB.value = ns.settings[entryTooltipInProgressCB.varname];
+	-- entryTooltipInProgressCB.value = ns.settings[entryTooltipInProgressCB.varname];
 	entryTooltipInProgressCB.GetValue = CheckButton_GetValue;
 	entryTooltipInProgressCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryTooltipInProgressCB, self);
 	BlizzardOptionsPanel_SetupDependentControl(entryTooltipCB, entryTooltipInProgressCB);
+	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, entryTooltipInProgressCB);
 
 	local entryTooltipBountiesCB = CreateFrame("CheckButton", self:GetName().."EntryTooltipBountiesCB", self, "InterfaceOptionsCheckButtonTemplate");
 	entryTooltipBountiesCB:SetPoint("TOPLEFT", entryTooltipInProgressCB, "BOTTOMLEFT", 0, -8);
@@ -448,11 +504,12 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryTooltipBountiesCB.text:SetText(L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTIES_TEXT);
 	entryTooltipBountiesCB.tooltipText = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTIES_TOOLTIP;
 	entryTooltipBountiesCB.varname = "showWorldmapBounties";
-	entryTooltipBountiesCB.value = ns.settings[entryTooltipBountiesCB.varname];
+	-- entryTooltipBountiesCB.value = ns.settings[entryTooltipBountiesCB.varname];
 	entryTooltipBountiesCB.GetValue = CheckButton_GetValue;
 	entryTooltipBountiesCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryTooltipBountiesCB, self);
 	BlizzardOptionsPanel_SetupDependentControl(entryTooltipCB, entryTooltipBountiesCB);
+	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, entryTooltipBountiesCB);
 
 	local entryTooltipThreatsCB = CreateFrame("CheckButton", self:GetName().."EntryTooltipThreatsCB", self, "InterfaceOptionsCheckButtonTemplate");
 	entryTooltipThreatsCB:SetPoint("TOPLEFT", entryTooltipBountiesCB, "BOTTOMLEFT", 0, -8);
@@ -461,32 +518,44 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryTooltipThreatsCB.text:SetText(L.CFG_DDMENU_ENTRYTOOLTIP_THREATS_TEXT);
 	entryTooltipThreatsCB.tooltipText = L.CFG_DDMENU_ENTRYTOOLTIP_THREATS_TOOLTIP;
 	entryTooltipThreatsCB.varname = "showWorldmapThreats";
-	entryTooltipThreatsCB.value = ns.settings[entryTooltipThreatsCB.varname];
+	-- entryTooltipThreatsCB.value = ns.settings[entryTooltipThreatsCB.varname];
 	entryTooltipThreatsCB.GetValue = CheckButton_GetValue;
 	entryTooltipThreatsCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryTooltipThreatsCB, self);
 	BlizzardOptionsPanel_SetupDependentControl(entryTooltipCB, entryTooltipThreatsCB);
+	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, entryTooltipThreatsCB);
 
-	--[[ Meny entries selection dropdown ]]--
+	local entryTooltipReqsCB = CreateFrame("CheckButton", self:GetName().."EntryTooltipRequirementsCB", self, "InterfaceOptionsCheckButtonTemplate");
+	entryTooltipReqsCB:SetPoint("TOPLEFT", entryTooltipThreatsCB, "BOTTOMLEFT", 0, -8);
+	entryTooltipReqsCB.type = CONTROLTYPE_CHECKBOX;
+	entryTooltipReqsCB.text = _G[entryTooltipReqsCB:GetName().."Text"];
+	entryTooltipReqsCB.text:SetText(strjoin(" ", L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TEXT, GRAY_FONT_COLOR:WrapTextInColorCode(L.WORK_IS_EXPERIMENTAL)));
+	entryTooltipReqsCB.tooltipText = strjoin("|n|n", L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TOOLTIP, L.WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION);
+	entryTooltipReqsCB.varname = "showEntryRequirements";
+	-- entryTooltipReqsCB.value = ns.settings[entryTooltipReqsCB.varname];
+	entryTooltipReqsCB.GetValue = CheckButton_GetValue;
+	entryTooltipReqsCB.SetValue = CheckButton_SetValue;
+	BlizzardOptionsPanel_RegisterControl(entryTooltipReqsCB, self);
+	BlizzardOptionsPanel_SetupDependentControl(entryTooltipCB, entryTooltipReqsCB);
+	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, entryTooltipReqsCB);
+
+	--[[ Menu entries selection dropdown ]]--
 
 	local menuEntriesDD = CreateFrame("Frame", self:GetName().."MenuEntriesDropDown", self, "UIDropDownMenuTemplate");
 	menuEntriesDD.type = CONTROLTYPE_DROPDOWN;
 	menuEntriesDD.label = menuEntriesDD:CreateFontString(menuEntriesDD:GetName().."Label", "BACKGROUND", "GameFontNormal");
-	menuEntriesDD.label:SetPoint("TOPLEFT", entryNameCB.text, "TOPLEFT", panelContainerWidth/2, 0);
+	menuEntriesDD.label:SetPoint("TOPLEFT", entryHintAllCB, "BOTTOMLEFT", -12, -12);
 	menuEntriesDD.label:SetText(L.CFG_DDMENU_ENTRYSELECTION_LABEL);
 	menuEntriesDD.tooltipText = L.CFG_DDMENU_ENTRYSELECTION_TOOLTIP;
 	menuEntriesDD:SetPoint("TOPLEFT", menuEntriesDD.label, "BOTTOMLEFT", -16, -3);
-	menuEntriesDD.varname = "activeMenuEntries";  --> Links checkbutton with saved variable
-	-- menuEntriesDD.defaultValue = ns.defaultSettings[menuEntriesDD.varname];
-	-- menuEntriesDD.oldValue = ns.settings[menuEntriesDD.varname];
-	menuEntriesDD.value = ns.settings[menuEntriesDD.varname];
+	menuEntriesDD.varname = "activeMenuEntries";  --> Links drop-down menu with saved variable
+	-- menuEntriesDD.value = ns.settings[menuEntriesDD.varname];
 	-- menuEntriesDD.GetValue = function(self) return ns.settings[self.varname]; end;
 	-- menuEntriesDD.SetValue = function (self, value) ns.settings[self.varname] = CopyTable(value); end;
-	menuEntriesDD.RefreshValue =
-		function(self)
-			UIDropDownMenu_Initialize(self, MenuEntriesSelectionDropDown_Initialize);
-			UIDropDownMenu_SetText(self, format(L.CFG_DDMENU_ENTRYSELECTION_TEXT_D, #ns.settings[self.varname]));
-		end
+	menuEntriesDD.RefreshValues = function(self)
+		UIDropDownMenu_Initialize(self, MenuEntriesSelectionDropDown_Initialize);
+		UIDropDownMenu_SetText(self, format(L.CFG_DDMENU_ENTRYSELECTION_TEXT_D, #ns.settings[self.varname]));
+	end
 	menuEntriesDD:SetScript("OnEnter", function(self)
 		if ( not self.isDisabled ) then
 			GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT");
@@ -495,8 +564,7 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	end);
 	menuEntriesDD:SetScript("OnLeave", GameTooltip_Hide);
 	BlizzardOptionsPanel_RegisterControl(menuEntriesDD, self);
-	-- menuEntriesDD:RegisterEvent("PLAYER_ENTERING_WORLD");
-	-- BlizzardOptionsPanel_SetupDependentControl(entryTooltipCB, menuEntriesDD);
+	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, menuEntriesDD);
 
 	local expansionNames = {
 	          -- placeholder,   --> "Classic"
@@ -534,7 +602,7 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 		end
 
 		printOption(expansionNames[tonumber(selectedValue)], self.checked);
-		_log:debug("selectedMenuEntries:", unpack(ns.settings.activeMenuEntries));
+		_log:debug("selectedMenuEntries:", SafeUnpack(ns.settings.activeMenuEntries));
 
 		if ( #ns.settings.activeMenuEntries < 1 ) then
 			-- Without any menu items the dropdown menu won't show up, so inform user
@@ -567,33 +635,43 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 				UIDropDownMenu_AddButton(info);
 			end
 		end
-		-- UIDropDownMenu_AddSeparator()
-		-- -- TODO - Add un-/checking options
-		-- info.text = CHECK_ALL;  --> WoW global string
-		-- info.value = "all";
-		-- info.notCheckable = 1;
-		-- info.keepShownOnClick = 1;
-		-- info.justifyH = "CENTER";
-		-- info.colorCode = NORMAL_FONT_COLOR:GenerateHexColorMarkup();
-		-- info.func = function(self)
-		-- 	self.checked = nil;
-		-- 	-- MenuEntriesSelectionDropDown_OnClick(self)
-		-- end;
-		-- UIDropDownMenu_AddButton(info);
 
-		-- info.text = UNCHECK_ALL;  --> WoW global string
-		-- info.func = nil;
-		-- info.value = "none";
-		-- info.notCheckable = 1;
+		UIDropDownMenu_AddSeparator()
+
+		local info = UIDropDownMenu_CreateInfo();
+		info.text = CHECK_ALL;  --> WoW global string
+		info.value = "all";
+		info.notCheckable = 1;
 		-- info.keepShownOnClick = 1;
-		-- info.justifyH = "CENTER";
-		-- info.colorCode = NORMAL_FONT_COLOR:GenerateHexColorMarkup();
-		-- UIDropDownMenu_AddButton(info);
+		info.justifyH = "CENTER";
+		info.colorCode = NORMAL_FONT_COLOR:GenerateHexColorMarkup();
+		info.func = function(self)
+			-- Mark all entries in the selection list as checked
+			for i, value in pairs(ns.defaultSettings.activeMenuEntries) do
+				ns.settings.activeMenuEntries[i] = value;
+			end
+			UIDropDownMenu_SetText(menuEntriesDD, format(L.CFG_DDMENU_ENTRYSELECTION_TEXT_D, #ns.settings.activeMenuEntries));
+		end;
+		UIDropDownMenu_AddButton(info);
+
+		local info = UIDropDownMenu_CreateInfo();
+		info.text = UNCHECK_ALL;  --> WoW global string
+		info.func = nil;
+		info.value = "none";
+		info.notCheckable = 1;
+		-- info.keepShownOnClick = 1;
+		info.justifyH = "CENTER";
+		info.colorCode = NORMAL_FONT_COLOR:GenerateHexColorMarkup();
+		info.func = function(self)
+			-- Uncheck all values from the selection list, except SETTINGS
+			ns.settings.activeMenuEntries = {ns.settingsMenuEntry};
+			UIDropDownMenu_SetText(menuEntriesDD, format(L.CFG_DDMENU_ENTRYSELECTION_TEXT_D, #ns.settings.activeMenuEntries));
+		end
+		UIDropDownMenu_AddButton(info);						--> TODO - Add unselect disabled entries
 	end
 
 	UIDropDownMenu_SetWidth(menuEntriesDD, panelContainerWidth/3);
 	UIDropDownMenu_Initialize(menuEntriesDD, MenuEntriesSelectionDropDown_Initialize);
-	-- UIDropDownMenu_SetText(menuEntriesDD, format(L.CFG_DDMENU_ENTRYSELECTION_TEXT_D, #ns.settings.activeMenuEntries));
 
 	--[[ Border type selection dropdown ]]--
 
@@ -604,35 +682,32 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	menuStyleDD.label:SetText(L.CFG_DDMENU_STYLESELECTION_LABEL);
 	menuStyleDD.tooltipText = L.CFG_DDMENU_STYLESELECTION_TOOLTIP;
 	menuStyleDD:SetPoint("TOPLEFT", menuStyleDD.label, "BOTTOMLEFT", -16, -3);
-	menuStyleDD.varname = "menuStyleID";  --> Links checkbutton with saved variable
-	-- menuStyleDD.defaultValue = ns.defaultSettings[menuStyleDD.varname];
-	menuStyleDD.value = ns.settings[menuStyleDD.varname];
-	menuStyleDD.RefreshValue =
-		function(self)
-			-- BlizzardOptionsPanel_DropDown_Refresh(self);
-			-- UIDropDownMenu_Initialize(self, BorderSelectionDropDown_Initialize);
-			-- UIDropDownMenu_SetSelectedValue(self, ns.settings[self.varname]);
-			-- UIDropDownMenu_SetSelectedValue(self, self.value);
-			-- print("RefreshValue:", ns.settings[self.varname], self.value);
-		end
+	menuStyleDD.varname = "menuStyleID";  --> Links drop-down menu with saved variable
+	menuStyleDD.RefreshValues = function(self)									--> FIXME - Shows "user defined" on refresh or reset
+		-- local newValue = ns.settings[self.varname];
+		-- local currentValue = UIDropDownMenu_GetSelectedValue(self);
+		-- _log:debug("Refreshing", newValue, currentValue, newValue == currentValue);
+		-- if (newValue ~= currentValue) then
+		-- 	UIDropDownMenu_SetSelectedValue(self, ns.settings[self.varname]);
+		-- end
+	end
 	menuStyleDD:SetScript("OnEnter", function(self)
-		if ( not self.isDisabled ) then
-			GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT");
-			GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true);
-		end
+		-- if ( not self.isDisabled ) then
+		GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT");
+		GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true);
+		-- end
 	end);
 	menuStyleDD:SetScript("OnLeave", GameTooltip_Hide);
 	BlizzardOptionsPanel_RegisterControl(menuStyleDD, self);
+	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, menuStyleDD);
 
-	local menuStyleNames = {
+	menuStyleDD.valueList = {
 		L.CFG_DDMENU_STYLESELECTION_VALUE1_TEXT..GRAY_FONT_COLOR:WrapTextInColorCode(" ("..DEFAULT..")"),  --> WoW global string
 		L.CFG_DDMENU_STYLESELECTION_VALUE2_TEXT,
 	};
 
-	local function BorderSelectionDropDown_OnClick(self)
-		--
+	function BorderSelectionDropDown_OnClick(self)
 		-- Note: 'self' refers to the currently clicked menu entry frame.
-		--
 		ns.settings.menuStyleID = self.value;
 		UIDropDownMenu_SetSelectedValue(menuStyleDD, self.value);
 		ns.MRBP_ReloadDropdown();
@@ -643,10 +718,10 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 
 	local function BorderSelectionDropDown_Initialize(self)
 		-- Create the border selection dropdown menu
-		local selectedValue = UIDropDownMenu_GetSelectedValue(self) or ns.settings.menuStyleID;
+		local selectedValue = UIDropDownMenu_GetSelectedValue(self); -- or ns.settings.menuStyleID;
 		local info = UIDropDownMenu_CreateInfo();
 
-		for i, styleName in ipairs(menuStyleNames) do
+		for i, styleName in ipairs(menuStyleDD.valueList) do
 			info.text = styleName;
 			info.func = BorderSelectionDropDown_OnClick;
 			info.value = tostring(i);
@@ -662,4 +737,26 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	UIDropDownMenu_SetWidth(menuStyleDD, panelContainerWidth/3);
 	UIDropDownMenu_Initialize(menuStyleDD, BorderSelectionDropDown_Initialize);
 	UIDropDownMenu_SetSelectedValue(menuStyleDD, ns.settings.menuStyleID);
+
+	--[[ Account-wide options ]]--												--> TODO - Really needed?
+
+	-- -- <Interface/AddOns/Blizzard_BindingUI/Blizzard_BindingUI.xml#L158>
+	-- local setGlobalsButton = CreateFrame("Button", self:GetName().."SetGlobalsButton", self, "UIPanelButtonTemplate");
+	-- setGlobalsButton:SetPoint("BOTTOMRIGHT", self, -16, 16);
+	-- setGlobalsButton.text = _G[setGlobalsButton:GetName().."Text"];
+	-- setGlobalsButton.text:SetText("Als Vorlage verwenden");					--> TODO - L10n
+	-- setGlobalsButton.tooltipText = "Aktuelle Einstellungen speichern und als Vorlage für alle Charaktere verwenden.";
+	-- setGlobalsButton:SetSize(setGlobalsButton:GetTextWidth()+40, 22);
+	-- setGlobalsButton:SetScript("OnClick", function(self, button, isDown)
+	-- 	PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK);
+	-- 	MRBP_GlobalSettings = {};
+	-- 	SaveSettings();
+	-- 	-- SetAsGlobalSettings();
+	-- 	self:Disable();
+	-- end);
+	-- setGlobalsButton:SetScript("OnEnter", function(self)
+	-- 	GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT");
+	-- 	GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true);
+	-- end);
+	-- setGlobalsButton:SetScript("OnLeave", GameTooltip_Hide);
 end

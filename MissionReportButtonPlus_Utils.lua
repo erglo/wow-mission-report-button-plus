@@ -93,7 +93,7 @@ function util:printVersion(shortVersionOnly)
 	end
 end
 
--- Print garrison related event messages, ie. finished missons/buildings
+-- Print garrison related event messages, ie. finished missions/buildings
 -- etc. to chat.
 function util:cprintEvent(locationName, eventMsg, typeName, instructions, isHyperlink)
 	if ( typeName and not isHyperlink ) then
@@ -102,6 +102,18 @@ function util:cprintEvent(locationName, eventMsg, typeName, instructions, isHype
 	end
 	cprint(DARKYELLOW_FONT_COLOR:WrapTextInColorCode(FROM_A_DUNGEON:format(locationName)),  --> WoW global string
 		   eventMsg, typeName and typeName or '', instructions and '|n'..instructions or '');
+end
+
+----- Common helper function----------------------------------------------------
+
+function util:tcount(tbl)
+	local n = #tbl or 0;
+	if (n == 0) then
+		for _ in pairs(tbl) do
+			n = n + 1;
+		end
+	end
+	return n;
 end
 
 ----- Atlas + Textures ---------------------------------------------------------
@@ -141,7 +153,7 @@ end
 ----- Data handler -------------------------------------------------------------
 
 -- Collects infos about the current expansion, eg. name, banner, etc.
---> Returns: "table" (attributes: {name, expansionLevel, maxLevel, minLevel[, logo, banner]})
+--> Returns: <table> (attributes: name, expansionLevel, maxLevel, minLevel[, logo, banner])
 --
 -- REF.: <FrameXML/Blizzard_ClassTrial/Blizzard_ClassTrial.lua>
 -- REF.: <FrameXMLBlizzard_APIDocumentation/ExpansionDocumentation.lua>
@@ -170,7 +182,7 @@ function util:GetExpansionInfo(expansionLevel)
 	expansionInfo.expansionLevel = expansionLevel;
 	expansionInfo.name = expansionNames[expansionLevel];
 	expansionInfo.maxLevel = GetMaxLevelForExpansionLevel(expansionLevel);
-	expansionInfo.minLevel = GetMaxLevelForExpansionLevel(expansionLevel-1);  --> TODO - needed ???
+	expansionInfo.minLevel = GetMaxLevelForExpansionLevel(expansionLevel-1);  --> TODO - Check if still needed
 
 	return expansionInfo;
 end
@@ -207,15 +219,16 @@ function util:GetInProgressMissionCount(garrTypeID)
 	end
 	_log:debug(string.format("Got %d missions active and %d completed.", numInProgress, numCompleted));
 
-	return numInProgress, numCompleted;  -- TODO - Also count building missions/assignments.
+	return numInProgress, numCompleted;  			--> TODO - Also count building missions/assignments. ???
 end
 
 ----- WorldMap and Positioning -------------------------------------------------
 
 -- Retrieve the zones of given continent's map ID.
+--> Returns: <table>
 --
 -- REF.: <FrameXML/Blizzard_APIDocumentation/MapDocumentation.lua>
-function util:GetContinentZones(mapID, allDescendants)  --> Returns: table
+function util:GetContinentZones(mapID, allDescendants)
 	local infos = {};
 	local ALL_DESCENDANTS = allDescendants or false;
 
@@ -229,11 +242,12 @@ end
 
 -- Find active threats in the world, if active for current player; eg. the
 -- covenant attacks in The Maw or the N'Zoth's attacks in Battle for Azeroth.
+--> Returns: <table>
 --
 -- REF.: <FrameXML/Blizzard_WorldMap/Blizzard_WorldMapTemplates.lua>
 -- REF.: <FrameXML/Blizzard_APIDocumentation/QuestTaskInfoDocumentation.lua>
 -- REF.: <https://wowpedia.fandom.com/wiki/UI_escape_sequences>
-function util:GetActiveWorldMapThreats()  --> Returns: table
+function util:GetActiveWorldMapThreats()
 	if C_QuestLog.HasActiveThreats() then
 		local threatQuests = C_TaskQuest.GetThreatQuests();
 		local activeThreats = {};
@@ -260,6 +274,7 @@ function util:GetActiveWorldMapThreats()  --> Returns: table
 	-- local posX, posY = C_TaskQuest.GetQuestLocation(questID, mapID);
 	return false;
 end
+Test_GetActiveWorldMapThreats = util.GetActiveWorldMapThreats;
 
 ----- Specials -----------------------------------------------------------------
 
