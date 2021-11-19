@@ -65,7 +65,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 		if (event == "ADDON_LOADED") then
 			local addOnName = ...;
 
-			if ( addOnName == AddonID ) then
+			if (addOnName == AddonID) then
 				self:OnLoad();
 				self:UnregisterEvent("ADDON_LOADED");
 			end
@@ -78,10 +78,10 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			-- the number of these messages as follows:
 			--     1x / log-in session if player was not in garrison zone
 			--     1x / garrison
-			if ( MRBP_EventMessagesCounter[event] == nil ) then
+			if (MRBP_EventMessagesCounter[event] == nil) then
 				MRBP_EventMessagesCounter[event] = {};
 			end
-			if ( MRBP_EventMessagesCounter[event][garrisonType] == nil ) then
+			if (MRBP_EventMessagesCounter[event][garrisonType] == nil) then
 				MRBP_EventMessagesCounter[event][garrisonType] = {};
 			end
 
@@ -90,14 +90,14 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			for i = 1, #buildings do
 				local buildingID = buildings[i].buildingID;
 				local name, texture, shipmentCapacity = C_Garrison.GetLandingPageShipmentInfo(buildingID);
-				if ( name == buildingName ) then
+				if (name == buildingName) then
 					_log:debug("building:", buildingID, name);
 					-- Add icon to building name
 					buildingName = util:CreateInlineIcon(texture).." "..buildingName;
-					if ( MRBP_EventMessagesCounter[event][garrisonType][buildingID] == nil ) then
+					if (MRBP_EventMessagesCounter[event][garrisonType][buildingID] == nil) then
 						MRBP_EventMessagesCounter[event][garrisonType][buildingID] = false;
 					end
-					if ( C_Garrison.IsPlayerInGarrison(garrisonType) or MRBP_EventMessagesCounter[event][garrisonType][buildingID] == false ) then
+					if (C_Garrison.IsPlayerInGarrison(garrisonType) or MRBP_EventMessagesCounter[event][garrisonType][buildingID] == false) then
 						util:cprintEvent(garrInfo.expansionInfo.name, GARRISON_BUILDING_COMPLETE, buildingName, GARRISON_FINALIZE_BUILDING_TOOLTIP);
 						MRBP_EventMessagesCounter[event][garrisonType][buildingID] = true;
 					else
@@ -142,7 +142,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 				for treeIndex, treeID in ipairs(talentTreeIDs) do
 					local treeInfo = C_Garrison.GetTalentTreeInfo(treeID);
 					for talentIndex, talent in ipairs(treeInfo.talents) do
-						if ( talent.researched or talent.id == completeTalentID ) then
+						if (talent.researched or talent.id == completeTalentID) then
 							-- GetTalentLink(talent.id);
 							local nameString = util:CreateInlineIcon(talent.icon).." "..talent.name;
 							util:cprintEvent(garrInfo.expansionInfo.name, eventMsg, nameString);
@@ -398,7 +398,7 @@ function MRBP_IsQuestGarrisonRequirement(questID)
 	for _, garrTypeID in ipairs(MRBP_GARRISON_TYPE_INFOS_SORTORDER) do
 		garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID];
 		unlockQuestID = garrInfo.unlockQuest[1];
-		if ( questID == unlockQuestID ) then
+		if (questID == unlockQuestID) then
 			_log:debug("... yes!")
 			return true;
 		end
@@ -459,25 +459,25 @@ end
 -- Combine the menu entry text with an icon hint about completed missions
 -- with the user preferences and adds to the menu entry's description tooltip
 -- informations about completed missions according to the user preferences.
-local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled)
+local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 	-- Returns: {string, string}
 	local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID];
 	local numInProgress, numCompleted = util:GetInProgressMissionCount(garrTypeID);
 
 	--[[ Set menu entry text (label) ]]--
 	local labelText = ns.settings.preferExpansionName and garrInfo.expansionInfo.name or garrInfo.title;
-	if ( ns.settings.showMissionCompletedHint and numCompleted > 0 ) then
-		if ( not ns.settings.showMissionCompletedHintOnlyForAll ) then
+	if (ns.settings.showMissionCompletedHint and numCompleted > 0) then
+		if (not ns.settings.showMissionCompletedHintOnlyForAll) then
 			labelText = labelText.." |TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:0|t";
 		end
-		if ( ns.settings.showMissionCompletedHintOnlyForAll and numCompleted == numInProgress ) then
+		if (ns.settings.showMissionCompletedHintOnlyForAll and numCompleted == numInProgress) then
 			labelText = labelText.." |TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:0|t";
 		end
 	end
 
 	--[[ In-progress mission infos ]]--  									  	--> TODO - add numAvailable to mission infos
 	local tooltipText = isDisabled and DISABLED_FONT_COLOR:WrapTextInColorCode(garrInfo.description) or garrInfo.description;
-	if ( ns.settings.showMissionCountInTooltip and not isDisabled ) then
+	if (ns.settings.showMissionCountInTooltip and not isDisabled) then
 		-- Add category title for missions
 		tooltipText = tooltipText.."|n|n"..garrInfo.msg.missionsTitle;
 
@@ -506,31 +506,36 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled)
 	end
 
 	--[[ Bounty board infos ]]--
-	if ( garrTypeID ~= Enum.GarrisonType.Type_6_0 ) then
+	if (garrTypeID ~= Enum.GarrisonType.Type_6_0) then
 		-- Only available since Legion (WoW 7.x)
 		local bountyBoard = garrInfo.bountyBoard;
 
-		if ( bountyBoard.areBountiesUnlocked and ns.settings.showWorldmapBounties and #bountyBoard.bounties > 0 ) then
+		if (bountyBoard.areBountiesUnlocked and ns.settings.showWorldmapBounties and #bountyBoard.bounties > 0) then
 			tooltipText = tooltipText.."|n|n"..bountyBoard.title;
 			_log:debug(garrInfo.title, "- bounties:", #bountyBoard.bounties);
-			if ( garrTypeID == Enum.GarrisonType.Type_9_0 ) then
+			if (garrTypeID == Enum.GarrisonType.Type_9_0) then
 				CovenantCalling_CheckCallings();
 				--> REF.: <FrameXML/ObjectAPI/CovenantCalling.lua>
 			end
-			for index, bountyData in ipairs(bountyBoard.bounties) do
+			for _, bountyData in ipairs(bountyBoard.bounties) do
 				if bountyData then
 					local questName = QuestUtils_GetQuestName(bountyData.questID);
 					local icon = util:CreateInlineIcon(bountyData.icon);
-					if ( garrTypeID == Enum.GarrisonType.Type_9_0 ) then
-						icon = util:CreateInlineIcon(bountyData.icon, 16, nil, nil, true);
+					if (garrTypeID == Enum.GarrisonType.Type_9_0) then
+						icon = util:CreateInlineIcon(bountyData.icon, 16, nil, nil);
 						-- C_QuestLog.GetBountiesForMapID(875)
 					end
-					local bountyString = HIGHLIGHT_FONT_COLOR:WrapTextInColorCode("%s %s"):format(icon, questName);
-					tooltipText = tooltipText.."|n"..bountyString;
-					if bountyData.turninRequirementText then					--> TODO - Check if really needed
+					if bountyData.turninRequirementText then
 						--> REF.: <FrameXML//WorldMapBountyBoard.lua>
-						local reqString = RED_FONT_COLOR:WrapTextInColorCode(bountyData.turninRequirementText);
-						tooltipText = tooltipText.."|n"..reqString;
+						local bountyString = GRAY_FONT_COLOR:WrapTextInColorCode("%s %s"):format(icon, questName);
+						tooltipText = tooltipText.."|n"..bountyString;
+						if ns.settings.showBountyRequirements then
+							tooltipText = tooltipText.."|n"..util:CreateInlineIcon(3083385);  --> dash icon texture
+							tooltipText = tooltipText.." "..RED_FONT_COLOR:WrapTextInColorCode(bountyData.turninRequirementText);
+						end
+					else
+						local bountyString = HIGHLIGHT_FONT_COLOR:WrapTextInColorCode("%s %s"):format(icon, questName);
+						tooltipText = tooltipText.."|n"..bountyString;
 					end
 				else
 					tooltipText = tooltipText.."|n"..bountyBoard.noBountiesMessage;
@@ -541,14 +546,13 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled)
  		-- local formattedTime, color, secondsRemaining = WorldMap_GetQuestTimeForTooltip(questID);
 
 		--[[ World map threat infos ]]--
-		local activeThreats = util:GetActiveWorldMapThreats();
-		if ( activeThreats and ns.settings.showWorldmapThreats ) then
+		if (activeThreats and ns.settings.showWorldmapThreats) then
 			for threatExpansionLevel, threatData in pairs(activeThreats) do
 				-- Add the infos to the corresponding expansions only
-				if ( threatExpansionLevel == garrInfo.expansionInfo.expansionLevel ) then
+				if (threatExpansionLevel == garrInfo.expansionInfo.expansionLevel) then
 					-- Show the header *only once* per expansion
 					local EXPANSION_LEVEL_BFA = 7;
-					if ( threatExpansionLevel == EXPANSION_LEVEL_BFA ) then
+					if (threatExpansionLevel == EXPANSION_LEVEL_BFA) then
 						tooltipText = tooltipText.."|n|n"..WORLD_MAP_THREATS;
 					else
 						local zoneName = select(3, SafeUnpack(threatData[1]));
@@ -600,6 +604,7 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 	local filename, width, height, txLeft, txRight, txTop, txBottom;
 	local playerMaxLevelForExpansion = GetMaxLevelForPlayerExpansion();
 	local shouldShowDisabled, playerOwnsExpansion, isActiveEntry;
+	local activeThreats = util:GetActiveWorldMapThreats();
 
 	for i, garrTypeID in ipairs(MRBP_GARRISON_TYPE_INFOS_SORTORDER) do
 		garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID];
@@ -616,8 +621,8 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 		   NORMAL_FONT_COLOR:WrapTextInColorCode(tostring(shouldShowDisabled)))
 		);
 
-		if ( playerOwnsExpansion and isActiveEntry ) then
-			local labelText, tooltipText = BuildMenuEntryLabelDesc(garrTypeID, shouldShowDisabled);
+		if (playerOwnsExpansion and isActiveEntry) then
+			local labelText, tooltipText = BuildMenuEntryLabelDesc(garrTypeID, shouldShowDisabled, activeThreats);
 
 			info = UIDropDownMenu_CreateInfo();
 			info.owner = GarrisonLandingPageMinimapButton;
@@ -783,7 +788,7 @@ function MRBP_OnEnter(self)
 		tooltipAddonText = GRAY_FONT_COLOR:WrapTextInColorCode(ns.AddonTitleShort..ns.AddonTitleSeparator).." "..tooltipAddonText;
 	end
 	local currentDateTime = C_DateAndTime.GetCurrentCalendarTime();
-	if ( currentDateTime.month == 12 ) then
+	if (currentDateTime.month == 12) then
 		-- Show a Xmas easter egg on december after the minimap tooltip text
 		tooltipAddonText = tooltipAddonText.." "..util:CreateInlineIcon("Front-Tree-Icon");
 	end
@@ -895,7 +900,7 @@ function MRBP:RegisterSlashCommands()
 
 			elseif (msg == 'chatmsg') then
 				local enabled = ns.settings.showChatNotifications;
-				if ( enabled == false ) then
+				if (not enabled) then
 					_log.level = _log.USER;
 					ns.cprint(L.CHATMSG_VERBOSE_S:format(SLASH_MRBP1.." "..SLASH_CMD_ARGLIST[2][1]));
 				else

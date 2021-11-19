@@ -46,6 +46,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showEntryTooltip"] = true,
 	["showMissionCountInTooltip"] = true,
 	["showWorldmapBounties"] = true,
+	["showBountyRequirements"] = true,
 	["showWorldmapThreats"] = true,
 	["showEntryRequirements"] = true,
 	["activeMenuEntries"] = {"5", "6", "7", "8", "9"},
@@ -154,7 +155,6 @@ local function CheckButton_SetValue(control, value, isRefreshing, isCancelled)
 	control:SetChecked(booleanValue);
 
 	_log:debug("value:", value, "-->", booleanValue, control:GetValue());
-	-- print("value:", value, "-->", booleanValue, control:GetValue());
 
 	if (ns.settings.showChatNotifications and not isRefreshing) then
 		-- Print user feedback on selected setting to chat
@@ -222,9 +222,9 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 		-- Note: Do NOT use control.value since BlizzardOptionsPanel_* functions are
 		-- messing them up. They only use the string values of 0 and 1: "0" and "1".
 		for i, control in ipairs(self.controls) do
-			if ( control.newValue ~= nil ) then
+			if (control.newValue ~= nil) then
 				ns.settings[control.varname] = not control.newValue;  --> restore value
-				_log:info("Restoring", control.varname, control.newValue, "-", control.value, ns.settings[control.varname]);
+				_log:info("Restoring", control.varname, control.newValue, "-", ns.settings[control.varname]);
 				control.newValue = nil;
 				local isCancelled = true;
 				control:SetValue(ns.settings[control.varname], nil, isCancelled);
@@ -249,14 +249,14 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 		local isRefreshing = true;
 		for i, control in ipairs(self.controls) do
 			control.newValue = nil;  --> reset to remember temp./cancel-able settings
-			if ( control.type == CONTROLTYPE_CHECKBOX ) then
-				control.value = ns.settings[control.varname];
-				control:SetValue(control.value, isRefreshing);
-				_log:debug(i, control.varname, ns.settings[control.varname], control.value);
+			if (control.type == CONTROLTYPE_CHECKBOX) then
+				local value = ns.settings[control.varname];
+				control:SetValue(value, isRefreshing);
+				_log:debug(i, control.varname, ns.settings[control.varname], value);
 				if control.dependentControls then
 					for _, subcontrol in ipairs(control.dependentControls) do
 						-- if control:GetChecked() then
-						if ( control.value and ns.settings.showMinimapButton ) then
+						if (value and ns.settings.showMinimapButton) then
 							local isWhiteTextColor = true;
 							BlizzardOptionsPanel_CheckButton_Enable(subcontrol, isWhiteTextColor);
 						else
@@ -352,7 +352,6 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	chatMsgCB.text:SetText(L.CFG_CHAT_NOTIFY_TEXT);
 	chatMsgCB.tooltipText = L.CFG_CHAT_NOTIFY_TOOLTIP;
 	chatMsgCB.varname = "showChatNotifications";
-	-- chatMsgCB.value = ns.settings[chatMsgCB.varname];
 	chatMsgCB.GetValue = CheckButton_GetValue;
 	chatMsgCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(chatMsgCB, self);
@@ -364,7 +363,6 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	showMinimapButtonCB.text:SetText(strjoin(" ", L.CFG_MINIMAPBUTTON_SHOWBUTTON_TEXT, GRAY_FONT_COLOR:WrapTextInColorCode(L.WORK_IS_EXPERIMENTAL)));
 	showMinimapButtonCB.tooltipText = strjoin("|n|n", L.CFG_MINIMAPBUTTON_SHOWBUTTON_TOOLTIP, L.WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION);
 	showMinimapButtonCB.varname = "showMinimapButton";
-	-- showMinimapButtonCB.value = ns.settings[showMinimapButtonCB.varname];
 	showMinimapButtonCB.GetValue = CheckButton_GetValue;
 	showMinimapButtonCB.SetValue = CheckButton_SetValue;
 	showMinimapButtonCB:SetScript("OnEnter", function(self)
@@ -381,7 +379,6 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	addonNameCB.text:SetText(L.CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TEXT);
 	addonNameCB.tooltipText = L.CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TOOLTIP;
 	addonNameCB.varname = "showAddonNameInTooltip";  --> Links this checkbutton with a saved variable
-	-- addonNameCB.value = ns.settings[addonNameCB.varname];
 	addonNameCB.GetValue = CheckButton_GetValue;
 	addonNameCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(addonNameCB, self);
@@ -409,7 +406,6 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryNameCB.text:SetText(L.CFG_DDMENU_NAMING_TEXT);
 	entryNameCB.tooltipText = L.CFG_DDMENU_NAMING_TOOLTIP;
 	entryNameCB.varname = "preferExpansionName";
-	-- entryNameCB.value = ns.settings[entryNameCB.varname];
 	entryNameCB.GetValue = CheckButton_GetValue;
 	entryNameCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryNameCB, self);
@@ -422,7 +418,6 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	sortorderCB.text:SetText(L.CFG_DDMENU_SORTORDER_TEXT);
 	sortorderCB.tooltipText = L.CFG_DDMENU_SORTORDER_TOOLTIP;
 	sortorderCB.varname = "reverseSortorder";
-	-- sortorderCB.value = ns.settings[sortorderCB.varname];
 	sortorderCB.GetValue = CheckButton_GetValue;
 	sortorderCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(sortorderCB, self);
@@ -435,7 +430,6 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	missionReportIconCB.text:SetText(L.CFG_DDMENU_REPORTICONS_TEXT);
 	missionReportIconCB.tooltipText = L.CFG_DDMENU_REPORTICONS_TOOLTIP;
 	missionReportIconCB.varname = "showMissionTypeIcons";
-	-- missionReportIconCB.value = ns.settings[missionReportIconCB.varname];
 	missionReportIconCB.GetValue = CheckButton_GetValue;
 	missionReportIconCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(missionReportIconCB, self);
@@ -448,7 +442,6 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryHintCB.text:SetText(L.CFG_DDMENU_ICONHINT_TEXT);
 	entryHintCB.tooltipText = L.CFG_DDMENU_ICONHINT_TOOLTIP;
 	entryHintCB.varname = "showMissionCompletedHint";
-	-- entryHintCB.value = ns.settings[entryHintCB.varname];
 	entryHintCB.GetValue = CheckButton_GetValue;
 	entryHintCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryHintCB, self);
@@ -461,7 +454,6 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryHintAllCB.text:SetText(L.CFG_DDMENU_ICONHINTALL_TEXT);
 	entryHintAllCB.tooltipText = L.CFG_DDMENU_ICONHINTALL_TOOLTIP;
 	entryHintAllCB.varname = "showMissionCompletedHintOnlyForAll";
-	-- entryHintAllCB.value = ns.settings[entryHintAllCB.varname];
 	entryHintAllCB.GetValue = CheckButton_GetValue;
 	entryHintAllCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryHintAllCB, self);
@@ -477,7 +469,6 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryTooltipCB.text:SetText(L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_TEXT);
 	entryTooltipCB.tooltipText = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_TOOLTIP;
 	entryTooltipCB.varname = "showEntryTooltip";
-	-- entryTooltipCB.value = ns.settings[entryTooltipCB.varname];
 	entryTooltipCB.GetValue = CheckButton_GetValue;
 	entryTooltipCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryTooltipCB, self);
@@ -490,7 +481,6 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryTooltipInProgressCB.text:SetText(L.CFG_DDMENU_ENTRYTOOLTIP_INPROGRESS_TEXT);
 	entryTooltipInProgressCB.tooltipText = L.CFG_DDMENU_ENTRYTOOLTIP_INPROGRESS_TOOLTIP;
 	entryTooltipInProgressCB.varname = "showMissionCountInTooltip";
-	-- entryTooltipInProgressCB.value = ns.settings[entryTooltipInProgressCB.varname];
 	entryTooltipInProgressCB.GetValue = CheckButton_GetValue;
 	entryTooltipInProgressCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryTooltipInProgressCB, self);
@@ -504,21 +494,32 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryTooltipBountiesCB.text:SetText(L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTIES_TEXT);
 	entryTooltipBountiesCB.tooltipText = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTIES_TOOLTIP;
 	entryTooltipBountiesCB.varname = "showWorldmapBounties";
-	-- entryTooltipBountiesCB.value = ns.settings[entryTooltipBountiesCB.varname];
 	entryTooltipBountiesCB.GetValue = CheckButton_GetValue;
 	entryTooltipBountiesCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryTooltipBountiesCB, self);
 	BlizzardOptionsPanel_SetupDependentControl(entryTooltipCB, entryTooltipBountiesCB);
 	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, entryTooltipBountiesCB);
 
+	local entryBountyReqCB = CreateFrame("CheckButton", self:GetName().."EntryBountyRequirementsCB", self, "InterfaceOptionsCheckButtonTemplate");
+	entryBountyReqCB:SetPoint("TOPLEFT", entryTooltipBountiesCB, "BOTTOMLEFT", 16, -8);
+	entryBountyReqCB.type = CONTROLTYPE_CHECKBOX;
+	entryBountyReqCB.text = _G[entryBountyReqCB:GetName().."Text"];
+	entryBountyReqCB.text:SetText(L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTYREQUIREMENTS_TEXT);
+	entryBountyReqCB.tooltipText = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTYREQUIREMENTS_TOOLTIP;
+	entryBountyReqCB.varname = "showBountyRequirements";
+	entryBountyReqCB.GetValue = CheckButton_GetValue;
+	entryBountyReqCB.SetValue = CheckButton_SetValue;
+	BlizzardOptionsPanel_RegisterControl(entryBountyReqCB, self);
+	BlizzardOptionsPanel_SetupDependentControl(entryTooltipBountiesCB, entryBountyReqCB);
+	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, entryBountyReqCB);
+
 	local entryTooltipThreatsCB = CreateFrame("CheckButton", self:GetName().."EntryTooltipThreatsCB", self, "InterfaceOptionsCheckButtonTemplate");
-	entryTooltipThreatsCB:SetPoint("TOPLEFT", entryTooltipBountiesCB, "BOTTOMLEFT", 0, -8);
+	entryTooltipThreatsCB:SetPoint("TOPLEFT", entryBountyReqCB, "BOTTOMLEFT", -16, -8);
 	entryTooltipThreatsCB.type = CONTROLTYPE_CHECKBOX;
 	entryTooltipThreatsCB.text = _G[entryTooltipThreatsCB:GetName().."Text"];
 	entryTooltipThreatsCB.text:SetText(L.CFG_DDMENU_ENTRYTOOLTIP_THREATS_TEXT);
 	entryTooltipThreatsCB.tooltipText = L.CFG_DDMENU_ENTRYTOOLTIP_THREATS_TOOLTIP;
 	entryTooltipThreatsCB.varname = "showWorldmapThreats";
-	-- entryTooltipThreatsCB.value = ns.settings[entryTooltipThreatsCB.varname];
 	entryTooltipThreatsCB.GetValue = CheckButton_GetValue;
 	entryTooltipThreatsCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryTooltipThreatsCB, self);
@@ -532,7 +533,6 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryTooltipReqsCB.text:SetText(strjoin(" ", L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TEXT, GRAY_FONT_COLOR:WrapTextInColorCode(L.WORK_IS_EXPERIMENTAL)));
 	entryTooltipReqsCB.tooltipText = strjoin("|n|n", L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TOOLTIP, L.WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION);
 	entryTooltipReqsCB.varname = "showEntryRequirements";
-	-- entryTooltipReqsCB.value = ns.settings[entryTooltipReqsCB.varname];
 	entryTooltipReqsCB.GetValue = CheckButton_GetValue;
 	entryTooltipReqsCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryTooltipReqsCB, self);
@@ -549,7 +549,6 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	menuEntriesDD.tooltipText = L.CFG_DDMENU_ENTRYSELECTION_TOOLTIP;
 	menuEntriesDD:SetPoint("TOPLEFT", menuEntriesDD.label, "BOTTOMLEFT", -16, -3);
 	menuEntriesDD.varname = "activeMenuEntries";  --> Links drop-down menu with saved variable
-	-- menuEntriesDD.value = ns.settings[menuEntriesDD.varname];
 	-- menuEntriesDD.GetValue = function(self) return ns.settings[self.varname]; end;
 	-- menuEntriesDD.SetValue = function (self, value) ns.settings[self.varname] = CopyTable(value); end;
 	menuEntriesDD.RefreshValues = function(self)

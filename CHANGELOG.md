@@ -1,9 +1,23 @@
 Changelog
 =========
 
+v2021.11.19 (beta)
+-------------------
+
+- *Updated* locale files.
+- *Added* turn-in requirements function + UI options for Emissary Quests (bounties).
+- *Updated* the features list in the README file.
+- Rebase of master branch; `squash`ed some commits and corrected some misspelled or vaguely formulated commit messages.
+
 v2021.11.17 (beta)
 -------------------
+
 - *Updated* locale files with recent UI option changes.
+
+v2021.11.16 (beta)
+-------------------
+
+- Merged the new features (`v2021.10.22 (beta)`+) into the master branch.
 
 v2021.11.11 (beta)
 -------------------
@@ -21,7 +35,31 @@ v2021.11.04 (beta)
 -------------------
 
 - *Updated* TOC file to WoW version `9.1.5`.
+
+v2021.11.03 (beta)
+-----------------
+
 - *Updated* locale files.
+
+v2021.10.22 (beta)
+-------------------
+
+- *Added* main feature to re-show the hidden minimap button on each new expansion.
+
+v2021.10.18 (beta)
+-------------------
+
+- *Updated* the header strings for World Map Threats in the details tooltip.
+
+v2021.10.09 (beta)
+-------------------
+
+- *Updated* documentation of all LUA files to be more conform with the LUA language specs.
+
+v2021.10.08 (beta)
+-------------------
+
+- *Updated* locale files with TOC file notes.
 
 v2021.10.04 (beta)
 -------------------
@@ -31,24 +69,45 @@ v2021.10.04 (beta)
 v2021.10.02 (beta)
 -------------------
 
-- *Initial `beta` release with __Git__ on [CurseForge.com](https://www.curseforge.com/wow/addons/mission-report-button-plus) and [GitHub.com](https://github.com/erglo/mission-report-button-plus).*
+- *First public release of `beta` version with __Git__ on [CurseForge.com](https://www.curseforge.com/wow/addons/mission-report-button-plus) and [GitHub.com](https://github.com/erglo/mission-report-button-plus).*
+- *Updated* locale files with recent UI option strings.
+
+v2021.10.01 (beta)
+------------
+
+- *Added* bounties + threats to the UI options.
 
 v2021.09.30 (beta)
 -------------------
 
-- *Added* both to the UI options.
 - *Added* world-map threat infos to menu item's tooltip.
 - *Added* bounty board infos to menu item's tooltip.
 
 v2021.09.20 (beta)
 -------------------
 
+- *Updated* UI options and added un-check all to the menu entry selection drop-down menu.
+- *Updated* slash commands list.
 - *Added* a chat notification for the world-quest calendar event.
+
+v2021.09.18 (beta)
+-------------------
+
+- *Fixed* an error of not recognizing the calendar world quest event correctly.
+
+v2021.09.17 (beta)
+-------------------
+
+- *Added* more details to the description file.
 
 v2021.09.15 (beta)
 -------------------
 
 - *Changed* project status to `beta`. __Testers welcome!__
+
+v2021.09.14 (beta)
+-------------------
+
 - *Added* version control management with __Git__, including meta files.
 - *Added* calendar world quest event week watcher.
 

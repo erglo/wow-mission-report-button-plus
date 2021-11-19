@@ -219,7 +219,7 @@ function util:GetInProgressMissionCount(garrTypeID)
 	end
 	_log:debug(string.format("Got %d missions active and %d completed.", numInProgress, numCompleted));
 
-	return numInProgress, numCompleted;  			--> TODO - Also count building missions/assignments. ???
+	return numInProgress, numCompleted;
 end
 
 ----- WorldMap and Positioning -------------------------------------------------
@@ -271,10 +271,8 @@ function util:GetActiveWorldMapThreats()
 		end
 		return activeThreats;
 	 end
-	-- local posX, posY = C_TaskQuest.GetQuestLocation(questID, mapID);
 	return false;
 end
-Test_GetActiveWorldMapThreats = util.GetActiveWorldMapThreats;
 
 ----- Specials -----------------------------------------------------------------
 
