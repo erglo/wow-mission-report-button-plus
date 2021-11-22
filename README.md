@@ -43,7 +43,7 @@ It is still possible to access mission reports from previous extensions, but the
 _Contributors are most welcome!_  
 [Report a problem](https://github.com/erglo/mission-report-button-plus/issues) when you find any errors on this project's issues page.  
 [Start translating](https://www.curseforge.com/wow/addons/mission-report-button-plus/localization) when you're missing your language or simply want to help with localization.  
-[Leave a comment](https://www.curseforge.com/wow/addons/mission-report-button-plus#comments) if you have a *feature request* or *tell me what you think* about this addon. 
+[Leave a comment](https://www.curseforge.com/wow/addons/mission-report-button-plus#comments) if you have a *feature request* or *tell me what you think* about this addon.
 
 ---
 
