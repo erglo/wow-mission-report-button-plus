@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v2022.08.10 (beta)
+-------------------
+
+- **Updated** locale files with the hint message.
+- **Updated** the hint message; it shows now the quest name which is required to unlock the command table.
+- **Fixed** the requirements feature; it now recognizes correctly which garrison type has got an unlocked command table.
+
 v2021.11.22 (beta)
 -------------------
 
@@ -74,7 +81,7 @@ v2021.10.04 (beta)
 v2021.10.02 (beta)
 -------------------
 
-- *First public release of `beta` version with __Git__ on [CurseForge.com](https://www.curseforge.com/wow/addons/mission-report-button-plus) and [GitHub.com](https://github.com/erglo/mission-report-button-plus).*
+- _First public release_ of `beta` version with **Git** on [CurseForge.com](https://www.curseforge.com/wow/addons/mission-report-button-plus) and [GitHub.com](https://github.com/erglo/mission-report-button-plus).
 - **Updated** locale files with recent UI option strings.
 
 v2021.10.01 (beta)
@@ -108,12 +115,12 @@ v2021.09.17 (beta)
 v2021.09.15 (beta)
 -------------------
 
-- **Updated** project status to `beta`. __Testers welcome!__
+- **Updated** project status to `beta`. **Testers welcome!**
 
 v2021.09.14 (beta)
 -------------------
 
-- **Added** version control management with __Git__, including meta files.
+- **Added** version control management with **Git**, including meta files.
 - **Added** calendar world quest event week watcher.
 
 v2021.09.10 (alpha)
@@ -184,7 +191,7 @@ v2021.03.31 (alpha)
 v2021.03.26 (alpha)
 -------------------
 
-- *Initial public release* of `alpha` version.
+- _Initial public release_ of `alpha` version.
 - **Added** copyright infos and long description.
 - **Added** locale files (enUS + deDE).
 - **Added** add-on page at

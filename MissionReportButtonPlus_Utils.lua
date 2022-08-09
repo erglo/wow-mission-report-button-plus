@@ -149,6 +149,7 @@ function util:CreateInlineIcon(atlasNameOrTexID, size, xOffset, yOffset)  --> Re
 		return CreateAtlasMarkup(atlasNameOrTexID, size, size, xOffset, yOffset);  --> keep original color
 	end
 end
+-- util:CreateInlineIcon(314096)  --> new feature icon
 
 ----- Data handler -------------------------------------------------------------
 

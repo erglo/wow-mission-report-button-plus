@@ -8,7 +8,7 @@ Adds a right-click menu to the mission report button on the minimap for selectin
 
 ## Problem
 
-As soon as a new WoW extension comes out the button on the minimap which opens the mission report frame is disabled until you reach the max. level of that extension and after you meet certain criteria in order to send your little helpers on missions. But only the reports to missions of the current extension can be viewed by the now _replaced_ minimap button, with _no other options_ to view 'older' reports any more unless you visit your old mission tables, and often only to find out that your too early and your missions are _not ready_.  
+As soon as a new WoW extension comes out the button on the minimap which opens the mission report frame is disabled until you reach the max. level of that extension and after you meet certain criteria in order to send your little helpers on missions. But only the reports to missions of the current extension can be viewed by the now *replaced* minimap button, with *no other options* to view 'older' reports any more unless you visit your old mission tables, and often only to find out that your too early and your missions are *not ready*.  
 I was very pleased to see that the WoW Companion app for mobile phones addressed this problem, but the main game still doesn't.
 
 ## Solution
@@ -30,6 +30,7 @@ It is still possible to access mission reports from previous extensions, but the
 + [x] choose from a variety of options and adjust the addon to your liking
 + [x] expansions you (yet) don't own will be hidden in the menu
 + [x] expansions without an unlocked command table will be displayed, but disabled
+  + [x] now showing a hint on which quest unlocks it
 + [x] de-/select the menu entries which expansion are no longer of interest to you
 + [x] display the minimap button of the previous expansion as long current command table is yet unlocked
 + [x] see details about in-progress mission of each command table
@@ -40,7 +41,7 @@ It is still possible to access mission reports from previous extensions, but the
 
 ### Interested in helping?
 
-_Contributors are most welcome!_  
+*Contributors are most welcome!*  
 [Report a problem](https://github.com/erglo/mission-report-button-plus/issues) when you find any errors on this project's issues page.  
 [Start translating](https://www.curseforge.com/wow/addons/mission-report-button-plus/localization) when you're missing your language or simply want to help with localization.  
 [Leave a comment](https://www.curseforge.com/wow/addons/mission-report-button-plus#comments) if you have a *feature request* or *tell me what you think* about this addon.

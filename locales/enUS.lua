@@ -1,12 +1,13 @@
-local ns = select( 2, ... );
+local ns = select( 2, ... )
 
 -- default / fallback locale
 
 ns.L = {
 	--[[ TOC file notes ]]--
 	TOC_FILE_NOTES = "Adds a right-click menu to the mission report button on the minimap|nfor selecting reports of previous extensions as well.",
-	--[[ Minimap button ]]--
+	--[[ Tooltips ]]--
 	TOOLTIP_CLICKTEXT_MINIMAPBUTTON = "Right-click to select expansion",
+	TOOLTIP_REQUIREMENTS_TEXT_S = 'Complete "%s" to unlock content',
 	--[[ Slash command descriptions ]]--
 	SLASHCMD_DESC_VERSION = "Prints this add-on's current version info",
 	SLASHCMD_DESC_CHATMSG = "Toggles chat notifications",
@@ -63,4 +64,4 @@ ns.L = {
 	--[[ Testing ]]--
 	WORK_IS_EXPERIMENTAL = "(Experimental)",
 	WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION = "(This function is experimental and under development. It might deliver incomplete information or even not work properly.)",
-};
+}

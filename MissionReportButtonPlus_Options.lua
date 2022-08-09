@@ -195,7 +195,7 @@ end
 
 ----- Interface options --------------------------------------------------------
 
-MRBP_InterfaceOptionsPanel = CreateFrame("Frame", "MissionReportButtonPlusInterfaceOptionsFrame");
+MRBP_InterfaceOptionsPanel = CreateFrame("Frame", AddonID.."InterfaceOptionsFrame");
 
 function MRBP_InterfaceOptionsPanel:Initialize()
 	----------------------------------------------------------------------------
@@ -345,19 +345,19 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 
 	--[[ General settings ]]--
 
-	local chatMsgCB = CreateFrame("CheckButton", self:GetName().."ChatMsgCB", self, "InterfaceOptionsCheckButtonTemplate");
-	chatMsgCB:SetPoint("TOPLEFT", separatorTexture, "BOTTOMLEFT", 0, -12);
-	chatMsgCB.type = CONTROLTYPE_CHECKBOX;
-	chatMsgCB.text = _G[chatMsgCB:GetName().."Text"];
-	chatMsgCB.text:SetText(L.CFG_CHAT_NOTIFY_TEXT);
-	chatMsgCB.tooltipText = L.CFG_CHAT_NOTIFY_TOOLTIP;
-	chatMsgCB.varname = "showChatNotifications";
-	chatMsgCB.GetValue = CheckButton_GetValue;
-	chatMsgCB.SetValue = CheckButton_SetValue;
-	BlizzardOptionsPanel_RegisterControl(chatMsgCB, self);
+	local showChatMsgCB = CreateFrame("CheckButton", self:GetName().."ShowChatMsgCB", self, "InterfaceOptionsCheckButtonTemplate");
+	showChatMsgCB:SetPoint("TOPLEFT", separatorTexture, "BOTTOMLEFT", 0, -12);
+	showChatMsgCB.type = CONTROLTYPE_CHECKBOX;
+	showChatMsgCB.text = _G[showChatMsgCB:GetName().."Text"];
+	showChatMsgCB.text:SetText(L.CFG_CHAT_NOTIFY_TEXT);
+	showChatMsgCB.tooltipText = L.CFG_CHAT_NOTIFY_TOOLTIP;
+	showChatMsgCB.varname = "showChatNotifications";
+	showChatMsgCB.GetValue = CheckButton_GetValue;
+	showChatMsgCB.SetValue = CheckButton_SetValue;
+	BlizzardOptionsPanel_RegisterControl(showChatMsgCB, self);
 
 	local showMinimapButtonCB = CreateFrame("CheckButton", self:GetName().."ShowMinimapButtonCB", self, "InterfaceOptionsCheckButtonTemplate");
-	showMinimapButtonCB:SetPoint("LEFT", chatMsgCB, "LEFT", (panelContainerWidth/2)-16, 0);
+	showMinimapButtonCB:SetPoint("LEFT", showChatMsgCB, "LEFT", (panelContainerWidth/2)-16, 0);
 	showMinimapButtonCB.type = CONTROLTYPE_CHECKBOX;
 	showMinimapButtonCB.text = _G[showMinimapButtonCB:GetName().."Text"];
 	showMinimapButtonCB.text:SetText(strjoin(" ", L.CFG_MINIMAPBUTTON_SHOWBUTTON_TEXT, GRAY_FONT_COLOR:WrapTextInColorCode(L.WORK_IS_EXPERIMENTAL)));
@@ -373,7 +373,7 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	BlizzardOptionsPanel_RegisterControl(showMinimapButtonCB, self);
 
 	local addonNameCB = CreateFrame("CheckButton", self:GetName().."AddonNameCB", self, "InterfaceOptionsCheckButtonTemplate");
-	addonNameCB:SetPoint("TOPLEFT", chatMsgCB, "BOTTOMLEFT", 0, -8);
+	addonNameCB:SetPoint("TOPLEFT", showChatMsgCB, "BOTTOMLEFT", 0, -8);
 	addonNameCB.type = CONTROLTYPE_CHECKBOX;  --> WoW global
 	addonNameCB.text = _G[addonNameCB:GetName().."Text"];
 	addonNameCB.text:SetText(L.CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TEXT);
@@ -530,8 +530,10 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryTooltipReqsCB:SetPoint("TOPLEFT", entryTooltipThreatsCB, "BOTTOMLEFT", 0, -8);
 	entryTooltipReqsCB.type = CONTROLTYPE_CHECKBOX;
 	entryTooltipReqsCB.text = _G[entryTooltipReqsCB:GetName().."Text"];
-	entryTooltipReqsCB.text:SetText(strjoin(" ", L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TEXT, GRAY_FONT_COLOR:WrapTextInColorCode(L.WORK_IS_EXPERIMENTAL)));
-	entryTooltipReqsCB.tooltipText = strjoin("|n|n", L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TOOLTIP, L.WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION);
+	-- entryTooltipReqsCB.text:SetText(strjoin(" ", L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TEXT, GRAY_FONT_COLOR:WrapTextInColorCode(L.WORK_IS_EXPERIMENTAL)));
+	-- entryTooltipReqsCB.tooltipText = strjoin("|n|n", L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TOOLTIP, L.WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION);
+	entryTooltipReqsCB.text:SetText(util:CreateInlineIcon(314096) .. L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TEXT);
+	entryTooltipReqsCB.tooltipText = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TOOLTIP;
 	entryTooltipReqsCB.varname = "showEntryRequirements";
 	entryTooltipReqsCB.GetValue = CheckButton_GetValue;
 	entryTooltipReqsCB.SetValue = CheckButton_SetValue;
@@ -579,7 +581,7 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	};
 	--> Do NOT remove the placeholders! The position (index) of each expansion
 	--  name is equal to the expansion ID which is used in the core file. The
-	--  "Settings" entry is the extra value (latest expansion ID + 1) .
+	--  "Settings" entry is the extra value (latest expansion ID + 1).
 	ns.settingsMenuEntry = tostring(#expansionNames);
 
 	local function MenuEntriesSelectionDropDown_OnClick(self)

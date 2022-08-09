@@ -1,14 +1,15 @@
 if ( GetLocale() ~= "deDE" ) then
-	return;
+	return
 end
 
-local ns = select(2, ...);
+local ns = select(2, ...)
 
 ns.L = {
 	--[[ TOC file notes ]]--
 	TOC_FILE_NOTES = "Erweitert den Missionsbericht-Button der Minikarte um eine Auswahl|nmit Berichten früherer Erweiterungen.",
-	--[[ Minimap button ]]--
+	--[[ Tooltips ]]--
 	TOOLTIP_CLICKTEXT_MINIMAPBUTTON = "Rechtsklicken, um Erweiterung auszuwählen",
+	TOOLTIP_REQUIREMENTS_TEXT_S = '"%s" abschließen, um Inhalt freizuschalten',
 	--[[ Slash command descriptions ]]--
 	SLASHCMD_DESC_VERSION = "Liest die aktuelle Version dieses Addons aus",
 	SLASHCMD_DESC_CHATMSG = "Chatbenachrichtigungen ein/aus",
@@ -65,4 +66,4 @@ ns.L = {
 	--[[ Testing ]]--
 	WORK_IS_EXPERIMENTAL = "(Experimentell)",
 	WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION = "(Diese Funktion befindet sich in einer experimentellen Entwicklungsphase und kann unvollständige Informationen liefern oder nicht ordnungsgemäß funktionieren.)",
-};
+}
