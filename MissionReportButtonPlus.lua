@@ -1,9 +1,9 @@
 --------------------------------------------------------------------------------
 --[[ Mission Report Button Plus ]]--
 --
--- by erglo <erglo.coder@gmail.com>
+-- by erglo <erglo.coder+MRBP@gmail.com>
 --
--- Copyright (C) 2021-2022  Erwin D. Glockner (aka erglo)
+-- Copyright (C) 2022  Erwin D. Glockner (aka erglo)
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -39,12 +39,6 @@ local util = ns.utilities
 
 local MRBP_GARRISON_TYPE_INFOS = {}
 local MRBP_EventMessagesCounter = {}
-
--- Compatibility
-local IsCompleted = C_QuestLog.IsQuestFlaggedCompleted  --> REF.: <FrameXML/Blizzard_APIDocumentation/QuestLogDocumentation.lua>
-local GetQuestName = QuestUtils_GetQuestName  --> REF.: <FrameXML/QuestUtils.lua>
-local GetBountiesForMapID = C_QuestLog.GetBountiesForMapID
-local GetUnlockedBountiesForMapID = MapUtil.MapHasUnlockedBounties
 
 ----- Main ---------------------------------------------------------------------
 
@@ -163,11 +157,11 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 		-- 	-- REF.: <FrameXML/Blizzard_APIDocumentation/QuestLogDocumentation.lua>
 		-- 	-- REF.: <FrameXML/QuestUtils.lua>
 		-- 	local questID = ...
-		-- 	local questName = GetQuestName(questID)
+		-- 	local questName = QuestUtils_GetQuestName(questID)
 		-- 	_log:debug(event, questID, questName)
 		-- 	if MRBP_IsQuestGarrisonRequirement(questID) then
 		-- 		_log:info("Required quest completed!", questID, questName)
-		-- 		--> TODO - Add 'is unlocked/complete' info to data table
+		-- 		--> TODO - Print 'is unlocked/complete' info to chat
 		-- 	end
 
 		elseif (event == "COVENANT_CALLINGS_UPDATED") then
@@ -293,11 +287,13 @@ local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
 local function MRBP_GetGarrisonTypeUnlockQuestInfo(garrTypeID, tagName)
 	local reqMessageTemplate = L.TOOLTIP_REQUIREMENTS_TEXT_S  --> same as Companion App text
 	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID][tagName]
-	local questFallbackName = questData[2]
+	local questID = questData[1]
+	local questFallbackName = questData[2]  --> quest name in English
+	local questName = QuestUtils_GetQuestName(questID)
 
 	local questInfo = {}
-	questInfo["questID"] = questData[1]
-	questInfo["questName"] = GetQuestName(questInfo.questID) or questFallbackName
+	questInfo["questID"] = questID
+	questInfo["questName"] = strlen(questName) > 0 and questName or questFallbackName
 	questInfo["requirementText"] = reqMessageTemplate:format(questInfo.questName)
 
 	return questInfo
@@ -307,6 +303,7 @@ end
 --> Returns: boolean
 local function MRBP_IsGarrisonTypeUnlocked(garrTypeID, tagName)
 	local questInfo = MRBP_GetGarrisonTypeUnlockQuestInfo(garrTypeID, tagName)
+	local IsCompleted = C_QuestLog.IsQuestFlaggedCompleted
 
 	--> FIXME - Temp. work-around (better with achievement of same name ???)
 	-- In Shadowlands if you skip the story mode you get a different quest (ID) with the same name, so
@@ -373,8 +370,8 @@ function MRBP:LoadData()
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
-				["bounties"] = GetBountiesForMapID(650),  --> any child zone from "continents" in Legion seems to work
-				["areBountiesUnlocked"] = GetUnlockedBountiesForMapID(650),
+				["bounties"] = C_QuestLog.GetBountiesForMapID(650),  --> any child zone from "continents" in Legion seems to work
+				["areBountiesUnlocked"] = MapUtil.MapHasUnlockedBounties(650),
 			},
 		},
 		-----[[ Battle for Azeroth ]]-----
@@ -396,8 +393,8 @@ function MRBP:LoadData()
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
-				["bounties"] = GetBountiesForMapID(875),  --> or any child zone from "continents" seems to work as well.
-				["areBountiesUnlocked"] = GetUnlockedBountiesForMapID(875),  --> checking only Zandalar should be enough
+				["bounties"] = C_QuestLog.GetBountiesForMapID(875),  --> or any child zone from "continents" seems to work as well.
+				["areBountiesUnlocked"] = MapUtil.MapHasUnlockedBounties(875),  --> checking only Zandalar should be enough
 			},
 		},
 		-----[[ Shadowlands ]]-----
@@ -503,7 +500,7 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 		end
 	end
 
-	--[[ In-progress mission infos ]]--  									  	--> TODO - add numAvailable to mission infos
+	--[[ In-progress mission infos ]]--
 	local tooltipText = isDisabled and DISABLED_FONT_COLOR:WrapTextInColorCode(garrInfo.description) or garrInfo.description
 	if (ns.settings.showMissionCountInTooltip and not isDisabled) then
 		-- Add category title for missions
@@ -517,8 +514,14 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 			tooltipText = tooltipText.."|n"..garrInfo.msg.missionsEmptyProgress
 		end
 		tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE
-		if (numCompleted > 0) then
-			tooltipText = tooltipText.."|n|n"..garrInfo.msg.missionsComplete
+		if ns.settings.showMissionCompletedHintOnlyForAll then
+			if (numCompleted > 0 and numCompleted == numInProgress) then
+				tooltipText = tooltipText.."|n|n"..garrInfo.msg.missionsComplete
+			end
+		else
+			if (numCompleted > 0) then
+				tooltipText = tooltipText.."|n|n"..garrInfo.msg.missionsComplete
+			end
 		end
 	end
 	-- Show requirement for unlocking the given garrison type
@@ -543,11 +546,11 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 			end
 			for _, bountyData in ipairs(bountyBoard.bounties) do
 				if bountyData then
-					local questName = GetQuestName(bountyData.questID)
+					local questName = QuestUtils_GetQuestName(bountyData.questID)
 					local icon = util:CreateInlineIcon(bountyData.icon)
 					if (garrTypeID == Enum.GarrisonType.Type_9_0) then
 						icon = util:CreateInlineIcon(bountyData.icon, 16, nil, nil)
-						-- GetBountiesForMapID(875)
+						-- C_QuestLog.GetBountiesForMapID(875)
 					end
 					if bountyData.turninRequirementText then
 						--> REF.: <FrameXML//WorldMapBountyBoard.lua>
@@ -609,7 +612,7 @@ end
 -- Create the dropdown menu items.
 -- Note: 'self' refers in this case to the dropdown menu frame.
 function MRBP:GarrisonLandingPageDropDown_Initialize(level)
-	_log:info("Init. drop-down menu...")
+	_log:info("Initializing drop-down menu...")
 	-- Sort display order *only once* per changed setting
 	local isInitialSortOrder = max(SafeUnpack(MRBP_GARRISON_TYPE_INFOS_SORTORDER)) == MRBP_GARRISON_TYPE_INFOS_SORTORDER[1]
 
@@ -626,7 +629,6 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 
 	local filename, width, height, txLeft, txRight, txTop, txBottom  --> for not showing mission type icons
 	local playerMaxLevelForExpansion = GetMaxLevelForPlayerExpansion()
-	-- local shouldShowDisabled, playerOwnsExpansion, isActiveEntry
 	local activeThreats = util:GetActiveWorldMapThreats()
 
 	for i, garrTypeID in ipairs(MRBP_GARRISON_TYPE_INFOS_SORTORDER) do
@@ -906,8 +908,8 @@ local SLASH_CMD_ARGLIST = {
 	-- arg, description
 	{"version", L.SLASHCMD_DESC_VERSION},
 	{"chatmsg", L.SLASHCMD_DESC_CHATMSG},
-	{"show", "Blendet den Missionsbericht-Button der Minimap ein."},  			--> TODO - L10n
-	{"hide", "Blendet den Missionsbericht-Button der Minimap aus."},			--> TODO - L10n
+	{"show", L.SLASHCMD_DESC_SHOW},
+	{"hide", L.SLASHCMD_DESC_HIDE},
 	{"config", BASIC_OPTIONS_TOOLTIP},  --> WoW global string
 }
 

@@ -1,9 +1,9 @@
 --------------------------------------------------------------------------------
 --[[ Mission Report Button Plus - Interface Options ]]--
 --
--- by erglo <erglo.coder@gmail.com>
+-- by erglo <erglo.coder+MRBP@gmail.com>
 --
--- Copyright (C) 2021  Erwin D. Glockner (aka erglo)
+-- Copyright (C) 2022  Erwin D. Glockner (aka erglo)
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -90,7 +90,7 @@ local function LoadSettings()
 
 	-- Clean-up old settings from the saved variables, eg.
 	-- from previous versions to avoid clutter. Only keep
-	-- entries which exist in the default settings as well.
+	-- entries which exist in the default settings.
 	for key, value in pairs(ns.settings) do
 		if ( ns.defaultSettings[key] == nil ) then
 			ns.settings[key] = nil;
@@ -511,6 +511,7 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryBountyReqCB.SetValue = CheckButton_SetValue;
 	BlizzardOptionsPanel_RegisterControl(entryBountyReqCB, self);
 	BlizzardOptionsPanel_SetupDependentControl(entryTooltipBountiesCB, entryBountyReqCB);
+	BlizzardOptionsPanel_SetupDependentControl(entryTooltipCB, entryBountyReqCB);
 	BlizzardOptionsPanel_SetupDependentControl(showMinimapButtonCB, entryBountyReqCB);
 
 	local entryTooltipThreatsCB = CreateFrame("CheckButton", self:GetName().."EntryTooltipThreatsCB", self, "InterfaceOptionsCheckButtonTemplate");
@@ -532,7 +533,7 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	entryTooltipReqsCB.text = _G[entryTooltipReqsCB:GetName().."Text"];
 	-- entryTooltipReqsCB.text:SetText(strjoin(" ", L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TEXT, GRAY_FONT_COLOR:WrapTextInColorCode(L.WORK_IS_EXPERIMENTAL)));
 	-- entryTooltipReqsCB.tooltipText = strjoin("|n|n", L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TOOLTIP, L.WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION);
-	entryTooltipReqsCB.text:SetText(util:CreateInlineIcon(314096) .. L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TEXT);
+	entryTooltipReqsCB.text:SetText(util:CreateInlineIcon(314096, 12) .. L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TEXT);
 	entryTooltipReqsCB.tooltipText = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TOOLTIP;
 	entryTooltipReqsCB.varname = "showEntryRequirements";
 	entryTooltipReqsCB.GetValue = CheckButton_GetValue;
@@ -738,26 +739,4 @@ function MRBP_InterfaceOptionsPanel:Initialize()
 	UIDropDownMenu_SetWidth(menuStyleDD, panelContainerWidth/3);
 	UIDropDownMenu_Initialize(menuStyleDD, BorderSelectionDropDown_Initialize);
 	UIDropDownMenu_SetSelectedValue(menuStyleDD, ns.settings.menuStyleID);
-
-	--[[ Account-wide options ]]--												--> TODO - Really needed?
-
-	-- -- <Interface/AddOns/Blizzard_BindingUI/Blizzard_BindingUI.xml#L158>
-	-- local setGlobalsButton = CreateFrame("Button", self:GetName().."SetGlobalsButton", self, "UIPanelButtonTemplate");
-	-- setGlobalsButton:SetPoint("BOTTOMRIGHT", self, -16, 16);
-	-- setGlobalsButton.text = _G[setGlobalsButton:GetName().."Text"];
-	-- setGlobalsButton.text:SetText("Als Vorlage verwenden");					--> TODO - L10n
-	-- setGlobalsButton.tooltipText = "Aktuelle Einstellungen speichern und als Vorlage für alle Charaktere verwenden.";
-	-- setGlobalsButton:SetSize(setGlobalsButton:GetTextWidth()+40, 22);
-	-- setGlobalsButton:SetScript("OnClick", function(self, button, isDown)
-	-- 	PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK);
-	-- 	MRBP_GlobalSettings = {};
-	-- 	SaveSettings();
-	-- 	-- SetAsGlobalSettings();
-	-- 	self:Disable();
-	-- end);
-	-- setGlobalsButton:SetScript("OnEnter", function(self)
-	-- 	GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT");
-	-- 	GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true);
-	-- end);
-	-- setGlobalsButton:SetScript("OnLeave", GameTooltip_Hide);
 end

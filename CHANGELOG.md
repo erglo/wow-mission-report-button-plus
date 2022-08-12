@@ -1,11 +1,12 @@
 Changelog
 =========
 
-v2022.08.10 (beta)
+v2022.08.12 (beta)
 -------------------
 
-- **Updated** locale files with the hint message.
-- **Updated** the hint message; it shows now the quest name which is required to unlock the command table.
+- **Added** tooltip strings for frFR, esES, itIT.
+- **Updated** locale files with current changes.
+- **Fixed** the hint message; it shows now the quest name which is required to unlock the command table.
 - **Fixed** the requirements feature; it now recognizes correctly which garrison type has got an unlocked command table.
 
 v2021.11.22 (beta)

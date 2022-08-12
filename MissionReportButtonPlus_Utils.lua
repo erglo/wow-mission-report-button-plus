@@ -1,9 +1,9 @@
 --------------------------------------------------------------------------------
 --[[ Mission Report Button Plus - Utility and logging functions ]]--
 --
--- by erglo <erglo.coder@gmail.com>
+-- by erglo <erglo.coder+MRBP@gmail.com>
 --
--- Copyright (C) 2021  Erwin D. Glockner (aka erglo)
+-- Copyright (C) 2022  Erwin D. Glockner (aka erglo)
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 --------------------------------------------------------------------------------
 
 local AddonID, ns = ...;
-local L = ns.L;
+-- local L = ns.L;
 
 ns.AddonTitle = GetAddOnMetadata(AddonID, "Title");
 ns.AddonTitleShort = 'MRBP';
@@ -149,7 +149,7 @@ function util:CreateInlineIcon(atlasNameOrTexID, size, xOffset, yOffset)  --> Re
 		return CreateAtlasMarkup(atlasNameOrTexID, size, size, xOffset, yOffset);  --> keep original color
 	end
 end
--- util:CreateInlineIcon(314096)  --> new feature icon
+-- util:CreateInlineIcon(314096, 12)  --> new feature icon
 
 ----- Data handler -------------------------------------------------------------
 
@@ -225,21 +225,22 @@ end
 
 ----- WorldMap and Positioning -------------------------------------------------
 
--- Retrieve the zones of given continent's map ID.
---> Returns: <table>
---
--- REF.: <FrameXML/Blizzard_APIDocumentation/MapDocumentation.lua>
-function util:GetContinentZones(mapID, allDescendants)
-	local infos = {};
-	local ALL_DESCENDANTS = allDescendants or false;
+-- -- Retrieve the zones of given continent's map ID.
+-- --> Returns: <table>
+-- --
+-- -- REF.: <FrameXML/Blizzard_APIDocumentation/MapDocumentation.lua>
+-- function util:GetContinentZones(mapID, allDescendants)
+-- 	local infos = {};
+-- 	local ALL_DESCENDANTS = allDescendants or false;
 
-	for i, mapInfo in pairs(C_Map.GetMapChildrenInfo(mapID, Enum.UIMapType.Zone, ALL_DESCENDANTS)) do
-		tinsert(infos, mapInfo);
-		-- print(i, mapInfo.mapID, mapInfo.name, "-->", mapInfo.mapType);
-	end
+-- 	for i, mapInfo in pairs(C_Map.GetMapChildrenInfo(mapID, Enum.UIMapType.Zone, ALL_DESCENDANTS)) do
+-- 		tinsert(infos, mapInfo);
+-- 		-- print(i, mapInfo.mapID, mapInfo.name, "-->", mapInfo.mapType);
+-- 	end
 
-	return infos;
-end
+-- 	return infos;
+-- end
+
 
 -- Find active threats in the world, if active for current player; eg. the
 -- covenant attacks in The Maw or the N'Zoth's attacks in Battle for Azeroth.
