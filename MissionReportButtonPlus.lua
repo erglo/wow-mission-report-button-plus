@@ -125,7 +125,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			local missionInfo = C_Garrison.GetBasicMissionInfo(missionID)
 			local missionLink = C_Garrison.GetMissionLink(missionID)
 			local missionIcon = missionInfo.typeTextureKit and missionInfo.typeTextureKit.."-Map" or missionInfo.typeAtlas
-			local missionName = util:CreateInlineIcon(missionIcon).." "..missionLink
+			local missionName = util:CreateInlineIcon(missionIcon)..missionLink
 			_log:debug(event, "followerTypeID:", followerTypeID, "missionID:", missionID, missionInfo.name)
 			--> TODO - Count and show number of twinks' finished missions ???  --> MRBP_GlobalMissions
 			--> TODO - Remove from MRBP_GlobalMissions
@@ -246,12 +246,10 @@ local MRBP_GARRISON_TYPE_INFOS_SORTORDER = {
 -- A collection of quest for (before) unlocking the command table.
 --> <questID, questName_English (fallback)>
 local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
-	[Enum.GarrisonType.Type_6_0] = {  --> FIXME - This doesn't seem to work for upgraded characters class dependent?
-			-- ["Horde"] = 36614, -- "My Very Own Fortress"},
-			-- ["Alliance"] = 36615, -- "My Very Own Castle"},
-			-- REF.: <https://www.wowhead.com/guides/garrisons/quests-to-unlock-a-level-1-and-level-2-garrison>
-			["Horde"] = {34775, "Mission Probable"},  --> wowhead
-			["Alliance"] = {34692, "Delegating on Draenor"},  --> Companion App
+	[Enum.GarrisonType.Type_6_0] = {
+		-- REF.: <https://www.wowhead.com/guides/garrisons/quests-to-unlock-a-level-1-and-level-2-garrison>
+		["Horde"] = {34775, "Mission Probable"},  --> wowhead
+		["Alliance"] = {34692, "Delegating on Draenor"},  --> Companion App
 	},
 	[Enum.GarrisonType.Type_7_0] = {
 		["WARRIOR"] = {40585, "Thus Begins the War"},
@@ -282,6 +280,22 @@ local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
 	},
 }
 
+-- Request data for the unlocking requirement quests; on initial log-in the
+-- localized quest titles are not always available. This should help getting
+-- the quest infos in the language the player has chosen.
+local function MRBP_RequestLoadQuestData(playerInfo)
+	local playerTagNames = {playerInfo.factionGroup, playerInfo.className, playerInfo.covenantID}
+	for garrTypeID, questData in pairs(MRBP_COMMAND_TABLE_UNLOCK_QUESTS) do
+		for tagName, questTable in pairs(questData) do
+			local questID = questTable[1]
+			if tContains(playerTagNames, tagName) then
+				_log:debug("Requesting data for", questTable[2])
+				C_QuestLog.RequestLoadQuestByID(questID)
+			end
+		end
+	end
+end
+
 -- Get quest infos of given garrison type for given tag.
 --> Returns: table  {questID, questName, requirementText}
 local function MRBP_GetGarrisonTypeUnlockQuestInfo(garrTypeID, tagName)
@@ -302,7 +316,8 @@ end
 -- Check if given garrison type is unlocked for given tag.
 --> Returns: boolean
 local function MRBP_IsGarrisonTypeUnlocked(garrTypeID, tagName)
-	local questInfo = MRBP_GetGarrisonTypeUnlockQuestInfo(garrTypeID, tagName)
+	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID][tagName]
+	local questID = questData[1]
 	local IsCompleted = C_QuestLog.IsQuestFlaggedCompleted
 
 	--> FIXME - Temp. work-around (better with achievement of same name ???)
@@ -310,10 +325,10 @@ local function MRBP_IsGarrisonTypeUnlocked(garrTypeID, tagName)
 	-- we need to check both quests.
 	if (garrTypeID == Enum.GarrisonType.Type_9_0) then
 		local questID2 = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID]["alt"][1]
-		return IsCompleted(questInfo.questID) or IsCompleted(questID2)
-	else
-		return IsCompleted(questInfo.questID)
+		return IsCompleted(questID) or IsCompleted(questID2)
 	end
+
+	return IsCompleted(questID)
 end
 
 -- Preparing this data on start-up results sometimes, in empty (nil) values,
@@ -330,6 +345,9 @@ function MRBP:LoadData()
 	local covenantData = C_Covenants.GetCovenantData(C_Covenants.GetActiveCovenantID())  --> for Shadowlands icon
 	playerInfo.covenantTex = covenantData and covenantData.textureKit or "kyrian"
 	playerInfo.covenantID = covenantData and covenantData.ID or Enum.CovenantType.Kyrian
+
+	-- Prepare quest data for the unlocking requirements
+	MRBP_RequestLoadQuestData(playerInfo)
 
 	-- Main data table with infos about each garrison type
 	MRBP_GARRISON_TYPE_INFOS = {
@@ -541,6 +559,7 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 			tooltipText = tooltipText.."|n|n"..bountyBoard.title
 			_log:debug(garrInfo.title, "- bounties:", #bountyBoard.bounties)
 			if (garrTypeID == Enum.GarrisonType.Type_9_0) then
+				-- Retrieves callings through event listening; try to update.
 				CovenantCalling_CheckCallings()
 				--> REF.: <FrameXML/ObjectAPI/CovenantCalling.lua>
 			end

@@ -41,6 +41,13 @@ It is still possible to access mission reports from previous extensions, but the
 
 ---
 
+### Known Issues
+
++ As soon as you unlock a command table the minimap button doesn't update automatically. The add-on gathers this information only once at startup in order to save memory. You need to reload the UI manually, eg. by typing `/reload` in the chat frame. Logging-out and -in again also works.  
+  I will fix this as soon as possible.
+
+---
+
 ### Interested in helping?
 
 *Contributors are most welcome!*  

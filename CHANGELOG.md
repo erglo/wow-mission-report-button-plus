@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v2022.08.31 (beta)
+------------------
+
+- **Updated** TOC file to WoW version `9.2.7`.
+- **Fixed** localized quest names for unlocking requirements; only the English fallback title was shown on initial
+  log-in with an other locale.
+
 v2022.08.12 (beta)
 -------------------
 
