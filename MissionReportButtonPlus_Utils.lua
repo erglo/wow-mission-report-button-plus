@@ -130,8 +130,9 @@ end
 
 -- REF.: <FrameXML/TextureUtil.lua>
 -- REF.: <https://wowpedia.fandom.com/wiki/UI_escape_sequences#Textures>
-function util:CreateInlineIcon(atlasNameOrTexID, size, xOffset, yOffset)  --> Returns: string
-	size = size or 16;
+function util:CreateInlineIcon(atlasNameOrTexID, sizeX, sizeY, xOffset, yOffset)  --> Returns: string
+	sizeX = sizeX or 16;
+	sizeY = sizeY or 16;
 	xOffset = xOffset or 0;
 	yOffset = yOffset or -1;
 
@@ -141,12 +142,12 @@ function util:CreateInlineIcon(atlasNameOrTexID, size, xOffset, yOffset)  --> Re
 	end
 	if ( type(atlasNameOrTexID) == "number") then
 		-- REF.: CreateTextureMarkup(file, fileWidth, fileHeight, width, height, left, right, top, bottom, xOffset, yOffset)
-		return CreateTextureMarkup(atlasNameOrTexID, 0, 0, size, size, 0, 0, 0, 0, xOffset, yOffset);  --> keep original color
+		return CreateTextureMarkup(atlasNameOrTexID, 0, 0, sizeX, sizeY, 0, 0, 0, 0, xOffset, yOffset);  --> keep original color
 		-- return string.format("|T%d:%d:%d:%d:%d|t", atlasNameOrTexID, size, size, xOffset, yOffset);
 	end
 	if ( type(atlasNameOrTexID) == "string" or tonumber(atlasNameOrTexID) ~= nil ) then
 		-- REF.: CreateAtlasMarkup(atlasName, width, height, offsetX, offsetY, rVertexColor, gVertexColor, bVertexColor)
-		return CreateAtlasMarkup(atlasNameOrTexID, size, size, xOffset, yOffset);  --> keep original color
+		return CreateAtlasMarkup(atlasNameOrTexID, sizeX, sizeY, xOffset, yOffset);  --> keep original color
 	end
 end
 -- util:CreateInlineIcon(314096, 12)  --> new feature icon
@@ -172,6 +173,7 @@ function util:GetExpansionInfo(expansionLevel)
 		EXPANSION_NAME6,  --> "Legion"
 		EXPANSION_NAME7,  --> "Battle for Azeroth"
 		EXPANSION_NAME8,  --> "Shadowlands"
+		EXPANSION_NAME9,  --> "Dragonflight"
 	};
 
 	if not expansionLevel then

@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v2022.11.18 (beta)
+------------------
+
+- **Fixed** interface options in order to work with the new WoW 10.x settings UI.
+- **Fixed** right-click menu which did not to appear due to recent WoW 10.x changes, eg. `GarrisonLandingPageMinimapButton` was renamed to `ExpansionLandingPageMinimapButton`.
+
 v2022.08.31 (beta)
 ------------------
 

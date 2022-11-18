@@ -1,9 +1,10 @@
-package-as: MissionReportButtonPlus
+package-as: MissionReportButtonPlus_v2022.11.18-beta3
 
 enable-nolib-creation: no
 
 ignore:
     - README.md
+    - .gitignore
 
 manual-changelog:
     filename: CHANGELOG.md

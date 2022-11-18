@@ -48,16 +48,16 @@ local MRBP = CreateFrame("Frame", AddonID.."EventListenerFrame")
 FrameUtil.RegisterFrameForEvents(MRBP, {
 	"ADDON_LOADED",
 	"PLAYER_ENTERING_WORLD",
-	"GARRISON_BUILDING_ACTIVATABLE",
-	"GARRISON_INVASION_AVAILABLE",
-	"GARRISON_MISSION_FINISHED",
-	"GARRISON_TALENT_COMPLETE",
-	-- "GARRISON_MISSION_STARTED",  	--> TODO - Track twinks' missions
-	"QUEST_TURNED_IN",
-	"QUEST_AUTOCOMPLETE",
-	"COVENANT_CALLINGS_UPDATED",
 	"GARRISON_SHOW_LANDING_PAGE",
 	"GARRISON_HIDE_LANDING_PAGE",
+	"GARRISON_BUILDING_ACTIVATABLE",
+	"GARRISON_MISSION_FINISHED",
+	"GARRISON_INVASION_AVAILABLE",
+	"GARRISON_TALENT_COMPLETE",
+	-- "GARRISON_MISSION_STARTED",  	--> TODO - Track twinks' missions
+	-- "QUEST_TURNED_IN",
+	-- "QUEST_AUTOCOMPLETE",
+	"COVENANT_CALLINGS_UPDATED",
 	}
 )
 
@@ -89,23 +89,25 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 
 			local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrisonType]
 			local buildings = C_Garrison.GetBuildings(garrisonType)
-			for i = 1, #buildings do
-				local buildingID = buildings[i].buildingID
-				local name, texture, shipmentCapacity = C_Garrison.GetLandingPageShipmentInfo(buildingID)
-				if (name == buildingName) then
-					_log:debug("building:", buildingID, name)
-					-- Add icon to building name
-					buildingName = util:CreateInlineIcon(texture).." "..buildingName
-					if (MRBP_EventMessagesCounter[event][garrisonType][buildingID] == nil) then
-						MRBP_EventMessagesCounter[event][garrisonType][buildingID] = false
+			if buildings then
+				for i = 1, #buildings do
+					local buildingID = buildings[i].buildingID
+					local name, texture, shipmentCapacity = C_Garrison.GetLandingPageShipmentInfo(buildingID)
+					if (name == buildingName) then
+						_log:debug("building:", buildingID, name)
+						-- Add icon to building name
+						buildingName = util:CreateInlineIcon(texture).." "..buildingName
+						if (MRBP_EventMessagesCounter[event][garrisonType][buildingID] == nil) then
+							MRBP_EventMessagesCounter[event][garrisonType][buildingID] = false
+						end
+						if (C_Garrison.IsPlayerInGarrison(garrisonType) or MRBP_EventMessagesCounter[event][garrisonType][buildingID] == false) then
+							util:cprintEvent(garrInfo.expansionInfo.name, GARRISON_BUILDING_COMPLETE, buildingName, GARRISON_FINALIZE_BUILDING_TOOLTIP)
+							MRBP_EventMessagesCounter[event][garrisonType][buildingID] = true
+						else
+							_log:debug("Skipped:", event, garrisonType, buildingID, name)
+						end
+						break
 					end
-					if (C_Garrison.IsPlayerInGarrison(garrisonType) or MRBP_EventMessagesCounter[event][garrisonType][buildingID] == false) then
-						util:cprintEvent(garrInfo.expansionInfo.name, GARRISON_BUILDING_COMPLETE, buildingName, GARRISON_FINALIZE_BUILDING_TOOLTIP)
-						MRBP_EventMessagesCounter[event][garrisonType][buildingID] = true
-					else
-						_log:debug("Skipped:", event, garrisonType, buildingID, name)
-					end
-					break
 				end
 			end
 
@@ -123,13 +125,15 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			local garrTypeID = GarrisonFollowerOptions[followerTypeID].garrisonType
 			local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID]
 			local missionInfo = C_Garrison.GetBasicMissionInfo(missionID)
-			local missionLink = C_Garrison.GetMissionLink(missionID)
-			local missionIcon = missionInfo.typeTextureKit and missionInfo.typeTextureKit.."-Map" or missionInfo.typeAtlas
-			local missionName = util:CreateInlineIcon(missionIcon)..missionLink
-			_log:debug(event, "followerTypeID:", followerTypeID, "missionID:", missionID, missionInfo.name)
-			--> TODO - Count and show number of twinks' finished missions ???  --> MRBP_GlobalMissions
-			--> TODO - Remove from MRBP_GlobalMissions
-			util:cprintEvent(garrInfo.expansionInfo.name, eventMsg, missionName, nil, true)
+			if missionInfo then
+				local missionLink = C_Garrison.GetMissionLink(missionID)
+				local missionIcon = missionInfo.typeTextureKit and missionInfo.typeTextureKit.."-Map" or missionInfo.typeAtlas
+				local missionName = util:CreateInlineIcon(missionIcon)..missionLink
+				_log:debug(event, "followerTypeID:", followerTypeID, "missionID:", missionID, missionInfo.name)
+				--> TODO - Count and show number of twinks' finished missions ???  --> MRBP_GlobalMissions
+				--> TODO - Remove from MRBP_GlobalMissions
+				util:cprintEvent(garrInfo.expansionInfo.name, eventMsg, missionName, nil, true)
+			end
 
 		elseif (event == "GARRISON_TALENT_COMPLETE") then
 			local garrTypeID, doAlert = ...
@@ -222,7 +226,8 @@ function MRBP:OnLoad()
 	_log:info(string.format("Loading %s...", ns.AddonColor:WrapTextInColorCode(ns.AddonTitle)))
 
 	-- Load settings and interface options
-	MRBP_InterfaceOptionsPanel:Initialize()
+	-- MRBP_InterfaceOptionsPanel:Initialize()
+	MRBP_Settings_Register();
 
 	self:RegisterSlashCommands()
 	self:SetButtonHooks()
@@ -438,6 +443,9 @@ function MRBP:LoadData()
 				["areBountiesUnlocked"] = C_CovenantCallings.AreCallingsUnlocked(),
 			},
 		},
+		-----[[ Dragonflight ]]-----
+		-- DRAGONFLIGHT_LANDING_PAGE_TITLE
+		-- DRAGONFLIGHT_LANDING_PAGE_TOOLTIP 
 	}
 end
 
@@ -469,7 +477,7 @@ end
 --> Returns: boolean
 function MRBP_IsGarrisonRequirementMet(garrTypeID)
 	local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID]
-	_log:info("IsGarrisonRequirementMet:", garrTypeID, garrInfo.expansionInfo.name)
+	_log:info("IsGarrisonRequirementMet:", garrTypeID, YELLOW_FONT_COLOR:WrapTextInColorCode(garrInfo.expansionInfo.name))
 
 	local hasGarrison = C_Garrison.HasGarrison(garrTypeID)
 	local isQuestCompleted = MRBP_IsGarrisonTypeUnlocked(garrTypeID, garrInfo.tagName)
@@ -496,6 +504,7 @@ function MRBP_IsAnyGarrisonRequirementMet()
 
 	return false
 end
+ns.MRBP_IsAnyGarrisonRequirementMet = MRBP_IsAnyGarrisonRequirementMet;
 
 -----[[ Dropdown Menu ]]--------------------------------------------------------
 
@@ -568,7 +577,7 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 					local questName = QuestUtils_GetQuestName(bountyData.questID)
 					local icon = util:CreateInlineIcon(bountyData.icon)
 					if (garrTypeID == Enum.GarrisonType.Type_9_0) then
-						icon = util:CreateInlineIcon(bountyData.icon, 16, nil, nil)
+						icon = util:CreateInlineIcon(bountyData.icon, 16)  --, nil, nil)
 						-- C_QuestLog.GetBountiesForMapID(875)
 					end
 					if bountyData.turninRequirementText then
@@ -669,7 +678,7 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 			local labelText, tooltipText = BuildMenuEntryLabelDesc(garrTypeID, shouldShowDisabled, activeThreats)
 
 			local info = UIDropDownMenu_CreateInfo()
-			info.owner = GarrisonLandingPageMinimapButton
+			info.owner = ExpansionLandingPageMinimapButton
 			info.text = labelText
 			info.notCheckable = 1
 			info.tooltipOnButton = ns.settings.showEntryTooltip and 1 or nil
@@ -726,9 +735,7 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 			info.tCoordBottom = txBottom
 		end
 		info.func = function(self)
-			-- Works only then correctly, when you call this twice (!)
-			InterfaceOptionsFrame_OpenToCategory(MRBP_InterfaceOptionsPanel)
-			InterfaceOptionsFrame_OpenToCategory(MRBP_InterfaceOptionsPanel)
+			MRBP_Settings_OpenToCategory(AddonID);
 		end
 		info.tooltipOnButton = 1
 		info.tooltipTitle = SETTINGS  --> WoW global string
@@ -738,20 +745,20 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 	end
 end
 
--- Display the GarrisonLandingPageMinimapButton
+-- Display the ExpansionLandingPageMinimapButton
 function MRBP:ShowMinimapButton(isCalledByUser)
 	if (_log.level == _log.DEBUG) then
-		ns.cprint("IsShown:", GarrisonLandingPageMinimapButton:IsShown())
-		ns.cprint("IsVisible:", GarrisonLandingPageMinimapButton:IsVisible())
+		ns.cprint("IsShown:", ExpansionLandingPageMinimapButton:IsShown())
+		ns.cprint("IsVisible:", ExpansionLandingPageMinimapButton:IsVisible())
 		ns.cprint("showMinimapButton:", ns.settings.showMinimapButton)
 		ns.cprint("isCalledByUser:", isCalledByUser or false)
 		ns.cprint("garrisonType:", MRBP_GetLandingPageGarrisonType())
 	end
 	if (MRBP_GetLandingPageGarrisonType() > 0) then
 		if isCalledByUser then
-			if ( not GarrisonLandingPageMinimapButton:IsShown() ) then
-				GarrisonLandingPageMinimapButton:Show()
-				GarrisonLandingPageMinimapButton_UpdateIcon(GarrisonLandingPageMinimapButton)
+			if ( not ExpansionLandingPageMinimapButton:IsShown() ) then
+				ExpansionLandingPageMinimapButton:Show()
+				ExpansionLandingPageMinimapButton:UpdateIcon(ExpansionLandingPageMinimapButton)
 				-- Manually set by user
 				ns.settings.showMinimapButton = true
 				_log:debug("--> Minimap button should be visible.")
@@ -762,9 +769,9 @@ function MRBP:ShowMinimapButton(isCalledByUser)
 			end
 		else
 			-- Fired by GARRISON_HIDE_LANDING_PAGE event
-			if ( ns.settings.showMinimapButton and (not GarrisonLandingPageMinimapButton:IsShown()) )then
-				GarrisonLandingPageMinimapButton_UpdateIcon(GarrisonLandingPageMinimapButton)
-				GarrisonLandingPageMinimapButton:Show()
+			if ( ns.settings.showMinimapButton and (not ExpansionLandingPageMinimapButton:IsShown()) )then
+				ExpansionLandingPageMinimapButton:UpdateIcon(ExpansionLandingPageMinimapButton)
+				ExpansionLandingPageMinimapButton:Show()
 				_log:debug("--> Minimap button should be visible.")
 				ns.settings.disableShowMinimapButtonSetting = false
 			end
@@ -772,10 +779,10 @@ function MRBP:ShowMinimapButton(isCalledByUser)
 	end
 end
 
--- Hide the GarrisonLandingPageMinimapButton
+-- Hide the ExpansionLandingPageMinimapButton
 function MRBP:HideMinimapButton()
-	if GarrisonLandingPageMinimapButton:IsShown() then
-		GarrisonLandingPageMinimapButton:Hide()
+	if ExpansionLandingPageMinimapButton:IsShown() then
+		ExpansionLandingPageMinimapButton:Hide()
 	end
 end
 ns.HideMinimapButton = MRBP.HideMinimapButton
@@ -801,16 +808,16 @@ ns.ShowMinimapButton_User = MRBP.ShowMinimapButton_User
 -- Hook the functions related to the GarrisonLandingPage's minimap button
 -- and frame (mission report frame).
 function MRBP:SetButtonHooks()
-	if GarrisonLandingPageMinimapButton then
+	if ExpansionLandingPageMinimapButton then
 		_log:info("Hooking into minimap button's tooltip + clicking behavior...")
 
 		-- Minimap button tooltip hook
-		GarrisonLandingPageMinimapButton:HookScript("OnEnter", MRBP_OnEnter)
+		ExpansionLandingPageMinimapButton:HookScript("OnEnter", MRBP_OnEnter)
 
 		-- Mouse button hooks; by default only the left button is registered.
-		GarrisonLandingPageMinimapButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-		GarrisonLandingPageMinimapButton:SetScript("OnClick", MRBP_OnClick)
-		-- GarrisonLandingPageMinimapButton:HookScript("OnClick", MRBP_OnClick)  --> safer, but doesn't work!
+		ExpansionLandingPageMinimapButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+		ExpansionLandingPageMinimapButton:SetScript("OnClick", MRBP_OnClick)
+		-- ExpansionLandingPageMinimapButton:HookScript("OnClick", MRBP_OnClick)  --> safer, but doesn't work!
 	end
 
 	-- GarrisonLandingPage (mission report frame) hook
@@ -818,7 +825,7 @@ function MRBP:SetButtonHooks()
 end
 
 -- Handle mouse-over behavior of the minimap button.
--- Note: 'self' refers to the GarrisonLandingPageMinimapButton, the parent frame.
+-- Note: 'self' refers to the ExpansionLandingPageMinimapButton, the parent frame.
 --
 -- REF.: <FrameXML/Minimap.xml>
 -- REF.: <FrameXML/SharedTooltipTemplates.lua>
@@ -837,11 +844,12 @@ function MRBP_OnEnter(self)
 		tooltipAddonText = tooltipAddonText.." "..util:CreateInlineIcon("Front-Tree-Icon")
 	end
 	GameTooltip_AddNormalLine(GameTooltip, tooltipAddonText)
+
 	GameTooltip:Show()
 end
 
 -- Handle click behavior of the minimap button.
--- Note: 'self' refers to the parent frame 'GarrisonLandingPageMinimapButton'.
+-- Note: 'self' refers to the parent frame 'ExpansionLandingPageMinimapButton'.
 function MRBP_OnClick(self, button, isDown)
 	_log:debug(string.format("Got mouse click: %s, isDown: %s", button, tostring(isDown)))
 
@@ -850,7 +858,7 @@ function MRBP_OnClick(self, button, isDown)
 		ToggleDropDownMenu(1, nil, MRBP.dropdown, self, -14, 5)
 	else
 		-- Pass-through to original function on LeftButton click.
-		GarrisonLandingPageMinimapButton_OnClick(button)
+		ExpansionLandingPageMinimapButton:OnClick(button)
 	end
 end
 
@@ -917,7 +925,7 @@ function MRBP_GetLandingPageGarrisonType()
 	return garrTypeID
 end
 
---> TODO - Find a more secure way to pre-hook this.
+-- --> TODO - Find a more secure way to pre-hook this.
 MRBP_GetLandingPageGarrisonType_orig = C_Garrison.GetLandingPageGarrisonType
 C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType
 
@@ -930,7 +938,9 @@ local SLASH_CMD_ARGLIST = {
 	{"show", L.SLASHCMD_DESC_SHOW},
 	{"hide", L.SLASHCMD_DESC_HIDE},
 	{"config", BASIC_OPTIONS_TOOLTIP},  --> WoW global string
+	--> TODO - "about"
 }
+ns.SLASH_CMD_ARGLIST = SLASH_CMD_ARGLIST;
 
 function MRBP:RegisterSlashCommands()
 	_log:info("Registering slash commands...")
@@ -957,9 +967,10 @@ function MRBP:RegisterSlashCommands()
 				ns.settings.showChatNotifications = not enabled
 
 			elseif (msg == 'config') then
-				-- Works only then correctly, when you call this twice (!)
-				InterfaceOptionsFrame_OpenToCategory(MRBP_InterfaceOptionsPanel)
-				InterfaceOptionsFrame_OpenToCategory(MRBP_InterfaceOptionsPanel)
+				MRBP_Settings_OpenToCategory(AddonID);
+
+			-- elseif (msg == 'about') then
+			-- 	MRBP_Settings_OpenToCategory("AboutFrame");
 
 			elseif (msg == 'show') then
 				MRBP:ShowMinimapButton_User()
@@ -972,8 +983,8 @@ function MRBP:RegisterSlashCommands()
 			-----[[ Tests ]]-----
 			elseif (msg == 'garrtest') then
 				local prev_loglvl = _log.level
-				_log.level = _log.DEBUG
 				_log:info("Current GarrisonType:", MRBP_GetLandingPageGarrisonType())
+				_log.level = _log.DEBUG
 
 				for i, garrTypeID in ipairs(MRBP_GARRISON_TYPE_INFOS_SORTORDER) do
 					local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID]
