@@ -1,9 +1,10 @@
 Changelog
 =========
 
-v2022.11.19 (beta)
+v2022.11.20 (beta)
 ------------------
 
+- **Fixed** banner display in the settings' menu entry selection tooltip.
 - **Added** screenshots files.
 - **Updated** README file.
 

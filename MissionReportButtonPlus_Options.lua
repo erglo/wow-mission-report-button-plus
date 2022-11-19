@@ -463,8 +463,8 @@ function MRBP_Settings_Register()
 			local expansionInfo = util:GetExpansionInfo(expansionID);
 			local playerMaxLevelForExpansion = GetMaxLevelForPlayerExpansion();
 			local playerOwnsExpansion = expansionInfo.maxLevel <= playerMaxLevelForExpansion  --> eligibility check
-			local fname, width, height = util:GetAtlasInfo(displayInfo.banner);
-			local bannerString = util:CreateInlineIcon(fname, width, height, 8, -16);
+			local _, width, height = util:GetAtlasInfo(displayInfo.banner);
+			local bannerString = util:CreateInlineIcon(displayInfo.banner, width, height, 8, -16);
 			featuresString = featuresString..bannerString.."|n";
 			if not playerOwnsExpansion then
 				featuresString = "|n"..ERROR_COLOR_CODE..featuresString..ERR_REQUIRES_EXPANSION_S:format(expansionInfo.name)..FONT_COLOR_CODE_CLOSE.."|n|n";  --> WoW global string
