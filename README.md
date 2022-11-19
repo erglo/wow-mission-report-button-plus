@@ -6,7 +6,7 @@ Adds a right-click menu to the mission report button on the minimap (aka. the `G
 **Note:  
 If you're using an add-on manager, like eg. the CurseForge App, you need to change the "Release Type" to `Beta` in order to find this add-on.**  
 
-![Button tooltip and right-click menu with expansion names](https://media.forgecdn.net/attachments/thumbnails/364/415/310/172/mbrp_tooltip-dropdown.jpg "Right-click on the Kyrian mission report button on the minimap opens the menu.") ![The right-click menu with in-progress mission infos](https://media.forgecdn.net/attachments/thumbnails/364/416/310/172/mbrp_dropdown_bfa-missioncount.jpg "Mouse-over a menu entry shows details about running missions.")  
+![Button tooltip and right-click menu with expansion names](.screenshots/mbrp_tooltip-dropdown.jpg "Right-click on the Kyrian mission report button on the minimap opens the menu.") ![The right-click menu with in-progress mission infos](.screenshots/mbrp_dropdown_bfa-missioncount.jpg "Mouse-over a menu entry shows details about running missions.")  
 (More images on this [project's screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots))
 
 ## About this add-on

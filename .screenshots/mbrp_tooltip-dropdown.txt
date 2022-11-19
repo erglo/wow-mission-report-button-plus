@@ -1,0 +1,3 @@
+Button tooltip and right-click menu with expansion names
+
+The MRBP right-click menu in action with the optional add-on's short name in the button's tooltip and the mission hint icons behind the expansion names in the drop-down menu.

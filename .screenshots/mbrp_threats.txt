@@ -1,0 +1,3 @@
+World (Map) Threats
+
+See which threats are currently active for an expansion. In these examples you can see the assaults for Shadowlands and BfA.

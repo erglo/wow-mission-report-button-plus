@@ -1,9 +1,16 @@
 Changelog
 =========
 
+v2022.11.19 (beta)
+------------------
+
+- **Added** screenshots files.
+- **Updated** README file.
+
 v2022.11.18 (beta)
 ------------------
 
+- _Public release of the `beta-2` version._
 - **Fixed** interface options in order to work with the new WoW 10.x settings UI.
 - **Fixed** right-click menu which did not to appear due to recent WoW 10.x changes, eg. `GarrisonLandingPageMinimapButton` was renamed to `ExpansionLandingPageMinimapButton`.
 

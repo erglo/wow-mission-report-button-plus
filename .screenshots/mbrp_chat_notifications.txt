@@ -1,0 +1,3 @@
+Chat notifications
+
+Get notified about finished missions, buildings, etc. of each expansion. Note: the mission complete toast on top is only shown for comparison.

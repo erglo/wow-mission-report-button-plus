@@ -1,0 +1,3 @@
+Right-click menu with in-progess mission infos
+
+The MRBP right-click menu with tooltip infos on BfA mission infos.

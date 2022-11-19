@@ -1,0 +1,3 @@
+Button tooltip and right-click menu with landing page names
+
+The MRBP right-click menu in action, with the optional landing page names instead of the expansion names and without displaying any mission hint icon.
