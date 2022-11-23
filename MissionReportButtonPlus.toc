@@ -2,7 +2,7 @@
 ## Title: Mission Report Button Plus
 ## Notes: Adds a right-click menu to the mission report button on the minimap|nwith a selection of reports of previous expansions.
 ## Notes-deDE: Erweitert den Missionsbericht-Button der Minikarte mit einer Auswahl|nvon Berichten früherer Erweiterungen.
-## Version: v2022.11.20-beta3
+## Version: v0.7.2
 ## Author: ergloCoder
 ## X-Email: erglo.coder+MRBP@gmail.com
 ## X-Project-Homepage: https://www.curseforge.com/wow/addons/mission-report-button-plus

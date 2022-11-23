@@ -4,18 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.7.2+100002] - 2022-11-24
 
 ### Added
 
-- Added Dutch translation
+- Dracthyr Evoker support
 
 ### Fixed
 
-- Fixed foldouts in Dutch translation
+- Minimap button appeared for newly created Evoker even though nothing was unlocked yet.
+- Minimap button which did not appear with the last available expansion as long as the current command table is not unlocked.
 
 ### Changed
 
+- Reworked the expansion info handler in the utilities file for easier handling of expansion related data and better backwards compatibility.
 - Switched to [Semantic Versioning](https://semver.org) based on the format on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ----

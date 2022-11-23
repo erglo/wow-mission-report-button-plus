@@ -215,11 +215,11 @@ ExpansionUtil.data = {
 		["name"] = EXPANSION_NAME8,
 		-- ["banner"] = "accountupgradebanner-shadowlands",  -- 199x133
 	},
-	["Dragonflight"] = {
-		["ID"] = LE_EXPANSION_DRAGONFLIGHT,  -- 9
-		["name"] = EXPANSION_NAME9,
-		-- ["banner"] = "accountupgradebanner-dragonflight",  -- 199x133
-	},
+	-- ["Dragonflight"] = {
+	-- 	["ID"] = LE_EXPANSION_DRAGONFLIGHT,  -- 9
+	-- 	["name"] = EXPANSION_NAME9,
+	-- 	-- ["banner"] = "accountupgradebanner-dragonflight",  -- 199x133
+	-- },
 };
 
 ---Return the expansion data of given expansion ID.

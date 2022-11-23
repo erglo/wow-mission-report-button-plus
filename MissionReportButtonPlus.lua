@@ -216,6 +216,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 					MRBP:HideMinimapButton()
 				end
 			end
+
 		end
 	end
 
@@ -242,6 +243,7 @@ end
 -----[[ Data ]]-----------------------------------------------------------------
 
 local MRBP_GARRISON_TYPE_INFOS_SORTORDER = {
+	-- Enum.ExpansionLandingPageType.Dragonflight,
 	Enum.GarrisonType.Type_9_0,
 	Enum.GarrisonType.Type_8_0,
 	Enum.GarrisonType.Type_7_0,
@@ -269,6 +271,7 @@ local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
 		["MONK"] = {42187, "Rise, Champions"},
 		["DRUID"] = {42583, "Rise, Champions"},
 		["DEMONHUNTER"] = {42670, "Rise, Champions"},
+		["EVOKER"] = {0, "???"},  --> not available for Legion ???
 	},
 	[Enum.GarrisonType.Type_8_0] = {
 		["Horde"] = {51771, "War of Shadows"},
@@ -283,6 +286,12 @@ local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
 		-- TEST - C_QuestLog.IsQuestFlaggedCompleted(57878)  --> story mode
 		-- TEST - C_QuestLog.IsQuestFlaggedCompleted(62000)  --> skipping story mode
 	},
+	-- [Enum.ExpansionLandingPageType.Dragonflight] = {
+	-- 	-- REF.: <FrameXML/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
+	-- 	["Horde"] ={65444, "To the Dragon Isles!"},
+	-- 	["Alliance"] = {67700, "To the Dragon Isles!"},
+	-- 	["alt"] = {68798, "Dragon Glyphs and You"},
+	-- },
 }
 
 -- Request data for the unlocking requirement quests; on initial log-in the
@@ -293,9 +302,11 @@ local function MRBP_RequestLoadQuestData(playerInfo)
 	for garrTypeID, questData in pairs(MRBP_COMMAND_TABLE_UNLOCK_QUESTS) do
 		for tagName, questTable in pairs(questData) do
 			local questID = questTable[1]
-			if tContains(playerTagNames, tagName) then
-				_log:debug("Requesting data for", questTable[2])
-				C_QuestLog.RequestLoadQuestByID(questID)
+			if (questID > 0) then
+				if tContains(playerTagNames, tagName) then
+					_log:debug("Requesting data for", questTable[2])
+					C_QuestLog.RequestLoadQuestByID(questID)
+				end
 			end
 		end
 	end
@@ -348,6 +359,8 @@ function MRBP:LoadData()
 	playerInfo.factionGroup = UnitFactionGroup("player")  --> for Draenor and BfA icon
 	playerInfo.className = select(2, UnitClass("player"))  --> for Legion icon
 	local covenantData = C_Covenants.GetCovenantData(C_Covenants.GetActiveCovenantID())  --> for Shadowlands icon
+	-- print("covenantData:", covenantData and covenantData.ID, covenantData and covenantData.textureKit)
+	--> FIXME - Getting nil on initial login
 	playerInfo.covenantTex = covenantData ~= nil and covenantData.textureKit or "kyrian"
 	playerInfo.covenantID = covenantData ~= nil and covenantData.ID or Enum.CovenantType.Kyrian
 
@@ -444,8 +457,32 @@ function MRBP:LoadData()
 			},
 		},
 		-----[[ Dragonflight ]]-----
-		-- DRAGONFLIGHT_LANDING_PAGE_TITLE
-		-- DRAGONFLIGHT_LANDING_PAGE_TOOLTIP 
+		-- [Enum.ExpansionLandingPageType.Dragonflight] = {
+		-- -- 	["tagName"] = Enum.MajorFactionType.None,  -- playerInfo.majorFactionID,
+		-- 	["tagName"] = playerInfo.factionGroup,
+		-- 	["title"] = DRAGONFLIGHT_LANDING_PAGE_TITLE,
+		-- 	["description"] = DRAGONFLIGHT_LANDING_PAGE_TOOLTIP,
+		-- 	["minimapIcon"] = "dragonflight-landingbutton-up",
+		-- 	-- ["atlas"] = "accountupgradebanner-dragonflight",  -- 199x133  --> TODO 
+		-- 	["msg"] = {
+		-- 		["missionsTitle"] = COVENANT_MISSIONS_TITLE,
+		-- 		["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
+		-- 		["missionsEmptyProgress"] = GARRISON_EMPTY_IN_PROGRESS_LIST,
+		-- 		["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_9_0].strings.LANDING_COMPLETE,
+		-- 		["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(Enum.GarrisonType.Type_9_0, playerInfo.covenantID).requirementText,
+		-- 	},
+		--  ["expansion"] = ns.ExpansionUtil.data.Dragonflight,
+		-- -- 	["continents"] = {1550},  --> Shadowlands 
+		-- -- 	["bountyBoard"] = {
+		-- -- 		["title"] = CALLINGS_QUESTS,
+		-- -- 		["noBountiesMessage"] = BOUNTY_BOARD_NO_CALLINGS_DAYS_1,
+		-- -- 		["bounties"] = {},  --> Shadowlands callings will be later added via the event handler. 
+		-- -- 		["areBountiesUnlocked"] = C_CovenantCallings.AreCallingsUnlocked(),
+		-- -- 	},
+		-- 	-- DRAGONFLIGHT_LANDING_PAGE_ALERT_DRAGONRIDING_UNLOCKED = "Fertigkeitenpfad für Drachenreiten freigeschaltet";
+		-- 	-- DRAGONFLIGHT_LANDING_PAGE_ALERT_MAJOR_FACTION_UNLOCKED = "Hauptfraktion freigeschaltet";
+		-- 	-- DRAGONFLIGHT_LANDING_PAGE_ALERT_SUMMARY_UNLOCKED = "Zusammenfassung der Dracheninseln freigeschaltet";
+		-- },
 	}
 end
 
@@ -751,26 +788,28 @@ function MRBP:ShowMinimapButton(isCalledByUser)
 		ns.cprint("isCalledByUser:", isCalledByUser or false)
 		ns.cprint("garrisonType:", MRBP_GetLandingPageGarrisonType())
 	end
-	if (MRBP_GetLandingPageGarrisonType() > 0) then
-		if isCalledByUser then
-			if ( not ExpansionLandingPageMinimapButton:IsShown() ) then
-				ExpansionLandingPageMinimapButton:Show()
-				ExpansionLandingPageMinimapButton:UpdateIcon(ExpansionLandingPageMinimapButton)
-				-- Manually set by user
-				ns.settings.showMinimapButton = true
-				_log:debug("--> Minimap button should be visible.")
-				ns.settings.disableShowMinimapButtonSetting = false
+	if MRBP_IsAnyGarrisonRequirementMet() then
+		if (MRBP_GetLandingPageGarrisonType() > 0) then
+			if isCalledByUser then
+				if ( not ExpansionLandingPageMinimapButton:IsShown() ) then
+					ExpansionLandingPageMinimapButton:Show()
+					ExpansionLandingPageMinimapButton:UpdateIcon(ExpansionLandingPageMinimapButton)
+					-- Manually set by user
+					ns.settings.showMinimapButton = true
+					_log:debug("--> Minimap button should be visible. (user)")
+					ns.settings.disableShowMinimapButtonSetting = false
+				else
+					-- Give user feedback, if button is already visible
+					ns.cprint(L.CHATMSG_MINIMAPBUTTON_ALREADY_SHOWN)
+				end
 			else
-				-- Give user feedback, if button is already visible
-				ns.cprint(L.CHATMSG_MINIMAPBUTTON_ALREADY_SHOWN)
-			end
-		else
-			-- Fired by GARRISON_HIDE_LANDING_PAGE event
-			if ( ns.settings.showMinimapButton and (not ExpansionLandingPageMinimapButton:IsShown()) )then
-				ExpansionLandingPageMinimapButton:UpdateIcon(ExpansionLandingPageMinimapButton)
-				ExpansionLandingPageMinimapButton:Show()
-				_log:debug("--> Minimap button should be visible.")
-				ns.settings.disableShowMinimapButtonSetting = false
+				-- Fired by GARRISON_HIDE_LANDING_PAGE event
+				if ( ns.settings.showMinimapButton and (not ExpansionLandingPageMinimapButton:IsShown()) )then
+					ExpansionLandingPageMinimapButton:UpdateIcon(ExpansionLandingPageMinimapButton)
+					ExpansionLandingPageMinimapButton:Show()
+					_log:debug("--> Minimap button should be visible. (event)")
+					ns.settings.disableShowMinimapButtonSetting = false
+				end
 			end
 		end
 	end
