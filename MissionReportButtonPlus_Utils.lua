@@ -80,16 +80,18 @@ ns.utilities = util;
 -- Print the current add-on's version infos to chat.
 function util:printVersion(shortVersionOnly)
 	local version = GetAddOnMetadata(AddonID, "Version");
-	if shortVersionOnly then
-		print(ns.AddonColor:WrapTextInColorCode(version));
-	else
-		local title = GetAddOnMetadata(AddonID, "Title");
-		local author = GetAddOnMetadata(AddonID, "Author");
-		local notes_enUS = GetAddOnMetadata(AddonID, "Notes");
-		local notes_local = GetAddOnMetadata(AddonID, "Notes-"..GetLocale());
-		local notes = notes_local or notes_enUS;
-		local output = title..'|n'..version..' by '..author..'|n'..notes;
-		print(ns.AddonColor:WrapTextInColorCode(output));
+	if version then
+		if shortVersionOnly then
+			print(ns.AddonColor:WrapTextInColorCode(version));
+		else
+			local title = GetAddOnMetadata(AddonID, "Title");
+			local author = GetAddOnMetadata(AddonID, "Author");
+			local notes_enUS = GetAddOnMetadata(AddonID, "Notes");
+			local notes_local = GetAddOnMetadata(AddonID, "Notes-"..GetLocale());
+			local notes = notes_local or notes_enUS;
+			local output = title..'|n'..version..' by '..author..'|n'..notes;
+			print(ns.AddonColor:WrapTextInColorCode(output));
+		end
 	end
 end
 
@@ -153,42 +155,198 @@ end
 -- util:CreateInlineIcon(314096, 12)  --> new feature icon
 
 ----- Data handler -------------------------------------------------------------
-
--- Collects infos about the current expansion, eg. name, banner, etc.
---> Returns: <table> (attributes: name, expansionLevel, maxLevel, minLevel[, logo, banner])
---
--- REF.: <FrameXML/Blizzard_ClassTrial/Blizzard_ClassTrial.lua>
--- REF.: <FrameXMLBlizzard_APIDocumentation/ExpansionDocumentation.lua>
--- REF.: <FrameXML/GlobalStrings.lua>
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/ExpansionDocumentation.lua>
 -- REF.: <FrameXML/AccountUtil.lua>
-function util:GetExpansionInfo(expansionLevel)
-	local expansionInfo = {};
-	local expansionNames = {
-		      -- EXPANSION_NAME0,  --> "Classic"
-		nil,  -- EXPANSION_NAME1,  --> "The Burning Crusade"
-		nil,  -- EXPANSION_NAME2,  --> "Wrath of the Lich King"
-		nil,  -- EXPANSION_NAME3,  --> "Cataclysm"
-		nil,  -- EXPANSION_NAME4,  --> "Mists of Pandaria"
-		EXPANSION_NAME5,  --> "Warlords of Draenor"
-		EXPANSION_NAME6,  --> "Legion"
-		EXPANSION_NAME7,  --> "Battle for Azeroth"
-		EXPANSION_NAME8,  --> "Shadowlands"
-		EXPANSION_NAME9,  --> "Dragonflight"
-	};
+-- RER.: <https://wowpedia.fandom.com/wiki/World_of_Warcraft_API#Expansions>
 
-	if not expansionLevel then
-		_log:debug("Expansion level not given; using clamped level instead.");
-		local currentExpansionLevel = GetClampedCurrentExpansionLevel();
-		expansionLevel = currentExpansionLevel;
+-- Backward compatibility
+local MRBP_GetMaxLevelForExpansionLevel = GetMaxLevelForExpansionLevel;
+local MRBP_GetMaxLevelForPlayerExpansion = GetMaxLevelForPlayerExpansion;
+local MRBP_IsExpansionLandingPageUnlocked = C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer;
+local MRBP_GetExpansionDisplayInfo = GetExpansionDisplayInfo;
+local MRBP_GetExpansionForLevel = GetExpansionForLevel;
+local MRBP_GetMaximumExpansionLevel = GetMaximumExpansionLevel;
+local MRBP_GetMinimumExpansionLevel = GetMinimumExpansionLevel;
+
+local ExpansionUtil = {};
+ns.ExpansionUtil = ExpansionUtil;
+
+---Set most basic infos about each expansion.
+---Note: Expansions prior to Warlords Of Draenor are no use to this add-on since
+---      they don't have a mission table nor a landing page for mission reports.
+ExpansionUtil.data = {
+	-- ["Classic"] = {
+	-- 	["ID"] = LE_EXPANSION_CLASSIC,  -- 0
+	-- 	["name"] = EXPANSION_NAME0,
+	-- },
+	-- ["BurningCrusade"] = {
+	-- 	["ID"] = LE_EXPANSION_BURNING_CRUSADE,  -- 1
+	-- 	["name"] = EXPANSION_NAME1,
+	-- },
+	-- ["WrathOfTheLichKing"] = {
+	-- 	["ID"] = LE_EXPANSION_WRATH_OF_THE_LICH_KING,  -- 2
+	-- 	["name"] = EXPANSION_NAME2,
+	-- },
+	-- ["Cataclysm"] = {
+	-- 	["ID"] = LE_EXPANSION_CATACLYSM,  -- 3
+	-- 	["name"] = EXPANSION_NAME3,
+	-- },
+	-- ["MistsOfPandaria"] = {
+	-- 	["ID"] = LE_EXPANSION_MISTS_OF_PANDARIA,  -- 4
+	-- 	["name"] = EXPANSION_NAME4,
+	-- },
+	["WarlordsOfDraenor"] = {
+		["ID"] = LE_EXPANSION_WARLORDS_OF_DRAENOR,  -- 5
+		["name"] = EXPANSION_NAME5,
+		-- ["banner"] = "accountupgradebanner-wod",  -- 199x117
+	},
+	["Legion"] = {
+		["ID"] = LE_EXPANSION_LEGION,  -- 6
+		["name"] = EXPANSION_NAME6,
+		-- ["banner"] = "accountupgradebanner-legion",  -- 199x117
+	},
+	["BattleForAzeroth"] = {
+		["ID"] = LE_EXPANSION_BATTLE_FOR_AZEROTH,  -- 7
+		["name"] = EXPANSION_NAME7,
+		-- ["banner"] = "accountupgradebanner-bfa",  -- 199x133
+	},
+	["Shadowlands"] = {
+		["ID"] = LE_EXPANSION_SHADOWLANDS,  -- 8
+		["name"] = EXPANSION_NAME8,
+		-- ["banner"] = "accountupgradebanner-shadowlands",  -- 199x133
+	},
+	["Dragonflight"] = {
+		["ID"] = LE_EXPANSION_DRAGONFLIGHT,  -- 9
+		["name"] = EXPANSION_NAME9,
+		-- ["banner"] = "accountupgradebanner-dragonflight",  -- 199x133
+	},
+};
+
+---Return the expansion data of given expansion ID.
+---@param expansionID number  The expansion ID oder level (before WoW 10.x)
+---@return table ExpansionData
+function ExpansionUtil:GetExpansionData(expansionID)
+	for name, expansion in pairs(self.data) do
+		if (expansion.ID == expansionID) then
+			return expansion;
+		end
 	end
-
-	expansionInfo.expansionLevel = expansionLevel;
-	expansionInfo.name = expansionNames[expansionLevel];
-	expansionInfo.maxLevel = GetMaxLevelForExpansionLevel(expansionLevel);
-	expansionInfo.minLevel = GetMaxLevelForExpansionLevel(expansionLevel-1);  --> TODO - Check if still needed
-
-	return expansionInfo;
 end
+
+---Comparison function: sort expansion list by ID in *ascending* order.
+---@param a table
+---@param b table
+---@return boolean
+function ExpansionUtil.SortAscending(a, b)
+	return a.ID < b.ID;  --> 0-9
+end
+
+---Comparison function: sort expansion list by ID in *descending* order.
+---@param a table
+---@param b table
+---@return boolean
+function ExpansionUtil.SortDescending(a, b)
+	return a.ID > b.ID;  --> 9-0 (default)
+end
+
+---Return the expansion data of those which have a landing page.
+---@param compFunc function|nil  The function which handles the expansion sorting order. By default sort order is ascending.
+---@return table expansionData
+function ExpansionUtil:GetExpansionsWithLandingPage(compFunc)
+	local expansionTable = {};
+	-- local expansionID_Draenor = self.data.WarlordsOfDraenor.ID;
+	for name, expansion in pairs(self.data) do
+		-- if (expansion.ID >= expansionID_Draenor) then
+		tinsert(expansionTable, expansion);
+		-- end
+	end
+	local sortFunc = compFunc or self.SortAscending;
+	table.sort(expansionTable, sortFunc);
+
+	return expansionTable;
+end
+
+---Return the given expansion's advertising display infos.
+---@param expansionID number  The expansion ID oder level (before WoW 10.x)
+---@return ExpansionDisplayInfo?
+function ExpansionUtil:GetDisplayInfo(expansionID)
+	return MRBP_GetExpansionDisplayInfo(expansionID);
+end
+
+---Check if a given expansion has an unlocked landing page (aka. mission table).
+---@param expansionID number  The expansion ID oder level (before WoW 10.x)
+---@return boolean
+function ExpansionUtil:IsLandingPageUnlocked(expansionID)
+	return MRBP_IsExpansionLandingPageUnlocked(expansionID);
+end
+
+--[[ Tests
+C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(LE_EXPANSION_BATTLE_FOR_AZEROTH)
+ERROR_COLOR_CODE..featuresString..ERR_REQUIRES_EXPANSION_S:format(expansionInfo.name)..FONT_COLOR_CODE_CLOSE
+
+GetClientDisplayExpansionLevel() --> 9
+GetAccountExpansionLevel() 		 --> 9
+GetExpansionLevel()   			 --> 8
+GetMaximumExpansionLevel() 		 --> 9
+GetMinimumExpansionLevel() 		 --> 8
+GetServerExpansionLevel() 		 --> 8 (pre-release)
+]]--
+
+-----[[ Expansion ID handler ]]-------------------------------------------------
+
+---Return the player's current expansion ID.
+---@return number expansionID
+function ExpansionUtil:GetCurrentID()
+	return GetClampedCurrentExpansionLevel();
+end
+
+---Return the expansion ID which corresponds to the given player level.
+---@param playerLevel number|nil  A number wich represents a player level. Defaults to the current player level. 
+---@return number expansionID
+function ExpansionUtil:GetExpansionForPlayerLevel(playerLevel)
+	local level = playerLevel or UnitLevel("player");
+	return MRBP_GetExpansionForLevel(level);
+end
+
+---Return the ID of the most current available expansion.
+---@return number expansionID
+function ExpansionUtil:GetMaximumExpansionLevel()
+	return MRBP_GetMaximumExpansionLevel();
+end
+
+---Return the ID of the player's most lowest expansion.
+---@return number
+function ExpansionUtil:GetMinimumExpansionLevel()
+	return MRBP_GetMinimumExpansionLevel();
+end
+
+-----[[ Player level handler ]]-------------------------------------------------
+
+---Return the maximal player level for given expansion.
+---@param expansionID number  The expansion ID oder level (before WoW 10.x)
+---@return number playerLevel
+function ExpansionUtil:GetMaxExpansionLevel(expansionID)
+	return MRBP_GetMaxLevelForExpansionLevel(expansionID);
+end
+
+---Return the maximal level the player can reach in the current expansion.
+---@return number playerLevel
+function ExpansionUtil:GetMaxPlayerLevel()
+	return MRBP_GetMaxLevelForPlayerExpansion();
+end
+
+---Check if the given expansion is owned by the player.
+---@param expansionID number  The expansion ID oder level (before WoW 10.x)
+---@return boolean
+function ExpansionUtil:DoesPlayerOwnExpansion(expansionID)
+	local maxLevelForExpansion = self:GetMaxExpansionLevel(expansionID);
+	local maxLevelForCurrentExpansion = self:GetMaxPlayerLevel();
+	local playerOwnsExpansion = maxLevelForExpansion <= maxLevelForCurrentExpansion;
+	return playerOwnsExpansion;
+end
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 -- Check wether the given garrison type has running or completed missions
 -- and return the number of those in-progress missions.
@@ -265,12 +423,14 @@ function util:GetActiveWorldMapThreats()
 				local mapID = C_TaskQuest.GetQuestZoneID(questID);
 				local mapInfo = C_Map.GetMapInfo(mapID);
 				local questExpansionLevel = GetQuestExpansion(questID);
-				_log:debug("Threat:", questID, questTitle, ">", mapID, mapInfo.name, "expLvl:", questExpansionLevel);
-				if ( not activeThreats[questExpansionLevel] ) then
-					-- Add table values per expansion IDs
-					activeThreats[questExpansionLevel] = {};
+				if questExpansionLevel then
+					_log:debug("Threat:", questID, questTitle, ">", mapID, mapInfo.name, "expLvl:", questExpansionLevel);
+					if ( not activeThreats[questExpansionLevel] ) then
+						-- Add table values per expansion IDs
+						activeThreats[questExpansionLevel] = {};
+					end
+					tinsert(activeThreats[questExpansionLevel], {questID, questName, mapInfo.name});
 				end
-				tinsert(activeThreats[questExpansionLevel], {questID, questName, mapInfo.name});
 		   end
 		end
 		return activeThreats;
@@ -288,11 +448,13 @@ function util:IsTodayWorldQuestDayEvent()
 	_log:info("Scanning calendar for day events...");
 	local event;
 	local eventID_WORLDQUESTS = 613;
+	-- local eventID_WINTER_HOLIDAY = 141;		--> TODO
+	-- local eventID_WOW_BIRTHDAY = 1262; 		--> TODO
 
 	local currentCalendarTime = C_DateAndTime.GetCurrentCalendarTime();  --> today
 	-- Tests:
-	-- currentCalendarTime.monthDay = 15;
-	-- currentCalendarTime.weekday = 4;
+	-- currentCalendarTime.monthDay = 17;
+	-- currentCalendarTime.weekday = 6;
 	-- currentCalendarTime.hour = 5;
 	local monthOffset = 0;  --> this month
 	local numDayEvents = C_Calendar.GetNumDayEvents(monthOffset, currentCalendarTime.monthDay);
@@ -303,6 +465,7 @@ function util:IsTodayWorldQuestDayEvent()
 		-- _log:debug("eventID:", event.eventID, eventID_WORLDQUESTS, event.eventID == eventID_WORLDQUESTS);
 
 		if ( event.eventID == eventID_WORLDQUESTS ) then
+		-- if ( event.eventID == eventID_WINTER_HOLIDAY ) then
 			_log:debug("Got:", event.title, event.endTime.monthDay - currentCalendarTime.monthDay, "days left");
 
 			if ( event.sequenceType == "END" and currentCalendarTime.hour >= event.endTime.hour ) then

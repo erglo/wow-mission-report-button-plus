@@ -64,7 +64,7 @@ ns.defaultSettings = {  --> default + fallback settings
 ---
 ---REF.: <FrameXML/TableUtil.lua>
 ---
----@param verbose (boolean)  If true, prints debug messages to chat
+---@param verbose (boolean|nil)  If true, prints debug messages to chat
 ---
 local function LoadSettings(verbose)
 	local prev_loglvl = _log.level;
@@ -435,39 +435,25 @@ function MRBP_Settings_Register()
 	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYSELECTION_LABEL));
 
 	local menuEntries = {};
-	menuEntries.expansionNameList = {
-			  -- placeholder,   --> "Classic"
-		nil,  -- placeholder1,  --> "The Burning Crusade"
-		nil,  -- placeholder2,  --> "Wrath of the Lich King"
-		nil,  -- placeholder3,  --> "Cataclysm"
-		nil,  -- placeholder4,  --> "Mists of Pandaria"
-		EXPANSION_NAME5,  --> "Warlords of Draenor"
-		EXPANSION_NAME6,  --> "Legion"
-		EXPANSION_NAME7,  --> "Battle for Azeroth"
-		EXPANSION_NAME8,  --> "Shadowlands"
-		-- EXPANSION_NAME9,  --> "Dragonflight"
-		"[ "..SETTINGS.." ]",  --> Additional "Settings" menu entry; WoW global string
+	menuEntries.expansionList = ns.ExpansionUtil:GetExpansionsWithLandingPage();
+	menuEntries.settingsCB = {  --> Additional "Settings" menu entry
+		ID = 99,
+		name = "[ "..SETTINGS.." ]"  --> WoW global string
 	};
-	--> Do NOT remove the placeholders! The position (index) of each expansion
-	--  name is equal to the expansion ID which is used in the core file. The
-	--  "Settings" entry is the extra value (latest expansion ID + 1).
-	ns.settingsMenuEntry = tostring(#menuEntries.expansionNameList);
-
-	--> TODO - Add CB: Show only available expansions
-	-- EXPANSION_FILTER_TEXT
+	tinsert(menuEntries.expansionList, menuEntries.settingsCB);
+	ns.settingsMenuEntry = tostring(menuEntries.settingsCB.ID);
 
 	local function getMenuEntryTooltip(expansionID)
 		local featuresString = '';
-		local displayInfo = GetExpansionDisplayInfo(expansionID);
+		local displayInfo = ns.ExpansionUtil:GetDisplayInfo(expansionID);
 		if displayInfo then
-			local expansionInfo = util:GetExpansionInfo(expansionID);
-			local playerMaxLevelForExpansion = GetMaxLevelForPlayerExpansion();
-			local playerOwnsExpansion = expansionInfo.maxLevel <= playerMaxLevelForExpansion  --> eligibility check
+			local expansion = ns.ExpansionUtil:GetExpansionData(expansionID);
+			local playerOwnsExpansion = ns.ExpansionUtil:DoesPlayerOwnExpansion(expansionID);
 			local _, width, height = util:GetAtlasInfo(displayInfo.banner);
 			local bannerString = util:CreateInlineIcon(displayInfo.banner, width, height, 8, -16);
 			featuresString = featuresString..bannerString.."|n";
 			if not playerOwnsExpansion then
-				featuresString = "|n"..ERROR_COLOR_CODE..featuresString..ERR_REQUIRES_EXPANSION_S:format(expansionInfo.name)..FONT_COLOR_CODE_CLOSE.."|n|n";  --> WoW global string
+				featuresString = "|n"..ERROR_COLOR_CODE..featuresString..ERR_REQUIRES_EXPANSION_S:format(expansion.name)..FONT_COLOR_CODE_CLOSE.."|n|n";  --> WoW global string
 			end
 			featuresString = featuresString..HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(FEATURES_LABEL).."|n|n";  --> WoW global string
 			for _, feature in ipairs(displayInfo.features) do
@@ -480,15 +466,14 @@ function MRBP_Settings_Register()
 
 	-- Map names to settings
 	menuEntries.checkBoxList_MenuEntriesSettings = {};
-	for i, name in pairs(menuEntries.expansionNameList) do
-		if name then  --> ignore placeholders
-			tinsert(menuEntries.checkBoxList_MenuEntriesSettings, {
-					variable = "activeMenuEntries#"..tostring(i),
-					name = HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(name),
-					tooltip = ns.settingsMenuEntry ~= tostring(i) and getMenuEntryTooltip(i),
-				}
-			);
-		end
+
+	for _, expansion in ipairs(menuEntries.expansionList) do
+		tinsert(menuEntries.checkBoxList_MenuEntriesSettings, {
+				variable = "activeMenuEntries#"..tostring(expansion.ID),
+				name = HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(expansion.name),
+				tooltip = ns.settingsMenuEntry ~= tostring(expansion.ID) and getMenuEntryTooltip(expansion.ID),
+			}
+		);
 	end
 
 	CheckBox_CreateFromList(category, menuEntries.checkBoxList_MenuEntriesSettings);
@@ -496,10 +481,10 @@ function MRBP_Settings_Register()
 	-- Add un-/check all buttons
 	local function OnButtonClick(value)
 		-- De-/Select all expansion entries
-		for i, name in pairs(menuEntries.expansionNameList) do
-			local varName = "activeMenuEntries#"..tostring(i);
+		for _, expansion in ipairs(menuEntries.expansionList) do
+			local varName = "activeMenuEntries#"..tostring(expansion.ID);
 			local setting = Settings.GetSetting(varName);
-			if (value == Settings.Default.False and ns.settingsMenuEntry == tostring(i)) then
+			if (value == Settings.Default.False and ns.settingsMenuEntry == tostring(expansion.ID)) then
 				setting:SetValue(Settings.Default.True);
 			else
 				setting:SetValue(value);
@@ -659,7 +644,7 @@ function MRBP_Settings_Register()
 	local slashParent = slashCmdSectionHeader;
 
 	for _, slashCmdInfo in pairs(ns.SLASH_CMD_ARGLIST) do
-		slashCmdText, helpText = slashCmdInfo[1], slashCmdInfo[2];
+		local slashCmdText, helpText = slashCmdInfo[1], slashCmdInfo[2];
 
 		local slashCmdLabel = aboutFrame:CreateFontString(aboutFrame:GetName()..infoLabel.."SlashCmdLabel", "ARTWORK", "GameFontNormal");
 		if (slashParent == slashCmdSectionHeader) then
