@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.2+100002] - 2022-11-24
+## [0.7.2+100002] - 2022-11-25
 
 ### Added
 
@@ -13,10 +13,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
 ### Fixed
 
 - Minimap button appeared for newly created Evoker even though nothing was unlocked yet.
-- Minimap button which did not appear with the last available expansion as long as the current command table is not unlocked.
+- Minimap button did not appear with the last available expansion while the most current command table hasn't been unlocked.
 
 ### Changed
 
+- Updated settings and the about section.
 - Reworked the expansion info handler in the utilities file for easier handling of expansion related data and better backwards compatibility.
 - Switched to [Semantic Versioning](https://semver.org) based on the format on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 

@@ -27,6 +27,7 @@
 -- REF.: <FrameXML/Settings/Blizzard_Deprecated.lua>
 -- REF.: <FrameXML/Settings/Blizzard_ImplementationReadme.lua>
 -- REF.: <FrameXML/GlobalColors.lua>
+-- REF.: <FrameXML/SharedFontStyles.xml>
 --
 --------------------------------------------------------------------------------
 
@@ -53,7 +54,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showBountyRequirements"] = true,
 	["showWorldmapThreats"] = true,
 	["showEntryRequirements"] = true,
-	["activeMenuEntries"] = {"5", "6", "7", "8", "9"},
+	["activeMenuEntries"] = {"5", "6", "7", "8", "99"},
 	["menuStyleID"] = "1",
 	["disableShowMinimapButtonSetting"] = false,   --> temp. solution for beta2
 };
@@ -166,7 +167,6 @@ local function CheckBox_OnValueChanged(owner, setting, value)
 		-- Manually set by user
 		local shouldShowMinimapButton = value;
 		if shouldShowMinimapButton then
-			-- ns:ShowMinimapButton_User(isCancelled);
 			ns:ShowMinimapButton_User()
 		else
 			ns:HideMinimapButton();
@@ -200,7 +200,7 @@ end
 ---@param value (boolean)  The clicked value
 ---@return boolean
 ---
-local function Checkbox_OnIntercept(value)
+local function Checkbox_OnInterceptActiveMenuEntries(value)
 	-- REF.: <FrameXML/Settings/Blizzard_SettingControls.lua>
 	--> Note: This function must return a boolean value; a nil value is NOT allowed!
 	if (value == false and #ns.settings.activeMenuEntries == 1) then
@@ -243,7 +243,7 @@ local function CheckBox_Create(category, variableName, name, tooltip)
 	-- Handling "activeMenuEntries" vs. normal checkboxes
 	if indexString then
 		setting.defaultValue = defaultMenuEntryValue;
-		initializer:SetSettingIntercept(Checkbox_OnIntercept);
+		initializer:SetSettingIntercept(Checkbox_OnInterceptActiveMenuEntries);
 	else
 		setting.defaultValue = ns.defaultSettings[varName];
 	end
@@ -337,7 +337,12 @@ function MRBP_Settings_Register()
 			name = strjoin(" ", L.CFG_MINIMAPBUTTON_SHOWBUTTON_TEXT, GRAY_FONT_COLOR:WrapTextInColorCode(L.WORK_IS_EXPERIMENTAL)),
 			tooltip = strjoin("|n|n", L.CFG_MINIMAPBUTTON_SHOWBUTTON_TOOLTIP, L.WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION),
 			modifyPredicate = function()
-				local result =  ns.MRBP_IsAnyGarrisonRequirementMet(); -- and ns.settings["disableShowMinimapButtonSetting"];
+				local result =  ns.MRBP_IsAnyGarrisonRequirementMet();
+				if not result then
+					-- Inform user about the reason
+					printOption(L.CFG_MINIMAPBUTTON_SHOWBUTTON_TEXT, result);
+					ns.cprint(L.CHATMSG_UNLOCKED_COMMANDTABLES_REQUIRED);
+				end
 				return result;
 			end
 		},
@@ -397,7 +402,6 @@ function MRBP_Settings_Register()
 		name = L.CFG_DDMENU_STYLESELECTION_LABEL,
 		tooltip =   L.CFG_DDMENU_STYLESELECTION_TOOLTIP,
 		variable = "menuStyleID",
-		-- defaultValue = ns.defaultSettings.menuStyleID,
 		defaultValue = ns.settings.menuStyleID,
 	};
 	function styleMenu.GetOptions()
@@ -611,16 +615,16 @@ function MRBP_Settings_Register()
 
 	for _, infos in ipairs(addonInfos) do
 		labelText, infoLabel = infos[1], infos[2];
-		local metaLabel = aboutFrame:CreateFontString(aboutFrame:GetName()..infoLabel.."Label", "ARTWORK", "GameFontNormalSmall");
+		local metaLabel = aboutFrame:CreateFontString(aboutFrame:GetName()..infoLabel.."MetaLabel", "ARTWORK", "GameFontNormalSmall");
 		metaLabel:SetPoint("TOPLEFT", parentFrame, "BOTTOMLEFT", 0, -8);
 		metaLabel:SetWidth(100);
 		metaLabel:SetJustifyH("RIGHT");
 		metaLabel:SetText(NORMAL_FONT_COLOR:WrapTextInColorCode(labelText..HEADER_COLON));  --> WoW global string
 
-		local metaValue = aboutFrame:CreateFontString(aboutFrame:GetName()..infoLabel.."Value", "ARTWORK", "GameFontHighlightSmall");
+		local metaValue = aboutFrame:CreateFontString(aboutFrame:GetName()..infoLabel.."MetaValue", "ARTWORK", "GameFontHighlightSmall");
 		metaValue:SetPoint("LEFT", metaLabel, "RIGHT", 4, 0);
 		metaValue:SetJustifyH("LEFT");
-		if ( infoLabel == "Author" ) then
+		if ( strlower(infoLabel) == "author" ) then
 			-- Append author's email address behind name
 			local authorName, authorMail = GetAddOnMetadata(AddonID, infoLabel), GetAddOnMetadata(AddonID, "X-Email");
 			metaValue:SetText(string.format("%s <%s>", authorName, authorMail));
@@ -634,11 +638,16 @@ function MRBP_Settings_Register()
 
 	-----[[ Slash Commands ]]---------------------------------------------------
 
+	local separatorTexture = aboutFrame:CreateTexture(aboutFrame:GetName().."Separator", "ARTWORK");
+	separatorTexture:SetSize(575, 1);
+	separatorTexture:SetPoint("TOPLEFT", parentFrame, "BOTTOMLEFT", 0, -32);
+	separatorTexture:SetColorTexture(0.25, 0.25, 0.25);
+
 	local slashCmdSectionHeader = aboutFrame:CreateFontString(aboutFrame:GetName().."SlashCmdSectionHeader", "OVERLAY", "GameFontHighlightLarge");
 	slashCmdSectionHeader:SetJustifyH("LEFT");
 	slashCmdSectionHeader:SetJustifyV("TOP");
 	slashCmdSectionHeader:SetHeight(45);
-	slashCmdSectionHeader:SetPoint("TOPLEFT", parentFrame, "BOTTOMLEFT", -21, -32);
+	slashCmdSectionHeader:SetPoint("TOPLEFT", separatorTexture, "BOTTOMLEFT", -21, -30);
 	slashCmdSectionHeader:SetText(L.CFG_ABOUT_SLASHCMD_LABEL);
 
 	local slashParent = slashCmdSectionHeader;
@@ -646,7 +655,7 @@ function MRBP_Settings_Register()
 	for _, slashCmdInfo in pairs(ns.SLASH_CMD_ARGLIST) do
 		local slashCmdText, helpText = slashCmdInfo[1], slashCmdInfo[2];
 
-		local slashCmdLabel = aboutFrame:CreateFontString(aboutFrame:GetName()..infoLabel.."SlashCmdLabel", "ARTWORK", "GameFontNormal");
+		local slashCmdLabel = aboutFrame:CreateFontString(aboutFrame:GetName()..strupper(slashCmdText).."SlashCmd", "ARTWORK", "GameFontNormal");
 		if (slashParent == slashCmdSectionHeader) then
 			slashCmdLabel:SetPoint("TOPLEFT", slashParent, "BOTTOMLEFT", 21, -4);
 		else
@@ -656,10 +665,9 @@ function MRBP_Settings_Register()
 		slashCmdLabel:SetJustifyH("RIGHT");
 		slashCmdLabel:SetText(slashCmdText..HEADER_COLON);  --> WoW global string
 
-		local slashCmdHelpLabel = aboutFrame:CreateFontString(aboutFrame:GetName()..infoLabel.."Value", "ARTWORK", "GameFontNormal");
+		local slashCmdHelpLabel = aboutFrame:CreateFontString(aboutFrame:GetName()..strupper(slashCmdText).."Description", "ARTWORK", "GameFontHighlight");
 		slashCmdHelpLabel:SetPoint("LEFT", slashCmdLabel, "RIGHT", 4, 0);
 		slashCmdHelpLabel:SetText(helpText);
-		slashCmdHelpLabel:SetVertexColor(HIGHLIGHT_FONT_COLOR:GetRGBA());
 
 		slashParent = slashCmdLabel;
 	end
@@ -668,12 +676,12 @@ function MRBP_Settings_Register()
 
 	-- layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Tests"));
 
-	-- local testList = category;
+	-- local testList = settingSMB.initializer;
 	-- for k,v in pairs(testList) do
 	-- 	print(k, "-->", v);
 	-- end
 
-	-- -- About button
+	-- About button
 
 	-- local sep = layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_ABOUT_ADDON_LABEL));
 
@@ -683,16 +691,6 @@ function MRBP_Settings_Register()
 	-- -- warnData.name = "Warning message"
 	-- -- local warnInitializer = Settings.CreateSettingInitializer("TwitterPanelTemplate", warnData);
 	-- -- layout:AddInitializer(warnInitializer);
-
-	-- local mainSubText = aboutFrame:CreateFontString(aboutFrame:GetName().."SubText", "OVERLAY", "GameFontHighlightSmall");
-	-- mainSubText:SetJustifyH("LEFT");
-	-- mainSubText:SetJustifyV("TOP");
-	-- mainSubText:SetHeight(22);
-	-- mainSubText:SetNonSpaceWrap(true);
-	-- mainSubText:SetMaxLines(2);
-	-- mainSubText:SetPoint("TOPLEFT", mainTitle, "BOTTOMLEFT", 0, -8);
-	-- mainSubText:SetPoint("RIGHT", -32, 0);
-	-- mainSubText:SetText(string.gsub(addonNotes, "[|\\]n", " "));  --> replace newline break with space
 	
 	-- local function OnButtonClick()
 	-- 	-- MRBP_Settings_OpenToCategory(aboutFrame);
