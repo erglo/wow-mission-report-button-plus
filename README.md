@@ -6,7 +6,8 @@ Adds a right-click menu to the mission report button on the minimap (aka. the `G
 **Note:  
 If you're using an add-on manager, like eg. the CurseForge App, you need to change the "Release Type" to `Beta` in order to find this add-on.**  
 
-![Button tooltip and right-click menu with expansion names](.screenshots/mbrp_tooltip-dropdown.jpg "Right-click on the Kyrian mission report button on the minimap opens the menu.") ![The right-click menu with in-progress mission infos](.screenshots/mbrp_dropdown_bfa-missioncount.jpg "Mouse-over a menu entry shows details about running missions.")  
+![Button tooltip and right-click menu with expansion names](.screenshots/mbrp_tooltip-dropdown.jpg "Right-click on the Kyrian mission report button on the minimap opens the menu.")
+![The right-click menu with in-progress mission infos](.screenshots/mbrp_dropdown_bfa-missioncount.jpg "Mouse-over a menu entry shows details about running missions.")  
 (More images on this [project's screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots))
 
 ## About this add-on
@@ -25,7 +26,7 @@ It is still possible to access mission reports from previous expansions but the 
 + **anytime and anywhere accessible.**  
 *(See full feature list below.)*
 
----
+----
 
 ## Features
 
@@ -33,24 +34,25 @@ It is still possible to access mission reports from previous expansions but the 
 + [x] a click on an menu entry opens the (read-only) Mission Report Frame of the corresponding expansion
 + [x] show or hide the minimap button itself
 + [x] get informed in chat on finished missions, talents, buildings (WoD garrison only) or WoD garrison invasions
-+ [x] choose from a variety of options and adjust the add-on to your liking
++ [x] choose from a variety of settings and adjust the addon to your liking
   + [x] or de-/select the menu entries with the expansions that are no longer of interest to you
 + [x] expansions you (yet) don't own will be hidden in the menu
 + [x] expansions without an unlocked command table will be displayed, but disabled
   + [x] now showing a hint on which quest unlocks it
-+ [x] ~~display the minimap button of the previous expansion as long current command table is yet unlocked~~ (soon available again; needs some WoW 10.x adjustments)
++ [x] display the minimap button of the previous expansion as long as the current command table hasn't been unlocked
 + [x] see details about in-progress mission of each command table
-+ [x] see which bounties and threats of each expansion are currently active
-+ [x] more to come...
++ [x] see which bounties and threats of each expansion are currently active (WIP)
++ [x] more to come...  
+  *(Want to see some examples? Go visit this project's [screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots) )*  
 
----
+----
 
 ### Known Issues
 
 + As soon as you unlock a command table the minimap button doesn't update automatically. The add-on gathers this information only once at startup in order to save memory. You need to reload the UI manually, eg. by typing `/reload` in the chat frame. Logging-out and -in again also works.  
   I will tend to this as soon as possible.
 
----
+----
 
 ### Interested in helping?
 
@@ -59,16 +61,16 @@ It is still possible to access mission reports from previous expansions but the 
 [Start translating](https://www.curseforge.com/wow/addons/mission-report-button-plus/localization) when you're missing your language or simply want to help with localization.  
 [Leave a comment](https://www.curseforge.com/wow/addons/mission-report-button-plus#comments) if you have a *feature request* or *tell me what you think* about this add-on.
 
----
+----
 
-#### Tools used
+### Tools used
 
 + Microsoft's [Visual Studio Code](https://code.visualstudio.com) with ...  
   + Ketho's [World of Warcraft API](https://github.com/Ketho/vscode-wow-api) extension  
   + Stanzilla's [World of Warcraft TOC Language Support](https://github.com/Stanzilla/vscode-wow-toc) extension  
 + Version control management with [Git](https://git-scm.com)
 
-#### References
+### References
 
 + Townlong Yak's FrameXML archive (<https://www.townlong-yak.com/framexml/live>)
 + WoWpedia's World of Warcraft API (<https://wowpedia.fandom.com/wiki/World_of_Warcraft_API>)
