@@ -134,7 +134,7 @@ end
 -- REF.: <https://wowpedia.fandom.com/wiki/UI_escape_sequences#Textures>
 function util:CreateInlineIcon(atlasNameOrTexID, sizeX, sizeY, xOffset, yOffset)  --> Returns: string
 	sizeX = sizeX or 16;
-	sizeY = sizeY or 16;
+	sizeY = sizeY or sizeX;
 	xOffset = xOffset or 0;
 	yOffset = yOffset or -1;
 
@@ -154,6 +154,15 @@ function util:CreateInlineIcon(atlasNameOrTexID, sizeX, sizeY, xOffset, yOffset)
 end
 -- util:CreateInlineIcon(314096, 12)  --> new feature icon
 
+-- function util.CreateSimpleTextureMarkup(file, width, height)
+-- 	-- REF.: <FrameXML/TextureUtil.lua>
+-- 	return ("|T%s:%d:%d|t"):format(
+-- 		  file
+-- 		, height or width
+-- 		, width
+-- 	);
+-- end
+
 ----- Data handler -------------------------------------------------------------
 -- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/ExpansionDocumentation.lua>
 -- REF.: <FrameXML/AccountUtil.lua>
@@ -162,8 +171,6 @@ end
 -- Backward compatibility
 local MRBP_GetMaxLevelForExpansionLevel = GetMaxLevelForExpansionLevel;
 local MRBP_GetMaxLevelForPlayerExpansion = GetMaxLevelForPlayerExpansion;
-local MRBP_IsExpansionLandingPageUnlocked = C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer;
-local MRBP_GetExpansionDisplayInfo = GetExpansionDisplayInfo;
 local MRBP_GetExpansionForLevel = GetExpansionForLevel;
 local MRBP_GetMaximumExpansionLevel = GetMaximumExpansionLevel;
 local MRBP_GetMinimumExpansionLevel = GetMinimumExpansionLevel;
@@ -199,44 +206,52 @@ ExpansionUtil.data = {
 		["ID"] = LE_EXPANSION_WARLORDS_OF_DRAENOR,  -- 5
 		["name"] = EXPANSION_NAME5,
 		-- ["banner"] = "accountupgradebanner-wod",  -- 199x117
+		["garrisonTypeID"] = Enum.GarrisonType.Type_6_0,
 	},
 	["Legion"] = {
 		["ID"] = LE_EXPANSION_LEGION,  -- 6
 		["name"] = EXPANSION_NAME6,
 		-- ["banner"] = "accountupgradebanner-legion",  -- 199x117
+		["garrisonTypeID"] = Enum.GarrisonType.Type_7_0,
 	},
 	["BattleForAzeroth"] = {
 		["ID"] = LE_EXPANSION_BATTLE_FOR_AZEROTH,  -- 7
 		["name"] = EXPANSION_NAME7,
 		-- ["banner"] = "accountupgradebanner-bfa",  -- 199x133
+		["garrisonTypeID"] = Enum.GarrisonType.Type_8_0,
 	},
 	["Shadowlands"] = {
 		["ID"] = LE_EXPANSION_SHADOWLANDS,  -- 8
 		["name"] = EXPANSION_NAME8,
 		-- ["banner"] = "accountupgradebanner-shadowlands",  -- 199x133
+		["garrisonTypeID"] = Enum.GarrisonType.Type_9_0,
 	},
-	-- ["Dragonflight"] = {
-	-- 	["ID"] = LE_EXPANSION_DRAGONFLIGHT,  -- 9
-	-- 	["name"] = EXPANSION_NAME9,
-	-- 	-- ["banner"] = "accountupgradebanner-dragonflight",  -- 199x133
-	-- },
+	["Dragonflight"] = {
+		["ID"] = LE_EXPANSION_DRAGONFLIGHT,  -- 9
+		["name"] = EXPANSION_NAME9,
+		-- ["banner"] = "accountupgradebanner-dragonflight",  -- 199x133
+		["garrisonTypeID"] = Enum.ExpansionLandingPageType.Dragonflight,
+	},
 };
 
 ---Return the expansion data of given expansion ID.
 ---@param expansionID number  The expansion ID oder level (before WoW 10.x)
 ---@return table ExpansionData
+---
 function ExpansionUtil:GetExpansionData(expansionID)
 	for name, expansion in pairs(self.data) do
 		if (expansion.ID == expansionID) then
 			return expansion;
 		end
 	end
+	return {};
 end
 
 ---Comparison function: sort expansion list by ID in *ascending* order.
 ---@param a table
 ---@param b table
 ---@return boolean
+---
 function ExpansionUtil.SortAscending(a, b)
 	return a.ID < b.ID;  --> 0-9
 end
@@ -245,6 +260,7 @@ end
 ---@param a table
 ---@param b table
 ---@return boolean
+---
 function ExpansionUtil.SortDescending(a, b)
 	return a.ID > b.ID;  --> 9-0 (default)
 end
@@ -252,11 +268,11 @@ end
 ---Return the expansion data of those which have a landing page.
 ---@param compFunc function|nil  The function which handles the expansion sorting order. By default sort order is ascending.
 ---@return table expansionData
+---
 function ExpansionUtil:GetExpansionsWithLandingPage(compFunc)
 	local expansionTable = {};
-	-- local expansionID_Draenor = self.data.WarlordsOfDraenor.ID;
 	for name, expansion in pairs(self.data) do
-		-- if (expansion.ID >= expansionID_Draenor) then
+		-- if (expansion.ID >= self.data.WarlordsOfDraenor.ID) then
 		tinsert(expansionTable, expansion);
 		-- end
 	end
@@ -268,36 +284,34 @@ end
 
 ---Return the given expansion's advertising display infos.
 ---@param expansionID number  The expansion ID oder level (before WoW 10.x)
----@return ExpansionDisplayInfo?
+---@return ExpansionDisplayInfo? table
+---
 function ExpansionUtil:GetDisplayInfo(expansionID)
-	return MRBP_GetExpansionDisplayInfo(expansionID);
+	return GetExpansionDisplayInfo(expansionID);
 end
 
 ---Check if a given expansion has an unlocked landing page (aka. mission table).
 ---@param expansionID number  The expansion ID oder level (before WoW 10.x)
 ---@return boolean
+---
 function ExpansionUtil:IsLandingPageUnlocked(expansionID)
-	return MRBP_IsExpansionLandingPageUnlocked(expansionID);
+	if (expansionID < ExpansionUtil.data.Dragonflight.ID) then
+		-- Every expansion since Draenor and before Dragonflight has a garrison.
+		local expansion = ExpansionUtil:GetExpansionData(expansionID);
+		local hasGarrison = C_Garrison.HasGarrison(expansion.garrisonTypeID) or false;
+		return hasGarrison;
+		-- return GarrisonUtil.HasExpansionGarrison(expansionID);
+	end
+	return C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(expansionID);
 end
-
---[[ Tests
-C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(LE_EXPANSION_BATTLE_FOR_AZEROTH)
-ERROR_COLOR_CODE..featuresString..ERR_REQUIRES_EXPANSION_S:format(expansionInfo.name)..FONT_COLOR_CODE_CLOSE
-
-GetClientDisplayExpansionLevel() --> 9
-GetAccountExpansionLevel() 		 --> 9
-GetExpansionLevel()   			 --> 8
-GetMaximumExpansionLevel() 		 --> 9
-GetMinimumExpansionLevel() 		 --> 8
-GetServerExpansionLevel() 		 --> 8 (pre-release)
-]]--
 
 -----[[ Expansion ID handler ]]-------------------------------------------------
 
 ---Return the player's current expansion ID.
 ---@return number expansionID
 function ExpansionUtil:GetCurrentID()
-	return GetClampedCurrentExpansionLevel();
+	-- return GetClampedCurrentExpansionLevel();
+	return LE_EXPANSION_LEVEL_CURRENT;
 end
 
 ---Return the expansion ID which corresponds to the given player level.
@@ -346,6 +360,32 @@ function ExpansionUtil:DoesPlayerOwnExpansion(expansionID)
 end
 
 --------------------------------------------------------------------------------
+
+local GarrisonUtil = {};
+ns.GarrisonUtil = GarrisonUtil;
+
+---Check if given garrison type ID is unlocked.
+---@param garrisonTypeID number
+---@return boolean
+---
+function GarrisonUtil.HasGarrison(garrisonTypeID)
+---@diagnostic disable-next-line: return-type-mismatch
+	return C_Garrison.HasGarrison(garrisonTypeID);
+end
+
+function GarrisonUtil.HasExpansionGarrison(expansionID)
+	local expansion = ExpansionUtil:GetExpansionData(expansionID);
+	return C_Garrison.HasGarrison(expansion.garrisonTypeID);
+end
+
+function GarrisonUtil.HasDragonRidingCompleted()
+	-- REF.: <FrameXML/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
+	local DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID = 15794;
+	local DRAGONRIDING_INTRO_QUEST_ID = 68798;
+	local hasAccountAchievement = select(4, GetAchievementInfo(DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID));
+	return hasAccountAchievement or C_QuestLog.IsQuestFlaggedCompleted(DRAGONRIDING_INTRO_QUEST_ID);
+end
+
 --------------------------------------------------------------------------------
 
 -- Check wether the given garrison type has running or completed missions
