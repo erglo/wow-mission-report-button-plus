@@ -76,7 +76,7 @@ local function LoadSettings(verbose)
 	-- Load the default settings first and overwrite each changed value of the 
 	-- current game session with those from the char-specific settings.
 	ns.settings = CopyTable(ns.defaultSettings);
-	_log:debug(format(".. defaults loaded: %d |4setting:settings; in total", util:tcount(ns.settings)));
+	_log:debug(format(".. defaults loaded: %d |4setting:settings; in total", util.tcount(ns.settings)));
 
 	-- Prepare character-specific settings
 	if (MRBP_PerCharSettings == nil) then 
@@ -84,7 +84,7 @@ local function LoadSettings(verbose)
 		_log:debug(".. initializing character-specific settings");
 	end
 	-- Update `ns.settings` with current char's values
-	local numCharSettings = util:tcount(MRBP_PerCharSettings);
+	local numCharSettings = util.tcount(MRBP_PerCharSettings);
 	if (numCharSettings > 0) then
 		MergeTable(ns.settings, MRBP_PerCharSettings);
 		_log:debug(format(".. updated by %d character-specific |4setting:settings;", numCharSettings));
@@ -439,7 +439,7 @@ function MRBP_Settings_Register()
 	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYSELECTION_LABEL));
 
 	local menuEntries = {};
-	menuEntries.expansionList = ns.ExpansionUtil:GetExpansionsWithLandingPage();
+	menuEntries.expansionList = util.expansion.GetExpansionsWithLandingPage();
 	menuEntries.settingsCB = {  --> Additional "Settings" menu entry
 		ID = 99,
 		name = "[ "..SETTINGS.." ]"  --> WoW global string
@@ -449,19 +449,19 @@ function MRBP_Settings_Register()
 
 	local function getMenuEntryTooltip(expansionID)
 		local featuresString = '';
-		local displayInfo = ns.ExpansionUtil:GetDisplayInfo(expansionID);
+		local displayInfo = util.expansion.GetDisplayInfo(expansionID);
 		if displayInfo then
-			local expansion = ns.ExpansionUtil:GetExpansionData(expansionID);
-			local playerOwnsExpansion = ns.ExpansionUtil:DoesPlayerOwnExpansion(expansionID);
-			local _, width, height = util:GetAtlasInfo(displayInfo.banner);
-			local bannerString = util:CreateInlineIcon(displayInfo.banner, width, height, 8, -16);
+			local expansion = util.expansion.GetExpansionData(expansionID);
+			local playerOwnsExpansion = util.expansion.DoesPlayerOwnExpansion(expansionID);
+			local _, width, height = util.GetAtlasInfo(displayInfo.banner);
+			local bannerString = util.CreateInlineIcon(displayInfo.banner, width, height, 8, -16);
 			featuresString = featuresString..bannerString.."|n";
 			if not playerOwnsExpansion then
 				featuresString = "|n"..ERROR_COLOR_CODE..featuresString..ERR_REQUIRES_EXPANSION_S:format(expansion.name)..FONT_COLOR_CODE_CLOSE.."|n|n";  --> WoW global string
 			end
 			featuresString = featuresString..HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(FEATURES_LABEL).."|n|n";  --> WoW global string
 			for _, feature in ipairs(displayInfo.features) do
-				local iconString = util:CreateInlineIcon(feature.icon);
+				local iconString = util.CreateInlineIcon(feature.icon);
 				featuresString = featuresString..iconString.." "..feature.text.."|n";
 			end
 		end

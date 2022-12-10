@@ -38,8 +38,6 @@ local AddonID, ns = ...
 local L = ns.L
 local _log = ns.dbg_logger
 local util = ns.utilities
-local ExpansionUtil = ns.ExpansionUtil;
-local GarrisonUtil = ns.GarrisonUtil;
 
 local MRBP_GARRISON_TYPE_INFOS = {}
 local MRBP_EventMessagesCounter = {}
@@ -50,8 +48,8 @@ local MRBP_MAJOR_FACTIONS_QUEST_ID_ALLIANCE = 67700;  --> "To the Dragon Isles!"
 
 ----- Main ---------------------------------------------------------------------
 
+-- Core functions + event listener frame
 local MRBP = CreateFrame("Frame", AddonID.."EventListenerFrame")
---> core functions + event listener
 
 FrameUtil.RegisterFrameForEvents(MRBP, {
 	"ADDON_LOADED",
@@ -66,6 +64,7 @@ FrameUtil.RegisterFrameForEvents(MRBP, {
 	"QUEST_TURNED_IN",
 	-- "QUEST_AUTOCOMPLETE",
 	-- "ACHIEVEMENT_EARNED",  --> achievementID, alreadyEarned
+	-- "COVENANT_CHOSEN",  --> covenantID
 	"COVENANT_CALLINGS_UPDATED",
 	"MAJOR_FACTION_UNLOCKED",
 	}
@@ -106,12 +105,12 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 					if (name == buildingName) then
 						_log:debug("building:", buildingID, name)
 						-- Add icon to building name
-						buildingName = util:CreateInlineIcon(texture).." "..buildingName
+						buildingName = util.CreateInlineIcon(texture).." "..buildingName;
 						if (MRBP_EventMessagesCounter[event][garrisonType][buildingID] == nil) then
 							MRBP_EventMessagesCounter[event][garrisonType][buildingID] = false
 						end
 						if (C_Garrison.IsPlayerInGarrison(garrisonType) or MRBP_EventMessagesCounter[event][garrisonType][buildingID] == false) then
-							util:cprintEvent(garrInfo.expansion.name, GARRISON_BUILDING_COMPLETE, buildingName, GARRISON_FINALIZE_BUILDING_TOOLTIP)
+							util.cprintEvent(garrInfo.expansion.name, GARRISON_BUILDING_COMPLETE, buildingName, GARRISON_FINALIZE_BUILDING_TOOLTIP);
 							MRBP_EventMessagesCounter[event][garrisonType][buildingID] = true
 						else
 							_log:debug("Skipped:", event, garrisonType, buildingID, name)
@@ -125,7 +124,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			_log:debug(event, ...)
 			--> Draenor garrison only
 			local garrInfo = MRBP_GARRISON_TYPE_INFOS[Enum.GarrisonType.Type_6_0]
-			util:cprintEvent(garrInfo.expansion.name, GARRISON_LANDING_INVASION, nil, GARRISON_LANDING_INVASION_TOOLTIP)
+			util.cprintEvent(garrInfo.expansion.name, GARRISON_LANDING_INVASION, nil, GARRISON_LANDING_INVASION_TOOLTIP);
 
 		elseif (event == "GARRISON_MISSION_FINISHED") then
 			-- REF.: <FrameXML/Blizzard_GarrisonUI/Blizzard_GarrisonMissionUI.lua>
@@ -138,11 +137,11 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			if missionInfo then
 				local missionLink = C_Garrison.GetMissionLink(missionID)
 				local missionIcon = missionInfo.typeTextureKit and missionInfo.typeTextureKit.."-Map" or missionInfo.typeAtlas
-				local missionName = util:CreateInlineIcon(missionIcon)..missionLink
+				local missionName = util.CreateInlineIcon(missionIcon)..missionLink;
 				_log:debug(event, "followerTypeID:", followerTypeID, "missionID:", missionID, missionInfo.name)
 				--> TODO - Count and show number of twinks' finished missions ???  --> MRBP_GlobalMissions
 				--> TODO - Remove from MRBP_GlobalMissions
-				util:cprintEvent(garrInfo.expansion.name, eventMsg, missionName, nil, true)
+				util.cprintEvent(garrInfo.expansion.name, eventMsg, missionName, nil, true);
 			end
 
 		elseif (event == "GARRISON_TALENT_COMPLETE") then
@@ -160,8 +159,8 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 					for talentIndex, talent in ipairs(treeInfo.talents) do
 						if (talent.researched or talent.id == completeTalentID) then
 							-- GetTalentLink(talent.id)
-							local nameString = util:CreateInlineIcon(talent.icon).." "..talent.name
-							util:cprintEvent(garrInfo.expansion.name, eventMsg, nameString)
+							local nameString = util.CreateInlineIcon(talent.icon).." "..talent.name;
+							util.cprintEvent(garrInfo.expansion.name, eventMsg, nameString);
 						end
 					end
 				end
@@ -172,9 +171,9 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			_log:info("isInitialLogin:", isInitialLogin, "- isReloadingUi:", isReloadingUi)
 
 			local function printDayEvent()
-				local isTodayDayEvent, dayEvent, dayEventMsg = util:IsTodayWorldQuestDayEvent()
+				local isTodayDayEvent, dayEvent, dayEventMsg = util.IsTodayWorldQuestDayEvent();
 				if isTodayDayEvent then
-					ns.cprint(dayEventMsg)
+					ns.cprint(dayEventMsg);
 				end
 			end
 			if isInitialLogin then
@@ -237,12 +236,19 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			MRBP_GARRISON_TYPE_INFOS[Enum.GarrisonType.Type_9_0].bountyBoard.bounties = callings;
 
 		elseif (event == "MAJOR_FACTION_UNLOCKED") then
-			-- local majorFactionID = ...;
-			ns.cprint(DRAGONFLIGHT_LANDING_PAGE_ALERT_MAJOR_FACTION_UNLOCKED);
+			-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>
+			local majorFactionID = ...;
+			local majorFactionData = util.garrison.GetMajorFactionData(majorFactionID);
+			local unlockedMessage = DRAGONFLIGHT_LANDING_PAGE_ALERT_MAJOR_FACTION_UNLOCKED;
+			if majorFactionData then
+				local majorFactionColor = _G[strupper(majorFactionData.textureKit).."_MAJOR_FACTION_COLOR"];
+				unlockedMessage = majorFactionColor:WrapTextInColorCode(unlockedMessage);
+			end
+			ns.cprint(unlockedMessage);
+			ns.MRBP_ReloadDropdown();
 
 		end
 	end
-
 )
 
 -- Load this add-on's functions when the MR minimap button is ready.
@@ -298,15 +304,14 @@ local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
 		[Enum.CovenantType.NightFae] = {57878, "Choosing Your Purpose"},	--> optional: 61552, "The Hunt Watches"
 		[Enum.CovenantType.Necrolord] = {57878, "Choosing Your Purpose"},
 		["alt"] = {62000, "Choosing Your Purpose"},
-		-- TEST - C_QuestLog.IsQuestFlaggedCompleted(57878)  --> story mode
-		-- TEST - C_QuestLog.IsQuestFlaggedCompleted(62000)  --> skipping story mode
 	},
 	[Enum.ExpansionLandingPageType.Dragonflight] = {
 		-- REF.: <FrameXML/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
 		["Horde"] ={65444, "To the Dragon Isles!"},
-		-- ["Horde"] ={65452, "Explorers in Peril"},  --> Schaltet Fraktion Drachenschuppenexpedition frei
 		["Alliance"] = {67700, "To the Dragon Isles!"},
 		["alt"] = {68798, "Dragon Glyphs and You"},
+		-- ["alt"] = {68798, "Dragon Glyphs and You"},
+		-- ["Horde"] ={65452, "Explorers in Peril"},  --> Schaltet Fraktion Drachenschuppenexpedition frei
 	},
 	-- (Horde) "Für die Königin"  --> Schaltet Ruhmstufen bei Valdrakkenabkommen frei.
 	-- (Horde) "Drachenreiten"
@@ -352,7 +357,7 @@ end
 local function MRBP_IsGarrisonTypeUnlocked(garrTypeID, tagName)
 	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID][tagName]
 	local questID = questData[1]
-	local IsCompleted = C_QuestLog.IsQuestFlaggedCompleted
+	local IsCompleted = util.quest.IsFlaggedCompleted;
 
 	--> FIXME - Temp. work-around (better with achievement of same name ???)
 	-- In Shadowlands if you skip the story mode you get a different quest (ID) with the same name, so
@@ -405,7 +410,7 @@ function MRBP:LoadData()
 				["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_6_0].strings.LANDING_COMPLETE,
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(Enum.GarrisonType.Type_6_0, playerInfo.factionGroup).requirementText,
 			},
-			["expansion"] = ExpansionUtil.data.WarlordsOfDraenor,
+			["expansion"] = util.expansion.data.WarlordsOfDraenor,
 			["continents"] = {572},  --> Draenor
 			-- No bounties in Draenor; only available since Legion.
 		},
@@ -423,12 +428,12 @@ function MRBP:LoadData()
 				["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_7_0].strings.LANDING_COMPLETE,
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(Enum.GarrisonType.Type_7_0, playerInfo.className).requirementText,
 			},
-			["expansion"] = ExpansionUtil.data.Legion,
+			["expansion"] = util.expansion.data.Legion,
 			["continents"] = {619, 905},  --> Broken Isles + Argus
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
-				["bounties"] = C_QuestLog.GetBountiesForMapID(650),  --> any child zone from "continents" in Legion seems to work
+				["bounties"] = util.quest.GetBountiesForMapID(650),  --> any child zone from "continents" in Legion seems to work
 				["areBountiesUnlocked"] = MapUtil.MapHasUnlockedBounties(650),
 			},
 		},
@@ -446,12 +451,12 @@ function MRBP:LoadData()
 				["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_8_0].strings.LANDING_COMPLETE,
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(Enum.GarrisonType.Type_8_0, playerInfo.factionGroup).requirementText,
 			},
-			["expansion"] = ExpansionUtil.data.BattleForAzeroth,
+			["expansion"] = util.expansion.data.BattleForAzeroth,
 			["continents"] = {876, 875, 1355},  --> Kul'Tiras + Zandalar (+ Nazjatar [Zone])
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
-				["bounties"] = C_QuestLog.GetBountiesForMapID(875),  --> or any child zone from "continents" seems to work as well.
+				["bounties"] = util.quest.GetBountiesForMapID(875),  --> or any child zone from "continents" seems to work as well.
 				["areBountiesUnlocked"] = MapUtil.MapHasUnlockedBounties(875),  --> checking only Zandalar should be enough
 			},
 		},
@@ -469,12 +474,12 @@ function MRBP:LoadData()
 				["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_9_0].strings.LANDING_COMPLETE,
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(Enum.GarrisonType.Type_9_0, playerInfo.covenantID).requirementText,
 			},
-			["expansion"] = ExpansionUtil.data.Shadowlands,
+			["expansion"] = util.expansion.data.Shadowlands,
 			["continents"] = {1550},  --> Shadowlands
 			["bountyBoard"] = {
 				["title"] = CALLINGS_QUESTS,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_CALLINGS_DAYS_1,
-				["bounties"] = {},  --> Shadowlands callings will be later added via the event handler.
+				["bounties"] = {},  --> Shadowlands callings will be added later via the event handler.
 				["areBountiesUnlocked"] = C_CovenantCallings.AreCallingsUnlocked(),
 			},
 		},
@@ -492,14 +497,14 @@ function MRBP:LoadData()
 				-- ["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_9_0].strings.LANDING_COMPLETE,
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(Enum.ExpansionLandingPageType.Dragonflight, playerInfo.factionGroup).requirementText,
 			},
-		 ["expansion"] = ExpansionUtil.data.Dragonflight,
+		 ["expansion"] = util.expansion.data.Dragonflight,
 		-- 	["continents"] = {1550},  --> Shadowlands 
-		-- 	["bountyBoard"] = {
+			["bountyBoard"] = {
 		-- 		["title"] = CALLINGS_QUESTS,
 		-- 		["noBountiesMessage"] = BOUNTY_BOARD_NO_CALLINGS_DAYS_1,
-		-- 		["bounties"] = {},  --> Shadowlands callings will be later added via the event handler. 
-		-- 		["areBountiesUnlocked"] = C_CovenantCallings.AreCallingsUnlocked(),
-		-- 	},
+				["bounties"] = util.quest.GetBountiesForMapID(1978),  --> or any child zone from "continents" seems to work as well.
+				["areBountiesUnlocked"] = MapUtil.MapHasUnlockedBounties(1978),
+			},
 		},
 	}
 end
@@ -516,7 +521,7 @@ function MRBP_IsGarrisonRequirementMet(garrTypeID)
 	local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID]
 	_log:info("Checking Garrison Requirement for", garrInfo.expansion.name, "...")
 
-	local hasGarrison = C_Garrison.HasGarrison(garrTypeID)
+	local hasGarrison = util.garrison.HasGarrison(garrTypeID)
 	local isQuestCompleted = MRBP_IsGarrisonTypeUnlocked(garrTypeID, garrInfo.tagName)
 
 	_log:debug("Garrison type:", YELLOW_FONT_COLOR:WrapTextInColorCode(tostring(garrTypeID).." "..garrInfo.expansion.name))
@@ -535,7 +540,7 @@ end
 ---@return boolean
 ---
 function MRBP_IsAnyGarrisonRequirementMet()
-	local expansionList = ExpansionUtil:GetExpansionsWithLandingPage();
+	local expansionList = util.expansion.GetExpansionsWithLandingPage();
 	for _, expansion in ipairs(expansionList) do
 		local result = MRBP_IsGarrisonRequirementMet(expansion.garrisonTypeID);
 		if result then
@@ -556,7 +561,7 @@ ns.MRBP_IsAnyGarrisonRequirementMet = MRBP_IsAnyGarrisonRequirementMet;
 --> Returns: table  {string, string}
 local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 	local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID]
-	local numInProgress, numCompleted = util:GetInProgressMissionCount(garrTypeID)
+	local numInProgress, numCompleted = util.garrison.GetInProgressMissionCount(garrTypeID);
 
 	----- Menu entry text (label) ----------------------------------------------
 	local labelText = ns.settings.preferExpansionName and garrInfo.expansion.name or garrInfo.title
@@ -604,6 +609,19 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 		return labelText, tooltipText  --> Stop here, don't process the rest below.
 	end
 
+	--> TODO - Add info about recruitment
+	-- GARRISON_CHAMPION_COUNT = "Champions: %s%d/%d%s";
+	-- GARRISON_FOLLOWER_COUNT = "Anhänger: %s%d/%d%s";
+	-- GARRISON_FOLLOWERS = "Anhänger";
+	-- GARRISON_FOLLOWERS_TITLE = "Garnisonsanhänger";
+	-- GARRISON_FOLLOWER_INACTIVE = "Inaktiv";
+	-- GARRISON_FOLLOWER_ON_MISSION = "Auf einer Mission";
+	-- GARRISON_FOLLOWER_WORKING = "Arbeitet";
+
+	-- GARRISON_LANDING_AVAILABLE = "Verfügbare Missionen - %d";
+
+	--> TODO - Add currency info
+
 	--[[ Bounty board infos ]]--
 	if (garrTypeID ~= Enum.GarrisonType.Type_6_0 and garrTypeID ~= Enum.ExpansionLandingPageType.Dragonflight) then
 		-- Only available since Legion (WoW 7.x)
@@ -620,17 +638,17 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 			for _, bountyData in ipairs(bountyBoard.bounties) do
 				if bountyData then
 					local questName = QuestUtils_GetQuestName(bountyData.questID)
-					local icon = util:CreateInlineIcon(bountyData.icon)
+					local icon = util.CreateInlineIcon(bountyData.icon);
 					-- if (garrTypeID == Enum.GarrisonType.Type_9_0) then
-					-- 	icon = util:CreateInlineIcon(bountyData.icon, 16)  --, nil, nil)
-					-- 	-- C_QuestLog.GetBountiesForMapID(875)
+					-- 	icon = util.CreateInlineIcon(bountyData.icon, 16)  --, nil, nil)
+					-- 	-- util.quest.GetBountiesForMapID(875)
 					-- end
 					if bountyData.turninRequirementText then
-						--> REF.: <FrameXML//WorldMapBountyBoard.lua>
+						-- REF.: <FrameXML/WorldMapBountyBoard.lua>
 						local bountyString = GRAY_FONT_COLOR:WrapTextInColorCode("%s %s"):format(icon, questName)
 						tooltipText = tooltipText.."|n"..bountyString
 						if ns.settings.showBountyRequirements then
-							tooltipText = tooltipText.."|n"..util:CreateInlineIcon(3083385)  --> dash icon texture
+							tooltipText = tooltipText.."|n"..util.CreateInlineIcon(3083385);  --> dash icon texture
 							tooltipText = tooltipText.." "..RED_FONT_COLOR:WrapTextInColorCode(bountyData.turninRequirementText)
 						end
 					else
@@ -674,11 +692,11 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 	if (garrTypeID == Enum.ExpansionLandingPageType.Dragonflight) then
 		-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>
 		-- REF.: <FrameXML/Blizzard_MajorFactions/Blizzard_MajorFactionRenown.lua>
-		local majorFactionIDs = C_MajorFactions.GetMajorFactionIDs(ExpansionUtil.data.Dragonflight.ID);
+		local majorFactionIDs = util.garrison.GetMajorFactionIDs(util.expansion.data.Dragonflight.ID);
 		-- Retrieve and sort major faction data
 		local majorFactionData = {};
 		for _, factionID in ipairs(majorFactionIDs) do
-			tinsert(majorFactionData, C_MajorFactions.GetMajorFactionData(factionID));
+			tinsert(majorFactionData, util.garrison.GetMajorFactionData(factionID));
 		end
 		local sortFunc = function(a, b) return a.unlockOrder < b.unlockOrder end  --> 0-9
 		table.sort(majorFactionData, sortFunc);
@@ -686,7 +704,7 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 		tooltipText = tooltipText.."|n|n"..MAJOR_FACTION_LIST_TITLE;
 		for _, factionData in ipairs(majorFactionData) do
 			if factionData then
-				local factionIcon = util:CreateInlineIcon("MajorFactions_Icons_"..factionData.textureKit.."512", 18, 18, -1, 0);
+				local factionIcon = util.CreateInlineIcon("MajorFactions_Icons_"..factionData.textureKit.."512", 18, 18, -1, 0);
 				if factionData.isUnlocked then
 					local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel);
 					local factionName = factionData.name..sepString..PARENS_TEMPLATE:format(renownLevelText);
@@ -705,7 +723,8 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 		-- REF.: <FrameXML/Blizzard_GenericTraitUI/Blizzard_GenericTraitFrame.lua>
 		tooltipText = tooltipText.."|n|n"..GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE;
 		-- Show if Dragonriding is unlocked
-		if GarrisonUtil.HasDragonRidingCompleted() then
+		if util.garrison.IsDragonRidingUnlocked() then
+			-- util.garrison.GetDragonGlyphsCount()
 			local dragonRidingTrait = {};
 			dragonRidingTrait.treeID = 672;
 			dragonRidingTrait.currencyID = 2563;  -- GenericTraitFrame:GetTalentTreeID()
@@ -718,14 +737,16 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 			local currencyString = TRADESKILL_NAME_RANK:format(YOU_COLLECTED_LABEL, treeCurrencyInfo.quantity, treeCurrencyInfo.maxQuantity);
 			local flags, traitCurrencyType, currencyTypesID, overrideIcon = C_Traits.GetTraitCurrencyInfo(dragonRidingTrait.currencyID);
 			if overrideIcon then
-				currencyString = currencyString..util:CreateInlineIcon(overrideIcon, 16, 16, 3, 0);
-				-- currencyString = util:CreateInlineIcon(overrideIcon, 16, 16, -1, 0)..currencyString;
+				-- local atlasName = "Ability_dragonriding_glyph01";
+				currencyString = currencyString..util.CreateInlineIcon(overrideIcon, 16, 16, 3, 0);
+				-- currencyString = util.CreateInlineIcon(overrideIcon, 16, 16, -1, 0)..currencyString;
 			end
 			tooltipText = tooltipText.."|n"..WHITE_FONT_COLOR:WrapTextInColorCode(currencyString);
 
 		else
 			-- Not unlocked, yet :(
-			local dragonIconDisabled = util:CreateInlineIcon("dragonriding-barbershop-icon-category-head", 20, 20, -3);
+			local dragonIconDisabled = util.CreateInlineIcon("dragonriding-barbershop-icon-category-head", 20, 20, -3);
+			-- FEATURE_NOT_YET_AVAILABLE
 			tooltipText = tooltipText.."|n"..dragonIconDisabled..DISABLED_FONT_COLOR:WrapTextInColorCode(LANDING_DRAGONRIDING_TREE_BUTTON_DISABLED);
 			-- tooltipText = tooltipText..sepString..WARNING_FONT_COLOR:WrapTextInColorCode(format(L.TOOLTIP_REQUIREMENTS_TEXT_S, "Drachenreiten"));  -- MRBP_DRAGONRIDING_QUEST_ID);
 		end
@@ -750,22 +771,24 @@ function MRBP:GarrisonLandingPageDropDown_OnLoad()
 end
 
 -- Create the dropdown menu items.
--- Note: 'self' refers in this case to the dropdown menu frame.
+--> **Note:** 'self' refers in this case to the dropdown menu frame.
+---@param level number  Level number of submenus
+--
 function MRBP:GarrisonLandingPageDropDown_Initialize(level)
-	_log:info("Initializing drop-down menu...")
-	local sortFunc = ns.settings.reverseSortorder and ExpansionUtil.SortAscending or ExpansionUtil.SortDescending;
-	local expansionList = ExpansionUtil:GetExpansionsWithLandingPage(sortFunc);
-	local filename, width, height, txLeft, txRight, txTop, txBottom  --> needed for not showing mission type icons
-	local activeThreats = util:GetActiveWorldMapThreats()
+	_log:info("Initializing drop-down menu...");
+	local sortFunc = ns.settings.reverseSortorder and util.expansion.SortAscending or util.expansion.SortDescending;
+	local expansionList = util.expansion.GetExpansionsWithLandingPage(sortFunc);
+	local filename, width, height, txLeft, txRight, txTop, txBottom;  --> needed for not showing mission type icons
+	local activeThreats = util.map.GetActiveThreats();
 
 	for _, expansion in ipairs(expansionList) do
 		local garrTypeID = expansion.garrisonTypeID;
 		local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID]
 		if ns.settings.showMissionTypeIcons then
-			filename, width, height, txLeft, txRight, txTop, txBottom = util:GetAtlasInfo(garrInfo.minimapIcon)
+			filename, width, height, txLeft, txRight, txTop, txBottom = util.GetAtlasInfo(garrInfo.minimapIcon);
 		end
 		local shouldShowDisabled = not MRBP_IsGarrisonRequirementMet(garrTypeID)
-		local playerOwnsExpansion = ExpansionUtil:DoesPlayerOwnExpansion(garrInfo.expansion.ID)
+		local playerOwnsExpansion = util.expansion.DoesPlayerOwnExpansion(garrInfo.expansion.ID)
 		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(garrInfo.expansion.ID))  --> user option
 
 		_log:debug(string.format("Got %s - owned: %s, disabled: %s",
@@ -779,7 +802,7 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 
 			local info = UIDropDownMenu_CreateInfo()
 			info.owner = ExpansionLandingPageMinimapButton
-			info.text = labelText  -- util:CreateInlineIcon(garrInfo.minimapIcon, 20, 20, -1)..labelText
+			info.text = labelText  -- util.CreateInlineIcon(garrInfo.minimapIcon, 20, 20, -1)..labelText
 			info.notCheckable = 1
 			info.tooltipOnButton = ns.settings.showEntryTooltip and 1 or nil
 			info.tooltipTitle = ns.settings.preferExpansionName and garrInfo.title or garrInfo.expansion.name
@@ -796,7 +819,7 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 			info.func = function(self)
 				-- Always (!) hide the GarrisonLandingPage; it only loads all
 				-- visible UI widgets properly on opening.
-				if (garrTypeID ~= ExpansionUtil.data.Dragonflight.garrisonTypeID) then
+				if (garrTypeID ~= util.expansion.data.Dragonflight.garrisonTypeID) then
 					if (ExpansionLandingPage and ExpansionLandingPage:IsShown()) then
 						HideUIPanel(ExpansionLandingPage);
 					end
@@ -836,7 +859,7 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 	if tContains(ns.settings.activeMenuEntries, ns.settingsMenuEntry) then
 		-- Add settings button
 		if ns.settings.showMissionTypeIcons then
-			filename, width, height, txLeft, txRight, txTop, txBottom = util:GetAtlasInfo("Warfronts-BaseMapIcons-Empty-Workshop-Minimap")
+			filename, width, height, txLeft, txRight, txTop, txBottom = util.GetAtlasInfo("Warfronts-BaseMapIcons-Empty-Workshop-Minimap");
 		end
 		local info = UIDropDownMenu_CreateInfo()
 		info.notCheckable = true
@@ -939,7 +962,7 @@ function MRBP:SetButtonHooks()
 		-- ExpansionLandingPageMinimapButton:HookScript("OnClick", MRBP_OnClick)  --> safer, but doesn't work!
 	end
 
-	-- GarrisonLandingPage (mission report frame) hook
+	-- GarrisonLandingPage (mission report frame) post hook
 	hooksecurefunc("ShowGarrisonLandingPage", MRBP_ShowGarrisonLandingPage)
 end
 
@@ -960,18 +983,18 @@ function MRBP_OnEnter(self)
 	local currentDateTime = C_DateAndTime.GetCurrentCalendarTime()
 	if (currentDateTime.month == 12) then
 		-- Show a Xmas Easter egg on December after the minimap tooltip text
-		tooltipAddonText = tooltipAddonText.." "..util:CreateInlineIcon("Front-Tree-Icon")
+		tooltipAddonText = tooltipAddonText.." "..util.CreateInlineIcon("Front-Tree-Icon");
 	end
 	GameTooltip_AddNormalLine(GameTooltip, tooltipAddonText)
 
 	GameTooltip:Show()
 end
 
----Handle click behavior of the minimap button.
----@param self table  The 'ExpansionLandingPageMinimapButton' itself.
----@param button string  Name of the button which has been clicked.
----@param isDown boolean  The state of the button, eg. pressed or released.
----
+-- Handle click behavior of the minimap button.
+---@param self table  The 'ExpansionLandingPageMinimapButton' itself
+---@param button string  Name of the button which has been clicked
+---@param isDown boolean  The state of the button, eg. pressed (true) or released (false)
+--
 function MRBP_OnClick(self, button, isDown)
 	_log:debug(string.format("Got mouse click: %s, isDown: %s", button, tostring(isDown)))
 
@@ -988,10 +1011,10 @@ function MRBP_OnClick(self, button, isDown)
 	end
 end
 
----Fix display errors caused by the Covenant Landing Page Mixin.
----REF. <FrameXML/Blizzard_GarrisonUI/Blizzard_GarrisonLandingPage.lua>
----@param garrTypeID number
----
+-- Fix display errors caused by the WoW 9.x covenant landing page mixin.
+---@param garrTypeID number The garrison type ID.
+-- REF.: <FrameXML/Blizzard_GarrisonUI/Blizzard_GarrisonLandingPage.lua>
+--
 function MRBP_ShowGarrisonLandingPage(garrTypeID)
 	_log:debug("Opening report for garrTypeID:", garrTypeID, MRBP_GARRISON_TYPE_INFOS[garrTypeID].title)
 
@@ -1017,29 +1040,29 @@ local function MRBP_ReloadDropdown()
 end
 ns.MRBP_ReloadDropdown = MRBP_ReloadDropdown
 
--- Return the garrison type of the previous expansion, as long as the
--- player level hasn't reached the maximum level.
---> Returns: number
--- 
--- Note: At first log-in this always returns 0 (== no garrison at all).			--> FIXME - Find a solution for this
+-- Return the garrison type of the previous expansion, as long as the most
+-- current one hasn't been unlocked.
+---@return integer garrTypeID  The landing page garrison type ID
 --
--- REF.: <FrameXML/Blizzard_APIDocumentation/ExpansionDocumentation.lua>
+-- **Note:** At first log-in this always returns 0 (== no garrison at all).
+--
 function MRBP_GetLandingPageGarrisonType()
 	_log:info("Starting garrison type adjustment...")
 
-	local garrTypeID = MRBP_GetLandingPageGarrisonType_orig()
+	local garrTypeID = MRBP_GetLandingPageGarrisonType_orig();
 	_log:debug("Got original garrison type:", garrTypeID)
+	print("Got original garrison type:", garrTypeID);
 
-	if ( garrTypeID > 0 and not MRBP_IsGarrisonRequirementMet(garrTypeID) ) then
+	if (garrTypeID > 0 and not MRBP_IsGarrisonRequirementMet(garrTypeID) ) then
 		-- Build and return garrison type ID of previous expansion.
-		local minExpansionID = ExpansionUtil:GetMinimumExpansionLevel()  --> min. available, eg. 8 (Shadowlands)
-		-- Need last attribute of 'Enum.GarrisonType.Type_8_0'
+		local minExpansionID = util.expansion.GetMinimumExpansionLevel()  --> min. available, eg. 8 (Shadowlands)
+		-- Need last attribute of eg. 'Enum.GarrisonType.Type_8_0'
 		local garrTypeID_Minimum = Enum.GarrisonType["Type_"..tostring(minExpansionID).."_0"]
 
 		if (_log.level == _log.DEBUG) then
 			-- Tests
-			local playerExpansionID = ExpansionUtil:GetExpansionForPlayerLevel()
-			local maxExpansionID = ExpansionUtil:GetMaximumExpansionLevel()  --> max. available, eg. 9 (Dragonflight)
+			local playerExpansionID = util.expansion.GetExpansionForPlayerLevel()
+			local maxExpansionID = util.expansion.GetMaximumExpansionLevel()  --> max. available, eg. 9 (Dragonflight)
 			local garrTypeID_Player = Enum.GarrisonType["Type_"..tostring(playerExpansionID+1).."_0"]
 			_log:debug("playerExpansionID:", playerExpansionID)
 			_log:debug("maxExpansionID:", maxExpansionID)
@@ -1055,7 +1078,7 @@ function MRBP_GetLandingPageGarrisonType()
 	return garrTypeID
 end
 
---> TODO - Find a more secure way to pre-hook this.
+---@TODO - Find a more secure way to pre-hook this.
 MRBP_GetLandingPageGarrisonType_orig = C_Garrison.GetLandingPageGarrisonType
 C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType
 
@@ -1083,7 +1106,7 @@ function MRBP:RegisterSlashCommands()
 
 			if (msg == 'version') then
 				local shortVersionOnly = true
-				util:printVersion(shortVersionOnly)
+				util.printVersion(shortVersionOnly);
 
 			elseif (msg == 'chatmsg') then
 				local enabled = ns.settings.showChatNotifications
@@ -1116,11 +1139,11 @@ function MRBP:RegisterSlashCommands()
 				_log:info("Current GarrisonType:", MRBP_GetLandingPageGarrisonType())
 				_log.level = _log.DEBUG
 
-				local expansionList = ExpansionUtil:GetExpansionsWithLandingPage();
+				local expansionList = util.expansion.GetExpansionsWithLandingPage();
 				for _, expansion in ipairs(expansionList) do
 					local garrTypeID = expansion.garrisonTypeID;
 					local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID]
-				   _log:debug("HasGarrison:", C_Garrison.HasGarrison(garrTypeID),
+				   _log:debug("HasGarrison:", util.garrison.HasGarrison(garrTypeID),
 							--   "-", string.format("%-3d", garrTypeID), garrInfo.expansion.name,
 							  "- req:", MRBP_IsGarrisonRequirementMet(garrTypeID),
 							--   "- unlocked:", garrInfo:IsUnlocked())
@@ -1128,9 +1151,9 @@ function MRBP:RegisterSlashCommands()
 				end
 
 				local playerLevel = UnitLevel("player")
-				local expansionLevelForPlayer = ExpansionUtil:GetExpansionForPlayerLevel(playerLevel)
-				local playerMaxLevelForExpansion = ExpansionUtil:GetMaxPlayerLevel()
-				local expansion = ExpansionUtil:GetExpansionData(expansionLevelForPlayer)
+				local expansionLevelForPlayer = util.expansion.GetExpansionForPlayerLevel(playerLevel)
+				local playerMaxLevelForExpansion = util.expansion.GetMaxPlayerLevel()
+				local expansion = util.expansion.GetExpansionData(expansionLevelForPlayer)
 
 				_log:debug("expansionLevelForPlayer:", expansionLevelForPlayer, ",", expansion.name)
 				_log:debug("playerLevel:", playerLevel)
@@ -1144,7 +1167,7 @@ function MRBP:RegisterSlashCommands()
 			local prev_loglvl = _log.level
 			_log.level = _log.USER
 
-			util:printVersion()
+			util.printVersion();
 			ns.cprint(YELLOW_FONT_COLOR:WrapTextInColorCode(L.CHATMSG_SYNTAX_INFO_S:format(SLASH_MRBP1)).."|n")
 			local name, desc
 			for _, info in pairs(SLASH_CMD_ARGLIST) do

@@ -78,7 +78,7 @@ local util = {};
 ns.utilities = util;
 
 -- Print the current add-on's version infos to chat.
-function util:printVersion(shortVersionOnly)
+function util.printVersion(shortVersionOnly)
 	local version = GetAddOnMetadata(AddonID, "Version");
 	if version then
 		if shortVersionOnly then
@@ -97,7 +97,7 @@ end
 
 -- Print garrison related event messages, ie. finished missions/buildings
 -- etc. to chat.
-function util:cprintEvent(locationName, eventMsg, typeName, instructions, isHyperlink)
+function util.cprintEvent(locationName, eventMsg, typeName, instructions, isHyperlink)
 	if ( typeName and not isHyperlink ) then
 		-- typeName = YELLOW_FONT_COLOR:WrapTextInColorCode(PARENS_TEMPLATE:format(typeName));  --> WoW global string
 		typeName = LIGHTYELLOW_FONT_COLOR:WrapTextInColorCode(typeName);
@@ -108,7 +108,7 @@ end
 
 ----- Common helper function----------------------------------------------------
 
-function util:tcount(tbl)
+function util.tcount(tbl)
 	local n = #tbl or 0;
 	if (n == 0) then
 		for _ in pairs(tbl) do
@@ -122,7 +122,7 @@ end
 
 -- REF.: <FrameXML/Blizzard_Deprecated/Deprecated_8_1_0.lua>
 -- REF.: <FrameXML/Blizzard_APIDocumentation/TextureUtilsDocumentation.lua>
-function util:GetAtlasInfo(atlas)
+function util.GetAtlasInfo(atlas)
 	local info = C_Texture.GetAtlasInfo(atlas);
 	if info then
 		local file = info.filename or info.file;
@@ -132,7 +132,7 @@ end
 
 -- REF.: <FrameXML/TextureUtil.lua>
 -- REF.: <https://wowpedia.fandom.com/wiki/UI_escape_sequences#Textures>
-function util:CreateInlineIcon(atlasNameOrTexID, sizeX, sizeY, xOffset, yOffset)  --> Returns: string
+function util.CreateInlineIcon(atlasNameOrTexID, sizeX, sizeY, xOffset, yOffset)  --> Returns: string
 	sizeX = sizeX or 16;
 	sizeY = sizeY or sizeX;
 	xOffset = xOffset or 0;
@@ -152,7 +152,6 @@ function util:CreateInlineIcon(atlasNameOrTexID, sizeX, sizeY, xOffset, yOffset)
 		return CreateAtlasMarkup(atlasNameOrTexID, sizeX, sizeY, xOffset, yOffset);  --> keep original color
 	end
 end
--- util:CreateInlineIcon(314096, 12)  --> new feature icon
 
 -- function util.CreateSimpleTextureMarkup(file, width, height)
 -- 	-- REF.: <FrameXML/TextureUtil.lua>
@@ -163,25 +162,110 @@ end
 -- 	);
 -- end
 
------ Data handler -------------------------------------------------------------
+----- Quest utilities ----------------------------------------------------------
+--> C_QuestLog, C_TaskQuest
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/QuestLogDocumentation.lua>
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/QuestTaskInfoDocumentation.lua>
+-- REF.: <https://wowpedia.fandom.com/wiki/World_of_Warcraft_API#World_Quests>
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/BountySharedDocumentation.lua>
+
+-- A collection of quest related handler.
+--> **Note:** Task Quests refer to World Quests or Bonus Objective quests. (see WoWpedia link above for more)
+util.quest = {};
+
+-- Check whether given quest ID has been completed.
+---@param questID number
+---@return boolean isCompleted
+--
+function util.quest.IsFlaggedCompleted(questID)
+	return C_QuestLog.IsQuestFlaggedCompleted(questID);
+end
+
+-- Check whether there are any active world threats available.
+---@return boolean hasActiveThreats
+--
+function util.quest.HasActiveThreats()
+	return C_QuestLog.HasActiveThreats();
+end
+
+-- Get the world quest IDs of all currently available world threats.
+---@return number[] quests  A list of world quest IDs
+--
+function util.quest.GetThreatQuests()
+	return C_TaskQuest.GetThreatQuests();
+end
+
+-- Check whether given world quest is currently available as an active quest.
+---@param questID number  A world quest ID
+---@return boolean isActive
+--
+function util.quest.IsActiveWorldQuest(questID)
+	return C_TaskQuest.IsActive(questID);
+end
+
+-- Gather basic info about given world quest.
+---@param questID number  A world quest ID
+---@return table questInfo
+---@field questTitle string  The title of the world quest
+---@field factionID number  The faction for the world quest
+---@field isCapped boolean  Is the quest flagged completed ???
+---@field displayAsObjective boolean  Is quest available as objective ???
+--
+function util.quest.GetWorldQuestInfoByQuestID(questID)
+	local questTitle, factionID, capped, displayAsObjective = C_TaskQuest.GetQuestInfoByQuestID(questID);
+	local questInfo = {
+		["questTitle"] = questTitle,
+		["factionID"] = factionID,
+		["isCapped"] = capped,
+		["displayAsObjective"] = displayAsObjective,
+	};
+	return questInfo;
+end
+
+-- Return the map ID of the location where given world quest is currently active.
+---@param questID number  A world quest ID
+---@return number uiMapID
+--
+function util.quest.GetWorldQuestZoneID(questID)
+	return C_TaskQuest.GetQuestZoneID(questID);
+end
+
+-- Gather all bounty world quests of given map.
+---@param mapID number  A UiMapID of a location from the world map.
+---@return BountyInfo[] bounties  A list of currently available bounties
+---@field questID number  A world quest ID
+---@field factionID number  The faction for the world quest
+---@field icon number  The type icon
+---@field numObjectives number  The number of objectives to complete the bounty
+---@field turninRequirementText string  A description about why the quest can't be turned in
+--
+function util.quest.GetBountiesForMapID(mapID)
+	return C_QuestLog.GetBountiesForMapID(mapID);
+end
+
+--[[
+MapUtil.MapHasUnlockedBounties(mapID)
+MapUtil.MapHasEmissaries(mapID)
+
+isAccountQuest = C_QuestLog.IsAccountQuest(questID)
+isThreat = C_QuestLog.IsThreatQuest(questID)
+isBounty = C_QuestLog.IsQuestBounty(questID)
+isCalling = C_QuestLog.IsQuestCalling(questID)
+
+--]]
+
+----- Expansion utilities ------------------------------------------------------
 -- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/ExpansionDocumentation.lua>
 -- REF.: <FrameXML/AccountUtil.lua>
 -- RER.: <https://wowpedia.fandom.com/wiki/World_of_Warcraft_API#Expansions>
 
--- Backward compatibility
-local MRBP_GetMaxLevelForExpansionLevel = GetMaxLevelForExpansionLevel;
-local MRBP_GetMaxLevelForPlayerExpansion = GetMaxLevelForPlayerExpansion;
-local MRBP_GetExpansionForLevel = GetExpansionForLevel;
-local MRBP_GetMaximumExpansionLevel = GetMaximumExpansionLevel;
-local MRBP_GetMinimumExpansionLevel = GetMinimumExpansionLevel;
+-- A collection of expansion related handler.
+util.expansion = {};
 
-local ExpansionUtil = {};
-ns.ExpansionUtil = ExpansionUtil;
-
----Set most basic infos about each expansion.
----Note: Expansions prior to Warlords Of Draenor are no use to this add-on since
----      they don't have a mission table nor a landing page for mission reports.
-ExpansionUtil.data = {
+-- Set most basic infos about each expansion.
+--> **Note:** Expansions prior to Warlords Of Draenor are no use to this add-on since
+--  they don't have a mission table nor a landing page for mission reports.
+util.expansion.data = {
 	-- ["Classic"] = {
 	-- 	["ID"] = LE_EXPANSION_CLASSIC,  -- 0
 	-- 	["name"] = EXPANSION_NAME0,
@@ -235,11 +319,11 @@ ExpansionUtil.data = {
 };
 
 ---Return the expansion data of given expansion ID.
----@param expansionID number  The expansion ID oder level (before WoW 10.x)
+---@param expansionID number  The expansion level 
 ---@return table ExpansionData
 ---
-function ExpansionUtil:GetExpansionData(expansionID)
-	for name, expansion in pairs(self.data) do
+function util.expansion.GetExpansionData(expansionID)
+	for name, expansion in pairs(util.expansion.data) do
 		if (expansion.ID == expansionID) then
 			return expansion;
 		end
@@ -248,20 +332,20 @@ function ExpansionUtil:GetExpansionData(expansionID)
 end
 
 ---Comparison function: sort expansion list by ID in *ascending* order.
----@param a table
----@param b table
+---@param a table  ExpansionData
+---@param b table  ExpansionData
 ---@return boolean
 ---
-function ExpansionUtil.SortAscending(a, b)
+function util.expansion.SortAscending(a, b)
 	return a.ID < b.ID;  --> 0-9
 end
 
 ---Comparison function: sort expansion list by ID in *descending* order.
----@param a table
----@param b table
+---@param a table  ExpansionData
+---@param b table  ExpansionData
 ---@return boolean
 ---
-function ExpansionUtil.SortDescending(a, b)
+function util.expansion.SortDescending(a, b)
 	return a.ID > b.ID;  --> 9-0 (default)
 end
 
@@ -269,141 +353,246 @@ end
 ---@param compFunc function|nil  The function which handles the expansion sorting order. By default sort order is ascending.
 ---@return table expansionData
 ---
-function ExpansionUtil:GetExpansionsWithLandingPage(compFunc)
+function util.expansion.GetExpansionsWithLandingPage(compFunc)
 	local expansionTable = {};
-	for name, expansion in pairs(self.data) do
-		-- if (expansion.ID >= self.data.WarlordsOfDraenor.ID) then
+	for name, expansion in pairs(util.expansion.data) do
+		-- if (expansion.ID >= util.expansion.data.WarlordsOfDraenor.ID) then
 		tinsert(expansionTable, expansion);
 		-- end
 	end
-	local sortFunc = compFunc or self.SortAscending;
+	local sortFunc = compFunc or util.expansion.SortAscending;
 	table.sort(expansionTable, sortFunc);
 
 	return expansionTable;
 end
 
 ---Return the given expansion's advertising display infos.
----@param expansionID number  The expansion ID oder level (before WoW 10.x)
----@return ExpansionDisplayInfo? table
+---@param expansionID number  The expansion level 
+---@return ExpansionDisplayInfo table
 ---
-function ExpansionUtil:GetDisplayInfo(expansionID)
+function util.expansion.GetDisplayInfo(expansionID)
 	return GetExpansionDisplayInfo(expansionID);
 end
 
 ---Check if a given expansion has an unlocked landing page (aka. mission table).
----@param expansionID number  The expansion ID oder level (before WoW 10.x)
----@return boolean
+---@param expansionID number  The expansion level 
+---@return boolean isUnlocked
 ---
-function ExpansionUtil:IsLandingPageUnlocked(expansionID)
-	if (expansionID < ExpansionUtil.data.Dragonflight.ID) then
+function util.expansion.IsLandingPageUnlocked(expansionID)
+	if (expansionID < util.expansion.data.Dragonflight.ID) then
 		-- Every expansion since Draenor and before Dragonflight has a garrison.
-		local expansion = ExpansionUtil:GetExpansionData(expansionID);
-		local hasGarrison = C_Garrison.HasGarrison(expansion.garrisonTypeID) or false;
+		local expansion = util.expansion.GetExpansionData(expansionID);
+		local hasGarrison = util.garrison.HasGarrison(expansion.garrisonTypeID) or false;
 		return hasGarrison;
-		-- return GarrisonUtil.HasExpansionGarrison(expansionID);
 	end
 	return C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(expansionID);
 end
 
 -----[[ Expansion ID handler ]]-------------------------------------------------
 
----Return the player's current expansion ID.
----@return number expansionID
-function ExpansionUtil:GetCurrentID()
+-- Return the player's current expansion ID.
+---@return number expansionID  The expansion level
+--
+function util.expansion.GetCurrentID()
 	-- return GetClampedCurrentExpansionLevel();
 	return LE_EXPANSION_LEVEL_CURRENT;
 end
 
----Return the expansion ID which corresponds to the given player level.
----@param playerLevel number|nil  A number wich represents a player level. Defaults to the current player level. 
----@return number expansionID
-function ExpansionUtil:GetExpansionForPlayerLevel(playerLevel)
+-- Return the expansion ID which corresponds to the given player level.
+---@param playerLevel number  A number wich represents a player level. Defaults to the current player level. 
+---@return number expansionID  The expansion level
+--
+function util.expansion.GetExpansionForPlayerLevel(playerLevel)
 	local level = playerLevel or UnitLevel("player");
-	return MRBP_GetExpansionForLevel(level);
+	return GetExpansionForLevel(level);
 end
 
----Return the ID of the most current available expansion.
----@return number expansionID
-function ExpansionUtil:GetMaximumExpansionLevel()
-	return MRBP_GetMaximumExpansionLevel();
+-- Return the ID of the most recent available expansion.
+---@return number expansionID  The expansion level
+--
+function util.expansion.GetMaximumExpansionLevel()
+	return GetMaximumExpansionLevel();
 end
 
----Return the ID of the player's most lowest expansion.
----@return number
-function ExpansionUtil:GetMinimumExpansionLevel()
-	return MRBP_GetMinimumExpansionLevel();
+-- Return the ID of the player's most lowest expansion.
+---@return number expansionID  The expansion level
+--
+function util.expansion.GetMinimumExpansionLevel()
+	return GetMinimumExpansionLevel();
 end
 
 -----[[ Player level handler ]]-------------------------------------------------
 
----Return the maximal player level for given expansion.
----@param expansionID number  The expansion ID oder level (before WoW 10.x)
----@return number playerLevel
-function ExpansionUtil:GetMaxExpansionLevel(expansionID)
-	return MRBP_GetMaxLevelForExpansionLevel(expansionID);
+-- Return the maximal player level for given expansion.
+---@param expansionID number  The expansion level 
+---@return number playerMaxLevel
+--
+function util.expansion.GetMaxExpansionLevel(expansionID)
+	return GetMaxLevelForExpansionLevel(expansionID);
 end
 
----Return the maximal level the player can reach in the current expansion.
----@return number playerLevel
-function ExpansionUtil:GetMaxPlayerLevel()
-	return MRBP_GetMaxLevelForPlayerExpansion();
+-- Return the maximal level the player can reach in the current expansion.
+---@return number maxPlayerLevel
+--
+function util.expansion.GetMaxPlayerLevel()
+	return GetMaxLevelForPlayerExpansion();
 end
 
----Check if the given expansion is owned by the player.
----@param expansionID number  The expansion ID oder level (before WoW 10.x)
----@return boolean
-function ExpansionUtil:DoesPlayerOwnExpansion(expansionID)
-	local maxLevelForExpansion = self:GetMaxExpansionLevel(expansionID);
-	local maxLevelForCurrentExpansion = self:GetMaxPlayerLevel();
+-- Check if the given expansion is owned by the player.
+---@param expansionID number  The expansion level 
+---@return boolean playerOwnsExpansion
+--
+function util.expansion.DoesPlayerOwnExpansion(expansionID)
+	local maxLevelForExpansion = util.expansion.GetMaxExpansionLevel(expansionID);
+	local maxLevelForCurrentExpansion = util.expansion.GetMaxPlayerLevel();
 	local playerOwnsExpansion = maxLevelForExpansion <= maxLevelForCurrentExpansion;
 	return playerOwnsExpansion;
-end
+end  --> TODO - Not good enough, refine this
 
---------------------------------------------------------------------------------
+----- Garrison utilities -----------------------------------------------------
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/GarrisonInfoDocumentation.lua>
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/GarrisonSharedDocumentation.lua>
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/GarrisonConstantsDocumentation.lua>
+-- REF.: <FrameXML/GarrisonBaseUtils.lua>
+-- REF.: <FrameXML/Blizzard_GarrisonUI/Blizzard_GarrisonMissionUI.lua>
 
-local GarrisonUtil = {};
-ns.GarrisonUtil = GarrisonUtil;
+-- A collection of garrison related helper functions; also used for backward 
+-- compatibility with often changing WoW globals
+util.garrison = {};
 
----Check if given garrison type ID is unlocked.
----@param garrisonTypeID number
----@return boolean
----
-function GarrisonUtil.HasGarrison(garrisonTypeID)
----@diagnostic disable-next-line: return-type-mismatch
+-- -- Available garrison landing page types
+-- --> **Note:** The Dragonflight landing page is *not* a garrison type
+-- util.garrison.GARRISON_TYPES = {
+-- 	[Enum.GarrisonType.Type_6_0] = Enum.GarrisonType.Type_6_0,
+-- 	[Enum.GarrisonType.Type_7_0] = Enum.GarrisonType.Type_7_0,
+-- 	[Enum.GarrisonType.Type_8_0] = Enum.GarrisonType.Type_8_0,
+-- 	[Enum.GarrisonType.Type_9_0] = Enum.GarrisonType.Type_9_0,
+-- };
+
+-- -- Available follower types of each garrison landing page
+-- util.garrison.GARRISON_FOLLOWER_TYPES = {
+-- 	Enum.GarrisonFollowerType.FollowerType_6_0,
+-- 	Enum.GarrisonFollowerType.FollowerType_6_2,
+-- 	Enum.GarrisonFollowerType.FollowerType_7_0,
+-- 	Enum.GarrisonFollowerType.FollowerType_8_0,
+-- 	Enum.GarrisonFollowerType.FollowerType_9_0,
+-- };
+
+-- Check if given garrison type ID is unlocked.
+---@param garrisonTypeID number  A landing page garrison type ID
+---@return boolean hasGarrison
+--
+function util.garrison.HasGarrison(garrisonTypeID)
 	return C_Garrison.HasGarrison(garrisonTypeID);
 end
 
-function GarrisonUtil.HasExpansionGarrison(expansionID)
-	local expansion = ExpansionUtil:GetExpansionData(expansionID);
-	return C_Garrison.HasGarrison(expansion.garrisonTypeID);
+-- function util.garrison.HasExpansionGarrison(expansionID)
+-- 	local expansion = util.expansion.GetExpansionData(expansionID);
+-- 	return C_Garrison.HasGarrison(expansion.garrisonTypeID);
+-- end
+
+-- Check whether the garrison from Warlords of Draenor has invasions available.
+---@return boolean isAvailable
+--
+function util.garrison.IsDraenorInvasionAvailable()
+	return C_Garrison.IsInvasionAvailable();
 end
 
-function GarrisonUtil.HasDragonRidingCompleted()
+----- [[ Dragonflight ]] -----
+--
+-- REF.: <FrameXML/AchievementUtil.lua>
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/AchievementInfoDocumentation.lua>
+-- REF.: <https://wowpedia.fandom.com/wiki/World_of_Warcraft_API#Achievements>
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>
+-- REF.: <FrameXML/Blizzard_MajorFactions/Blizzard_MajorFactionRenown.lua>
+
+-- Check if the dragon riding feature in Dragonflight is unlocked.
+---@return boolean isUnlocked
+--
+function util.garrison.IsDragonRidingUnlocked()
 	-- REF.: <FrameXML/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
 	local DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID = 15794;
 	local DRAGONRIDING_INTRO_QUEST_ID = 68798;
 	local hasAccountAchievement = select(4, GetAchievementInfo(DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID));
-	return hasAccountAchievement or C_QuestLog.IsQuestFlaggedCompleted(DRAGONRIDING_INTRO_QUEST_ID);
+	return hasAccountAchievement or util.quest.IsFlaggedCompleted(DRAGONRIDING_INTRO_QUEST_ID);
+end
+Test_IsDragonRidingUnlocked = util.garrison.IsDragonRidingUnlocked;
+
+-- Count the available dragon glyphs of each zone in Dragonflight.
+---@return table glyphCount
+--
+function util.garrison.GetDragonGlyphsCount()
+	local DRAGONRIDING_GLYPH_HUNTER_ACHIEVEMENTS = {
+		{mapID = 2022, achievementID = 16575},  -- "Waking Shores Glyph Hunter"
+		{mapID = 2023, achievementID = 16576},  -- "Ohn'ahran Plains Glyph Hunter"
+		{mapID = 2024, achievementID = 16577},  -- "Azure Span Glyph Hunter"
+		{mapID = 2025, achievementID = 16578},  -- "Thaldraszus Glyph Hunter"
+	};
+	local glyphCount = {};  -- Glyph count by map ID
+	for _, info in ipairs(DRAGONRIDING_GLYPH_HUNTER_ACHIEVEMENTS) do
+		local numCriteria = GetAchievementNumCriteria(info.achievementID);
+		local mapInfo = util.map.GetMapInfo(info.mapID);
+		local numComplete = 0;
+		for i=1, numCriteria do
+			local criteriaCompleted = select(3, GetAchievementCriteriaInfo(info.achievementID, i));
+			if criteriaCompleted then
+				numComplete = numComplete + 1;
+			end
+		end
+		glyphCount[mapInfo.name] = {};  -- The name of a zone
+		glyphCount[mapInfo.name].numTotal = numCriteria;  -- The total number of glyphs per zone
+		glyphCount[mapInfo.name].numComplete = numComplete;  -- The number of collected glyphs per zone
+	end
+
+	return glyphCount;
+end
+Test_GetDragonGlyphsCount = util.garrison.GetDragonGlyphsCount;
+
+-- Return a list of major faction IDs.
+---@param expansionID number  The expansion level
+---@return number[] majorFactionIDs
+--
+function util.garrison.GetMajorFactionIDs(expansionID)
+	return C_MajorFactions.GetMajorFactionIDs(expansionID);
 end
 
---------------------------------------------------------------------------------
+-- Retrieve the data for given major faction ID.
+---@param factionID number  A major faction ID (since Dragonflight WoW 10.x)
+---@return MajorFactionData table
+--
+function util.garrison.GetMajorFactionData(factionID)
+	return C_MajorFactions.GetMajorFactionData(factionID);
+end
+
+--[[
+MapUtil.ShouldShowTask(mapID, info)
+MapUtil.MapHasEmissaries(mapID)
+MapUtil.MapHasUnlockedBounties(mapID)
+--]]
+
+-- Return a list with details about currently running garrison missions.
+---@param followerType Enum.GarrisonFollowerType
+---@return missionInfo[] inProgressMissions
+--
+function util.garrison.GetInProgressMissions(followerType)
+	return C_Garrison.GetInProgressMissions(followerType);
+end
 
 -- Check wether the given garrison type has running or completed missions
--- and return the number of those in-progress missions.
---> Returns: 2-array   --> {numInProgress, numCompleted}
+-- and return the number of those missions.
+---@param garrisonTypeID number  A landing page garrison type ID
+---@return number numInProgress  Number of currently running missions
+---@return number numCompleted  Number of completed missions
 --
--- REF.: <FrameXML/Blizzard_APIDocumentation/GarrisonConstantsDocumentation.lua>
--- REF.: <FrameXML/GarrisonBaseUtils.lua>
--- REF.: <FrameXML/Blizzard_GarrisonUI/Blizzard_GarrisonMissionUI.lua>
-function util:GetInProgressMissionCount(garrTypeID)
+function util.garrison.GetInProgressMissionCount(garrisonTypeID)
 	local numInProgress, numCompleted = 0, 0;
 	local missions;
 
-	_log:info("Counting in-progress missions for garrison type", garrTypeID);
+	_log:info("Counting in-progress missions for garrison type", garrisonTypeID);
 
 	for followerType, followerOptions in pairs(GarrisonFollowerOptions) do
-		if (followerOptions.garrisonType == garrTypeID) then
-			missions = C_Garrison.GetInProgressMissions(followerType);
+		if (followerOptions.garrisonType == garrisonTypeID) then
+			missions = util.garrison.GetInProgressMissions(followerType);
 			if missions then
 				for i, mission in ipairs(missions) do
 					if (mission.isComplete == nil) then
@@ -423,13 +612,25 @@ function util:GetInProgressMissionCount(garrTypeID)
 	return numInProgress, numCompleted;
 end
 
------ WorldMap and Positioning -------------------------------------------------
+----- World threats ------------------------------------------------------------
+-- REF.: <FrameXML/Blizzard_WorldMap/Blizzard_WorldMapTemplates.lua>
+-- REF.: <https://wowpedia.fandom.com/wiki/UI_escape_sequences>
+
+-- A collection of map related functions.
+util.map = {};
+
+-- Return informations about given map zone.
+---@param mapID number  A UiMapID of a location from the world map.
+---@return UiMapDetails table MapDocumentation.UiMapDetails
+function util.map.GetMapInfo(mapID)
+	return C_Map.GetMapInfo(mapID);
+end
 
 -- -- Retrieve the zones of given continent's map ID.
 -- --> Returns: <table>
 -- --
 -- -- REF.: <FrameXML/Blizzard_APIDocumentation/MapDocumentation.lua>
--- function util:GetContinentZones(mapID, allDescendants)
+-- function util.map.GetContinentZones(mapID, allDescendants)
 -- 	local infos = {};
 -- 	local ALL_DESCENDANTS = allDescendants or false;
 
@@ -440,31 +641,29 @@ end
 
 -- 	return infos;
 -- end
-
+-- Test_GetContinentZones = util.map.GetContinentZones;
 
 -- Find active threats in the world, if active for current player; eg. the
 -- covenant attacks in The Maw or the N'Zoth's attacks in Battle for Azeroth.
---> Returns: <table>
+---@return table activeThreats
+---@return boolean hasActiveThreats
 --
--- REF.: <FrameXML/Blizzard_WorldMap/Blizzard_WorldMapTemplates.lua>
--- REF.: <FrameXML/Blizzard_APIDocumentation/QuestTaskInfoDocumentation.lua>
--- REF.: <https://wowpedia.fandom.com/wiki/UI_escape_sequences>
-function util:GetActiveWorldMapThreats()
-	if C_QuestLog.HasActiveThreats() then
-		local threatQuests = C_TaskQuest.GetThreatQuests();
+function util.map.GetActiveThreats()
+	if util.quest.HasActiveThreats() then
+		local threatQuests = util.quest.GetThreatQuests();
 		local activeThreats = {};
 		for i, questID in ipairs(threatQuests) do
-			if C_TaskQuest.IsActive(questID) then
-				local questTitle, factionID = C_TaskQuest.GetQuestInfoByQuestID(questID);
+			if util.quest.IsActiveWorldQuest(questID) then
+				local questInfo = util.quest.GetWorldQuestInfoByQuestID(questID);
 				local typeAtlas =  QuestUtil.GetThreatPOIIcon(questID);
-				-- local questLink = string.format("%s|Hquest:%d:-1|h[%s]|h|r", NORMAL_FONT_COLOR_CODE, questID, questTitle);
-				-- local questName = util:CreateInlineIcon(typeAtlas)..questLink;
-				local questName = util:CreateInlineIcon(typeAtlas)..questTitle;
-				local mapID = C_TaskQuest.GetQuestZoneID(questID);
-				local mapInfo = C_Map.GetMapInfo(mapID);
+				-- local questLink = string.format("%s|Hquest:%d:-1|h[%s]|h|r", NORMAL_FONT_COLOR_CODE, questID, questInfo.questTitle);
+				-- local questName = util.CreateInlineIcon(typeAtlas)..questLink;
+				local questName = util.CreateInlineIcon(typeAtlas)..questInfo.questTitle;
+				local mapID = util.quest.GetWorldQuestZoneID(questID);
+				local mapInfo = util.map.GetMapInfo(mapID);
 				local questExpansionLevel = GetQuestExpansion(questID);
 				if questExpansionLevel then
-					_log:debug("Threat:", questID, questTitle, ">", mapID, mapInfo.name, "expLvl:", questExpansionLevel);
+					_log:debug("Threat:", questID, questInfo.questTitle, ">", mapID, mapInfo.name, "expLvl:", questExpansionLevel);
 					if ( not activeThreats[questExpansionLevel] ) then
 						-- Add table values per expansion IDs
 						activeThreats[questExpansionLevel] = {};
@@ -484,7 +683,7 @@ end
 --> Returns: 3-array (<boolean>, <eventTable>, <formattedEventTextMessage>)
 --
 -- REF.: <FrameXML/CalendarUtil.lua>
-function util:IsTodayWorldQuestDayEvent()
+function util.IsTodayWorldQuestDayEvent()
 	_log:info("Scanning calendar for day events...");
 	local event;
 	local eventID_WORLDQUESTS = 613;
