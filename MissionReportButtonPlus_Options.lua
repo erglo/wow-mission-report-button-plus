@@ -632,6 +632,7 @@ function MRBP_Settings_Register()
 			metaValue:SetText(GetAddOnMetadata(AddonID, infoLabel));
 		end
 		--> TODO - Make email and website links clickable.
+		-- TALENT_FRAME_DROP_DOWN_EXPORT = "Teilen |cnLIGHTGRAY_FONT_COLOR:(in Zwischenablage kopieren)|r";
 
 		parentFrame = metaLabel;
 	end

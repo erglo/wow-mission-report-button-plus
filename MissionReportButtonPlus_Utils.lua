@@ -499,18 +499,15 @@ function util.garrison.IsDraenorInvasionAvailable()
 end
 
 ----- [[ Dragonflight ]] -----
---
--- REF.: <FrameXML/AchievementUtil.lua>
--- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/AchievementInfoDocumentation.lua>
--- REF.: <https://wowpedia.fandom.com/wiki/World_of_Warcraft_API#Achievements>
--- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>
--- REF.: <FrameXML/Blizzard_MajorFactions/Blizzard_MajorFactionRenown.lua>
 
 -- Check if the dragon riding feature in Dragonflight is unlocked.
 ---@return boolean isUnlocked
+-- REF.: <FrameXML/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
+-- REF.: <FrameXML/AchievementUtil.lua>
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/AchievementInfoDocumentation.lua>
+-- REF.: <https://wowpedia.fandom.com/wiki/World_of_Warcraft_API#Achievements>
 --
 function util.garrison.IsDragonRidingUnlocked()
-	-- REF.: <FrameXML/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
 	local DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID = 15794;
 	local DRAGONRIDING_INTRO_QUEST_ID = 68798;
 	local hasAccountAchievement = select(4, GetAchievementInfo(DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID));
@@ -518,8 +515,54 @@ function util.garrison.IsDragonRidingUnlocked()
 end
 Test_IsDragonRidingUnlocked = util.garrison.IsDragonRidingUnlocked;
 
+-- Create a string with the amount and icon of given currency info.
+---@param treeCurrencyInfo table  A TreeCurrencyInfo table
+---@param includeMaximum boolean|nil  Whether to include the maximal amount to the returned string or not
+---@return string currencyString
+-- REF.: <FrameXML/Blizzard_SharedTalentUI/Blizzard_SharedTalentFrame.lua>
+--
+function util.garrison.CreateCurrencyString(treeCurrencyInfo, includeMaximum, iconWidth, iconOffsetX, iconOffsetY)
+	local flags, traitCurrencyType, currencyTypesID, overrideIcon = C_Traits.GetTraitCurrencyInfo(treeCurrencyInfo.traitCurrencyID);
+	local amountString = format("%2d", treeCurrencyInfo.quantity);
+	local width = iconWidth or 20;
+	local offsetX = iconOffsetX or 3;
+	local offsetY = iconOffsetY or 0;
+	local iconString = overrideIcon and util.CreateInlineIcon(overrideIcon, width, width, offsetX, offsetY) or '';
+	local currencyString = '';
+	if includeMaximum then
+		local maxCurrencyString = tostring(treeCurrencyInfo.maxQuantity);
+		currencyString = TALENT_FRAME_CURRENCY_FORMAT_WITH_MAXIMUM:format(amountString, maxCurrencyString, iconString);
+	else
+		currencyString = TALENT_FRAME_CURRENCY_FORMAT:format(amountString, iconString);
+	end
+
+	return currencyString;
+end
+
+-- Return details about the currency used in the DF dragon riding skill tree.
+---@return TreeCurrencyInfo table  A TreeCurrencyInfo table + glyph texture ID
+-- REF.: <FrameXML/Blizzard_GenericTraitUI/Blizzard_GenericTraitFrame.lua>
+-- REF.: <FrameXML/Blizzard_SharedTalentUI/Blizzard_SharedTalentFrame.lua>
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/SharedTraitsDocumentation.lua>
+--
+function util.garrison.GetDragonRidingTreeCurrencyInfo()
+	local DRAGON_RIDING_TRAIT_TREE_ID = 672;  -- GenericTraitFrame:GetTalentTreeID()
+	local DRAGON_RIDING_TRAIT_CURRENCY_ID = 2563;
+	local DRAGON_RIDING_TRAIT_CURRENCY_TEXTURE = 4728198;
+	local DRAGON_RIDING_TRAIT_CONFIG_ID = C_Traits.GetConfigIDByTreeID(DRAGON_RIDING_TRAIT_TREE_ID);
+	local excludeStagedChanges = true;
+	local treeCurrencyFallbackInfo = {quantity=0, maxQuantity=0, spent=0, traitCurrencyID=DRAGON_RIDING_TRAIT_CURRENCY_ID};
+	local treeCurrencyInfos = C_Traits.GetTreeCurrencyInfo(DRAGON_RIDING_TRAIT_CONFIG_ID, DRAGON_RIDING_TRAIT_TREE_ID, excludeStagedChanges);
+	local treeCurrencyInfo = treeCurrencyInfos and treeCurrencyInfos[1] or treeCurrencyFallbackInfo;
+	treeCurrencyInfo.texture = DRAGON_RIDING_TRAIT_CURRENCY_TEXTURE;
+
+	return treeCurrencyInfo;
+end
+
 -- Count the available dragon glyphs of each zone in Dragonflight.
----@return table glyphCount
+---@return table glyphsPerZone  {mapName = {numTotal, numComplete}, ...}
+---@return integer numGlyphsCollected  The number of glyphs already collected
+---@return integer numGlyphsTotal  The number of glyphs on the Dragon Isles altogether
 --
 function util.garrison.GetDragonGlyphsCount()
 	local DRAGONRIDING_GLYPH_HUNTER_ACHIEVEMENTS = {
@@ -528,7 +571,9 @@ function util.garrison.GetDragonGlyphsCount()
 		{mapID = 2024, achievementID = 16577},  -- "Azure Span Glyph Hunter"
 		{mapID = 2025, achievementID = 16578},  -- "Thaldraszus Glyph Hunter"
 	};
-	local glyphCount = {};  -- Glyph count by map ID
+	local glyphsPerZone = {};  -- Glyph count by map ID
+	local numGlyphsTotal = 0;  -- The total number of glyphs from all zones
+	local numGlyphsCollected = 0;  -- The number of collected glyphs from all zones
 	for _, info in ipairs(DRAGONRIDING_GLYPH_HUNTER_ACHIEVEMENTS) do
 		local numCriteria = GetAchievementNumCriteria(info.achievementID);
 		local mapInfo = util.map.GetMapInfo(info.mapID);
@@ -539,18 +584,21 @@ function util.garrison.GetDragonGlyphsCount()
 				numComplete = numComplete + 1;
 			end
 		end
-		glyphCount[mapInfo.name] = {};  -- The name of a zone
-		glyphCount[mapInfo.name].numTotal = numCriteria;  -- The total number of glyphs per zone
-		glyphCount[mapInfo.name].numComplete = numComplete;  -- The number of collected glyphs per zone
+		glyphsPerZone[mapInfo.name] = {};  -- The name of a zone
+		glyphsPerZone[mapInfo.name].numTotal = numCriteria;  -- The total number of glyphs per zone
+		glyphsPerZone[mapInfo.name].numComplete = numComplete;  -- The number of collected glyphs per zone
+		numGlyphsTotal = numGlyphsTotal + numCriteria;
+		numGlyphsCollected = numGlyphsCollected + numComplete;
 	end
 
-	return glyphCount;
+	return glyphsPerZone, numGlyphsCollected, numGlyphsTotal;
 end
-Test_GetDragonGlyphsCount = util.garrison.GetDragonGlyphsCount;
 
 -- Return a list of major faction IDs.
 ---@param expansionID number  The expansion level
 ---@return number[] majorFactionIDs
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>
+-- REF.: <FrameXML/Blizzard_MajorFactions/Blizzard_MajorFactionRenown.lua>
 --
 function util.garrison.GetMajorFactionIDs(expansionID)
 	return C_MajorFactions.GetMajorFactionIDs(expansionID);
