@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0+100002] - 2022-12-13
+
+### Added
+
+- Details about collected dragon riding glyphs were added to the Dragonflight menu entry tooltip.
+- Basic Dragonflight support
+
+### Fixed
+
+- Covenant calling icons have a transparent border which made them look much smaller. They are now properly displayed.
+
+### Changed
+
+- Extended the utility file's content by separating and adding expansion and garrison handler.
+- The settings' menu entry selection now shows expansions not owned by the player as disabled with a tooltip hint.
+- Removed `.SetCommitFlags` from settings. Usage seems to be reserved for Blizzard only.
+- Updated settings and its 'About this Add-on' section.
+
 ## [0.7.2+100002] - 2022-11-25
 
 ### Added

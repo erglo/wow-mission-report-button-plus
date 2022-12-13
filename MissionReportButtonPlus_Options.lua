@@ -239,7 +239,7 @@ local function CheckBox_Create(category, variableName, name, tooltip)
 	-- Create checkbox
 	local setting = Settings.RegisterAddOnSetting(category, name, varName, Settings.VarType.Boolean, defaultValue);
 	local initializer = Settings.CreateCheckBox(category, setting, tooltip);
-	setting:SetCommitFlags(Settings.CommitFlag.Apply, Settings.CommitFlag.Revertable);
+	-- setting:SetCommitFlags(Settings.CommitFlag.Apply, Settings.CommitFlag.Revertable);
 	-- Handling "activeMenuEntries" vs. normal checkboxes
 	if indexString then
 		setting.defaultValue = defaultMenuEntryValue;
@@ -430,7 +430,7 @@ function MRBP_Settings_Register()
 	-- REF.: Settings.CreateDropDown(categoryTbl, setting, options, tooltip)
 	local styleMenuSetting = Settings.RegisterAddOnSetting(category, styleMenu.name, styleMenu.variable, Settings.VarType.String, styleMenu.defaultValue);
 	local styleMenuInitializer = Settings.CreateDropDown(category, styleMenuSetting, styleMenu.GetOptions, styleMenu.tooltip);
-	styleMenuSetting:SetCommitFlags(Settings.CommitFlag.Apply, Settings.CommitFlag.Revertable);
+	-- styleMenuSetting:SetCommitFlags(Settings.CommitFlag.Apply, Settings.CommitFlag.Revertable);
 	-- Keep track of value changes
 	Settings.SetOnValueChangedCallback(styleMenu.variable, styleMenu.OnValueChanged, styleMenuSetting);
 
@@ -447,12 +447,12 @@ function MRBP_Settings_Register()
 	tinsert(menuEntries.expansionList, menuEntries.settingsCB);
 	ns.settingsMenuEntry = tostring(menuEntries.settingsCB.ID);
 
-	local function getMenuEntryTooltip(expansionID)
+	local function getMenuEntryTooltip(expansionID, playerOwnsExpansion)
 		local featuresString = '';
 		local displayInfo = util.expansion.GetDisplayInfo(expansionID);
 		if displayInfo then
 			local expansion = util.expansion.GetExpansionData(expansionID);
-			local playerOwnsExpansion = util.expansion.DoesPlayerOwnExpansion(expansionID);
+			-- local playerOwnsExpansion = util.expansion.DoesPlayerOwnExpansion(expansionID);
 			local _, width, height = util.GetAtlasInfo(displayInfo.banner);
 			local bannerString = util.CreateInlineIcon(displayInfo.banner, width, height, 8, -16);
 			featuresString = featuresString..bannerString.."|n";
@@ -472,10 +472,17 @@ function MRBP_Settings_Register()
 	menuEntries.checkBoxList_MenuEntriesSettings = {};
 
 	for _, expansion in ipairs(menuEntries.expansionList) do
+		local ownsExpansion = util.expansion.DoesPlayerOwnExpansion(expansion.ID);
 		tinsert(menuEntries.checkBoxList_MenuEntriesSettings, {
 				variable = "activeMenuEntries#"..tostring(expansion.ID),
-				name = HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(expansion.name),
-				tooltip = ns.settingsMenuEntry ~= tostring(expansion.ID) and getMenuEntryTooltip(expansion.ID),
+				name = ownsExpansion and HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(expansion.name) or expansion.name,
+				tooltip = ns.settingsMenuEntry ~= tostring(expansion.ID) and getMenuEntryTooltip(expansion.ID, ownsExpansion),
+				tag = expansion.ID == util.expansion.data.Dragonflight.ID and Settings.Default.True or nil,
+				modifyPredicate = function() return ownsExpansion end;
+				-- modifyPredicate = function()
+				-- 	return util.expansion.DoesPlayerOwnExpansion(expansion.ID);
+				-- 	name = HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(expansion.name),
+				-- end
 			}
 		);
 	end
@@ -547,7 +554,7 @@ function MRBP_Settings_Register()
 			name = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TEXT,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TOOLTIP,
 			-- modifyPredicate = IsEntryTooltipShown,
-			tag = Settings.Default.True,
+			-- tag = Settings.Default.True,
 		},
 	};
 
