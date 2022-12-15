@@ -552,44 +552,59 @@ ns.MRBP_IsAnyGarrisonRequirementMet = MRBP_IsAnyGarrisonRequirementMet;
 
 -----[[ Dropdown Menu ]]--------------------------------------------------------
 
--- -- Add details about the major factions' renown level to the Dragonflight entry tooltip.
--- ---@param tooltipText string
--- ---@return string tooltipText
--- -- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>
--- -- REF.: <FrameXML/Blizzard_MajorFactions/Blizzard_MajorFactionRenown.lua>
--- --
--- local function AddDragonFlightFactionsRenownDetailsText(tooltipText)
--- 	-- Retrieve and sort major faction data
--- 	local majorFactionIDs = util.garrison.GetMajorFactionIDs(util.expansion.data.Dragonflight.ID);
--- 	local majorFactionData = {};
--- 	for _, factionID in ipairs(majorFactionIDs) do
--- 		tinsert(majorFactionData, util.garrison.GetMajorFactionData(factionID));
--- 	end
--- 	local sortFunc = function(a, b) return a.unlockOrder < b.unlockOrder end  --> 0-9
--- 	table.sort(majorFactionData, sortFunc);
+-- Add details about the major factions' renown level to the Dragonflight entry tooltip.
+---@param tooltipText string
+---@return string tooltipText
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>
+-- REF.: <FrameXML/Blizzard_MajorFactions/Blizzard_MajorFactionRenown.lua>
+--
+local function AddDragonFlightFactionsRenownDetailsText(tooltipText)
+	-- Retrieve and sort major faction data
+	local majorFactionIDs = util.garrison.GetMajorFactionIDs(util.expansion.data.Dragonflight.ID);
+	local majorFactionData = {};
+	for _, factionID in ipairs(majorFactionIDs) do
+		tinsert(majorFactionData, util.garrison.GetMajorFactionData(factionID));
+	end
+	local sortFunc = function(a, b) return a.unlockOrder < b.unlockOrder end  --> 0-9
+	table.sort(majorFactionData, sortFunc);
 	
--- 	-- Display faction infos
--- 	local sepString = TALENT_BUTTON_TOOLTIP_COST_ENTRY_SEPARATOR;
--- 	tooltipText = tooltipText.."|n|n"..MAJOR_FACTION_LIST_TITLE;
--- 	for _, factionData in ipairs(majorFactionData) do
--- 		if factionData then
--- 			local factionIcon = util.CreateInlineIcon("MajorFactions_Icons_"..factionData.textureKit.."512", 18, 18, -1, 0);
--- 			if factionData.isUnlocked then
--- 				local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel);
--- 				local factionName = factionData.name..sepString..PARENS_TEMPLATE:format(renownLevelText);
--- 				tooltipText = tooltipText.."|n"..factionIcon..WHITE_FONT_COLOR:WrapTextInColorCode(factionName);
--- 				-- -- tooltipText = tooltipText.."|n"..sepString..sepString..sepString..sepString;
--- 				-- tooltipText = tooltipText.."|n"..MAJOR_FACTION_RENOWN_CURRENT_PROGRESS:format(factionData.renownReputationEarned, factionData.renownLevelThreshold);
--- 			else
--- 				tooltipText = tooltipText.."|n"..factionIcon..DISABLED_FONT_COLOR:WrapTextInColorCode(factionData.name);
--- 				-- Show unlock reason
--- 				tooltipText = tooltipText.."|n"..WARNING_FONT_COLOR:WrapTextInColorCode(factionData.unlockDescription);
--- 			end
--- 		end
--- 	end
+	-- Display faction infos
+	tooltipText = tooltipText.."|n|n"..MAJOR_FACTION_LIST_TITLE;
+	for _, factionData in ipairs(majorFactionData) do
+		if factionData then
+			local factionIcon = util.CreateInlineIcon("MajorFactions_Icons_"..factionData.textureKit.."512", 18, 18, -1, 0);
+			local factionColor = _G[strupper(factionData.textureKit).."_MAJOR_FACTION_COLOR"] or WHITE_FONT_COLOR;
+			local dashSymbolString = util.CreateInlineIcon(3083385);
+			if factionData.isUnlocked then
+				local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel);
+				local factionName = factionData.name.." "..PARENS_TEMPLATE:format(renownLevelText);
+				tooltipText = tooltipText.."|n"..factionIcon..factionColor:WrapTextInColorCode(factionName);
+				-- Show current renown progress
+				tooltipText = tooltipText..WHITE_FONT_COLOR_CODE;
+				tooltipText = tooltipText.."|n"..dashSymbolString;  --> dash icon texture
+				if not util.garrison.HasMaximumMajorFactionRenown(factionData.factionID) then
+					local progressText = MAJOR_FACTION_RENOWN_CURRENT_PROGRESS:format(factionData.renownReputationEarned, factionData.renownLevelThreshold);
+					tooltipText = tooltipText..progressText;
+				else
+					tooltipText = tooltipText..MAJOR_FACTION_MAX_RENOWN_REACHED;
+					tooltipText = tooltipText.." "..util.CreateInlineIcon(628564);  --> check mark icon texture
+				end
+				tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE;
+			else
+				-- Major faction is not unlocked, yet :(
+				tooltipText = tooltipText.."|n"..factionIcon..factionColor:WrapTextInColorCode(factionData.name);
+				tooltipText = tooltipText..DISABLED_FONT_COLOR_CODE;
+				tooltipText = tooltipText.."|n"..dashSymbolString;  --> dash icon texture
+				tooltipText = tooltipText..MAJOR_FACTION_BUTTON_FACTION_LOCKED;
+				-- Show unlock reason
+				tooltipText = tooltipText.."|n"..dashSymbolString..factionData.unlockDescription;
+				tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE;
+			end
+		end
+	end
 
--- 	return tooltipText;
--- end
+	return tooltipText;
+end
 
 -- Add details about the Dragonriding Glyphs to the Dragonflight entry tooltip.
 ---@param tooltipText string
@@ -598,20 +613,26 @@ ns.MRBP_IsAnyGarrisonRequirementMet = MRBP_IsAnyGarrisonRequirementMet;
 local function AddDragonGlyphsDetailsText(tooltipText)
 	local treeCurrencyInfo = util.garrison.GetDragonRidingTreeCurrencyInfo();
 	local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = util.garrison.GetDragonGlyphsCount();
+	local dashSymbolString = util.CreateInlineIcon(3083385);
 	
 	-- Add counter of collected glyphs per zone
-	-- tooltipText = tooltipText..WHITE_FONT_COLOR_CODE;
+	tooltipText = tooltipText..WHITE_FONT_COLOR_CODE;
 	for mapName, count in pairs(glyphsPerZone) do
-		local zoneName = WHITE_FONT_COLOR:WrapTextInColorCode(DASH_WITH_TEXT:format(mapName..HEADER_COLON));
+		local zoneName = dashSymbolString..mapName..HEADER_COLON;
 		tooltipText = tooltipText.."|n"..TRADESKILL_NAME_RANK:format(zoneName, count.numComplete, count.numTotal);
 	end
-	-- tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE;
+	tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE;
 
-	-- Add collection summary
+	-- Add glyph collection summary
 	local currencySymbolString = util.CreateInlineIcon(treeCurrencyInfo.texture, 16, 16, 0, -1);
-	local formattedAmountString = TRADESKILL_NAME_RANK:format(YOU_COLLECTED_LABEL, numGlyphsCollected, numGlyphsTotal);
-	tooltipText = tooltipText.."|n"..formattedAmountString.." "..currencySymbolString;
-	tooltipText = tooltipText.."|n"..ITEM_UPGRADE_CURRENT.." "..tostring(treeCurrencyInfo.quantity).." "..currencySymbolString;
+	local collectedAmountString = TRADESKILL_NAME_RANK:format(YOU_COLLECTED_LABEL, numGlyphsCollected, numGlyphsTotal);
+	tooltipText = tooltipText.."|n"..dashSymbolString..collectedAmountString.." "..currencySymbolString;
+	local currentAmountString = tostring(treeCurrencyInfo.quantity).." "..currencySymbolString;
+	if (treeCurrencyInfo.quantity > 0) then
+		local availableAmountText = PROFESSIONS_CURRENCY_AVAILABLE:format(treeCurrencyInfo.quantity, currencySymbolString);
+		-- tooltipText = tooltipText.."|n"..dashSymbolString..ITEM_UPGRADE_CURRENT.." "..currentAmountString;
+		tooltipText = tooltipText.."|n"..dashSymbolString..WHITE_FONT_COLOR:WrapTextInColorCode(availableAmountText);
+	end
 	if (numGlyphsCollected == 0) then
 		-- Inform player on how to get some glyphs
 		local infoText = WHITE_FONT_COLOR:WrapTextInColorCode(DRAGON_RIDING_CURRENCY_TUTORIAL);
@@ -747,7 +768,7 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 
 	if (garrTypeID == util.expansion.data.Dragonflight.garrisonTypeID) then
 		--[[ Major factions renown details ]]--
-		-- tooltipText = AddDragonFlightFactionsRenownDetailsText(tooltipText);
+		tooltipText = AddDragonFlightFactionsRenownDetailsText(tooltipText);
 
 		--[[ Dragonriding details ]]--
 		tooltipText = tooltipText.."|n|n"..GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE;

@@ -153,14 +153,8 @@ function util.CreateInlineIcon(atlasNameOrTexID, sizeX, sizeY, xOffset, yOffset)
 	end
 end
 
--- function util.CreateSimpleTextureMarkup(file, width, height)
--- 	-- REF.: <FrameXML/TextureUtil.lua>
--- 	return ("|T%s:%d:%d|t"):format(
--- 		  file
--- 		, height or width
--- 		, width
--- 	);
--- end
+-- util.CreateInlineIcon(628564);  --> check mark icon texture
+-- util.CreateInlineIcon(3083385);  --> dash icon texture
 
 ----- Quest utilities ----------------------------------------------------------
 --> C_QuestLog, C_TaskQuest
@@ -460,15 +454,6 @@ end  --> TODO - Not good enough, refine this
 -- compatibility with often changing WoW globals
 util.garrison = {};
 
--- -- Available garrison landing page types
--- --> **Note:** The Dragonflight landing page is *not* a garrison type
--- util.garrison.GARRISON_TYPES = {
--- 	[Enum.GarrisonType.Type_6_0] = Enum.GarrisonType.Type_6_0,
--- 	[Enum.GarrisonType.Type_7_0] = Enum.GarrisonType.Type_7_0,
--- 	[Enum.GarrisonType.Type_8_0] = Enum.GarrisonType.Type_8_0,
--- 	[Enum.GarrisonType.Type_9_0] = Enum.GarrisonType.Type_9_0,
--- };
-
 -- -- Available follower types of each garrison landing page
 -- util.garrison.GARRISON_FOLLOWER_TYPES = {
 -- 	Enum.GarrisonFollowerType.FollowerType_6_0,
@@ -610,6 +595,14 @@ end
 --
 function util.garrison.GetMajorFactionData(factionID)
 	return C_MajorFactions.GetMajorFactionData(factionID);
+end
+
+-- Check if player has reached the maximum renown level for given major faction.
+---@param currentFactionID number
+---@return boolean hasMaxRenown^
+--
+function util.garrison.HasMaximumMajorFactionRenown(currentFactionID)
+	return C_MajorFactions.HasMaximumRenown(currentFactionID);
 end
 
 --[[
