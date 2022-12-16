@@ -197,6 +197,28 @@ function util.quest.IsActiveWorldQuest(questID)
 	return C_TaskQuest.IsActive(questID);
 end
 
+function util.quest.GetQuestTimeColor(secondsRemaining)
+	-- return QuestUtils_GetQuestTimeColor(secondsRemaining);
+	-- REF.: <FrameXML/QuestUtils.lua>
+	-- REF.: <FrameXML/TimeUtil.lua>
+	local isWithinCriticalTime = secondsRemaining <= MinutesToSeconds(WORLD_QUESTS_TIME_CRITICAL_MINUTES);
+	return isWithinCriticalTime and RED_FONT_COLOR or WHITE_FONT_COLOR;
+end
+
+function util.quest.GetQuestTimeLeftInfo(questID)
+	-- REF.: <FrameXML/WorldMapFrame.lua>
+	-- REF.: <FrameXML/GameTooltip.lua>
+	-- REF.: <FrameXML/TimeUtil.lua>
+	local timeLeftInfo = {};
+	timeLeftInfo.seconds = C_TaskQuest.GetQuestTimeLeftSeconds(questID);
+	timeLeftInfo.color = util.quest.GetQuestTimeColor(timeLeftInfo.seconds);
+	local abbreviationType = SecondsFormatter.Abbreviation.Truncate;
+	timeLeftInfo.timeString = WorldQuestsSecondsFormatter:Format(timeLeftInfo.seconds, abbreviationType);
+	timeLeftInfo.timeLeftString = BONUS_OBJECTIVE_TIME_LEFT:format(timeLeftInfo.timeString);
+	timeLeftInfo.coloredTimeLeftString = timeLeftInfo.color:WrapTextInColorCode(timeLeftInfo.timeLeftString);
+	return timeLeftInfo;
+end
+
 -- Gather basic info about given world quest.
 ---@param questID number  A world quest ID
 ---@return table questInfo
@@ -609,6 +631,11 @@ end
 MapUtil.ShouldShowTask(mapID, info)
 MapUtil.MapHasEmissaries(mapID)
 MapUtil.MapHasUnlockedBounties(mapID)
+
+local ECHOS_OF_NYLOTHA_CURRENCY_ID = 1803;
+C_CurrencyInfo.GetFactionGrantedByCurrency(currencyID);
+C_CurrencyInfo.GetCurrencyInfo(currencyID)
+
 --]]
 
 -- Return a list with details about currently running garrison missions.
@@ -697,11 +724,11 @@ function util.map.GetActiveThreats()
 			if util.quest.IsActiveWorldQuest(questID) then
 				local questInfo = util.quest.GetWorldQuestInfoByQuestID(questID);
 				local typeAtlas =  QuestUtil.GetThreatPOIIcon(questID);
-				-- local questLink = string.format("%s|Hquest:%d:-1|h[%s]|h|r", NORMAL_FONT_COLOR_CODE, questID, questInfo.questTitle);
-				-- local questName = util.CreateInlineIcon(typeAtlas)..questLink;
-				local questName = util.CreateInlineIcon(typeAtlas)..questInfo.questTitle;
+				local questName = util.CreateInlineIcon(typeAtlas)..WHITE_FONT_COLOR:WrapTextInColorCode(questInfo.questTitle);
 				local mapID = util.quest.GetWorldQuestZoneID(questID);
 				local mapInfo = util.map.GetMapInfo(mapID);
+				local timeLeftInfo = util.quest.GetQuestTimeLeftInfo(questID);
+				local timeLeftString = timeLeftInfo.coloredTimeLeftString;
 				local questExpansionLevel = GetQuestExpansion(questID);
 				if questExpansionLevel then
 					_log:debug("Threat:", questID, questInfo.questTitle, ">", mapID, mapInfo.name, "expLvl:", questExpansionLevel);
@@ -709,7 +736,7 @@ function util.map.GetActiveThreats()
 						-- Add table values per expansion IDs
 						activeThreats[questExpansionLevel] = {};
 					end
-					tinsert(activeThreats[questExpansionLevel], {questID, questName, mapInfo.name});
+					tinsert(activeThreats[questExpansionLevel], {questID, questName, mapInfo.name, timeLeftString});
 				end
 		   end
 		end

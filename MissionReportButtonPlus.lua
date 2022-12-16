@@ -756,8 +756,12 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 						tooltipText = tooltipText.."|n|n"..zoneName
 					end
 					for i, threatInfo in ipairs(threatData) do
-						local questID, questName, zoneName = SafeUnpack(threatInfo)
-						tooltipText = tooltipText.."|n"..WHITE_FONT_COLOR:WrapTextInColorCode(questName);
+						local questID, questName, zoneName, timeLeftString = SafeUnpack(threatInfo)
+						tooltipText = tooltipText.."|n"..questName;
+						if ns.settings.showThreatsTimeRemaining then
+							tooltipText = tooltipText.."|n"..util.CreateInlineIcon(3083385);  --> dash icon texture
+							tooltipText = tooltipText..timeLeftString;
+						end
 					end
 				end
 			end
