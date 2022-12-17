@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Added
 
-- Time remaining info for world map threats including setting and localization.
+- Time remaining info for world map threats including settings option + localization.
 - Major Factions renown status in entry tooltip.
 
 ## [0.8.0+100002] - 2022-12-13

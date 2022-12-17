@@ -242,7 +242,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			local unlockedMessage = DRAGONFLIGHT_LANDING_PAGE_ALERT_MAJOR_FACTION_UNLOCKED;
 			if majorFactionData then
 				local majorFactionColor = _G[strupper(majorFactionData.textureKit).."_MAJOR_FACTION_COLOR"];
-				unlockedMessage = majorFactionColor:WrapTextInColorCode(unlockedMessage);
+				unlockedMessage = unlockedMessage.." - "..majorFactionColor:WrapTextInColorCode(majorFactionData.name);
 			end
 			ns.cprint(unlockedMessage);
 			ns.MRBP_ReloadDropdown();
@@ -407,7 +407,7 @@ function MRBP:LoadData()
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(Enum.GarrisonType.Type_6_0, playerInfo.factionGroup).requirementText,
 			},
 			["expansion"] = util.expansion.data.WarlordsOfDraenor,
-			["continents"] = {572},  --> Draenor
+			-- ["continents"] = {572},  --> Draenor
 			-- No bounties in Draenor; only available since Legion.
 		},
 		-----[[ Legion ]]-----
@@ -425,7 +425,7 @@ function MRBP:LoadData()
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.Legion.garrisonTypeID, playerInfo.className).requirementText,
 			},
 			["expansion"] = util.expansion.data.Legion,
-			["continents"] = {619, 905},  --> Broken Isles + Argus
+			-- ["continents"] = {619, 905},  --> Broken Isles + Argus
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
@@ -448,7 +448,7 @@ function MRBP:LoadData()
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.BattleForAzeroth.garrisonTypeID, playerInfo.factionGroup).requirementText,
 			},
 			["expansion"] = util.expansion.data.BattleForAzeroth,
-			["continents"] = {876, 875, 1355},  --> Kul'Tiras + Zandalar (+ Nazjatar [Zone])
+			-- ["continents"] = {876, 875, 1355},  --> Kul'Tiras + Zandalar (+ Nazjatar [Zone])
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
@@ -471,7 +471,7 @@ function MRBP:LoadData()
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.Shadowlands.garrisonTypeID, playerInfo.covenantID).requirementText,
 			},
 			["expansion"] = util.expansion.data.Shadowlands,
-			["continents"] = {1550},  --> Shadowlands
+			-- ["continents"] = {1550},  --> Shadowlands
 			["bountyBoard"] = {
 				["title"] = CALLINGS_QUESTS,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_CALLINGS_DAYS_1,
@@ -494,8 +494,8 @@ function MRBP:LoadData()
 				-- ["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_9_0].strings.LANDING_COMPLETE,
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.Dragonflight.garrisonTypeID, playerInfo.factionGroup).requirementText,
 			},
-		 ["expansion"] = util.expansion.data.Dragonflight,
-		-- 	["continents"] = {1550},  --> Shadowlands 
+		 	["expansion"] = util.expansion.data.Dragonflight,
+		-- 	["continents"] = {1978},  --> Dragon Isles 
 			["bountyBoard"] = {
 				["title"] = MAJOR_FACTION_LIST_TITLE,  -- CALLINGS_QUESTS,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
@@ -552,10 +552,89 @@ ns.MRBP_IsAnyGarrisonRequirementMet = MRBP_IsAnyGarrisonRequirementMet;
 
 -----[[ Dropdown Menu ]]--------------------------------------------------------
 
+-- Handle opening and closing of Garrison-/ExpansionLandingPage frames.
+---@param garrTypeID number
+--
+local function MRBP_ToggleLandingPageFrames(garrTypeID)
+	-- Always (!) hide the GarrisonLandingPage; all visible UI widgets can only be 
+	-- loaded properly on opening.
+	if (garrTypeID ~= util.expansion.data.Dragonflight.garrisonTypeID) then
+		if (ExpansionLandingPage and ExpansionLandingPage:IsShown()) then
+			HideUIPanel(ExpansionLandingPage);
+		end
+		if (GarrisonLandingPage == nil) then
+			-- Hasn't been opened in this session, yet
+			_log:debug("Showing GarrisonLandingPage1 type", garrTypeID);
+			ShowGarrisonLandingPage(garrTypeID);
+		else
+			-- Toggle the GarrisonLandingPage frame; only re-open it
+			-- if the garrison type is not the same.
+			if (GarrisonLandingPage:IsShown()) then
+				_log:debug("Hiding GarrisonLandingPage type", GarrisonLandingPage.garrTypeID);
+				HideUIPanel(GarrisonLandingPage);
+				if (garrTypeID ~= GarrisonLandingPage.garrTypeID) then
+					_log:debug("Showing GarrisonLandingPage2 type", garrTypeID);
+					ShowGarrisonLandingPage(garrTypeID);
+				end
+			else
+				_log:debug("Showing GarrisonLandingPage3 type", garrTypeID);
+				ShowGarrisonLandingPage(garrTypeID);
+			end
+		end
+	else
+		if (GarrisonLandingPage and GarrisonLandingPage:IsShown()) then
+			_log:debug("Hiding GarrisonLandingPage1 type", GarrisonLandingPage.garrTypeID);
+			HideUIPanel(GarrisonLandingPage);
+		end
+		ToggleExpansionLandingPage();
+	end
+end
+
+-- Add details about the garrison mission progress.
+---@param garrInfo table  One of the entries from MRBP_GARRISON_TYPE_INFOS
+---@param tooltipText string
+---@return string tooltipText
+--
+local function AddMissionCounterDetailsText(garrInfo, tooltipText)
+	local isDragonFlightExpansion = garrInfo.expansion.garrisonTypeID == util.expansion.data.Dragonflight.garrisonTypeID;
+	if (ns.settings.showMissionCountInTooltip and not garrInfo.shouldShowDisabled and not isDragonFlightExpansion) then
+		-- Add category title for missions
+		tooltipText = tooltipText.."|n|n"..garrInfo.msg.missionsTitle;
+
+		-- Mission count info
+		tooltipText = tooltipText..WHITE_FONT_COLOR_CODE;
+		if (garrInfo.missions.numInProgress > 0) then
+			local progressText = string.format(
+				garrInfo.msg.missionsReadyCount,
+				garrInfo.missions.numCompleted,
+				garrInfo.missions.numInProgress
+			);
+			tooltipText = tooltipText.."|n"..progressText;
+		else
+			tooltipText = tooltipText.."|n"..garrInfo.msg.missionsEmptyProgress;
+		end
+		tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE;
+
+		-- Return to base info
+		if ns.settings.showMissionCompletedHintOnlyForAll then
+			local hasCompletedAllMissions = garrInfo.missions.numCompleted == garrInfo.missions.numInProgress;
+			if (garrInfo.missions.numCompleted > 0 and hasCompletedAllMissions) then
+				tooltipText = tooltipText.."|n|n"..garrInfo.msg.missionsComplete;
+			end
+		else
+			if (garrInfo.missions.numCompleted > 0) then
+				tooltipText = tooltipText.."|n|n"..garrInfo.msg.missionsComplete;
+			end
+		end
+	end
+
+	return tooltipText;
+end
+
 -- Add details about the major factions' renown level to the Dragonflight entry tooltip.
 ---@param tooltipText string
 ---@return string tooltipText
--- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>
+-->REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua> <br/>
 -- REF.: <FrameXML/Blizzard_MajorFactions/Blizzard_MajorFactionRenown.lua>
 --
 local function AddDragonFlightFactionsRenownDetailsText(tooltipText)
@@ -567,18 +646,17 @@ local function AddDragonFlightFactionsRenownDetailsText(tooltipText)
 	end
 	local sortFunc = function(a, b) return a.unlockOrder < b.unlockOrder end  --> 0-9
 	table.sort(majorFactionData, sortFunc);
-	
+
 	-- Display faction infos
-	tooltipText = tooltipText.."|n|n"..MAJOR_FACTION_LIST_TITLE;
 	for _, factionData in ipairs(majorFactionData) do
 		if factionData then
-			local factionIcon = util.CreateInlineIcon("MajorFactions_Icons_"..factionData.textureKit.."512", 18, 18, -1, 0);
-			local factionColor = _G[strupper(factionData.textureKit).."_MAJOR_FACTION_COLOR"] or WHITE_FONT_COLOR;
+			local factionIconString = util.garrison.GetMajorFactionInlineIcon(factionData);
+			local factionColor = util.garrison.GetMajorFactionColor(factionData, WHITE_FONT_COLOR);
 			local dashSymbolString = util.CreateInlineIcon(3083385);
 			if factionData.isUnlocked then
 				local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel);
 				local factionName = factionData.name.." "..PARENS_TEMPLATE:format(renownLevelText);
-				tooltipText = tooltipText.."|n"..factionIcon..factionColor:WrapTextInColorCode(factionName);
+				tooltipText = tooltipText.."|n"..factionIconString..factionColor:WrapTextInColorCode(factionName);
 				-- Show current renown progress
 				tooltipText = tooltipText..WHITE_FONT_COLOR_CODE;
 				tooltipText = tooltipText.."|n"..dashSymbolString;  --> dash icon texture
@@ -592,7 +670,7 @@ local function AddDragonFlightFactionsRenownDetailsText(tooltipText)
 				tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE;
 			else
 				-- Major faction is not unlocked, yet :(
-				tooltipText = tooltipText.."|n"..factionIcon..factionColor:WrapTextInColorCode(factionData.name);
+				tooltipText = tooltipText.."|n"..factionIconString..factionColor:WrapTextInColorCode(factionData.name);
 				tooltipText = tooltipText..DISABLED_FONT_COLOR_CODE;
 				tooltipText = tooltipText.."|n"..dashSymbolString;  --> dash icon texture
 				tooltipText = tooltipText..MAJOR_FACTION_BUTTON_FACTION_LOCKED;
@@ -614,14 +692,23 @@ local function AddDragonGlyphsDetailsText(tooltipText)
 	local treeCurrencyInfo = util.garrison.GetDragonRidingTreeCurrencyInfo();
 	local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = util.garrison.GetDragonGlyphsCount();
 	local dashSymbolString = util.CreateInlineIcon(3083385);
-	
+
 	-- Add counter of collected glyphs per zone
-	tooltipText = tooltipText..WHITE_FONT_COLOR_CODE;
+	-- tooltipText = tooltipText..WHITE_FONT_COLOR_CODE;
 	for mapName, count in pairs(glyphsPerZone) do
-		local zoneName = dashSymbolString..mapName..HEADER_COLON;
-		tooltipText = tooltipText.."|n"..TRADESKILL_NAME_RANK:format(zoneName, count.numComplete, count.numTotal);
+		local zoneName = mapName..HEADER_COLON;
+		local lineText = '';
+		local lineColor = WHITE_FONT_COLOR;
+		if (count.numComplete ~= count.numTotal) then
+			lineText = TRADESKILL_NAME_RANK:format(dashSymbolString..zoneName, count.numComplete, count.numTotal);
+		else
+			local checkMarkString = util.CreateInlineIcon(628564);  --> check mark icon texture
+			lineText = TRADESKILL_NAME_RANK:format(checkMarkString..zoneName, count.numComplete, count.numTotal);
+			lineColor = DISABLED_FONT_COLOR;
+		end
+		tooltipText = tooltipText.."|n"..lineColor:WrapTextInColorCode(lineText);
 	end
-	tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE;
+	-- tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE;
 
 	-- Add glyph collection summary
 	local currencySymbolString = util.CreateInlineIcon(treeCurrencyInfo.texture, 16, 16, 0, -1);
@@ -642,59 +729,47 @@ local function AddDragonGlyphsDetailsText(tooltipText)
 	return tooltipText;
 end
 
--- Combine the menu entry text with an icon hint about completed missions
--- with the user preferences and add to the menu entry's description tooltip
--- informations about completed missions according to user preferences.
---> Returns: table  {string, string}
-local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
-	local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID]
-	local numInProgress, numCompleted = util.garrison.GetInProgressMissionCount(garrTypeID);
-
-	----- Menu entry text (label) ----------------------------------------------
-	local labelText = ns.settings.preferExpansionName and garrInfo.expansion.name or garrInfo.title
-	if (ns.settings.showMissionCompletedHint and numCompleted > 0) then
-		if (not ns.settings.showMissionCompletedHintOnlyForAll) then
-			labelText = labelText.." |TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:0|t"
+-- Build the menu entry label with an icon hint about completed missions.
+---@param garrInfo table  One of the entries from MRBP_GARRISON_TYPE_INFOS
+---@return string labelText
+--
+local function BuildMenuEntryLabel(garrInfo)
+	local labelText = ns.settings.preferExpansionName and garrInfo.expansion.name or garrInfo.title;
+	local hasCompletedAllMissions = garrInfo.missions.numCompleted == garrInfo.missions.numInProgress;
+	if (ns.settings.showMissionCompletedHint and garrInfo.missions.numCompleted > 0) then
+		if not ns.settings.showMissionCompletedHintOnlyForAll then
+			labelText = labelText.." |TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:0|t";
 		end
-		if (ns.settings.showMissionCompletedHintOnlyForAll and numCompleted == numInProgress) then
-			labelText = labelText.." |TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:0|t"
+		if (ns.settings.showMissionCompletedHintOnlyForAll and hasCompletedAllMissions) then
+			labelText = labelText.." |TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:0|t";
 		end
 	end
 
-	----- Tooltip --------------------------------------------------------------
-	--[[ Landing page description ]]--
-	local tooltipText = isDisabled and DISABLED_FONT_COLOR:WrapTextInColorCode(garrInfo.description) or garrInfo.description
+	return labelText;
+end
 
-	--[[ In-progress mission infos ]]--
-	if (ns.settings.showMissionCountInTooltip and not isDisabled and garrTypeID ~= util.expansion.data.Dragonflight.garrisonTypeID) then
-		-- Add category title for missions
-		tooltipText = tooltipText.."|n|n"..garrInfo.msg.missionsTitle
+-- Build the menu entry's description tooltip containing informations ie. about
+-- completed missions.
+---@param garrInfo table  One of the entries from MRBP_GARRISON_TYPE_INFOS
+---@param activeThreats table  See util.map.GetActiveThreats() for details
+---@return string tooltipText
+--
+local function BuildMenuEntryTooltip(garrInfo, activeThreats)
+	local isDisabled = garrInfo.shouldShowDisabled;
+	local garrTypeID = garrInfo.expansion.garrisonTypeID;
 
-		-- Add mission count info
-		tooltipText = tooltipText..WHITE_FONT_COLOR_CODE;
-		if (numInProgress > 0) then
-			tooltipText = tooltipText.."|n"..string.format(garrInfo.msg.missionsReadyCount, numCompleted, numInProgress)
-		else
-			tooltipText = tooltipText.."|n"..garrInfo.msg.missionsEmptyProgress
-		end
-		tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE
-		if ns.settings.showMissionCompletedHintOnlyForAll then
-			if (numCompleted > 0 and numCompleted == numInProgress) then
-				tooltipText = tooltipText.."|n|n"..garrInfo.msg.missionsComplete
-			end
-		else
-			if (numCompleted > 0) then
-				tooltipText = tooltipText.."|n|n"..garrInfo.msg.missionsComplete
-			end
-		end
-	end
-	-- Show requirement for unlocking the given garrison type
+	-- Add landing page description
+	local tooltipText = isDisabled and DISABLED_FONT_COLOR:WrapTextInColorCode(garrInfo.description) or garrInfo.description;
+
+	-- Show requirement info for unlocking the given expansion type
 	if (isDisabled and ns.settings.showEntryRequirements) then
-		-- CAMPAIGN_AVAILABLE_QUESTLINE = "Setzt die Kampagne fort, indem Ihr die Quest \"%s\" in %s annehmt.";
-		tooltipText = tooltipText.."|n|n"..DIM_RED_FONT_COLOR:WrapTextInColorCode(garrInfo.msg.requirementText)
+		tooltipText = tooltipText.."|n|n"..DIM_RED_FONT_COLOR:WrapTextInColorCode(garrInfo.msg.requirementText);
 
-		return labelText, tooltipText  --> Stop here, don't process the rest below.
+		return tooltipText;  --> Stop here, don't process the rest below
 	end
+
+	-- Add in-progress mission details
+	tooltipText = AddMissionCounterDetailsText(garrInfo, tooltipText);
 
 	--> TODO - Add currency info
 
@@ -771,10 +846,11 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 	--[[ Dragonflight ]]--
 
 	if (garrTypeID == util.expansion.data.Dragonflight.garrisonTypeID) then
-		--[[ Major factions renown details ]]--
+		-- Add major factions renown level details
+		tooltipText = tooltipText.."|n|n"..LANDING_PAGE_RENOWN_LABEL;
 		tooltipText = AddDragonFlightFactionsRenownDetailsText(tooltipText);
 
-		--[[ Dragonriding details ]]--
+		-- Add dragon riding details
 		tooltipText = tooltipText.."|n|n"..GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE;
 		if util.garrison.IsDragonRidingUnlocked() then
 			tooltipText = AddDragonGlyphsDetailsText(tooltipText);
@@ -786,7 +862,7 @@ local function BuildMenuEntryLabelDesc(garrTypeID, isDisabled, activeThreats)
 		end
 	end
 
-	return labelText, tooltipText
+	return tooltipText
 end
 
 -- Create the minimap button's dropdown frame.
@@ -814,77 +890,45 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 
 	for _, expansion in ipairs(expansionList) do
 		local garrTypeID = expansion.garrisonTypeID;
-		local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID]
+		local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID];
 		if ns.settings.showMissionTypeIcons then
 			filename, width, height, txLeft, txRight, txTop, txBottom = util.GetAtlasInfo(garrInfo.minimapIcon);
 		end
-		local shouldShowDisabled = not MRBP_IsGarrisonRequirementMet(garrTypeID)
-		local playerOwnsExpansion = util.expansion.DoesPlayerOwnExpansion(garrInfo.expansion.ID)
-		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(garrInfo.expansion.ID))  --> user option
+		garrInfo.shouldShowDisabled = not MRBP_IsGarrisonRequirementMet(garrTypeID);
+		local playerOwnsExpansion = util.expansion.DoesPlayerOwnExpansion(garrInfo.expansion.ID);
+		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(garrInfo.expansion.ID)) ; --> user option
+		garrInfo.missions = {};
+		garrInfo.missions.numInProgress, garrInfo.missions.numCompleted = util.garrison.GetInProgressMissionCount(garrTypeID);
 
 		_log:debug(string.format("Got %s - owned: %s, disabled: %s",
 		   NORMAL_FONT_COLOR:WrapTextInColorCode(garrInfo.expansion.name),
 		   NORMAL_FONT_COLOR:WrapTextInColorCode(tostring(playerOwnsExpansion)),
-		   NORMAL_FONT_COLOR:WrapTextInColorCode(tostring(shouldShowDisabled)))
+		   NORMAL_FONT_COLOR:WrapTextInColorCode(tostring(garrInfo.shouldShowDisabled)))
 		)
 
 		if (playerOwnsExpansion and isActiveEntry) then
-			local labelText, tooltipText = BuildMenuEntryLabelDesc(garrTypeID, shouldShowDisabled, activeThreats)
-
-			local info = UIDropDownMenu_CreateInfo()
-			info.owner = ExpansionLandingPageMinimapButton
-			info.text = labelText  -- util.CreateInlineIcon(garrInfo.minimapIcon, 20, 20, -1)..labelText
-			info.notCheckable = 1
-			info.tooltipOnButton = ns.settings.showEntryTooltip and 1 or nil
-			info.tooltipTitle = ns.settings.preferExpansionName and garrInfo.title or garrInfo.expansion.name
-			info.tooltipText = tooltipText
+			-- Create a menu entry for each expansion
+			local info = UIDropDownMenu_CreateInfo();
+			info.owner = ExpansionLandingPageMinimapButton;
+			info.text = BuildMenuEntryLabel(garrInfo);
+			info.notCheckable = 1;
+			info.tooltipOnButton = ns.settings.showEntryTooltip and 1 or nil;
+			info.tooltipTitle = ns.settings.preferExpansionName and garrInfo.title or garrInfo.expansion.name;
+			info.tooltipText = BuildMenuEntryTooltip(garrInfo, activeThreats);
 			if ns.settings.showMissionTypeIcons then
-				info.icon = filename
-				info.tCoordLeft = txLeft
-				info.tCoordRight = txRight
-				info.tCoordTop = txTop
-				info.tCoordBottom = txBottom
-				info.tSizeX = 20  -- width
-				info.tSizeY = 20  -- height
+				info.icon = filename;
+				info.tCoordLeft = txLeft;
+				info.tCoordRight = txRight;
+				info.tCoordTop = txTop;
+				info.tCoordBottom = txBottom;
+				info.tSizeX = 20;  -- width
+				info.tSizeY = 20;  -- height
 			end
-			info.func = function(self)
-				-- Always (!) hide the GarrisonLandingPage; it only loads all
-				-- visible UI widgets properly on opening.
-				if (garrTypeID ~= util.expansion.data.Dragonflight.garrisonTypeID) then
-					if (ExpansionLandingPage and ExpansionLandingPage:IsShown()) then
-						HideUIPanel(ExpansionLandingPage);
-					end
-					if (GarrisonLandingPage == nil) then
-						-- Hasn't been opened in this session, yet
-						_log:debug("Showing GarrisonLandingPage1 type", garrTypeID);
-						ShowGarrisonLandingPage(garrTypeID);
-					else
-						-- Toggle the GarrisonLandingPage frame; only re-open it
-						-- if the garrison type is not the same.
-						if (GarrisonLandingPage:IsShown()) then
-							_log:debug("Hiding GarrisonLandingPage type", GarrisonLandingPage.garrTypeID);
-							HideUIPanel(GarrisonLandingPage);
-							if (garrTypeID ~= GarrisonLandingPage.garrTypeID) then
-								_log:debug("Showing GarrisonLandingPage2 type", garrTypeID);
-								ShowGarrisonLandingPage(garrTypeID);
-							end
-						else
-							_log:debug("Showing GarrisonLandingPage3 type", garrTypeID);
-							ShowGarrisonLandingPage(garrTypeID);
-						end
-					end
-				else
-					if (GarrisonLandingPage and GarrisonLandingPage:IsShown()) then
-						_log:debug("Hiding GarrisonLandingPage1 type", GarrisonLandingPage.garrTypeID);
-						HideUIPanel(GarrisonLandingPage);
-					end
-					ToggleExpansionLandingPage();
-				end
-			end
-			info.disabled = shouldShowDisabled
-			info.tooltipWhileDisabled = 1
+			info.func = function(self, garrTypeID) MRBP_ToggleLandingPageFrames(garrTypeID) end;
+			info.disabled = garrInfo.shouldShowDisabled;
+			info.tooltipWhileDisabled = 1;
 
-			UIDropDownMenu_AddButton(info, level)
+			UIDropDownMenu_AddButton(info, level);
 		end
 	end
 	if tContains(ns.settings.activeMenuEntries, ns.settingsMenuEntry) then

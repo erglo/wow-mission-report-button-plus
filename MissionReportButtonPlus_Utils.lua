@@ -197,12 +197,34 @@ function util.quest.IsActiveWorldQuest(questID)
 	return C_TaskQuest.IsActive(questID);
 end
 
-function util.quest.GetQuestTimeColor(secondsRemaining)
-	-- return QuestUtils_GetQuestTimeColor(secondsRemaining);
-	-- REF.: <FrameXML/QuestUtils.lua>
-	-- REF.: <FrameXML/TimeUtil.lua>
-	local isWithinCriticalTime = secondsRemaining <= MinutesToSeconds(WORLD_QUESTS_TIME_CRITICAL_MINUTES);
-	return isWithinCriticalTime and RED_FONT_COLOR or WHITE_FONT_COLOR;
+-- function util.quest.GetQuestTimeColor(secondsRemaining, useCustomColors)
+-- 	-- REF.: <FrameXML/QuestUtils.lua>
+-- 	-- REF.: <FrameXML/TimeUtil.lua>
+-- 	if not useCustomColors then
+-- 		return QuestUtils_GetQuestTimeColor(secondsRemaining);
+-- 	end
+-- 	local isWithinCriticalTime = secondsRemaining <= MinutesToSeconds(WORLD_QUESTS_TIME_CRITICAL_MINUTES);
+-- 	return isWithinCriticalTime and RED_FONT_COLOR or WHITE_FONT_COLOR;
+-- end
+
+-- Return a color for a given quest based on the time left.
+---@param questID number
+---@param normalColor table  A color class (see <FrameXML/GlobalColors.lua>)
+---@param warningColor table  A color class (see <FrameXML/GlobalColors.lua>)
+---@param criticalColor table  A color class (see <FrameXML/GlobalColors.lua>)
+--
+function util.quest.GetQuestTimeColorByQuestID(questID, normalColor, warningColor, criticalColor)
+	local color = NORMAL_FONT_COLOR;
+	local normColor = normalColor or color;
+	local warnColor = warningColor or YELLOW_THREAT_COLOR;  -- WARNING_FONT_COLOR;
+	local critColor = criticalColor or RED_THREAT_COLOR;  -- RED_FONT_COLOR;
+	-- NOT_ON_THREAT_COLOR
+	-- NO_THREAT_COLOR
+	-- ORANGE_THREAT_COLOR
+	-- if QuestUtils_ShouldDisplayExpirationWarning(questID) then
+	color = QuestUtils_IsQuestWithinLowTimeThreshold(questID) and warnColor or normColor;  --> within 75 min.
+	color = QuestUtils_IsQuestWithinCriticalTimeThreshold(questID) and critColor or normColor;  --> within 15 min.
+	return color;
 end
 
 function util.quest.GetQuestTimeLeftInfo(questID)
@@ -211,7 +233,8 @@ function util.quest.GetQuestTimeLeftInfo(questID)
 	-- REF.: <FrameXML/TimeUtil.lua>
 	local timeLeftInfo = {};
 	timeLeftInfo.seconds = C_TaskQuest.GetQuestTimeLeftSeconds(questID);
-	timeLeftInfo.color = util.quest.GetQuestTimeColor(timeLeftInfo.seconds);
+	-- timeLeftInfo.color = util.quest.GetQuestTimeColor(timeLeftInfo.seconds);
+	timeLeftInfo.color = util.quest.GetQuestTimeColorByQuestID(questID, WHITE_FONT_COLOR);
 	local abbreviationType = SecondsFormatter.Abbreviation.Truncate;
 	timeLeftInfo.timeString = WorldQuestsSecondsFormatter:Format(timeLeftInfo.seconds, abbreviationType);
 	timeLeftInfo.timeLeftString = BONUS_OBJECTIVE_TIME_LEFT:format(timeLeftInfo.timeString);
@@ -249,24 +272,61 @@ end
 -- Gather all bounty world quests of given map.
 ---@param mapID number  A UiMapID of a location from the world map.
 ---@return BountyInfo[] bounties  A list of currently available bounties
----@field questID number  A world quest ID
----@field factionID number  The faction for the world quest
----@field icon number  The type icon
----@field numObjectives number  The number of objectives to complete the bounty
----@field turninRequirementText string  A description about why the quest can't be turned in
---
+--> REF.: <FrameXML/Blizzard_APIDocumentationGenerated/BountySharedDocumentation.lua><br/>
+--[[
+<pre>
+	Name = "BountyInfo",
+	Type = "Structure",
+	Fields =
+	{
+		{ Name = "questID", Type = "number", Nilable = false },
+		{ Name = "factionID", Type = "number", Nilable = false },
+		{ Name = "icon", Type = "number", Nilable = false },
+		{ Name = "numObjectives", Type = "number", Nilable = false },
+		{ Name = "turninRequirementText", Type = "string", Nilable = true },
+	}
+</pre>
+--]]
 function util.quest.GetBountiesForMapID(mapID)
 	return C_QuestLog.GetBountiesForMapID(mapID);
 end
 
---[[
-MapUtil.MapHasUnlockedBounties(mapID)
+--[[ Tests
+
+MapUtil.ShouldShowTask(mapID, info)
 MapUtil.MapHasEmissaries(mapID)
+MapUtil.MapHasUnlockedBounties(mapID)
 
 isAccountQuest = C_QuestLog.IsAccountQuest(questID)
 isThreat = C_QuestLog.IsThreatQuest(questID)
 isBounty = C_QuestLog.IsQuestBounty(questID)
 isCalling = C_QuestLog.IsQuestCalling(questID)
+
+--> <FrameXML/QuestUtils.lua>
+local ECHOS_OF_NYLOTHA_CURRENCY_ID = 1803;
+C_CurrencyInfo.GetFactionGrantedByCurrency(currencyID);
+C_CurrencyInfo.GetCurrencyInfo(currencyID)
+local currencyInfo = { name = name, texture = texture, numItems = numItems, currencyID = currencyID, rarity = rarity, firstInstance = firstInstance };
+table.sort(currencies,
+	function(currency1, currency2)
+		if currency1.rarity ~= currency2.rarity then
+			return currency1.rarity > currency2.rarity;
+		end
+		return currency1.currencyID > currency2.currencyID;
+	end
+);
+local currencyColor = GetColorForCurrencyReward(currencyInfo.currencyID, currencyInfo.numItems);
+
+QuestUtils_GetQuestName(questID)
+QuestUtils_IsQuestWorldQuest(questID)
+
+-- lock icons
+"QuestSharing-QuestDetails-Padlock"
+130944  -- "Interface/ChatFrame/UI-ChatFrame-LockIcon"
+["QuestSharing-QuestLog-Padlock"]={24, 29, 0.224609, 0.271484, 0.757812, 0.984375, false, false, "1x"},
+["QuestSharing-Padlock"]={24, 29, 0.00195312, 0.0488281, 0.554688, 0.78125, false, false, "1x"},  				<--
+["QuestSharing-QuestDetails-Padlock"]={20, 20, 0.537109, 0.576172, 0.835938, 0.992188, false, false, "1x"},
+["Legionfall_Padlock"]={38, 45, 0.853516, 0.890625, 0.000976562, 0.0449219, false, false, "1x"},
 
 --]]
 
@@ -613,10 +673,54 @@ end
 
 -- Retrieve the data for given major faction ID.
 ---@param factionID number  A major faction ID (since Dragonflight WoW 10.x)
----@return MajorFactionData table
---
+---@return MajorFactionData table  For details see "MajorFactionData" fields below
+--[[
+<pre>
+	Name = "MajorFactionData",
+	Type = "Structure",
+	Fields =
+	{
+		{ Name = "name", Type = "string", Nilable = false },
+		{ Name = "factionID", Type = "number", Nilable = false },
+		{ Name = "expansionID", Type = "number", Nilable = false },
+		{ Name = "bountySetID", Type = "number", Nilable = false },
+		{ Name = "isUnlocked", Type = "bool", Nilable = false },
+		{ Name = "unlockDescription", Type = "string", Nilable = true },
+		{ Name = "unlockOrder", Type = "number", Nilable = false },
+		{ Name = "renownLevel", Type = "number", Nilable = false },
+		{ Name = "renownReputationEarned", Type = "number", Nilable = false },
+		{ Name = "renownLevelThreshold", Type = "number", Nilable = false },
+		{ Name = "textureKit", Type = "string", Nilable = false },
+		{ Name = "celebrationSoundKit", Type = "number", Nilable = false },
+		{ Name = "renownFanfareSoundKitID", Type = "number", Nilable = false },
+	}
+</pre>
+--]]
 function util.garrison.GetMajorFactionData(factionID)
 	return C_MajorFactions.GetMajorFactionData(factionID);
+end
+
+-- Build and return the icon of the given expansion's major faction.
+---@param majorFactionData table  See 'util.garrison.GetMajorFactionData' doc string for details
+---@return string majorFactionIcon
+--
+function util.garrison.GetMajorFactionInlineIcon(majorFactionData)
+	if (majorFactionData.expansionID == util.expansion.data.Dragonflight.ID) then
+		return util.CreateInlineIcon("MajorFactions_Icons_"..majorFactionData.textureKit.."512", 16, 16, -1, 0);
+	end
+	return '';
+end
+
+-- Build and return the color of the given major faction.
+---@param majorFactionData any
+---@return table majorFactionColor
+--
+function util.garrison.GetMajorFactionColor(majorFactionData, fallbackColor)
+	local normalColor = fallbackColor or NORMAL_FONT_COLOR;
+	if(majorFactionData.expansionID == util.expansion.data.Dragonflight.ID) then
+		return _G[strupper(majorFactionData.textureKit).."_MAJOR_FACTION_COLOR"] or normalColor;
+	end
+	return normalColor;
 end
 
 -- Check if player has reached the maximum renown level for given major faction.
@@ -627,20 +731,9 @@ function util.garrison.HasMaximumMajorFactionRenown(currentFactionID)
 	return C_MajorFactions.HasMaximumRenown(currentFactionID);
 end
 
---[[
-MapUtil.ShouldShowTask(mapID, info)
-MapUtil.MapHasEmissaries(mapID)
-MapUtil.MapHasUnlockedBounties(mapID)
-
-local ECHOS_OF_NYLOTHA_CURRENCY_ID = 1803;
-C_CurrencyInfo.GetFactionGrantedByCurrency(currencyID);
-C_CurrencyInfo.GetCurrencyInfo(currencyID)
-
---]]
-
 -- Return a list with details about currently running garrison missions.
 ---@param followerType Enum.GarrisonFollowerType
----@return missionInfo[] inProgressMissions
+---@return missionInfo[] inProgressMissions  A list of tables with mission info
 --
 function util.garrison.GetInProgressMissions(followerType)
 	return C_Garrison.GetInProgressMissions(followerType);
@@ -694,27 +787,9 @@ function util.map.GetMapInfo(mapID)
 	return C_Map.GetMapInfo(mapID);
 end
 
--- -- Retrieve the zones of given continent's map ID.
--- --> Returns: <table>
--- --
--- -- REF.: <FrameXML/Blizzard_APIDocumentation/MapDocumentation.lua>
--- function util.map.GetContinentZones(mapID, allDescendants)
--- 	local infos = {};
--- 	local ALL_DESCENDANTS = allDescendants or false;
-
--- 	for i, mapInfo in pairs(C_Map.GetMapChildrenInfo(mapID, Enum.UIMapType.Zone, ALL_DESCENDANTS)) do
--- 		tinsert(infos, mapInfo);
--- 		-- print(i, mapInfo.mapID, mapInfo.name, "-->", mapInfo.mapType);
--- 	end
-
--- 	return infos;
--- end
--- Test_GetContinentZones = util.map.GetContinentZones;
-
 -- Find active threats in the world, if active for current player; eg. the
 -- covenant attacks in The Maw or the N'Zoth's attacks in Battle for Azeroth.
----@return table activeThreats
----@return boolean hasActiveThreats
+---@return table|nil activeThreats
 --
 function util.map.GetActiveThreats()
 	if util.quest.HasActiveThreats() then
@@ -723,7 +798,7 @@ function util.map.GetActiveThreats()
 		for i, questID in ipairs(threatQuests) do
 			if util.quest.IsActiveWorldQuest(questID) then
 				local questInfo = util.quest.GetWorldQuestInfoByQuestID(questID);
-				local typeAtlas =  QuestUtil.GetThreatPOIIcon(questID);
+				local typeAtlas = QuestUtil.GetThreatPOIIcon(questID);
 				local questName = util.CreateInlineIcon(typeAtlas)..WHITE_FONT_COLOR:WrapTextInColorCode(questInfo.questTitle);
 				local mapID = util.quest.GetWorldQuestZoneID(questID);
 				local mapInfo = util.map.GetMapInfo(mapID);
@@ -741,8 +816,7 @@ function util.map.GetActiveThreats()
 		   end
 		end
 		return activeThreats;
-	 end
-	return false;
+	end
 end
 
 ----- Specials -----------------------------------------------------------------
