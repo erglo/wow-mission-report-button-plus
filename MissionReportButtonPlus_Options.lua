@@ -58,6 +58,10 @@ ns.defaultSettings = {  --> default + fallback settings
 	["activeMenuEntries"] = {"5", "6", "7", "8", "99"},
 	["menuStyleID"] = "1",
 	["disableShowMinimapButtonSetting"] = false,   --> temp. solution for beta2
+	["showMajorFactionRenownLevel"] = true,
+	["showMajorFactionColors"] = false,
+	["showDragonGlyphs"] = true,
+	["autoHideDragonGlyphs"] = false,
 };
 
 ---Loads the saved variables for the current game character.
@@ -80,7 +84,7 @@ local function LoadSettings(verbose)
 	_log:debug(format(".. defaults loaded: %d |4setting:settings; in total", util.tcount(ns.settings)));
 
 	-- Prepare character-specific settings
-	if (MRBP_PerCharSettings == nil) then 
+	if (MRBP_PerCharSettings == nil) then
 		MRBP_PerCharSettings = {};
 		_log:debug(".. initializing character-specific settings");
 	end
@@ -363,35 +367,35 @@ function MRBP_Settings_Register()
 
 	local checkBoxList_DropDownMenuSettings = {
 		{
+			variable = "showEntryTooltip",
+			name = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_TEXT,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_TOOLTIP,
+		},
+		{
 			variable = "preferExpansionName",
 			name = L.CFG_DDMENU_NAMING_TEXT,
 			tooltip = L.CFG_DDMENU_NAMING_TOOLTIP,
-			-- modifyPredicate = IsMinimapButtonShown,
 		},
 		{
 			variable = "reverseSortorder",
 			name = L.CFG_DDMENU_SORTORDER_TEXT,
 			tooltip = L.CFG_DDMENU_SORTORDER_TOOLTIP,
-			-- modifyPredicate = IsMinimapButtonShown,
 		},
 		{
 			variable = "showMissionTypeIcons",
 			name = L.CFG_DDMENU_REPORTICONS_TEXT,
 			tooltip = L.CFG_DDMENU_REPORTICONS_TOOLTIP,
-			-- modifyPredicate = IsMinimapButtonShown,
 		},
 		{
 			variable = "showMissionCompletedHint",
 			name = L.CFG_DDMENU_ICONHINT_TEXT,
 			tooltip = L.CFG_DDMENU_ICONHINT_TOOLTIP,
-			-- modifyPredicate = IsMinimapButtonShown,
 		},
 		{
 			variable = "showMissionCompletedHintOnlyForAll",
 			name = L.CFG_DDMENU_ICONHINTALL_TEXT,
 			tooltip = L.CFG_DDMENU_ICONHINTALL_TOOLTIP,
 			parentVariable = "showMissionCompletedHint",
-			-- modifyPredicate = IsMinimapButtonShown,
 		},
 	};
 
@@ -478,7 +482,7 @@ function MRBP_Settings_Register()
 				variable = "activeMenuEntries#"..tostring(expansion.ID),
 				name = ownsExpansion and HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(expansion.name) or expansion.name,
 				tooltip = ns.settingsMenuEntry ~= tostring(expansion.ID) and getMenuEntryTooltip(expansion.ID, ownsExpansion),
-				tag = expansion.ID == util.expansion.data.Dragonflight.ID and Settings.Default.True or nil,
+				-- tag = expansion.ID == util.expansion.data.Dragonflight.ID and Settings.Default.True or nil,
 				modifyPredicate = function() return ownsExpansion end;
 				-- modifyPredicate = function()
 				-- 	return util.expansion.DoesPlayerOwnExpansion(expansion.ID);
@@ -516,34 +520,37 @@ function MRBP_Settings_Register()
 
 	-----[[ Menu entries' (details) tooltip settings ]]-------------------------
 
+	local function ShouldShowEntryTooltip()
+		return ns.settings.showEntryTooltip;
+	end
+
 	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
 
 	local checkBoxList_EntryTooltipSettings = {
 		{
-			variable = "showEntryTooltip",
-			name = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_TEXT,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_TOOLTIP,
-		},
-		{
 			variable = "showMissionCountInTooltip",
 			name = L.CFG_DDMENU_ENTRYTOOLTIP_INPROGRESS_TEXT,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_INPROGRESS_TOOLTIP,
+			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showWorldmapBounties",
 			name = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTIES_TEXT,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTIES_TOOLTIP,
+			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showBountyRequirements",
 			name = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTYREQUIREMENTS_TEXT,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTYREQUIREMENTS_TOOLTIP,
 			parentVariable = "showWorldmapBounties",
+			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showWorldmapThreats",
 			name = L.CFG_DDMENU_ENTRYTOOLTIP_THREATS_TEXT,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_THREATS_TOOLTIP,
+			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showThreatsTimeRemaining",
@@ -551,15 +558,55 @@ function MRBP_Settings_Register()
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_THREATS_TIMELEFT_TOOLTIP,
 			parentVariable = "showWorldmapThreats",
 			tag = Settings.Default.True,
+			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showEntryRequirements",
 			name = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TEXT,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TOOLTIP,
+			modifyPredicate = ShouldShowEntryTooltip,
 		},
 	};
 
 	CheckBox_CreateFromList(category, checkBoxList_EntryTooltipSettings);
+
+	-----[[ Tooltip settings - Dragonflight ]]----------------------------------
+
+	local dfName = util.expansion.data.Dragonflight.name;
+	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL..HEADER_COLON.." "..dfName));
+
+	local checkBoxList_dfEntryTooltipSettings = {
+		{
+			variable = "showMajorFactionRenownLevel",
+			name = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_MF_RENOWN_LEVEL_TEXT,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_MF_RENOWN_LEVEL_TOOLTIP,
+			tag = Settings.Default.True,
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showMajorFactionColors",
+			name = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_MF_COLORS_TEXT,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_MF_COLORS_TOOLTIP,
+			parentVariable = "showMajorFactionRenownLevel",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showDragonGlyphs",
+			name = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_DRAGON_GLYPHS_TEXT,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_DRAGON_GLYPHS_TOOLTIP,
+			tag = Settings.Default.True,
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "autoHideDragonGlyphs",
+			name = L.CFG_DDMENU_ENTRYTOOLTIP_HIDE_DRAGON_GLYPHS_TEXT,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_HIDE_DRAGON_GLYPHS_TOOLTIP,
+			parentVariable = "showDragonGlyphs",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+	};
+
+	CheckBox_CreateFromList(category, checkBoxList_dfEntryTooltipSettings);
 
 	----------------------------------------------------------------------------
 	-----[[ About this addon ]]-------------------------------------------------
@@ -623,13 +670,13 @@ function MRBP_Settings_Register()
 
 	for _, infos in ipairs(addonInfos) do
 		labelText, infoLabel = infos[1], infos[2];
-		local metaLabel = aboutFrame:CreateFontString(aboutFrame:GetName()..infoLabel.."MetaLabel", "ARTWORK", "GameFontNormalSmall");
+		local metaLabel = aboutFrame:CreateFontString(aboutFrame:GetName().."MetaLabel"..infoLabel, "ARTWORK", "GameFontNormalSmall");
 		metaLabel:SetPoint("TOPLEFT", parentFrame, "BOTTOMLEFT", 0, -8);
 		metaLabel:SetWidth(100);
 		metaLabel:SetJustifyH("RIGHT");
-		metaLabel:SetText(NORMAL_FONT_COLOR:WrapTextInColorCode(labelText..HEADER_COLON));  --> WoW global string
+		metaLabel:SetText(labelText..HEADER_COLON);  --> WoW global string
 
-		local metaValue = aboutFrame:CreateFontString(aboutFrame:GetName()..infoLabel.."MetaValue", "ARTWORK", "GameFontHighlightSmall");
+		local metaValue = aboutFrame:CreateFontString(aboutFrame:GetName().."MetaValue"..infoLabel, "ARTWORK", "GameFontHighlightSmall");
 		metaValue:SetPoint("LEFT", metaLabel, "RIGHT", 4, 0);
 		metaValue:SetJustifyH("LEFT");
 		if ( strlower(infoLabel) == "author" ) then
@@ -650,7 +697,7 @@ function MRBP_Settings_Register()
 	local separatorTexture = aboutFrame:CreateTexture(aboutFrame:GetName().."Separator", "ARTWORK");
 	separatorTexture:SetSize(575, 1);
 	separatorTexture:SetPoint("TOPLEFT", parentFrame, "BOTTOMLEFT", 0, -32);
-	separatorTexture:SetColorTexture(0.25, 0.25, 0.25);
+	separatorTexture:SetColorTexture(0.25, 0.25, 0.25);  -- gray
 
 	local slashCmdSectionHeader = aboutFrame:CreateFontString(aboutFrame:GetName().."SlashCmdSectionHeader", "OVERLAY", "GameFontHighlightLarge");
 	slashCmdSectionHeader:SetJustifyH("LEFT");
@@ -700,7 +747,7 @@ function MRBP_Settings_Register()
 	-- -- warnData.name = "Warning message"
 	-- -- local warnInitializer = Settings.CreateSettingInitializer("TwitterPanelTemplate", warnData);
 	-- -- layout:AddInitializer(warnInitializer);
-	
+
 	-- local function OnButtonClick()
 	-- 	-- MRBP_Settings_OpenToCategory(aboutFrame);
 	-- 	MRBP_Settings_OpenToCategory(AddonID.."AboutFrame");

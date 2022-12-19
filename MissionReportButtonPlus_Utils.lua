@@ -156,6 +156,26 @@ end
 -- util.CreateInlineIcon(628564);  --> check mark icon texture
 -- util.CreateInlineIcon(3083385);  --> dash icon texture
 
+-- Return a color for given time based on world quest threshold.
+---@param seconds number  The amount of seconds remaining
+---@param normalColor table|nil  A color class (see <FrameXML/GlobalColors.lua>)
+---@param warningColor table|nil  A color class (see <FrameXML/GlobalColors.lua>)
+---@param criticalColor table|nil  A color class (see <FrameXML/GlobalColors.lua>)
+--> REF.: <FrameXML/QuestUtils.lua>
+--
+function util.GetTimeRemainingColorForSeconds(seconds, normalColor, warningColor, criticalColor)
+	local function IsWithinTimeThreshold(secondsRemaining, threshold)
+		return secondsRemaining and secondsRemaining <= threshold or false;
+	end
+	local color = NORMAL_FONT_COLOR;
+	local normColor = normalColor or color;
+	local warnColor = warningColor or WARNING_FONT_COLOR;
+	local critColor = criticalColor or RED_FONT_COLOR;
+	color = IsWithinTimeThreshold(seconds, WORLD_QUESTS_TIME_LOW_MINUTES) and warnColor or normColor;  --> within 75 min.
+	color = IsWithinTimeThreshold(seconds, WORLD_QUESTS_TIME_CRITICAL_MINUTES) and critColor or normColor;  --> within 15 min.
+	return color;
+end
+
 ----- Quest utilities ----------------------------------------------------------
 --> C_QuestLog, C_TaskQuest
 -- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/QuestLogDocumentation.lua>
@@ -615,7 +635,7 @@ end
 function util.garrison.GetDragonRidingTreeCurrencyInfo()
 	local DRAGON_RIDING_TRAIT_TREE_ID = 672;  -- GenericTraitFrame:GetTalentTreeID()
 	local DRAGON_RIDING_TRAIT_CURRENCY_ID = 2563;
-	local DRAGON_RIDING_TRAIT_CURRENCY_TEXTURE = 4728198;
+	local DRAGON_RIDING_TRAIT_CURRENCY_TEXTURE = 4728198;  -- glyph
 	local DRAGON_RIDING_TRAIT_CONFIG_ID = C_Traits.GetConfigIDByTreeID(DRAGON_RIDING_TRAIT_TREE_ID);
 	local excludeStagedChanges = true;
 	local treeCurrencyFallbackInfo = {quantity=0, maxQuantity=0, spent=0, traitCurrencyID=DRAGON_RIDING_TRAIT_CURRENCY_ID};
@@ -706,7 +726,8 @@ end
 --
 function util.garrison.GetMajorFactionInlineIcon(majorFactionData)
 	if (majorFactionData.expansionID == util.expansion.data.Dragonflight.ID) then
-		return util.CreateInlineIcon("MajorFactions_Icons_"..majorFactionData.textureKit.."512", 16, 16, -1, 0);
+		-- return util.CreateInlineIcon("MajorFactions_Icons_"..majorFactionData.textureKit.."512", 16, 16, -1, 0);
+		return util.CreateInlineIcon("MajorFactions_MapIcons_"..majorFactionData.textureKit.."64", 16, 16, 0, 0);
 	end
 	return '';
 end
@@ -818,6 +839,106 @@ function util.map.GetActiveThreats()
 		return activeThreats;
 	end
 end
+
+-- -- local POIs = {
+-- -- 	[tostring(util.expansion.data.Dragonflight.ID)] = {
+-- -- 		-- {mapID, poiID}
+-- -- 		GrandHunts = {1978, {7343}},  -- "minimap-genericevent-hornicon"
+-- -- 		-- "racing"
+-- -- 	},
+-- -- };
+-- local POIs = {
+-- 	["racing"] = {2022, 2023, 2024, 2025},  --> Enum.UIMapType.Zone,
+-- 	["minimap-genericevent-hornicon"] = 1978,  --> Enum.UIMapType.Continent
+--  ["MajorFactions_MapIcons_Centaur64"} = {2023}
+-- };
+
+-- Returns a table with POI IDs currently active on the world map.
+---@param mapID number
+---@return table areaPOIs
+--
+function util.map.GetAreaPOIForMap(mapID)
+	-- REF.: <FrameXML/Blizzard_SharedMapDataProviders/AreaPOIDataProvider.lua>
+	-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/AreaPoiInfoDocumentation.lua>
+	-- REF.: <FrameXML/TableUtil.lua>
+	local areaPOIs = GetAreaPOIsForPlayerByMapIDCached(mapID);
+	areaPOIs = TableIsEmpty(areaPOIs) and C_AreaPoiInfo.GetAreaPOIForMap(mapID) or areaPOIs;
+	return areaPOIs;
+end
+
+-- function util.map.GetPOIForExpansionMap(expansionID, mapID, areaPoiList)
+-- 	local activePOIs = {};
+-- 	local areaPOIs = util.map.GetAreaPOIForMap(mapID);
+-- 	for i, areaPoiID in ipairs(areaPOIs) do
+-- 		if tContains(areaPoiList, areaPoiID) then
+-- 			local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(mapID, areaPoiID);
+-- 			local mapInfo = C_Map.GetMapInfoAtPosition(mapID, poiInfo.position:GetXY());
+-- 			if ( not activePOIs[expansionID] ) then
+-- 				-- Add table values per expansion IDs
+-- 				activePOIs[expansionID] = {};
+-- 			end
+-- 			local poiIcon = util.CreateInlineIcon(poiInfo.atlasName);
+-- 			local poiName = poiIcon.." "..poiInfo.name;
+-- 			local timeLeftString = '';
+-- 			if C_AreaPoiInfo.IsAreaPOITimed(areaPoiID) then
+-- 				local timeLeftSeconds = C_AreaPoiInfo.GetAreaPOISecondsLeft(areaPoiID);
+-- 				-- local timeLeftColor = util.GetTimeRemainingColorForSeconds(timeLeftSeconds, WHITE_FONT_COLOR);
+-- 				local abbreviationType = SecondsFormatter.Abbreviation.Truncate;
+-- 				local formattedTimeString = WorldQuestsSecondsFormatter:Format(timeLeftSeconds, abbreviationType);
+-- 				timeLeftString = BONUS_OBJECTIVE_TIME_LEFT:format(formattedTimeString);
+-- 				-- local coloredTimeLeftString = timeLeftInfo.color:WrapTextInColorCode(timeLeftString);
+-- 			end
+-- 			tinsert(activePOIs[expansionID], {poiName, mapInfo.name, timeLeftString});
+-- 		end
+-- 	end
+-- 	return activePOIs;
+-- end
+-- -- C_Map.GetMapChildrenInfo(1978, Enum.UIMapType.Zone)
+-- Test_GetPOIForExpansionMap = util.map.GetPOIForExpansionMap;
+-- -- Test_GetPOIForExpansionMap(9, 1978, {7343})
+
+-- function util.map.GetActivePOIsForMap(mapID, otherActivePOIs)
+-- 	local activePOIs = otherActivePOIs or {};
+-- 	local mapInfo;
+-- 	if (type(mapID) =="table") then
+-- 		mapInfo = mapID;
+-- 	else
+-- 		mapInfo = util.map.GetMapInfo(mapID);
+-- 	end
+-- 	print("Scanning map", mapInfo.mapID, mapInfo.name, "...");
+-- 	if (mapInfo.mapType == Enum.UIMapType.Continent) then
+-- 		local mapChildren = C_Map.GetMapChildrenInfo(mapID, Enum.UIMapType.Zone);
+-- 		for _, zoneMapInfo in ipairs(mapChildren) do
+-- 			-- local areaPOIs = util.map.GetAreaPOIForMap(zoneMapInfo.mapID);
+-- 			-- for i, areaPoiID in ipairs(areaPOIs) do
+-- 			-- 	local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(mapID, areaPoiID);
+-- 			-- 	tinsert(activePOIs, {poiName, mapInfo.name, timeLeftString});
+-- 			-- end
+-- 			-- tinsert(activePOIs, util.map.GetActivePOIsForMap(zoneMapInfo.mapID))
+-- 			util.map.GetActivePOIsForMap(zoneMapInfo, activePOIs);
+-- 		end
+-- 	else
+-- 		local areaPOIs = util.map.GetAreaPOIForMap(mapInfo.mapID);
+-- 		for i, areaPoiID in ipairs(areaPOIs) do
+-- 			local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(mapInfo.mapID, areaPoiID);
+-- 			local poiIcon = util.CreateInlineIcon(poiInfo.atlasName);
+-- 			local poiName = poiIcon.." "..poiInfo.name;
+-- 			local timeLeftString = '';
+-- 			if C_AreaPoiInfo.IsAreaPOITimed(areaPoiID) then
+-- 				local timeLeftSeconds = C_AreaPoiInfo.GetAreaPOISecondsLeft(areaPoiID);
+-- 				-- local timeLeftColor = util.GetTimeRemainingColorForSeconds(timeLeftSeconds, WHITE_FONT_COLOR);
+-- 				local abbreviationType = SecondsFormatter.Abbreviation.Truncate;
+-- 				local formattedTimeString = WorldQuestsSecondsFormatter:Format(timeLeftSeconds, abbreviationType);
+-- 				timeLeftString = BONUS_OBJECTIVE_TIME_LEFT:format(formattedTimeString);
+-- 				-- local coloredTimeLeftString = timeLeftInfo.color:WrapTextInColorCode(timeLeftString);
+-- 			end
+-- 			tinsert(activePOIs, {poiName, mapInfo.name, timeLeftString});
+-- 		end
+-- 	end
+-- 	return activePOIs;
+-- end
+-- Test_GetActivePOIsForMap =  util.map.GetActivePOIsForMap;
+-- -- Test_GetActivePOIsForMap(1978)
 
 ----- Specials -----------------------------------------------------------------
 

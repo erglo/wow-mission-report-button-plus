@@ -497,7 +497,7 @@ function MRBP:LoadData()
 		 	["expansion"] = util.expansion.data.Dragonflight,
 		-- 	["continents"] = {1978},  --> Dragon Isles 
 			["bountyBoard"] = {
-				["title"] = MAJOR_FACTION_LIST_TITLE,  -- CALLINGS_QUESTS,
+				["title"] = MAJOR_FACTION_LIST_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
 				["bounties"] = util.quest.GetBountiesForMapID(2022),  --> or any child zone from "continents" seems to work as well.
 				["areBountiesUnlocked"] = MapUtil.MapHasUnlockedBounties(2022),  -- (1978),
@@ -651,7 +651,10 @@ local function AddDragonFlightFactionsRenownDetailsText(tooltipText)
 	for _, factionData in ipairs(majorFactionData) do
 		if factionData then
 			local factionIconString = util.garrison.GetMajorFactionInlineIcon(factionData);
-			local factionColor = util.garrison.GetMajorFactionColor(factionData, WHITE_FONT_COLOR);
+			local factionColor = WHITE_FONT_COLOR;
+			if ns.settings.showMajorFactionColors then
+				factionColor = util.garrison.GetMajorFactionColor(factionData, factionColor);
+			end
 			local dashSymbolString = util.CreateInlineIcon(3083385);
 			if factionData.isUnlocked then
 				local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel);
@@ -694,7 +697,6 @@ local function AddDragonGlyphsDetailsText(tooltipText)
 	local dashSymbolString = util.CreateInlineIcon(3083385);
 
 	-- Add counter of collected glyphs per zone
-	-- tooltipText = tooltipText..WHITE_FONT_COLOR_CODE;
 	for mapName, count in pairs(glyphsPerZone) do
 		local zoneName = mapName..HEADER_COLON;
 		local lineText = '';
@@ -702,13 +704,16 @@ local function AddDragonGlyphsDetailsText(tooltipText)
 		if (count.numComplete ~= count.numTotal) then
 			lineText = TRADESKILL_NAME_RANK:format(dashSymbolString..zoneName, count.numComplete, count.numTotal);
 		else
-			local checkMarkString = util.CreateInlineIcon(628564);  --> check mark icon texture
-			lineText = TRADESKILL_NAME_RANK:format(checkMarkString..zoneName, count.numComplete, count.numTotal);
-			lineColor = DISABLED_FONT_COLOR;
+			if not ns.settings.autoHideDragonGlyphs then
+				local checkMarkString = util.CreateInlineIcon(628564);  --> check mark icon texture
+				lineText = TRADESKILL_NAME_RANK:format(checkMarkString..zoneName, count.numComplete, count.numTotal);
+				lineColor = DISABLED_FONT_COLOR;
+			end
 		end
-		tooltipText = tooltipText.."|n"..lineColor:WrapTextInColorCode(lineText);
+		if (lineText ~= '') then
+			tooltipText = tooltipText.."|n"..lineColor:WrapTextInColorCode(lineText);
+		end
 	end
-	-- tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE;
 
 	-- Add glyph collection summary
 	local currencySymbolString = util.CreateInlineIcon(treeCurrencyInfo.texture, 16, 16, 0, -1);
@@ -846,19 +851,23 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 	--[[ Dragonflight ]]--
 
 	if (garrTypeID == util.expansion.data.Dragonflight.garrisonTypeID) then
-		-- Add major factions renown level details
-		tooltipText = tooltipText.."|n|n"..LANDING_PAGE_RENOWN_LABEL;
-		tooltipText = AddDragonFlightFactionsRenownDetailsText(tooltipText);
+		if ns.settings.showMajorFactionRenownLevel then
+			-- Add major factions renown level details
+			tooltipText = tooltipText.."|n|n"..MAJOR_FACTION_LIST_TITLE.." "..PARENS_TEMPLATE:format(LANDING_PAGE_RENOWN_LABEL);
+			tooltipText = AddDragonFlightFactionsRenownDetailsText(tooltipText);
+		end
 
-		-- Add dragon riding details
-		tooltipText = tooltipText.."|n|n"..GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE;
-		if util.garrison.IsDragonRidingUnlocked() then
-			tooltipText = AddDragonGlyphsDetailsText(tooltipText);
-		else
-			-- Not unlocked, yet :(
-			local dragonIconDisabled = util.CreateInlineIcon("dragonriding-barbershop-icon-category-head", 20, 20, -3);
-			local disabledInfoText = DISABLED_FONT_COLOR:WrapTextInColorCode(LANDING_DRAGONRIDING_TREE_BUTTON_DISABLED);
-			tooltipText = tooltipText.."|n"..dragonIconDisabled..disabledInfoText;
+		if ns.settings.showDragonGlyphs then
+			-- Add dragon riding details
+			tooltipText = tooltipText.."|n|n"..GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE;
+			if util.garrison.IsDragonRidingUnlocked() then
+				tooltipText = AddDragonGlyphsDetailsText(tooltipText);
+			else
+				-- Not unlocked, yet :(
+				local dragonIconDisabled = util.CreateInlineIcon("dragonriding-barbershop-icon-category-head", 20, 20, -3);
+				local disabledInfoText = DISABLED_FONT_COLOR:WrapTextInColorCode(LANDING_DRAGONRIDING_TREE_BUTTON_DISABLED);
+				tooltipText = tooltipText.."|n"..dragonIconDisabled..disabledInfoText;
+			end
 		end
 	end
 
@@ -924,7 +933,7 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 				info.tSizeX = 20;  -- width
 				info.tSizeY = 20;  -- height
 			end
-			info.func = function(self, garrTypeID) MRBP_ToggleLandingPageFrames(garrTypeID) end;
+			info.func = function() MRBP_ToggleLandingPageFrames(garrTypeID) end;
 			info.disabled = garrInfo.shouldShowDisabled;
 			info.tooltipWhileDisabled = 1;
 

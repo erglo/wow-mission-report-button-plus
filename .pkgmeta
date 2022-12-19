@@ -3,9 +3,10 @@ package-as: MissionReportButtonPlus
 enable-nolib-creation: no
 
 ignore:
-    - README.md
-    - .gitignore
     - .screenshots
+    - .vscode
+    - .gitignore
+    - README.md
 
 manual-changelog:
     filename: CHANGELOG.md
