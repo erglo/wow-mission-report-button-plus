@@ -251,15 +251,18 @@ function util.quest.GetQuestTimeLeftInfo(questID)
 	-- REF.: <FrameXML/WorldMapFrame.lua>
 	-- REF.: <FrameXML/GameTooltip.lua>
 	-- REF.: <FrameXML/TimeUtil.lua>
-	local timeLeftInfo = {};
-	timeLeftInfo.seconds = C_TaskQuest.GetQuestTimeLeftSeconds(questID);
-	-- timeLeftInfo.color = util.quest.GetQuestTimeColor(timeLeftInfo.seconds);
-	timeLeftInfo.color = util.quest.GetQuestTimeColorByQuestID(questID, WHITE_FONT_COLOR);
-	local abbreviationType = SecondsFormatter.Abbreviation.Truncate;
-	timeLeftInfo.timeString = WorldQuestsSecondsFormatter:Format(timeLeftInfo.seconds, abbreviationType);
-	timeLeftInfo.timeLeftString = BONUS_OBJECTIVE_TIME_LEFT:format(timeLeftInfo.timeString);
-	timeLeftInfo.coloredTimeLeftString = timeLeftInfo.color:WrapTextInColorCode(timeLeftInfo.timeLeftString);
-	return timeLeftInfo;
+	local seconds = C_TaskQuest.GetQuestTimeLeftSeconds(questID);
+	if (seconds and seconds > 0) then
+		local timeLeftInfo = {};
+		timeLeftInfo.seconds = seconds;
+		-- timeLeftInfo.color = util.quest.GetQuestTimeColor(timeLeftInfo.seconds);
+		timeLeftInfo.color = util.quest.GetQuestTimeColorByQuestID(questID, WHITE_FONT_COLOR);
+		local abbreviationType = SecondsFormatter.Abbreviation.Truncate;
+		timeLeftInfo.timeString = WorldQuestsSecondsFormatter:Format(timeLeftInfo.seconds, abbreviationType);
+		timeLeftInfo.timeLeftString = BONUS_OBJECTIVE_TIME_LEFT:format(timeLeftInfo.timeString);
+		timeLeftInfo.coloredTimeLeftString = timeLeftInfo.color:WrapTextInColorCode(timeLeftInfo.timeLeftString);
+		return timeLeftInfo;
+	end
 end
 
 -- Gather basic info about given world quest.
@@ -824,7 +827,7 @@ function util.map.GetActiveThreats()
 				local mapID = util.quest.GetWorldQuestZoneID(questID);
 				local mapInfo = util.map.GetMapInfo(mapID);
 				local timeLeftInfo = util.quest.GetQuestTimeLeftInfo(questID);
-				local timeLeftString = timeLeftInfo.coloredTimeLeftString;
+				local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString or '';
 				local questExpansionLevel = GetQuestExpansion(questID);
 				if questExpansionLevel then
 					_log:debug("Threat:", questID, questInfo.questTitle, ">", mapID, mapInfo.name, "expLvl:", questExpansionLevel);

@@ -1,8 +1,10 @@
-if ( GetLocale() ~= "deDE" ) then
-	return
+if (GetLocale() ~= "deDE") then
+	return;
 end
 
-local ns = select(2, ...)
+local ns = select(2, ...);
+
+-- Fully translated
 
 ns.L = {
 	--[[ TOC file notes ]]--
@@ -83,4 +85,4 @@ ns.L = {
 	--[[ Testing ]]--
 	WORK_IS_EXPERIMENTAL = "(Experimentell)",
 	WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION = "(Diese Funktion befindet sich in einer experimentellen Entwicklungsphase und kann unvollständige Informationen liefern oder nicht ordnungsgemäß funktionieren.)",
-}
+};
