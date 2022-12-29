@@ -4,7 +4,7 @@ local ns = select(2, ...);
 
 ns.L = {
 	--[[ TOC file notes ]]--
-	TOC_FILE_NOTES = "Adds a right-click menu to the mission report button on the minimap|nfor selecting reports of previous extensions as well.",
+	TOC_FILE_NOTES = "Adds a right-click menu to the mission reports button on the minimap|nwith access to reports from current and previous expansions.",
 	--[[ Tooltips ]]--
 	TOOLTIP_CLICKTEXT_MINIMAPBUTTON = "Right-click to select expansion",
 	TOOLTIP_REQUIREMENTS_TEXT_S = 'Complete "%s" to unlock content',

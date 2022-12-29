@@ -1,14 +1,11 @@
 # Mission Report Button Plus
 
-Adds a right-click menu to the mission report button on the minimap (aka. the `Garrison-\ExpansionLandingPageMinimapButton`) for selecting mission reports of previous expansions.  
+Adds a right-click menu to the mission report button on the minimap (aka. the `Garrison-/ExpansionLandingPageMinimapButton`) for selecting mission reports of previous expansions.  
 *(See full feature list [below](#features))*  
-
-**Note:  
-If you're using an add-on manager, like eg. the CurseForge App, you need to change the "Release Type" to `Beta` in order to find this add-on.**  
-
+  
 ![Button tooltip and right-click menu with expansion names](.screenshots/mbrp_tooltip-dropdown.jpg "Right-click on the Kyrian mission report button on the minimap opens the menu.")
 ![The right-click menu with in-progress mission infos](.screenshots/mbrp_dropdown_bfa-missioncount.jpg "Mouse-over a menu entry shows details about running missions.")  
-(More images on this [project's screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots))
+(More images on this [project's screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots))  
 
 ## About this add-on
 
@@ -21,25 +18,26 @@ I was very pleased to see that the WoW Companion app for mobile phones addressed
 
 It is still possible to access mission reports from previous expansions but the Blizzard devs still haven't implemented a possibility for users to access them via the graphical interface. So here comes this add-on to work:
 
-+ it adds a right-click menu to the already available minimap button for mission reports,
-+ with a selection of mission reports of previous expansions, which are...
++ it makes the minimap button for mission reports visible, if it has been hidden,  
++ it adds a right-click menu to the minimap button,  
++ with a selection of previous expansions and access to their mission reports, which are...  
 + **anytime and anywhere accessible.**  
-*(See full feature list below.)*
+*(See full feature list below.)*  
 
 ----
 
 ## Features
 
 + [x] adds a right-click menu to the minimap button
-+ [x] a click on an menu entry opens the (read-only) Mission Report Frame of the corresponding expansion
-+ [x] show or hide the minimap button itself
-+ [x] get informed in chat on finished missions, talents, buildings (WoD garrison only) or WoD garrison invasions
++ [x] displays the minimap button of the previous expansion as long as the current command table hasn't been unlocked
++ [x] optionally shows or hides the minimap button itself permanently
++ [x] clicking a menu entry opens the (read-only) Mission Report Frame of the corresponding expansion
++ [x] get informed in-chat on finished missions, talents, WoD garrison invasions and buildings, etc.
 + [x] choose from a variety of settings and adjust the addon to your liking
   + [x] or de-/select the menu entries with the expansions that are no longer of interest to you
 + [x] expansions you (yet) don't own will be hidden in the menu
 + [x] expansions without an unlocked command table will be displayed, but disabled
-  + [x] now showing a hint on which quest unlocks it
-+ [x] display the minimap button of the previous expansion as long as the current command table hasn't been unlocked
+  + [x] now showing a hint on how to unlock it
 + [x] see details about in-progress mission of each command table
 + [x] see which bounties and threats of each expansion are currently active (WIP)
 + [x] more to come...  
@@ -54,7 +52,7 @@ It is still possible to access mission reports from previous expansions but the 
 
 ----
 
-### Interested in helping?
+## Interested in helping?
 
 *Contributors are most welcome!*  
 [Report a problem](https://github.com/erglo/mission-report-button-plus/issues) on this project's issues page as soon as you find any errors.  

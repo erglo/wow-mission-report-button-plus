@@ -1,0 +1,3 @@
+The MRBP Dragon Isles Summary tooltip
+
+An example of the Dragonflight tooltip showing the renown details of the Major Factions and the Dragon Glyphs progress.

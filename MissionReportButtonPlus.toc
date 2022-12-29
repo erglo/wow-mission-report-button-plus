@@ -1,6 +1,6 @@
 ## Interface: 100002
 ## Title: Mission Report Button Plus
-## Notes: Adds a right-click menu to the mission report button on the minimap|nwith a selection of reports of previous expansions.
+## Notes: Adds a right-click menu to the mission reports button on the minimap|nwith access to reports from current and previous expansions.
 ## Notes-deDE: Erweitert den Missionsbericht-Button der Minikarte mit einer Auswahl|nvon Berichten früherer Erweiterungen.
 ## Version: v0.9.0
 ## Author: ergloCoder
