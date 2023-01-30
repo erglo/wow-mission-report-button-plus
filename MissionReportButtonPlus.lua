@@ -447,7 +447,7 @@ function MRBP:LoadData()
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.BattleForAzeroth.garrisonTypeID, playerInfo.factionGroup).requirementText,
 			},
 			["expansion"] = util.expansion.data.BattleForAzeroth,
-			["continents"] = {875, 876},  -- Zandalar, Kul'Tiras
+			["continents"] = {875, 876},  -- Zandalar, Kul Tiras
 			["poiZones"] = {1355, 62, 14, 81, 1527},  -- Nazjatar, Darkshore, Arathi Highlands, Silithus, Uldum
 			--> Note: Uldum and Vale of Eternal Blossoms are covered as world map threats.
 			["bountyBoard"] = {
@@ -879,7 +879,7 @@ end
 local function ShouldShowActiveThreatsText(garrisonTypeID)
 	return (
 		(garrisonTypeID == util.expansion.data.Shadowlands.garrisonTypeID and ns.settings.showMawThreats) or
-		(garrisonTypeID == util.expansion.data.BattleForAzeroth.garrisonTypeID and ns.settings.showBfAThreatNzoth)
+		(garrisonTypeID == util.expansion.data.BattleForAzeroth.garrisonTypeID and ns.settings.showNzothThreats)
 	);
 end
 
@@ -913,7 +913,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 	local tooltipText = isDisabled and DISABLED_FONT_COLOR:WrapTextInColorCode(garrInfo.description) or garrInfo.description;
 
 	-- Show requirement info for unlocking the given expansion type
-	if (isDisabled and ns.settings.showEntryRequirements) then
+	if (isDisabled) then  -- and ns.settings.showEntryRequirements) then
 		tooltipText = tooltipText.."|n";
 		tooltipText = TooltipText_AddTextLine(tooltipText, garrInfo.msg.requirementText, DIM_RED_FONT_COLOR);
 
@@ -951,9 +951,9 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					if bountyData.turninRequirementText then
 						-- REF.: <FrameXML/WorldMapBountyBoard.lua>
 						tooltipText = TooltipText_AddIconLine(tooltipText, questName, icon, DISABLED_FONT_COLOR, isIconString);
-						if ns.settings.showBountyRequirements then
-							tooltipText = TooltipText_AddObjectiveLine(tooltipText, bountyData.turninRequirementText, WARNING_FONT_COLOR);
-						end
+						-- if ns.settings.showBountyRequirements then
+						tooltipText = TooltipText_AddObjectiveLine(tooltipText, bountyData.turninRequirementText, WARNING_FONT_COLOR);
+						-- end
 					else
 						tooltipText = TooltipText_AddIconLine(tooltipText, questName, icon, nil, isIconString);
 					end
@@ -974,7 +974,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				local isBfAThreat = threatExpansionLevel == util.expansion.data.BattleForAzeroth.ID;
 				local isShadowlandsThreat = threatExpansionLevel == util.expansion.data.Shadowlands.ID;
 				if isBfAThreat then
-					tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAThreatNzoth);
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showNzothThreats);
 				elseif isShadowlandsThreat then
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showMawThreats);
 				else
@@ -991,7 +991,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddIconLine(tooltipText, threatInfo.questName, threatInfo.atlasName, fontColor);
 					--> TODO - Add major-minor assault type icon for N'Zoth Assaults
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, threatInfo.mapInfo.name);
-					if (threatInfo.timeLeftString and ns.settings.showThreatsTimeRemaining) then
+					if (threatInfo.timeLeftString) then  -- and ns.settings.showThreatsTimeRemaining) then
 						tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, threatInfo.timeLeftString);
 					end
 				end

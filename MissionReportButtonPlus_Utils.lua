@@ -1240,15 +1240,9 @@ end
 -- end
 -- -- Test_GetTimewalkingInfo = GetTimewalkingInfo;
 
-function Test_GetTimewalkingInfo2()
-	local data = C_TooltipInfo.GetSpellByID(359082);
-	for i, line in data.lines do
-		print(i, line);
-	end
-end
-
 function util.poi.FindTimewalkingVendor(garrInfo)
-	-- local TIMEWALKING_AREA_POI_ID = 6985;  --> Draenor
+	-- local TIMEWALKING_AREA_POI_ID = 6985;  --> Draenor, Ashran
+	-- local TIMEWALKING_AREA_POI_ID = 7018;  --> Legion, Dalaran
 	local TIMEWALKING_VENDOR_ATLAS_NAME = "TimewalkingVendor-32x32";
 	local results = {};
 
@@ -1618,7 +1612,7 @@ ns.label = {
 	-- Battle for Azeroth
 	["showBfAMissionInfo"] = GARRISON_MISSIONS,
 	["showBfABounties"] = BOUNTY_BOARD_LOCKED_TITLE,
-	["showBfAThreatNzoth"] = WORLD_MAP_THREATS,
+	["showNzothThreats"] = WORLD_MAP_THREATS,
 	["showBfAWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL,
 	["showBfAFactionAssaultsInfo"] = L.ENTRYTOOLTIP_BFA_FACTION_ASSAULTS_LABEL, --> achievementID = 13284
 	["applyBfAFactionColors"] = L.ENTRYTOOLTIP_BFA_APPLY_FACTION_COLORS_LABEL,
@@ -1650,9 +1644,9 @@ util.calendar.TIMEWALKING_EVENT_ID_DRAENOR = 1063;
 util.calendar.TIMEWALKING_EVENT_ID_LEGION = 1265;
 util.calendar.WINTER_HOLIDAY_EVENT_ID = 141;
 util.calendar.WINTER_HOLIDAY_ATLAS_NAME = "Front-Tree-Icon";
+-- util.calendar.WORLDQUESTS_EVENT_ID = 613;
 
--- local calendarUtil = {};  --> for local use (this file)
--- calendarUtil.WORLDQUESTS_EVENT_ID = 613;
+-- local calendarUtil = {};  --> for local use (in this file)
 -- calendarUtil.WORLDQUESTS_EVENT_TEXTURE_ID = "worldquest-tracker-questmarker";  -- 1467050;
 -- calendarUtil.WOW_BIRTHDAY_EVENT_ID = 1262;
 -- calendarUtil.TIMEWALKING_ATLAS_NAME = "TimewalkingVendor-32x32";
@@ -1700,8 +1694,10 @@ local function GetActiveDayEvent(eventID)
 	local numDayEvents = C_Calendar.GetNumDayEvents(monthOffset, currentCalendarTime.monthDay);
 	for eventIndex = 1, numDayEvents do
 		local event = C_Calendar.GetDayEvent(monthOffset, currentCalendarTime.monthDay, eventIndex);
-		-- print(eventIndex, event.eventID, event.eventType, event.calendarType,
-		-- 	  util.CreateInlineIcon2(event.iconTexture)..event.title);
+		-- if _log.DEVMODE then
+		-- 	print(eventIndex, event.eventID, event.eventType, event.calendarType,
+		-- 		util.CreateInlineIcon2(event.iconTexture)..event.title);
+		-- end
 		if (event.eventID == eventID) then
 			if (event.calendarType == "HOLIDAY") then
 				event.holidayInfo = C_Calendar.GetHolidayInfo(monthOffset, currentCalendarTime.monthDay, eventIndex);
@@ -1713,9 +1709,10 @@ local function GetActiveDayEvent(eventID)
 	end
 end
 -- util.calendar.GetActiveDayEvent = GetActiveDayEvent;
--- Test_GetActiveDayEvent = GetActiveDayEvent;
--- -- Test_GetActiveDayEvent(613)
--- -- Test_GetActiveDayEvent(1265)
+Test_GetActiveDayEvent = GetActiveDayEvent;
+-- Test_GetActiveDayEvent(613)  --> util.calendar.WORLDQUESTS_EVENT_ID
+-- Test_GetActiveDayEvent(1063)  --> util.calendar.TIMEWALKING_EVENT_ID_DRAENOR
+-- Test_GetActiveDayEvent(1265)  --> util.calendar.TIMEWALKING_EVENT_ID_LEGION
 
 -- Check if given calendar day event ID is currently active.
 ---@param eventID number
@@ -1724,6 +1721,9 @@ end
 function util.calendar.IsDayEventActive(eventID)
 	return GetActiveDayEvent(eventID) ~= nil;
 end
+Test_IsDayEventActive = util.calendar.IsDayEventActive;
+-- Test_IsDayEventActive(1063)  --> util.calendar.TIMEWALKING_EVENT_ID_DRAENOR
+-- Test_IsDayEventActive(1265)  --> util.calendar.TIMEWALKING_EVENT_ID_LEGION
 
 -- Check calendar if currently a world quest event is happening.
 ---@return boolean isTodayDayEvent
