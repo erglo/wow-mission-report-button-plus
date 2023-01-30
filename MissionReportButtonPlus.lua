@@ -122,9 +122,9 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 
 		elseif (event == "GARRISON_INVASION_AVAILABLE") then
 			_log:debug(event, ...)
-			--> Draenor garrison only
-			local garrInfo = MRBP_GARRISON_TYPE_INFOS[util.expansion.data.WarlordsOfDraenor.garrisonTypeID]
-			util.cprintEvent(garrInfo.expansion.name, GARRISON_LANDING_INVASION, nil, GARRISON_LANDING_INVASION_TOOLTIP);
+			--> Draenor garrison only (!)
+			local expansionName = util.expansion.data.WarlordsOfDraenor.name;
+			util.cprintEvent(expansionName, GARRISON_LANDING_INVASION, nil, GARRISON_LANDING_INVASION_TOOLTIP);
 
 		elseif (event == "GARRISON_MISSION_FINISHED") then
 			-- REF.: <FrameXML/Blizzard_GarrisonUI/Blizzard_GarrisonMissionUI.lua>
@@ -171,7 +171,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			_log:info("isInitialLogin:", isInitialLogin, "- isReloadingUi:", isReloadingUi)
 
 			local function printDayEvent()
-				local isTodayDayEvent, dayEvent, dayEventMsg = util.IsTodayWorldQuestDayEvent();
+				local isTodayDayEvent, dayEvent, dayEventMsg = util.calendar.IsTodayWorldQuestDayEvent();
 				if isTodayDayEvent then
 					ns.cprint(dayEventMsg);
 				end
@@ -269,7 +269,7 @@ function MRBP:OnLoad()
 	_log:info("----- Addon is ready. -----")
 end
 
------[[ Data ]]-----------------------------------------------------------------
+----- Data ---------------------------------------------------------------------
 
 -- A collection of quest for (before) unlocking the command table.
 --> <questID, questName_English (fallback)>
@@ -349,25 +349,24 @@ local function MRBP_GetGarrisonTypeUnlockQuestInfo(garrTypeID, tagName)
 end
 
 -- Check if given garrison type is unlocked for given tag.
---> Returns: boolean
+---@param garrTypeID number
+---@param tagName string|number
+---@return boolean isCompleted
+--
 local function MRBP_IsGarrisonTypeUnlocked(garrTypeID, tagName)
-	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID][tagName]
-	local questID = questData[1]
-	local IsCompleted = util.quest.IsFlaggedCompleted;
+	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID][tagName];
+	local questID = questData[1];
+	local IsCompleted = C_QuestLog.IsQuestFlaggedCompleted;
 
 	--> FIXME - Temp. work-around (better with achievement of same name ???)
 	-- In Shadowlands if you skip the story mode you get a different quest (ID) with the same name, so
 	-- we need to check both quests.
 	if (garrTypeID == util.expansion.data.Shadowlands.garrisonTypeID) then
-		local questID2 = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID]["alt"][1]
-		return IsCompleted(questID) or IsCompleted(questID2)
+		local questID2 = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID]["alt"][1];
+		return IsCompleted(questID) or IsCompleted(questID2);
 	end
-	-- if (garrTypeID == util.expansion.data.Dragonflight.garrisonTypeID) then
-	-- 	local questID2 = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID]["alt"][1]
-	-- 	return IsCompleted(questID) or IsCompleted(questID2)
-	-- end
 
-	return IsCompleted(questID)
+	return IsCompleted(questID);
 end
 
 -- Preparing this data on start-up results sometimes, in empty (nil) values,
@@ -392,13 +391,13 @@ function MRBP:LoadData()
 
 	-- Main data table with details about each garrison type
 	MRBP_GARRISON_TYPE_INFOS = {
-		-----[[ Warlords of Draenor ]]-----
+		----- Warlords of Draenor -----
 		[util.expansion.data.WarlordsOfDraenor.garrisonTypeID] = {
 			["tagName"] = playerInfo.factionGroup,
 			["title"] = GARRISON_LANDING_PAGE_TITLE,
 			["description"] = MINIMAP_GARRISON_LANDING_PAGE_TOOLTIP,
 			["minimapIcon"] = string.format("GarrLanding-MinimapIcon-%s-Up", playerInfo.factionGroup),
-			-- ["atlas"] = "accountupgradebanner-wod",  --> TODO
+			-- ["banner"] = "accountupgradebanner-wod",  -- 199x117  --> TODO
 			["msg"] = {  --> menu entry tooltip messages
 				["missionsTitle"] = GARRISON_MISSIONS_TITLE,
 				["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,  --> "%d/%d Ready for pickup"
@@ -407,16 +406,16 @@ function MRBP:LoadData()
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(Enum.GarrisonType.Type_6_0, playerInfo.factionGroup).requirementText,
 			},
 			["expansion"] = util.expansion.data.WarlordsOfDraenor,
-			-- ["continents"] = {572},  --> Draenor
+			["continents"] = {572},  --> Draenor
 			-- No bounties in Draenor; only available since Legion.
 		},
-		-----[[ Legion ]]-----
+		----- Legion -----
 		[util.expansion.data.Legion.garrisonTypeID] = {
 			["tagName"] = playerInfo.className,
 			["title"] = ORDER_HALL_LANDING_PAGE_TITLE,
 			["description"] = MINIMAP_ORDER_HALL_LANDING_PAGE_TOOLTIP,
 			["minimapIcon"] = string.format("legionmission-landingbutton-%s-up", playerInfo.className),
-			-- ["atlas"] = "accountupgradebanner-legion",  --> TODO
+			-- ["banner"] = "accountupgradebanner-legion",  -- 199x117  --> TODO
 			["msg"] = {
 				["missionsTitle"] = GARRISON_MISSIONS,
 				["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
@@ -425,7 +424,7 @@ function MRBP:LoadData()
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.Legion.garrisonTypeID, playerInfo.className).requirementText,
 			},
 			["expansion"] = util.expansion.data.Legion,
-			-- ["continents"] = {619, 905},  --> Broken Isles + Argus
+			["continents"] = {619, 905},  --> Broken Isles + Argus
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
@@ -433,13 +432,13 @@ function MRBP:LoadData()
 				["areBountiesUnlocked"] = MapUtil.MapHasUnlockedBounties(650),
 			},
 		},
-		-----[[ Battle for Azeroth ]]-----
+		----- Battle for Azeroth -----
 		[util.expansion.data.BattleForAzeroth.garrisonTypeID] = {
 			["tagName"] = playerInfo.factionGroup,
 			["title"] = GARRISON_TYPE_8_0_LANDING_PAGE_TITLE,
 			["description"] = GARRISON_TYPE_8_0_LANDING_PAGE_TOOLTIP,
 			["minimapIcon"] = string.format("bfa-landingbutton-%s-up", playerInfo.factionGroup),
-			-- ["atlas"] = "accountupgradebanner-bfa",  --> TODO
+			-- ["banner"] = "accountupgradebanner-bfa",  -- 199x133  --> TODO
 			["msg"] = {
 				["missionsTitle"] = GARRISON_MISSIONS,
 				["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
@@ -448,7 +447,9 @@ function MRBP:LoadData()
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.BattleForAzeroth.garrisonTypeID, playerInfo.factionGroup).requirementText,
 			},
 			["expansion"] = util.expansion.data.BattleForAzeroth,
-			-- ["continents"] = {876, 875, 1355},  --> Kul'Tiras + Zandalar (+ Nazjatar [Zone])
+			["continents"] = {875, 876},  -- Zandalar, Kul'Tiras
+			["poiZones"] = {1355, 62, 14, 81, 1527},  -- Nazjatar, Darkshore, Arathi Highlands, Silithus, Uldum
+			--> Note: Uldum and Vale of Eternal Blossoms are covered as world map threats.
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
@@ -456,13 +457,13 @@ function MRBP:LoadData()
 				["areBountiesUnlocked"] = MapUtil.MapHasUnlockedBounties(875),  --> checking only Zandalar should be enough
 			},
 		},
-		-----[[ Shadowlands ]]-----
+		----- Shadowlands -----
 		[util.expansion.data.Shadowlands.garrisonTypeID] = {
 			["tagName"] = playerInfo.covenantID,
 			["title"] = GARRISON_TYPE_9_0_LANDING_PAGE_TITLE,
 			["description"] = GARRISON_TYPE_9_0_LANDING_PAGE_TOOLTIP,
 			["minimapIcon"] = string.format("shadowlands-landingbutton-%s-up", playerInfo.covenantTex),
-			-- ["atlas"] = "accountupgradebanner-shadowlands",  --> TODO
+			-- ["banner"] = "accountupgradebanner-shadowlands",  -- 199x133  --> TODO
 			["msg"] = {
 				["missionsTitle"] = COVENANT_MISSIONS_TITLE,
 				["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
@@ -471,7 +472,7 @@ function MRBP:LoadData()
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.Shadowlands.garrisonTypeID, playerInfo.covenantID).requirementText,
 			},
 			["expansion"] = util.expansion.data.Shadowlands,
-			-- ["continents"] = {1550},  --> Shadowlands
+			["continents"] = {1550},  --> Shadowlands
 			["bountyBoard"] = {
 				["title"] = CALLINGS_QUESTS,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_CALLINGS_DAYS_1,
@@ -479,31 +480,28 @@ function MRBP:LoadData()
 				["areBountiesUnlocked"] = C_CovenantCallings.AreCallingsUnlocked(),
 			},
 		},
-		-----[[ Dragonflight ]]-----
+		----- Dragonflight -----
 		[util.expansion.data.Dragonflight.garrisonTypeID] = {
 			-- ["tagName"] = playerInfo.className == "EVOKER" and "alt" or playerInfo.factionGroup,
 			["tagName"] = playerInfo.factionGroup,
 			["title"] = DRAGONFLIGHT_LANDING_PAGE_TITLE,
 			["description"] = DRAGONFLIGHT_LANDING_PAGE_TOOLTIP,
 			["minimapIcon"] = "dragonflight-landingbutton-up",
-			-- ["atlas"] = "accountupgradebanner-dragonflight",  -- 199x133  --> TODO 
+			-- ["banner"] = "accountupgradebanner-dragonflight",  -- 199x133  --> TODO 
 			["msg"] = {
-				-- ["missionsTitle"] = COVENANT_MISSIONS_TITLE,
-				-- ["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
-				-- ["missionsEmptyProgress"] = GARRISON_EMPTY_IN_PROGRESS_LIST,
-				-- ["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_9_0].strings.LANDING_COMPLETE,
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.Dragonflight.garrisonTypeID, playerInfo.factionGroup).requirementText,
 			},
 		 	["expansion"] = util.expansion.data.Dragonflight,
-		-- 	["continents"] = {1978},  --> Dragon Isles 
-			["bountyBoard"] = {
-				["title"] = MAJOR_FACTION_LIST_TITLE,
-				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
-				["bounties"] = util.quest.GetBountiesForMapID(2022),  --> or any child zone from "continents" seems to work as well.
-				["areBountiesUnlocked"] = MapUtil.MapHasUnlockedBounties(2022),  -- (1978),
-			},
+			["continents"] = {1978},  --> Dragon Isles
+			--> Note: The bounty board in Dragonflight is only used for filtering world quests and switching to them. It
+			-- doesn't show any bounty details anymore. Instead you get rewards for each new major faction renown level.
 		},
-	}
+	};
+
+	-- Note: Shadowlands callings receive info through event listening or on
+	-- opening the mission frame; try to update.
+	CovenantCalling_CheckCallings();
+	--> REF.: <FrameXML/ObjectAPI/CovenantCalling.lua>
 end
 
 -- Check if the requirement for the given garrison type is met in order to
@@ -550,7 +548,7 @@ function MRBP_IsAnyGarrisonRequirementMet()
 end
 ns.MRBP_IsAnyGarrisonRequirementMet = MRBP_IsAnyGarrisonRequirementMet;
 
------[[ Dropdown Menu ]]--------------------------------------------------------
+----- Dropdown Menu ------------------------------------------------------------
 
 -- Handle opening and closing of Garrison-/ExpansionLandingPage frames.
 ---@param garrTypeID number
@@ -590,96 +588,166 @@ local function MRBP_ToggleLandingPageFrames(garrTypeID)
 	end
 end
 
+----- Menu item tooltip -----
+
+local TOOLTIP_DASH_ICON_STRING = util.CreateInlineIcon(3083385);
+local TOOLTIP_CLOCK_ICON_STRING = util.CreateInlineIcon1("auctionhouse-icon-clock");  -- "worldquest-icon-clock");
+local TOOLTIP_CHECK_MARK_ICON_STRING = util.CreateInlineIcon(628564);
+
+-- Add a text in normal font color to given tooltip text.
+---@param tooltipText string
+---@param text string
+---@param skipSeparatorLine boolean  If true, skips the space between this and the previous section
+---@return string tooltipText
+--
+local function TooltipText_AddHeaderLine(tooltipText, text, skipSeparatorLine)
+	if not skipSeparatorLine then
+		tooltipText = tooltipText.."|n";
+	end
+	if (text ~= '') then
+		tooltipText = tooltipText.."|n"..text;
+	end
+	return tooltipText;
+end
+
+-- Add a text in an optional font color to given tooltip text.
+---@param tooltipText string
+---@param text string
+---@param lineColor table|nil  A color class (see <FrameXML/GlobalColors.lua>); defaults to WHITE_FONT_COLOR
+---@return string tooltipText
+--
+local function TooltipText_AddTextLine(tooltipText, text, lineColor)
+	local fontColor = lineColor or WHITE_FONT_COLOR;
+	local skipSeparatorLine = true;
+	return TooltipText_AddHeaderLine(tooltipText, fontColor:WrapTextInColorCode(text), skipSeparatorLine);
+end
+
+-- Append a text in an optional font color separated by 1 space character to given tooltip text.
+---@param tooltipText string
+---@param text string
+---@param lineColor table|nil  A color class (see <FrameXML/GlobalColors.lua>); defaults to WHITE_FONT_COLOR
+---@return string tooltipText
+--
+local function TooltipText_AppendText(tooltipText, text, lineColor)
+	local fontColor = lineColor or WHITE_FONT_COLOR;
+	tooltipText = tooltipText.." "..fontColor:WrapTextInColorCode(text);
+	return tooltipText;
+end
+
+-- Add a white colored text line to given tooltip text with a preceding icon.
+---@param tooltipText string
+---@param text string
+---@param iconID string|number|nil  An atlas name or texture ID
+---@param lineColor table|nil  A color class (see <FrameXML/GlobalColors.lua>); defaults to WHITE_FONT_COLOR
+---@param isIconString boolean|nil  Icon is already wrapped into a string
+---@return string tooltipText
+--
+local function TooltipText_AddIconLine(tooltipText, text, iconID, lineColor, isIconString)
+	local fontColor = lineColor or WHITE_FONT_COLOR;
+	local iconString = isIconString and iconID or util.CreateInlineIcon(iconID);
+	tooltipText = tooltipText.."|n"..iconString.." "..fontColor:WrapTextInColorCode(text);
+	return tooltipText;
+end
+
+local function TooltipText_AddObjectiveLine(tooltipText, text, lineColor)
+	local isIconString = true;
+	return TooltipText_AddIconLine(tooltipText, text, TOOLTIP_DASH_ICON_STRING, lineColor, isIconString);
+end
+
+--> Line color defaults to DISABLED_FONT_COLOR
+local function TooltipText_AddObjectiveCompletedLine(tooltipText, text, prependIcon, alternativeLineColor)
+	local fontColor = alternativeLineColor or DISABLED_FONT_COLOR;
+	if prependIcon then
+		-- Replace the dash icon with the check mark icon
+		local isIconString = true;
+		return TooltipText_AddIconLine(tooltipText, text, TOOLTIP_CHECK_MARK_ICON_STRING, fontColor, isIconString);
+	end
+	-- Append icon
+	return TooltipText_AddObjectiveLine(tooltipText, text, fontColor).." "..TOOLTIP_CHECK_MARK_ICON_STRING;
+end
+
+-- Add time remaining string starting with a dash and a clock icon.
+---@param tooltipText string
+---@param timeString string
+---@param lineColor table|nil  A color class (see <FrameXML/GlobalColors.lua>)
+---@return string tooltipText
+--
+local function TooltipText_AddTimeRemainingLine(tooltipText, timeString, lineColor)
+	-- Note: The font color is often handled by timeString, eg. red for soon-to-expire, etc. If you
+	-- use 'lineColor' the timeString color will be overwritten.
+	if timeString then
+		tooltipText = tooltipText.."|n"..TOOLTIP_DASH_ICON_STRING;
+		tooltipText = tooltipText.." "..TOOLTIP_CLOCK_ICON_STRING;
+		if lineColor then
+			tooltipText = tooltipText.." "..lineColor:WrapTextInColorCode(timeString);
+		else
+			tooltipText = tooltipText.." "..timeString;
+		end
+	end
+	return tooltipText;
+end
+
 -- Add details about the garrison mission progress.
 ---@param garrInfo table  One of the entries from MRBP_GARRISON_TYPE_INFOS
 ---@param tooltipText string
 ---@return string tooltipText
 --
-local function AddMissionCounterDetailsText(garrInfo, tooltipText)
-	local isDragonFlightExpansion = garrInfo.expansion.garrisonTypeID == util.expansion.data.Dragonflight.garrisonTypeID;
-	if (ns.settings.showMissionCountInTooltip and not garrInfo.shouldShowDisabled and not isDragonFlightExpansion) then
-		-- Add category title for missions
-		tooltipText = tooltipText.."|n|n"..garrInfo.msg.missionsTitle;
+local function AddTooltipMissionInfoText(tooltipText, garrInfo)
+	local hasCompletedAllMissions = garrInfo.missions.numCompleted == garrInfo.missions.numInProgress;
 
-		-- Mission count info
-		tooltipText = tooltipText..WHITE_FONT_COLOR_CODE;
-		if (garrInfo.missions.numInProgress > 0) then
-			local progressText = string.format(
-				garrInfo.msg.missionsReadyCount,
-				garrInfo.missions.numCompleted,
-				garrInfo.missions.numInProgress
-			);
-			tooltipText = tooltipText.."|n"..progressText;
+	tooltipText = TooltipText_AddHeaderLine(tooltipText, garrInfo.msg.missionsTitle);
+	-- Mission counter
+	if (garrInfo.missions.numInProgress > 0) then
+		local progressText = string.format(garrInfo.msg.missionsReadyCount, garrInfo.missions.numCompleted, garrInfo.missions.numInProgress);
+		if hasCompletedAllMissions then
+			tooltipText = TooltipText_AddObjectiveCompletedLine(tooltipText, progressText);
 		else
-			tooltipText = tooltipText.."|n"..garrInfo.msg.missionsEmptyProgress;
+			tooltipText = TooltipText_AddObjectiveLine(tooltipText, progressText);
 		end
-		tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE;
-
-		-- Return to base info
-		if ns.settings.showMissionCompletedHintOnlyForAll then
-			local hasCompletedAllMissions = garrInfo.missions.numCompleted == garrInfo.missions.numInProgress;
-			if (garrInfo.missions.numCompleted > 0 and hasCompletedAllMissions) then
-				tooltipText = tooltipText.."|n|n"..garrInfo.msg.missionsComplete;
-			end
-		else
-			if (garrInfo.missions.numCompleted > 0) then
-				tooltipText = tooltipText.."|n|n"..garrInfo.msg.missionsComplete;
-			end
+	else
+		tooltipText = TooltipText_AddTextLine(tooltipText, garrInfo.msg.missionsEmptyProgress);
+	end
+	-- Return to base info
+	if ns.settings.showMissionCompletedHintOnlyForAll then
+		if (hasCompletedAllMissions and garrInfo.missions.numCompleted > 0) then
+			tooltipText = TooltipText_AddTextLine(tooltipText, garrInfo.msg.missionsComplete);
+		end
+	else
+		if (garrInfo.missions.numCompleted > 0) then
+			tooltipText = TooltipText_AddTextLine(tooltipText, garrInfo.msg.missionsComplete);
 		end
 	end
 
 	return tooltipText;
 end
 
--- Add details about the major factions' renown level to the Dragonflight entry tooltip.
----@param tooltipText string
----@return string tooltipText
--->REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua> <br/>
--- REF.: <FrameXML/Blizzard_MajorFactions/Blizzard_MajorFactionRenown.lua>
---
-local function AddDragonFlightFactionsRenownDetailsText(tooltipText)
-	-- Retrieve and sort major faction data
-	local majorFactionIDs = util.garrison.GetMajorFactionIDs(util.expansion.data.Dragonflight.ID);
-	local majorFactionData = {};
-	for _, factionID in ipairs(majorFactionIDs) do
-		tinsert(majorFactionData, util.garrison.GetMajorFactionData(factionID));
-	end
-	local sortFunc = function(a, b) return a.unlockOrder < b.unlockOrder end  --> 0-9
-	table.sort(majorFactionData, sortFunc);
+local function AddTooltipDragonFlightFactionsRenownText(tooltipText)
+	local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(util.expansion.data.Dragonflight.ID);
 
 	-- Display faction infos
 	for _, factionData in ipairs(majorFactionData) do
 		if factionData then
 			local factionIconString = util.garrison.GetMajorFactionInlineIcon(factionData);
-			local factionColor = WHITE_FONT_COLOR;
-			if ns.settings.showMajorFactionColors then
-				factionColor = util.garrison.GetMajorFactionColor(factionData, factionColor);
-			end
-			local dashSymbolString = util.CreateInlineIcon(3083385);
+			local isIconString = true;
+			local factionColor = ns.settings.applyMajorFactionColors and util.garrison.GetMajorFactionColor(factionData) or WHITE_FONT_COLOR;
+			tooltipText = TooltipText_AddIconLine(tooltipText, factionData.name, factionIconString, factionColor, isIconString);
 			if factionData.isUnlocked then
 				local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel);
-				local factionName = factionData.name.." "..PARENS_TEMPLATE:format(renownLevelText);
-				tooltipText = tooltipText.."|n"..factionIconString..factionColor:WrapTextInColorCode(factionName);
+				tooltipText = TooltipText_AppendText(tooltipText, PARENS_TEMPLATE:format(renownLevelText), NORMAL_FONT_COLOR);
 				-- Show current renown progress
-				tooltipText = tooltipText..WHITE_FONT_COLOR_CODE;
-				tooltipText = tooltipText.."|n"..dashSymbolString;  --> dash icon texture
-				if not util.garrison.HasMaximumMajorFactionRenown(factionData.factionID) then
-					local progressText = MAJOR_FACTION_RENOWN_CURRENT_PROGRESS:format(factionData.renownReputationEarned, factionData.renownLevelThreshold);
-					tooltipText = tooltipText..progressText;
+				if util.garrison.HasMaximumMajorFactionRenown(factionData.factionID) then
+					tooltipText = TooltipText_AddObjectiveCompletedLine(tooltipText, MAJOR_FACTION_MAX_RENOWN_REACHED);
 				else
-					tooltipText = tooltipText..MAJOR_FACTION_MAX_RENOWN_REACHED;
-					tooltipText = tooltipText.." "..util.CreateInlineIcon(628564);  --> check mark icon texture
+					local progressText = MAJOR_FACTION_RENOWN_CURRENT_PROGRESS:format(factionData.renownReputationEarned, factionData.renownLevelThreshold);
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, progressText);
 				end
-				tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE;
 			else
 				-- Major faction is not unlocked, yet :(
-				tooltipText = tooltipText.."|n"..factionIconString..factionColor:WrapTextInColorCode(factionData.name);
-				tooltipText = tooltipText..DISABLED_FONT_COLOR_CODE;
-				tooltipText = tooltipText.."|n"..dashSymbolString;  --> dash icon texture
-				tooltipText = tooltipText..MAJOR_FACTION_BUTTON_FACTION_LOCKED;
+				tooltipText = TooltipText_AddObjectiveLine(tooltipText, MAJOR_FACTION_BUTTON_FACTION_LOCKED, DISABLED_FONT_COLOR);
 				-- Show unlock reason
-				tooltipText = tooltipText.."|n"..dashSymbolString..factionData.unlockDescription;
-				tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE;
+				if not ns.settings.hideMajorFactionUnlockDescription then
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, factionData.unlockDescription, DISABLED_FONT_COLOR);
+				end
 			end
 		end
 	end
@@ -687,48 +755,86 @@ local function AddDragonFlightFactionsRenownDetailsText(tooltipText)
 	return tooltipText;
 end
 
--- Add details about the Dragonriding Glyphs to the Dragonflight entry tooltip.
----@param tooltipText string
----@return string tooltipText
---
-local function AddDragonGlyphsDetailsText(tooltipText)
+local function AddTooltipDragonGlyphsText(tooltipText)
 	local treeCurrencyInfo = util.garrison.GetDragonRidingTreeCurrencyInfo();
 	local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = util.garrison.GetDragonGlyphsCount();
-	local dashSymbolString = util.CreateInlineIcon(3083385);
 
 	-- Add counter of collected glyphs per zone
 	for mapName, count in pairs(glyphsPerZone) do
 		local zoneName = mapName..HEADER_COLON;
-		local lineText = '';
-		local lineColor = WHITE_FONT_COLOR;
 		if (count.numComplete ~= count.numTotal) then
-			lineText = TRADESKILL_NAME_RANK:format(dashSymbolString..zoneName, count.numComplete, count.numTotal);
+			local countedText = GENERIC_FRACTION_STRING:format(count.numComplete, count.numTotal);
+			tooltipText = TooltipText_AddObjectiveLine(tooltipText, zoneName);
+			tooltipText = TooltipText_AppendText(tooltipText, countedText, NORMAL_FONT_COLOR);
 		else
-			if not ns.settings.autoHideDragonGlyphs then
-				local checkMarkString = util.CreateInlineIcon(628564);  --> check mark icon texture
-				lineText = TRADESKILL_NAME_RANK:format(checkMarkString..zoneName, count.numComplete, count.numTotal);
-				lineColor = DISABLED_FONT_COLOR;
+			if not ns.settings.autoHideCompletedDragonGlyphZones then
+				local glyphsPerZoneText = TRADESKILL_NAME_RANK:format(zoneName, count.numComplete, count.numTotal);
+				local prependCheckMarkIcon = false;
+				tooltipText = TooltipText_AddObjectiveCompletedLine(tooltipText, glyphsPerZoneText, prependCheckMarkIcon);
 			end
 		end
-		if (lineText ~= '') then
-			tooltipText = tooltipText.."|n"..lineColor:WrapTextInColorCode(lineText);
-		end
 	end
-
 	-- Add glyph collection summary
 	local currencySymbolString = util.CreateInlineIcon(treeCurrencyInfo.texture, 16, 16, 0, -1);
-	local collectedAmountString = TRADESKILL_NAME_RANK:format(YOU_COLLECTED_LABEL, numGlyphsCollected, numGlyphsTotal);
-	tooltipText = tooltipText.."|n"..dashSymbolString..collectedAmountString.." "..currencySymbolString;
-	local currentAmountString = tostring(treeCurrencyInfo.quantity).." "..currencySymbolString;
+	local youCollectedAmountString = TRADESKILL_NAME_RANK:format(YOU_COLLECTED_LABEL, numGlyphsCollected, numGlyphsTotal).." "..currencySymbolString;
+	if (numGlyphsCollected ~= numGlyphsTotal) then
+		tooltipText = TooltipText_AddObjectiveLine(tooltipText, youCollectedAmountString);
+	else
+		tooltipText = TooltipText_AddObjectiveCompletedLine(tooltipText, youCollectedAmountString);
+	end
 	if (treeCurrencyInfo.quantity > 0) then
 		local availableAmountText = PROFESSIONS_CURRENCY_AVAILABLE:format(treeCurrencyInfo.quantity, currencySymbolString);
-		-- tooltipText = tooltipText.."|n"..dashSymbolString..ITEM_UPGRADE_CURRENT.." "..currentAmountString;
-		tooltipText = tooltipText.."|n"..dashSymbolString..WHITE_FONT_COLOR:WrapTextInColorCode(availableAmountText);
+		tooltipText = TooltipText_AddObjectiveLine(tooltipText, availableAmountText);
 	end
 	if (numGlyphsCollected == 0) then
 		-- Inform player on how to get some glyphs
-		local infoText = WHITE_FONT_COLOR:WrapTextInColorCode(DRAGON_RIDING_CURRENCY_TUTORIAL);
-		tooltipText = tooltipText.."|n"..currencySymbolString.." "..infoText;
+		local isIconString = true;
+		tooltipText = TooltipText_AddIconLine(tooltipText, DRAGON_RIDING_CURRENCY_TUTORIAL, currencySymbolString, DISABLED_FONT_COLOR, isIconString);
+	end
+
+	return tooltipText;
+end
+
+--> Note: Don't delete! Used for testing.
+local function AddMultiPOITestText(poiInfos, tooltipText, addSeparator)
+	if TableHasAnyEntries(poiInfos) then
+		for _, poi in ipairs(poiInfos) do
+			if addSeparator then
+				-- Add space between this an previous details
+				tooltipText = tooltipText.."|n";
+			end
+			-- Add event name
+			if poi.atlasName then
+				local poiIcon = util.CreateInlineIcon(poi.atlasName);
+				tooltipText = tooltipText.."|n"..poiIcon..poi.name;
+			else
+				tooltipText = tooltipText.."|n"..poi.name;
+			end
+			tooltipText = tooltipText..WHITE_FONT_COLOR_CODE;
+			if (_log.level ~= _log.DEBUG) then
+				tooltipText = tooltipText.." "..GRAY_FONT_COLOR_CODE..tostring(poi.areaPoiID).." > "..tostring(poi.isPrimaryMapForPOI);
+				tooltipText = tooltipText.."|n"..tostring(poi.widgetSetID or poi.atlasName or '??');  -- ..tostring(poi.factionID))
+				tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE;
+			end
+			-- Show description
+			if poi.shouldShowDescription then
+				tooltipText = tooltipText.."|n"..TOOLTIP_DASH_ICON_STRING;
+				tooltipText = tooltipText..poi.description;
+			end
+			-- Add location name
+			tooltipText = tooltipText.."|n"..TOOLTIP_DASH_ICON_STRING;
+			tooltipText = tooltipText..poi.mapInfo.name;
+			if (_log.level == _log.DEBUG) then
+				tooltipText = tooltipText.." "..GRAY_FONT_COLOR:WrapTextInColorCode(tostring(poi.mapInfo.mapID));
+			end
+			-- Add time remaining info
+			if (poi.isTimed and poi.timeString)then
+				tooltipText = tooltipText.."|n"..TOOLTIP_DASH_ICON_STRING;
+				tooltipText = tooltipText..TOOLTIP_CLOCK_ICON_STRING;
+				tooltipText = tooltipText.." "..(poi.timeString or '???');
+			end
+			tooltipText = tooltipText..FONT_COLOR_CODE_CLOSE;
+		end
 	end
 
 	return tooltipText;
@@ -753,121 +859,325 @@ local function BuildMenuEntryLabel(garrInfo)
 	return labelText;
 end
 
+local function ShouldShowMissionsInfoText(garrisonTypeID)
+	return (
+		(garrisonTypeID == util.expansion.data.Shadowlands.garrisonTypeID and ns.settings.showCovenantMissionInfo) or
+		(garrisonTypeID == util.expansion.data.BattleForAzeroth.garrisonTypeID and ns.settings.showBfAMissionInfo) or
+		(garrisonTypeID == util.expansion.data.Legion.garrisonTypeID and ns.settings.showLegionMissionInfo) or
+		(garrisonTypeID == util.expansion.data.WarlordsOfDraenor.garrisonTypeID and ns.settings.showWoDMissionInfo)
+	);
+end
+
+local function ShouldShowBountyBoardText(garrisonTypeID)
+	return (
+		(garrisonTypeID == util.expansion.data.Shadowlands.garrisonTypeID and ns.settings.showCovenantBounties) or
+		(garrisonTypeID == util.expansion.data.BattleForAzeroth.garrisonTypeID and ns.settings.showBfABounties) or
+		(garrisonTypeID == util.expansion.data.Legion.garrisonTypeID and ns.settings.showLegionBounties)
+	);
+end
+
+local function ShouldShowActiveThreatsText(garrisonTypeID)
+	return (
+		(garrisonTypeID == util.expansion.data.Shadowlands.garrisonTypeID and ns.settings.showMawThreats) or
+		(garrisonTypeID == util.expansion.data.BattleForAzeroth.garrisonTypeID and ns.settings.showBfAThreatNzoth)
+	);
+end
+
+local function ShouldShowTimewalkingVendorText(garrisonTypeID)
+	local isForLegion = garrisonTypeID == util.expansion.data.Legion.garrisonTypeID;
+	local isForWarlordsOfDraenor = garrisonTypeID == util.expansion.data.WarlordsOfDraenor.garrisonTypeID;
+	local shouldShow = (
+		(isForLegion and ns.settings.showLegionWorldMapEvents and ns.settings.showLegionTimewalkingVendor) or
+		(isForWarlordsOfDraenor and ns.settings.showWoDWorldMapEvents and ns.settings.showWoDTimewalkingVendor)
+	);
+	_log:debug("ShouldShowTimewalkingVendorText:", garrisonTypeID, shouldShow);
+	return shouldShow;
+end
+
 -- Build the menu entry's description tooltip containing informations ie. about
 -- completed missions.
 ---@param garrInfo table  One of the entries from MRBP_GARRISON_TYPE_INFOS
----@param activeThreats table  See util.map.GetActiveThreats() for details
+---@param activeThreats table  See util.threats.GetActiveThreats() for details
 ---@return string tooltipText
 --
 local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 	local isDisabled = garrInfo.shouldShowDisabled;
 	local garrTypeID = garrInfo.expansion.garrisonTypeID;
+	local isForWarlordsOfDraenor = garrTypeID == util.expansion.data.WarlordsOfDraenor.garrisonTypeID;
+	local isForLegion = garrTypeID == util.expansion.data.Legion.garrisonTypeID;
+	local isForBattleForAzeroth = garrTypeID == util.expansion.data.BattleForAzeroth.garrisonTypeID;
+	local isForShadowlands = garrTypeID == util.expansion.data.Shadowlands.garrisonTypeID;
+	local isForDragonflight = garrTypeID == util.expansion.data.Dragonflight.garrisonTypeID;
 
-	-- Add landing page description
+	-- Add landing page description; tooltip already comes with the menu item name
 	local tooltipText = isDisabled and DISABLED_FONT_COLOR:WrapTextInColorCode(garrInfo.description) or garrInfo.description;
 
 	-- Show requirement info for unlocking the given expansion type
 	if (isDisabled and ns.settings.showEntryRequirements) then
-		tooltipText = tooltipText.."|n|n"..DIM_RED_FONT_COLOR:WrapTextInColorCode(garrInfo.msg.requirementText);
+		tooltipText = tooltipText.."|n";
+		tooltipText = TooltipText_AddTextLine(tooltipText, garrInfo.msg.requirementText, DIM_RED_FONT_COLOR);
 
 		return tooltipText;  --> Stop here, don't process the rest below
 	end
 
-	-- Add in-progress mission details
-	tooltipText = AddMissionCounterDetailsText(garrInfo, tooltipText);
+	----- In-progress missions -----
 
-	--> TODO - Add currency info
+	if ShouldShowMissionsInfoText(garrTypeID) then
+		tooltipText = AddTooltipMissionInfoText(tooltipText, garrInfo);
+	end
 
-	--[[ Bounty board infos ]]--
-	if (garrTypeID ~= util.expansion.data.WarlordsOfDraenor.garrisonTypeID) then
-	-- if (garrTypeID ~= util.expansion.data.WarlordsOfDraenor.garrisonTypeID and
-	-- 	garrTypeID ~= util.expansion.data.Dragonflight.garrisonTypeID) then
-		-- Only available since Legion (WoW 7.x)
-		local bountyBoard = garrInfo.bountyBoard
+	----- Bounty board infos (Legion + BfA + Shadowlands only) -----
 
-		if (bountyBoard.areBountiesUnlocked and ns.settings.showWorldmapBounties and #bountyBoard.bounties > 0) then
-			tooltipText = tooltipText.."|n|n"..bountyBoard.title
+	if ShouldShowBountyBoardText(garrTypeID) then
+		-- Only available since Legion (WoW 7.x); no longer useful in Dragonflight (WoW 10.x)
+		local bountyBoard = garrInfo.bountyBoard;
+		if bountyBoard.areBountiesUnlocked then  -- and #bountyBoard.bounties > 0) then
+			tooltipText = TooltipText_AddHeaderLine(tooltipText, bountyBoard.title);
 			_log:debug(garrInfo.title, "- bounties:", #bountyBoard.bounties)
-			if (garrTypeID == util.expansion.data.Shadowlands.garrisonTypeID) then
-				-- Retrieves callings through event listening; try to update.
+			if isForShadowlands then
+				-- Retrieves callings through event listening and on opening the mission frame; try to update (again).
 				CovenantCalling_CheckCallings()
-				--> REF.: <FrameXML/ObjectAPI/CovenantCalling.lua>
 			end
 			for _, bountyData in ipairs(bountyBoard.bounties) do
 				if bountyData then
 					local questName = QuestUtils_GetQuestName(bountyData.questID)
 					local icon = util.CreateInlineIcon(bountyData.icon);
-					if (garrTypeID == util.expansion.data.Shadowlands.garrisonTypeID) then
+					local isIconString = true;
+					if isForShadowlands then
 						-- REF.: <FrameXML/TextureUtil.lua>
 						-- REF.: CreateTextureMarkup(file, fileWidth, fileHeight, width, height, left, right, top, bottom, xOffset, yOffset)
 						icon = CreateTextureMarkup(bountyData.icon, 256, 256, 16, 16, 0.28, 0.74, 0.26, 0.72, 1, -1);
 					end
 					if bountyData.turninRequirementText then
 						-- REF.: <FrameXML/WorldMapBountyBoard.lua>
-						local bountyString = GRAY_FONT_COLOR:WrapTextInColorCode("%s %s"):format(icon, questName)
-						tooltipText = tooltipText.."|n"..bountyString
+						tooltipText = TooltipText_AddIconLine(tooltipText, questName, icon, DISABLED_FONT_COLOR, isIconString);
 						if ns.settings.showBountyRequirements then
-							tooltipText = tooltipText.."|n"..util.CreateInlineIcon(3083385);  --> dash icon texture
-							tooltipText = tooltipText.." "..RED_FONT_COLOR:WrapTextInColorCode(bountyData.turninRequirementText)
+							tooltipText = TooltipText_AddObjectiveLine(tooltipText, bountyData.turninRequirementText, WARNING_FONT_COLOR);
 						end
 					else
-						local bountyString = WHITE_FONT_COLOR:WrapTextInColorCode("%s %s"):format(icon, questName);
-						tooltipText = tooltipText.."|n"..bountyString
+						tooltipText = TooltipText_AddIconLine(tooltipText, questName, icon, nil, isIconString);
 					end
-				else
-					tooltipText = tooltipText.."|n"..bountyBoard.noBountiesMessage
+				-- else
+				-- 	tooltipText = tooltipText.."|n"..bountyBoard.noBountiesMessage
 				end
 			end
 		end
-		-- local color = finished and GRAY_FONT_COLOR or WHITE_FONT_COLOR -- NORMAL_FONT_COLOR
- 		-- local formattedTime, color, secondsRemaining = WorldMap_GetQuestTimeForTooltip(questID)
+	end
 
-		--[[ World map threat infos ]]--
-		if (activeThreats and ns.settings.showWorldmapThreats) then
-			for threatExpansionLevel, threatData in pairs(activeThreats) do
-				-- Add the infos to the corresponding expansions only
-				if (threatExpansionLevel == garrInfo.expansion.ID) then
-					-- Show the header *only once* per expansion
-					local EXPANSION_LEVEL_BFA = 7
-					if (threatExpansionLevel == EXPANSION_LEVEL_BFA) then
-						tooltipText = tooltipText.."|n|n"..WORLD_MAP_THREATS
-					else
-						local zoneName = select(3, SafeUnpack(threatData[1]))
-						tooltipText = tooltipText.."|n|n"..zoneName
-					end
-					for i, threatInfo in ipairs(threatData) do
-						local questID, questName, areaName, timeLeftString = SafeUnpack(threatInfo)
-						tooltipText = tooltipText.."|n"..questName;
-						if (timeLeftString ~= '' and ns.settings.showThreatsTimeRemaining) then
-							tooltipText = tooltipText.."|n"..util.CreateInlineIcon(3083385);  --> dash icon texture
-							tooltipText = tooltipText..timeLeftString;
-						end
+	----- World map threats (Battle for Azeroth + Shadowlands) -----
+
+	if (activeThreats and TableHasAnyEntries(activeThreats) and ShouldShowActiveThreatsText(garrTypeID)) then
+		for threatExpansionLevel, threatData in pairs(activeThreats) do
+			-- Add the infos only to the corresponding expansion
+			if (threatExpansionLevel == garrInfo.expansion.ID) then
+				-- Show the header *only once* per expansion
+				local isBfAThreat = threatExpansionLevel == util.expansion.data.BattleForAzeroth.ID;
+				local isShadowlandsThreat = threatExpansionLevel == util.expansion.data.Shadowlands.ID;
+				if isBfAThreat then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAThreatNzoth);
+				elseif isShadowlandsThreat then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showMawThreats);
+				else
+					local zoneName = threatData[1].mapInfo.name;
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, zoneName);
+				end
+				for i, threatInfo in ipairs(threatData) do
+					local subCategoryID = isBfAThreat and threatInfo.mapInfo.mapID;
+					local threatColor = util.threats.GetExpansionThreatColor(
+						threatExpansionLevel,
+						isShadowlandsThreat and threatInfo.questID or subCategoryID
+					);
+					local fontColor = ns.settings.applyBfAFactionColors and threatColor or nil;
+					tooltipText = TooltipText_AddIconLine(tooltipText, threatInfo.questName, threatInfo.atlasName, fontColor);
+					--> TODO - Add major-minor assault type icon for N'Zoth Assaults
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, threatInfo.mapInfo.name);
+					if (threatInfo.timeLeftString and ns.settings.showThreatsTimeRemaining) then
+						tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, threatInfo.timeLeftString);
 					end
 				end
 			end
 		end
 	end
 
-	--[[ Dragonflight ]]--
+	----- Warlords of Draenor -----
 
-	if (garrTypeID == util.expansion.data.Dragonflight.garrisonTypeID) then
-		if ns.settings.showMajorFactionRenownLevel then
-			-- Add major factions renown level details
-			tooltipText = tooltipText.."|n|n"..MAJOR_FACTION_LIST_TITLE.." "..PARENS_TEMPLATE:format(LANDING_PAGE_RENOWN_LABEL);
-			tooltipText = AddDragonFlightFactionsRenownDetailsText(tooltipText);
+	-- Garrison Invasion
+	if (isForWarlordsOfDraenor and ns.settings.showWoDGarrisonInvasionAlert and util.garrison.IsDraenorInvasionAvailable()) then
+		tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showWoDGarrisonInvasionAlert);
+		tooltipText = TooltipText_AddIconLine(tooltipText, GARRISON_LANDING_INVASION_ALERT, "worldquest-tracker-questmarker", WARNING_FONT_COLOR);
+		tooltipText = TooltipText_AddTextLine(tooltipText, GARRISON_LANDING_INVASION_TOOLTIP);
+	end
+
+	----- Legion -----
+
+	if (isForLegion and ns.settings.showLegionWorldMapEvents) then
+		-- tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showLegionWorldMapEvents);
+		-- Legion Invasion
+		local fontColor = ns.settings.applyInvasionColors and INVASION_FONT_COLOR or nil;  --> defaults to white
+		if ns.settings.showLegionAssaultsInfo then
+			local legionAssaultsAreaPoiInfo = util.poi.GetLegionAssaultsInfo();
+			if legionAssaultsAreaPoiInfo then
+				tooltipText = TooltipText_AddHeaderLine(tooltipText, legionAssaultsAreaPoiInfo.name);  -- ns.label.showLegionAssaultsInfo
+				tooltipText = TooltipText_AddIconLine(tooltipText, legionAssaultsAreaPoiInfo.parentMapInfo.name, legionAssaultsAreaPoiInfo.atlasName, fontColor);
+				tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, legionAssaultsAreaPoiInfo.timeString);
+				tooltipText = TooltipText_AddObjectiveLine(tooltipText, legionAssaultsAreaPoiInfo.description);
+			end
 		end
+		-- Demon Invasions (Broken Shores)
+		if ns.settings.showBrokenShoreInvasionInfo then
+			local demonAreaPoiInfos = util.poi.GetBrokenShoreInvasionInfo();
+			if TableHasAnyEntries(demonAreaPoiInfos) then
+				tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBrokenShoreInvasionInfo);
+				for _, demonPoi in ipairs(demonAreaPoiInfos) do
+					tooltipText = TooltipText_AddIconLine(tooltipText, demonPoi.name, demonPoi.atlasName, fontColor);
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, demonPoi.timeString);
+				end
+			end
+		end
+		-- Invasion Points (Argus)
+		if ns.settings.showArgusInvasionInfo then
+			local riftAreaPoiInfos = util.poi.GetArgusInvasionPointsInfo();
+			if TableHasAnyEntries(riftAreaPoiInfos) then
+				tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showArgusInvasionInfo);
+				for _, riftPoi in ipairs(riftAreaPoiInfos) do
+					tooltipText = TooltipText_AddIconLine(tooltipText, riftPoi.description, riftPoi.atlasName, fontColor);
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, riftPoi.mapInfo.name);
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, riftPoi.timeString);
+				end
+			end
+		end
+	end
 
+	----- Battle for Azeroth -----
+
+	if (isForBattleForAzeroth and ns.settings.showBfAWorldMapEvents and ns.settings.showBfAFactionAssaultsInfo) then
+		-- tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAWorldMapEvents);
+		-- Faction Assaults
+		local factionAssaultsAreaPoiInfo = util.poi.GetBfAFactionAssaultsInfo();
+		if factionAssaultsAreaPoiInfo then
+			--> TODO - Add faction font color
+			tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAFactionAssaultsInfo);  -- factionAssaultsAreaPoiInfo.name);
+			tooltipText = TooltipText_AddIconLine(tooltipText, factionAssaultsAreaPoiInfo.parentMapInfo.name, factionAssaultsAreaPoiInfo.atlasName);
+			tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, factionAssaultsAreaPoiInfo.timeString);
+			tooltipText = TooltipText_AddObjectiveLine(tooltipText, factionAssaultsAreaPoiInfo.description);
+		end
+	end
+
+	----- Dragonflight -----
+
+	if isForDragonflight then
+		-- Major Factions renown level and progress
+		if ns.settings.showMajorFactionRenownLevel then
+			tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showMajorFactionRenownLevel);
+			tooltipText = AddTooltipDragonFlightFactionsRenownText(tooltipText);
+		end
+		-- Dragon Glyphs
 		if ns.settings.showDragonGlyphs then
-			-- Add dragon riding details
-			tooltipText = tooltipText.."|n|n"..GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE;
-			if util.garrison.IsDragonRidingUnlocked() then
-				tooltipText = AddDragonGlyphsDetailsText(tooltipText);
+			tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showDragonGlyphs);
+			if util.garrison.IsDragonridingUnlocked() then
+				tooltipText = AddTooltipDragonGlyphsText(tooltipText);
 			else
 				-- Not unlocked, yet :(
-				local dragonIconDisabled = util.CreateInlineIcon("dragonriding-barbershop-icon-category-head", 20, 20, -3);
+				local dragonIconDisabled = util.CreateInlineIcon("dragonriding-barbershop-icon-category-head", 20, 20, -2);
 				local disabledInfoText = DISABLED_FONT_COLOR:WrapTextInColorCode(LANDING_DRAGONRIDING_TREE_BUTTON_DISABLED);
 				tooltipText = tooltipText.."|n"..dragonIconDisabled..disabledInfoText;
 			end
+		end
+		----- World Map Events -----
+		if ns.settings.showDragonflightWorldMapEvents then
+			-- tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showDragonflightWorldMapEvents);
+			-- Dragonriding Race
+			if ns.settings.showDragonridingRaceInfo then
+				local raceAreaPoiInfo = util.poi.GetDragonridingRaceInfo();
+				if raceAreaPoiInfo then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showDragonridingRaceInfo);
+					tooltipText = TooltipText_AddIconLine(tooltipText, raceAreaPoiInfo.name, raceAreaPoiInfo.atlasName);
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, raceAreaPoiInfo.timeString);
+				end
+			end
+			-- Camp Aylaag
+			if ns.settings.showCampAylaagInfo then
+				local campAreaPoiInfo = util.poi.GetCampAylaagInfo();
+				if campAreaPoiInfo then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, campAreaPoiInfo.name);  -- ns.label.showCampAylaagInfo
+					tooltipText = TooltipText_AddIconLine(tooltipText, campAreaPoiInfo.mapInfo.name, campAreaPoiInfo.atlasName);
+					if campAreaPoiInfo.timeString then
+						tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, campAreaPoiInfo.timeString);
+					else
+						tooltipText = TooltipText_AddObjectiveLine(tooltipText, campAreaPoiInfo.description);
+					end
+				end
+			end
+			-- Grand Hunts
+			if ns.settings.showGrandHuntsInfo then
+				local huntsAreaPoiInfo = util.poi.GetGrandHuntsInfo();
+				if huntsAreaPoiInfo then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, huntsAreaPoiInfo.name);  -- ns.label.showGrandHuntsInfo
+					tooltipText = TooltipText_AddIconLine(tooltipText, huntsAreaPoiInfo.mapInfo.name, huntsAreaPoiInfo.atlasName);
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, huntsAreaPoiInfo.timeString);
+				end
+			end
+			-- Iskaara Community Feast
+			if ns.settings.showCommunityFeastInfo then
+				local feastAreaPoiInfo = util.poi.GetCommunityFeastInfo();
+				if feastAreaPoiInfo then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, feastAreaPoiInfo.name);  -- ns.label.showCommunityFeastInfo
+					tooltipText = TooltipText_AddIconLine(tooltipText, feastAreaPoiInfo.mapInfo.name, feastAreaPoiInfo.atlasName);
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, feastAreaPoiInfo.timeString);
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, feastAreaPoiInfo.description);
+				end
+			end
+			-- Siege on Dragonbane Keep
+			if ns.settings.showDragonbaneKeepInfo then
+				local siegeAreaPoiInfo = util.poi.GetDragonbaneKeepInfo();
+				if siegeAreaPoiInfo then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, siegeAreaPoiInfo.name);  -- ns.label.showDragonbaneKeepInfo
+					tooltipText = TooltipText_AddIconLine(tooltipText, siegeAreaPoiInfo.mapInfo.name, siegeAreaPoiInfo.atlasName);
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, siegeAreaPoiInfo.timeString);
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, siegeAreaPoiInfo.description);
+				end
+			end
+			-- Elemental Storms
+			if ns.settings.showElementalStormsInfo then
+				local stormsAreaPoiInfos = util.poi.GetElementalStormsInfo();
+				if TableHasAnyEntries(stormsAreaPoiInfos) then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showElementalStormsInfo);  -- stormsAreaPoiInfos[1].name);
+					for _, stormPoi in ipairs(stormsAreaPoiInfos) do
+						tooltipText = TooltipText_AddIconLine(tooltipText, stormPoi.mapInfo.name, stormPoi.atlasName);
+						tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, stormPoi.timeString);
+					end
+				end
+			end
+		end
+	end
+
+	----- Timewalking Vendor (currently Draenor + Legion only) -----
+
+	if (util.calendar.IsDayEventActive(util.calendar.TIMEWALKING_EVENT_ID_DRAENOR) or
+		util.calendar.IsDayEventActive(util.calendar.TIMEWALKING_EVENT_ID_LEGION)) then
+		if ShouldShowTimewalkingVendorText(garrTypeID) then
+			local vendorAreaPoiResults = util.poi.FindTimewalkingVendor(garrInfo);
+			if TableHasAnyEntries(vendorAreaPoiResults) then
+				tooltipText = TooltipText_AddHeaderLine(tooltipText, vendorAreaPoiResults[1].name);
+				for _, vendorAreaPoiInfo in ipairs(vendorAreaPoiResults) do
+					tooltipText = TooltipText_AddIconLine(tooltipText, vendorAreaPoiInfo.mapInfo.name, vendorAreaPoiInfo.atlasName);
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, vendorAreaPoiInfo.timeString, WHITE_FONT_COLOR);
+				end
+			end
+		end
+	end
+
+	----- Tests -----
+
+	if (_log.DEVMODE) then  -- and not isForLegion) then
+		tooltipText = tooltipText.."|n|n"..DIM_GREEN_FONT_COLOR:WrapTextInColorCode(EVENTS_LABEL);
+		for _, mapID in ipairs(garrInfo.continents) do
+			local poiInfos = util.map.GetAreaPOIInfoForContinent(mapID);
+			tooltipText = AddMultiPOITestText(poiInfos, tooltipText);
+		end
+		if garrInfo.poiZones then
+			local zonePoiInfos = util.map.GetAreaPOIInfoForZones(garrInfo.poiZones);
+			tooltipText = AddMultiPOITestText(zonePoiInfos, tooltipText);
 		end
 	end
 
@@ -895,7 +1205,7 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 	local sortFunc = ns.settings.reverseSortorder and util.expansion.SortAscending or util.expansion.SortDescending;
 	local expansionList = util.expansion.GetExpansionsWithLandingPage(sortFunc);
 	local filename, width, height, txLeft, txRight, txTop, txBottom;  --> needed for not showing mission type icons
-	local activeThreats = util.map.GetActiveThreats();
+	local activeThreats = util.threats.GetActiveThreats();
 
 	for _, expansion in ipairs(expansionList) do
 		local garrTypeID = expansion.garrisonTypeID;
@@ -987,7 +1297,7 @@ function MRBP:ShowMinimapButton(isCalledByUser)
 					-- Manually set by user
 					ns.settings.showMinimapButton = true
 					_log:debug("--> Minimap button should be visible. (user)")
-					ns.settings.disableShowMinimapButtonSetting = false
+					-- ns.settings.disableShowMinimapButtonSetting = false
 				else
 					-- Give user feedback, if button is already visible
 					ns.cprint(L.CHATMSG_MINIMAPBUTTON_ALREADY_SHOWN)
@@ -998,7 +1308,7 @@ function MRBP:ShowMinimapButton(isCalledByUser)
 					ExpansionLandingPageMinimapButton:UpdateIcon(ExpansionLandingPageMinimapButton)
 					ExpansionLandingPageMinimapButton:Show()
 					_log:debug("--> Minimap button should be visible. (event)")
-					ns.settings.disableShowMinimapButtonSetting = false
+					-- ns.settings.disableShowMinimapButtonSetting = false
 				end
 			end
 		end
@@ -1021,7 +1331,7 @@ function MRBP:ShowMinimapButton_User(isCalledByCancelFunc)
 		-- Do nothing, as long as user hasn't unlocked any of the command tables available
 		-- Inform user about this, and disable checkbutton in config.
 		ns.cprint(L.CHATMSG_UNLOCKED_COMMANDTABLES_REQUIRED)
-		ns.settings.disableShowMinimapButtonSetting = true
+		-- ns.settings.disableShowMinimapButtonSetting = true
 	else
 		local isCalledByUser = not isCalledByCancelFunc
 		MRBP:ShowMinimapButton(isCalledByUser)
@@ -1029,7 +1339,7 @@ function MRBP:ShowMinimapButton_User(isCalledByCancelFunc)
 end
 ns.ShowMinimapButton_User = MRBP.ShowMinimapButton_User
 
------[[ Hooks ]]----------------------------------------------------------------
+----- Hooks --------------------------------------------------------------------
 
 -- Hook the functions related to the landing page's minimap button
 -- and frame (mission report frame).
@@ -1056,22 +1366,23 @@ end
 -- REF.: <FrameXML/Minimap.xml>
 -- REF.: <FrameXML/SharedTooltipTemplates.lua>
 function MRBP_OnEnter(self)
-	GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-	GameTooltip:SetText(self.title, 1, 1, 1)
-	GameTooltip:AddLine(self.description, nil, nil, nil, true)
+	GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+	GameTooltip:SetText(self.title, 1, 1, 1);
+	GameTooltip:AddLine(self.description, nil, nil, nil, true);
 
-	local tooltipAddonText = L.TOOLTIP_CLICKTEXT_MINIMAPBUTTON
+	local tooltipAddonText = L.TOOLTIP_CLICKTEXT_MINIMAPBUTTON;
 	if ns.settings.showAddonNameInTooltip then
-		tooltipAddonText = GRAY_FONT_COLOR:WrapTextInColorCode(ns.AddonTitleShort..ns.AddonTitleSeparator).." "..tooltipAddonText
+		local addonAbbreviation = ns.AddonTitleShort..ns.AddonTitleSeparator;
+		tooltipAddonText = GRAY_FONT_COLOR:WrapTextInColorCode(addonAbbreviation).." "..tooltipAddonText;
 	end
-	local currentDateTime = C_DateAndTime.GetCurrentCalendarTime()
-	if (currentDateTime.month == 12) then
-		-- Show a Xmas Easter egg on December after the minimap tooltip text
-		tooltipAddonText = tooltipAddonText.." "..util.CreateInlineIcon("Front-Tree-Icon");
+	if util.calendar.IsDayEventActive(util.calendar.WINTER_HOLIDAY_EVENT_ID) then
+		-- Show an icon after the minimap tooltip text during the winter holiday event
+		local eventIcon = util.calendar.WINTER_HOLIDAY_ATLAS_NAME;
+		tooltipAddonText = tooltipAddonText.." "..util.CreateInlineIcon1(eventIcon);
 	end
-	GameTooltip_AddNormalLine(GameTooltip, tooltipAddonText)
+	GameTooltip_AddNormalLine(GameTooltip, tooltipAddonText);
 
-	GameTooltip:Show()
+	GameTooltip:Show();
 end
 
 -- Handle click behavior of the minimap button.
@@ -1165,11 +1476,11 @@ end
 MRBP_GetLandingPageGarrisonType_orig = C_Garrison.GetLandingPageGarrisonType
 C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType
 
------[[ Slash commands ]]-------------------------------------------------------
+----- Slash commands -----------------------------------------------------------
 
 local SLASH_CMD_ARGLIST = {
 	-- arg, description
-	{"version", L.SLASHCMD_DESC_VERSION},
+	-- {"version", L.SLASHCMD_DESC_VERSION},
 	{"chatmsg", L.SLASHCMD_DESC_CHATMSG},
 	{"show", L.SLASHCMD_DESC_SHOW},
 	{"hide", L.SLASHCMD_DESC_HIDE},
@@ -1216,7 +1527,7 @@ function MRBP:RegisterSlashCommands()
 				-- Manually set by user
 				ns.settings.showMinimapButton = false
 
-			-----[[ Tests ]]-----
+			----- Tests -----
 			elseif (msg == 'garrtest') then
 				local prev_loglvl = _log.level
 				_log:info("Current GarrisonType:", MRBP_GetLandingPageGarrisonType())

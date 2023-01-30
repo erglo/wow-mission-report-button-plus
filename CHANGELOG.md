@@ -1,8 +1,38 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project will be documented in this file (or linked to this file).
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+
+- Added `Timewalking Vendor` availability hint for Draenor and Legion.
+- Added unified labels for tooltip and settings category groups.
+- Added faction colors for world map threats and assaults.
+- Dragonflight: added `Elemental Storms` details.
+- Dragonflight: added `Siege on Dragonbane Keep` details.
+- Dragonflight: added `Iskaara Community Feast` details.
+- Dragonflight: added `Clan Aylaag` details.
+- Dragonflight: added `Dragonriding Race` details.
+- Dragonflight: added `Grand Hunts` details.
+- Battle for Azeroth: added `Faction Assaults` details.
+- Legion: added `Invasion Rifts` details from Argus.
+- Legion: added `Demon Invasion` details from Broken Shore.
+- Legion: added `Legion Assaults` details to tooltip and settings.
+- Warlords of Draenor: added `Garrison Invasion alert` to tooltip and settings.
+
+### Changed
+
+- Updated the TOC file's interface version.
+- Separated and regrouped settings for each expansion.
+- The time remaining string in tooltips has been shortened. It shows now a clock icon instead of a preceding text.
+- Extended calendar specials, including a cache.
+
+### Removed
+
+- Slash command for `version` info is not needed anymore.
 
 ## [0.9.0+100002] - 2022-12-27
 
@@ -34,27 +64,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
 - Removed `.SetCommitFlags` from settings. Usage seems to be reserved for Blizzard only.
 - Updated settings and its 'About this Add-on' section.
 
-## [0.7.2+100002] - 2022-11-25
-
-### Added
-
-- Dracthyr Evoker support
-
-### Fixed
-
-- Minimap button appeared for newly created Evoker even though nothing was unlocked yet.
-- Minimap button did not appear with the last available expansion while the most current command table hasn't been unlocked.
-
-### Changed
-
-- Updated settings and the about section.
-- Reworked the expansion info handler in the utilities file for easier handling of expansion related data and better backwards compatibility.
-- Switched to [Semantic Versioning](https://semver.org) based on the format on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
-
 ----
 
 ## Previous Versions
 
+🏷️ [v0.7.2](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4110896) - WoW 10.0.2 (retail)  
 🏷️ [v2022.11.20 (beta)](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4099565) - WoW 10.0.2 (retail)  
 🏷️ [v2022.11.18 (beta)](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4095108) - WoW 10.0.2 (retail)  
 🏷️ [v2022.08.31 (beta)](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/3960563) - WoW 9.2.7 (retail)  

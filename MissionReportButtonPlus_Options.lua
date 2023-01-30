@@ -40,28 +40,64 @@ local util = ns.utilities;
 
 ns.settings = {};  --> user settings for currently active game session
 ns.defaultSettings = {  --> default + fallback settings
+	-- Common
 	["showChatNotifications"] = true,
 	["showMinimapButton"] = true,
 	["showAddonNameInTooltip"] = true,
+	-- Dropdown menu
+	["showEntryTooltip"] = true,
 	["preferExpansionName"] = true,
 	["reverseSortorder"] = false,
 	["showMissionTypeIcons"] = true,
 	["showMissionCompletedHint"] = true,
 	["showMissionCompletedHintOnlyForAll"] = false,
-	["showEntryTooltip"] = true,
-	["showMissionCountInTooltip"] = true,
-	["showWorldmapBounties"] = true,
+	["menuStyleID"] = "1",
+	-- Menu entries
+	["activeMenuEntries"] = {"5", "6", "7", "8", "9"},
+	-- Menu entries tooltip
 	["showBountyRequirements"] = true,
-	["showWorldmapThreats"] = true,
 	["showThreatsTimeRemaining"] = true,
 	["showEntryRequirements"] = true,
-	["activeMenuEntries"] = {"5", "6", "7", "8", "99"},
-	["menuStyleID"] = "1",
-	["disableShowMinimapButtonSetting"] = false,   --> temp. solution for beta2
+	-- Dragonflight
 	["showMajorFactionRenownLevel"] = true,
-	["showMajorFactionColors"] = false,
+	["applyMajorFactionColors"] = false,
+	["hideMajorFactionUnlockDescription"] = false,
 	["showDragonGlyphs"] = true,
-	["autoHideDragonGlyphs"] = false,
+	["autoHideCompletedDragonGlyphZones"] = false,
+	["showDragonflightWorldMapEvents"] = true,
+	["showDragonridingRaceInfo"] = true,
+	["showGrandHuntsInfo"] = true,
+	["showCampAylaagInfo"] = true,
+	["showCommunityFeastInfo"] = true,
+	["showDragonbaneKeepInfo"] = true,
+	["showElementalStormsInfo"] = true,
+	-- Shadowlands
+	["showCovenantMissionInfo"] = true,
+	["showCovenantBounties"] = true,
+	["showMawThreats"] = true,
+	-- Battle for Azeroth
+	["showBfAMissionInfo"] = true,
+	["showBfABounties"] = true,
+	["showBfAThreatNzoth"] = true,
+	["showBfAFactionAssaultsInfo"] = true,
+	["showBfAWorldMapEvents"] = true,
+	["applyBfAFactionColors"] = true,
+	-- Legion
+	["showLegionMissionInfo"] = true,
+	["showLegionBounties"] = true,
+	["showLegionWorldMapEvents"] = true,
+	["showLegionAssaultsInfo"] = true,
+	["showBrokenShoreInvasionInfo"] = true,
+	["showArgusInvasionInfo"] = true,
+	["applyInvasionColors"] = false,
+	["showLegionTimewalkingVendor"] = true,
+	-- Warlords of Draenor
+	["showWoDMissionInfo"] = true,
+	["showWoDGarrisonInvasionAlert"] = true,
+	["showWoDWorldMapEvents"] = true,
+	["showWoDTimewalkingVendor"] = true,
+	-- Tests
+	-- ["disableShowMinimapButtonSetting"] = false,   --> temp. solution for beta2
 };
 
 ---Loads the saved variables for the current game character.
@@ -327,7 +363,7 @@ function MRBP_Settings_Register()
 	LoadSettings();
 	--> TODO - Check need for 'ns.settings'; is maybe .GetVariableValue() better?
 
-	-----[[ General settings ]]-------------------------------------------------
+	------- General settings ---------------------------------------------------
 
 	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(GENERAL_SUBHEADER));  --> WoW global string
 
@@ -361,7 +397,7 @@ function MRBP_Settings_Register()
 
 	CheckBox_CreateFromList(category, checkBoxList_CommonSettings);
 
-	-----[[ Dropdown menu settings ]]-------------------------------------------
+	------- Dropdown menu settings ---------------------------------------------
 
 	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_SEPARATOR_HEADING));
 
@@ -401,7 +437,7 @@ function MRBP_Settings_Register()
 
 	CheckBox_CreateFromList(category, checkBoxList_DropDownMenuSettings);
 
-	-----[[ Menu style selection ]]---------------------------------------------
+	------- Menu style selection -----------------------------------------------
 
 	local styleMenu = {
 		name = L.CFG_DDMENU_STYLESELECTION_LABEL,
@@ -439,7 +475,7 @@ function MRBP_Settings_Register()
 	-- Keep track of value changes
 	Settings.SetOnValueChangedCallback(styleMenu.variable, styleMenu.OnValueChanged, styleMenuSetting);
 
-	-----[[ Menu entries selection ]]-------------------------------------------
+	------- Menu entries selection ---------------------------------------------
 
 	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYSELECTION_LABEL));
 
@@ -518,7 +554,9 @@ function MRBP_Settings_Register()
 	local unCheckAllInitializer = CreateSettingsButtonInitializer('', UNCHECK_ALL, OnUncheckAll);  --> WoW global string
 	layout:AddInitializer(unCheckAllInitializer);
 
-	-----[[ Menu entries' (details) tooltip settings ]]-------------------------
+	------- Menu entries tooltip settings --------------------------------------
+
+	local entryTooltipSubcategoryLabel = GRAY_FONT_COLOR:WrapTextInColorCode(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL..HEADER_COLON.." ");
 
 	local function ShouldShowEntryTooltip()
 		return ns.settings.showEntryTooltip;
@@ -527,37 +565,22 @@ function MRBP_Settings_Register()
 	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
 
 	local checkBoxList_EntryTooltipSettings = {
-		{
-			variable = "showMissionCountInTooltip",
-			name = L.CFG_DDMENU_ENTRYTOOLTIP_INPROGRESS_TEXT,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_INPROGRESS_TOOLTIP,
-			modifyPredicate = ShouldShowEntryTooltip,
-		},
-		{
-			variable = "showWorldmapBounties",
-			name = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTIES_TEXT,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTIES_TOOLTIP,
-			modifyPredicate = ShouldShowEntryTooltip,
-		},
+		-- {
+		-- 	variable = "showMissionCountInTooltip",
+		-- 	name = L.CFG_DDMENU_ENTRYTOOLTIP_INPROGRESS_TEXT,
+		-- 	tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_INPROGRESS_TOOLTIP,
+		-- 	modifyPredicate = ShouldShowEntryTooltip,
+		-- },
 		{
 			variable = "showBountyRequirements",
-			name = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTYREQUIREMENTS_TEXT,
+			name = "Bounties: "..L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTYREQUIREMENTS_TEXT,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTYREQUIREMENTS_TOOLTIP,
-			parentVariable = "showWorldmapBounties",
-			modifyPredicate = ShouldShowEntryTooltip,
-		},
-		{
-			variable = "showWorldmapThreats",
-			name = L.CFG_DDMENU_ENTRYTOOLTIP_THREATS_TEXT,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_THREATS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showThreatsTimeRemaining",
-			name = L.CFG_DDMENU_ENTRYTOOLTIP_THREATS_TIMELEFT_TEXT,
+			name = "Threats: "..L.CFG_DDMENU_ENTRYTOOLTIP_THREATS_TIMELEFT_TEXT,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_THREATS_TIMELEFT_TOOLTIP,
-			parentVariable = "showWorldmapThreats",
-			tag = Settings.Default.True,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
@@ -570,38 +593,270 @@ function MRBP_Settings_Register()
 
 	CheckBox_CreateFromList(category, checkBoxList_EntryTooltipSettings);
 
-	-----[[ Tooltip settings - Dragonflight ]]----------------------------------
+	------- Tooltip settings - Warlords of Draenor -----------------------------
+
+	local expansionName_WarlordsOfDraenor = util.expansion.data.WarlordsOfDraenor.name;
+	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(entryTooltipSubcategoryLabel..expansionName_WarlordsOfDraenor));
+
+	local checkBoxList_WoDEntryTooltipSettings = {
+		{
+			variable = "showWoDMissionInfo",									--> TODO - L10n
+			name = ns.label.showWoDMissionInfo,
+			tooltip = "Displays brief summary of your currently active missions you started at the mission table.",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showWoDGarrisonInvasionAlert",
+			name = ns.label.showWoDGarrisonInvasionAlert,
+			tooltip = "Shows an alert if currently an invasion in your Garrison is active.",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
+		},
+		{
+			variable = "showWoDWorldMapEvents",
+			name = ns.label.showWoDWorldMapEvents,
+			tooltip = "Scans the World Map for current events and displays brief availability details.",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
+		},
+		{
+			variable = "showWoDTimewalkingVendor",
+			name = ns.label.showWoDTimewalkingVendor,
+			tooltip = "Displays brief details about the whereabouts of the vendor during Timewalking events.",
+			parentVariable = "showWoDWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+	};
+
+	CheckBox_CreateFromList(category, checkBoxList_WoDEntryTooltipSettings);
+
+	------- Tooltip settings - Legion ------------------------------------------
+
+	local expansionName_Legion = util.expansion.data.Legion.name;
+	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(entryTooltipSubcategoryLabel..expansionName_Legion));
+
+	local checkBoxList_LegionEntryTooltipSettings = {
+		{
+			variable = "showLegionMissionInfo",								--> TODO - L10n
+			name = ns.label.showLegionMissionInfo,
+			tooltip = "Displays brief summary of your currently active missions you started at the mission table.",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showLegionBounties",
+			name = ns.label.showLegionBounties,
+			tooltip = "Listet die verfügbaren Abgesandtenquests der Verheerten Inseln und Argus auf.",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showLegionWorldMapEvents",
+			name = ns.label.showLegionWorldMapEvents,
+			tooltip = "Scans the World Map for current events and displays brief availability details.",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
+		},
+		{
+			variable = "showLegionAssaultsInfo",
+			name = ns.label.showLegionAssaultsInfo,
+			tooltip = "Displays brief availability details about the Legion Invasions on the Broken Isles.",
+			parentVariable = "showLegionWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showBrokenShoreInvasionInfo",
+			name = ns.label.showBrokenShoreInvasionInfo,
+			tooltip = "Displays brief availability details about the Demon Invasions on the Broken Shores.",
+			parentVariable = "showLegionWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showArgusInvasionInfo",
+			name = ns.label.showArgusInvasionInfo,
+			tooltip = "Displays brief availability details about the Invasion Points on Argus.",
+			parentVariable = "showLegionWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "applyInvasionColors",
+			name = ns.label.applyInvasionColors,
+			tooltip = "Display the invasion names in a light green color.",
+			parentVariable = "showLegionWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showLegionTimewalkingVendor",
+			name = ns.label.showLegionTimewalkingVendor,
+			tooltip = "Displays brief details about the whereabouts of the vendor during Timewalking events.",
+			parentVariable = "showLegionWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+	};
+
+	CheckBox_CreateFromList(category, checkBoxList_LegionEntryTooltipSettings);
+
+	------- Tooltip settings - Battle for Azeroth ------------------------------
+
+	local expansionName_BattleForAzeroth = util.expansion.data.BattleForAzeroth.name;
+	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(entryTooltipSubcategoryLabel..expansionName_BattleForAzeroth));
+
+	local checkBoxList_BfAEntryTooltipSettings = {
+		{
+			variable = "showBfAMissionInfo",									--> TODO - L10n
+			name = ns.label.showBfAMissionInfo,
+			tooltip = "Displays brief summary of your currently active missions you started at the mission table.",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showBfABounties",
+			name = ns.label.showBfABounties,
+			tooltip = "Listet die verfügbaren Abgesandtenquests von Zandalar und Kul'Tiras auf.",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showBfAThreatNzoth",
+			name = ns.label.showBfAThreatNzoth,
+			tooltip = "Shows currently active world threats with brief availability details.",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showBfAWorldMapEvents",
+			name = ns.label.showBfAWorldMapEvents,
+			tooltip = "Scans the World Map for current events and displays brief availability details.",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
+		},
+		{
+			variable = "showBfAFactionAssaultsInfo",
+			name = ns.label.showBfAFactionAssaultsInfo,
+			tooltip = "Displays brief availability details about the Faction Assaults on Zandalar and Kul'Tiras.",
+			parentVariable = "showBfAWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "applyBfAFactionColors",
+			name = ns.label.applyBfAFactionColors,
+			tooltip = "Displays all assault names in the colors of their respective faction.",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
+		},
+	};
+
+	CheckBox_CreateFromList(category, checkBoxList_BfAEntryTooltipSettings);
+
+	------- Tooltip settings - Shadowlands -------------------------------------
+
+	local expansionName_Shadowlands = util.expansion.data.Shadowlands.name;
+	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(entryTooltipSubcategoryLabel..expansionName_Shadowlands));
+
+	local checkBoxList_SLEntryTooltipSettings = {
+		{
+			variable = "showCovenantMissionInfo",								--> TODO - L10n
+			name = ns.label.showCovenantMissionInfo,
+			tooltip = "Displays brief summary of your currently active missions you started at the mission table.",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showCovenantBounties",
+			name = ns.label.showCovenantBounties,
+			tooltip = "Listet die verfügbaren Paktberufungen der Schattenlande auf.",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showMawThreats",
+			name = ns.label.showMawThreats,
+			tooltip = "Shows currently active world threats with brief availability details.",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+	};
+
+	CheckBox_CreateFromList(category, checkBoxList_SLEntryTooltipSettings);
+
+	------- Tooltip settings - Dragonflight ------------------------------------
 
 	local dfName = util.expansion.data.Dragonflight.name;
-	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL..HEADER_COLON.." "..dfName));
+	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(entryTooltipSubcategoryLabel..dfName));
 
 	local checkBoxList_dfEntryTooltipSettings = {
 		{
 			variable = "showMajorFactionRenownLevel",
-			name = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_MF_RENOWN_LEVEL_TEXT,
+			name = ns.label.showMajorFactionRenownLevel,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_MF_RENOWN_LEVEL_TOOLTIP,
-			tag = Settings.Default.True,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
-			variable = "showMajorFactionColors",
-			name = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_MF_COLORS_TEXT,
+			variable = "applyMajorFactionColors",
+			name = ns.label.applyMajorFactionColors,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_MF_COLORS_TOOLTIP,
 			parentVariable = "showMajorFactionRenownLevel",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
-			variable = "showDragonGlyphs",
-			name = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_DRAGON_GLYPHS_TEXT,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_DRAGON_GLYPHS_TOOLTIP,
-			tag = Settings.Default.True,
+			variable = "hideMajorFactionUnlockDescription",						--> TODO - L10n
+			name = ns.label.hideMajorFactionUnlockDescription,
+			tooltip = "If enabled, the text which describes how to unlock a major faction will be hidden.",
+			parentVariable = "showMajorFactionRenownLevel",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
-			variable = "autoHideDragonGlyphs",
-			name = L.CFG_DDMENU_ENTRYTOOLTIP_HIDE_DRAGON_GLYPHS_TEXT,
+			variable = "showDragonGlyphs",
+			name = ns.label.showDragonGlyphs,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_DRAGON_GLYPHS_TOOLTIP,
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "autoHideCompletedDragonGlyphZones",
+			name = ns.label.autoHideCompletedDragonGlyphZones,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_HIDE_DRAGON_GLYPHS_TOOLTIP,
 			parentVariable = "showDragonGlyphs",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showDragonflightWorldMapEvents",						--> TODO - L10n
+			name = ns.label.showDragonflightWorldMapEvents,
+			tooltip = "Scans the World Map for current events and displays brief availability details.",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
+		},
+		{
+			variable = "showDragonridingRaceInfo",
+			name = ns.label.showDragonridingRaceInfo,
+			tooltip = "Displays brief availability details about the multiplayer Dragonriding Race.",
+			parentVariable = "showDragonflightWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showCampAylaagInfo",
+			name = ns.label.showCampAylaagInfo,
+			tooltip = "Displays brief availability details about Camp Aylaag.",
+			parentVariable = "showDragonflightWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showGrandHuntsInfo",
+			name = ns.label.showGrandHuntsInfo,
+			tooltip = "Displays brief availability details about the Grand Hunts.",
+			parentVariable = "showDragonflightWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showCommunityFeastInfo",
+			name = ns.label.showCommunityFeastInfo,
+			tooltip = "Displays brief availability details about the Community Feast of the Iskaara Tuskarr.",
+			parentVariable = "showDragonflightWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showDragonbaneKeepInfo",
+			name = ns.label.showDragonbaneKeepInfo,
+			tooltip = "Displays brief availability details about the Siege on Dragonbane Keep.",
+			parentVariable = "showDragonflightWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showElementalStormsInfo",
+			name = ns.label.showElementalStormsInfo,
+			tooltip = "Displays brief availability details about the Elemental Storms of the Primal Invasions.",
+			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 	};
@@ -609,7 +864,7 @@ function MRBP_Settings_Register()
 	CheckBox_CreateFromList(category, checkBoxList_dfEntryTooltipSettings);
 
 	----------------------------------------------------------------------------
-	-----[[ About this addon ]]-------------------------------------------------
+	------- About this addon ---------------------------------------------------
 	----------------------------------------------------------------------------
 
 	local aboutFrame = CreateFrame("Frame", AddonID.."AboutFrame");
@@ -629,7 +884,7 @@ function MRBP_Settings_Register()
 	sublayout:AddAnchorPoint("TOPLEFT", 10, -10);
 	sublayout:AddAnchorPoint("BOTTOMRIGHT", -10, 10);
 
-	-----[[ Add-on infos ]]-----------------------------------------------------
+	------- Add-on infos -------------------------------------------------------
 
 	local _, addonTitle, addonNotes = GetAddOnInfo(AddonID);
 
@@ -692,7 +947,7 @@ function MRBP_Settings_Register()
 		parentFrame = metaLabel;
 	end
 
-	-----[[ Slash Commands ]]---------------------------------------------------
+	------- Slash Commands -----------------------------------------------------
 
 	local separatorTexture = aboutFrame:CreateTexture(aboutFrame:GetName().."Separator", "ARTWORK");
 	separatorTexture:SetSize(575, 1);
@@ -728,7 +983,7 @@ function MRBP_Settings_Register()
 		slashParent = slashCmdLabel;
 	end
 
-	--[[ Tests ]]--
+	---- Tests ----
 
 	-- layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Tests"));
 
