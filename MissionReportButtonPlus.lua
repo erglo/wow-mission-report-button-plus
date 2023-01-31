@@ -3,7 +3,7 @@
 --
 -- by erglo <erglo.coder+MRBP@gmail.com>
 --
--- Copyright (C) 2022  Erwin D. Glockner (aka erglo)
+-- Copyright (C) 2023  Erwin D. Glockner (aka erglo)
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -1156,13 +1156,11 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 	if (util.calendar.IsDayEventActive(util.calendar.TIMEWALKING_EVENT_ID_DRAENOR) or
 		util.calendar.IsDayEventActive(util.calendar.TIMEWALKING_EVENT_ID_LEGION)) then
 		if ShouldShowTimewalkingVendorText(garrTypeID) then
-			local vendorAreaPoiResults = util.poi.FindTimewalkingVendor(garrInfo);
-			if TableHasAnyEntries(vendorAreaPoiResults) then
-				tooltipText = TooltipText_AddHeaderLine(tooltipText, vendorAreaPoiResults[1].name);
-				for _, vendorAreaPoiInfo in ipairs(vendorAreaPoiResults) do
-					tooltipText = TooltipText_AddIconLine(tooltipText, vendorAreaPoiInfo.mapInfo.name, vendorAreaPoiInfo.atlasName);
-					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, vendorAreaPoiInfo.timeString, WHITE_FONT_COLOR);
-				end
+			local vendorAreaPoiInfo = util.poi.FindTimewalkingVendor(garrInfo);
+			if (vendorAreaPoiInfo and tContains(garrInfo.continents, vendorAreaPoiInfo.mapInfo.parentMapID)) then
+				tooltipText = TooltipText_AddHeaderLine(tooltipText, vendorAreaPoiInfo.name);
+				tooltipText = TooltipText_AddIconLine(tooltipText, vendorAreaPoiInfo.mapInfo.name, vendorAreaPoiInfo.atlasName);
+				tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, vendorAreaPoiInfo.timeString);
 			end
 		end
 	end

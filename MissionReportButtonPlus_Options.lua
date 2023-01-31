@@ -3,7 +3,7 @@
 --
 -- by erglo <erglo.coder+MRBP@gmail.com>
 --
--- Copyright (C) 2022  Erwin D. Glockner (aka ergloCoder)
+-- Copyright (C) 2023  Erwin D. Glockner (aka ergloCoder)
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
