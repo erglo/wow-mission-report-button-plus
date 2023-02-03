@@ -1055,9 +1055,9 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 		-- Faction Assaults
 		local factionAssaultsAreaPoiInfo = util.poi.GetBfAFactionAssaultsInfo();
 		if factionAssaultsAreaPoiInfo then
-			--> TODO - Add faction font color
+			local fontColor = ns.settings.applyBfAFactionColors and factionAssaultsAreaPoiInfo.color or nil;
 			tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAFactionAssaultsInfo);  -- factionAssaultsAreaPoiInfo.name);
-			tooltipText = TooltipText_AddIconLine(tooltipText, factionAssaultsAreaPoiInfo.parentMapInfo.name, factionAssaultsAreaPoiInfo.atlasName);
+			tooltipText = TooltipText_AddIconLine(tooltipText, factionAssaultsAreaPoiInfo.parentMapInfo.name, factionAssaultsAreaPoiInfo.atlasName, fontColor);
 			tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, factionAssaultsAreaPoiInfo.timeString);
 			tooltipText = TooltipText_AddObjectiveLine(tooltipText, factionAssaultsAreaPoiInfo.description);
 		end

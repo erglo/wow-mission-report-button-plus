@@ -790,8 +790,8 @@ LocalThreatUtil.TYPE_COLORS = {
 	-- ["5"] = YELLOW_FONT_COLOR,  --> TODO - Add Garrison Invasions to threat list; currently only as chat info
 	["6"] = INVASION_FONT_COLOR,  --> Legion Invasions
 	["7"] = {
-		["875"] = PLAYER_FACTION_COLORS[1],  --> Zandalar (Alliance Assaults)
-		["876"] = PLAYER_FACTION_COLORS[0],  --> Kul Tiras (Horde Assaults)
+		["AllianceAssaultsMapBanner"] = PLAYER_FACTION_COLORS[1],
+		["HordeAssaultsMapBanner"] = PLAYER_FACTION_COLORS[0],
 		["1527"] = CORRUPTION_COLOR,   --> Uldum (N'Zoth Assaults)
 		["1530"] = CORRUPTION_COLOR,   --> Vale of Eternal Blossoms (N'Zoth Assaults)
 	},
@@ -1137,18 +1137,17 @@ end
 ----- Battle for Azeroth: Faction Assaults -----
 
 local BfAFactionAssaultsData = {};
-BfAFactionAssaultsData.atlasNames = {"AllianceAssaultsMapBanner", "HordeAssaultsMapBanner",};
+BfAFactionAssaultsData.atlasNames = {"AllianceAssaultsMapBanner", "HordeAssaultsMapBanner"};
 BfAFactionAssaultsData.mapInfos = {LocalMapUtil.GetMapInfo(875),  LocalMapUtil.GetMapInfo(876)};  --> Zandalar, Kul Tiras
 BfAFactionAssaultsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
 BfAFactionAssaultsData.ignorePrimaryMapForPOI = true;
+BfAFactionAssaultsData.expansionIDstring = tostring(util.expansion.data.BattleForAzeroth.ID);
 
 function util.poi.GetBfAFactionAssaultsInfo()									--> TODO - Add faction ID for colors
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(BfAFactionAssaultsData);
 	if poiInfo then
 		poiInfo.parentMapInfo = LocalMapUtil.GetMapInfo(poiInfo.mapInfo.parentMapID);
-		if _log.DEVMODE then
-			print(ns.label.showBfAFactionAssaultsInfo, "-->", poiInfo.areaPoiID, poiInfo.atlasName);
-		end
+		poiInfo.color = LocalThreatUtil.TYPE_COLORS[BfAFactionAssaultsData.expansionIDstring][poiInfo.atlasName];
 		return poiInfo;
 	end
 end
@@ -1391,17 +1390,18 @@ if _log.DEVMODE then
 		"7267",  -- pre-Siege of Dragonbane Keep
 		"7413",  -- post-Siege of Dragonbane Keep
 		"7261",  -- Dragonriding Race - Thaldraszus
-		"7262",  -- Dragonriding Race - Ohn'ahra
+		"7262",  -- Dragonriding Race - Ohn'ahran Plains
 		"7263",  -- Dragonriding Race - Azure Span
-		"7264",  -- Dragonriding Race - Thaldraszus ?
+		"7264",  -- Dragonriding Race - Thaldraszus
 		"7218",  -- pre-Community Feast
 		"7219",  -- pre-Community Feast
 		"7220",  -- post-Community Feast
 		"7101",  -- Camp Aylaag (east)
 		"7102",  -- Camp Aylaag (north)
 		"7103",  -- Camp Aylaag (west)
-		"7232",  -- Elemental Storm (Water, Ohn'ahra/Azure Span)
-		"7246",  -- Elemental Storm (Earth, Waking Shores)
+		"7232",  -- Elemental Storm (Water)
+		"7235",  -- Elemental Storm (Fire)
+		"7245",  -- Elemental Storm (Air)
 		"7246",  -- Elemental Storm (Earth)
 		-- Shadowlands
 		-- Battle for Azeroth
@@ -1413,14 +1413,17 @@ if _log.DEVMODE then
 		"5178",  -- Legion Invasion - Stormheim
 		"5210",  -- Legion Invasion - Val'sharah
 		"5260",  -- Sentinax - Broken Shore
+		"5261",  -- Sentinax (East) - Broken Shore
 		"5285",  -- Demon Salethan the Broodwalker - Broken Shore
 		"5291",  -- Demon Doombringer Zar'thoz - Broken Shore
 		"5292",  -- Demon Dreadblade Annihilator - Broken Shore
 		"5293",  -- Demon Xar'thok - Broken Shore
 		"5300",  -- Demon Flllurlokkr - Broken Shore
+		"5301",  -- Demon Aqueux - Broken Shore
 		"5305",  -- Demon Somber Dawn - Broken Shore
 		"5306",  -- Demon Duke Sithizi - Broken Shore
 		"5308",  -- Demon Brother Badatin - Broken Shore
+		"5359",  -- Invasion Point Cen'gar - Argus, Krokuun
 		"5360",  -- Invasion Point Val - Argus, Krokuun
 		"5368",  -- Invasion Point Naigtal - Argus, Eredath
 		"5369",  -- Invasion Point Sangua - Argus, Antoran Wastes

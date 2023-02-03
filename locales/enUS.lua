@@ -85,7 +85,7 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_HIDE_DRAGON_GLYPHS_TOOLTIP = "Zones in which all dragon glyphs have been collected will be hidden, instead of being checked.",
 	CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP = "Displays a brief summary of your currently active missions you started at the mission table.",
 	CFG_DDMENU_ENTRYTOOLTIP_GARRISON_INVASION_ALERT_TOOLTIP = "Shows an alert when an invasion in your Garrison is active.",
-	CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP = "Scans the World Map for active events and provides brief availability details about it.",
+	CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP = "Scans the World Map for active events and provides brief availability details.",
 	CFG_DDMENU_ENTRYTOOLTIP_TIMEWALKING_VENDOR_TOOLTIP = "Displays a brief reminder about the whereabouts of the vendor during Timewalking events.",
 	CFG_DDMENU_ENTRYTOOLTIP_LEGION_BOUNTIES_TOOLTIP = "Lists the currently active Emissary Quests available on the Broken Isles and Argus in the tooltip.",
 	CFG_DDMENU_ENTRYTOOLTIP_BFA_BOUNTIES_TOOLTIP = "Lists the currently active Emissary Quests available on Zandalar and Kul Tiras in the tooltip.",
@@ -94,7 +94,7 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_BFA_FACTION_COLORS_TOOLTIP = "Displays all assault names in the colors of the attacking faction.",
 	CFG_DDMENU_ENTRYTOOLTIP_DF_FACTION_COLORS_TOOLTIP = "Displays the major faction names in their respective colors.",
 	CFG_DDMENU_ENTRYTOOLTIP_NZOTH_THREATS_TOOLTIP = "Displays a brief summary on the Assaults of N'Zoth in Azeroth.",
-	CFG_DDMENU_ENTRYTOOLTIP_MAW_THREATS_TOOLTIP = "Displays a brief summary on the Covenant Assaults in the Maw.",
+	CFG_DDMENU_ENTRYTOOLTIP_MAW_THREATS_TOOLTIP = "Displays a brief summary on the Covenant Assaults in The Maw.",
 	CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_RENOWN_TOOLTIP = "Shows the progress of your reputation with the major factions on the Dragon Isles.",
 	CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_UNLOCK_TOOLTIP = "Displays a hint on how to unlock a major faction.",
 
