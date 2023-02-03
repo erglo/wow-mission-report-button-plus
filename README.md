@@ -3,8 +3,11 @@
 Adds a right-click menu to the mission report button on the minimap (aka. the `Garrison-/ExpansionLandingPageMinimapButton`) for selecting mission reports of previous expansions.  
 *(See full feature list [below](#features))*  
   
-![Button tooltip and right-click menu with expansion names](.screenshots/mbrp_tooltip-dropdown.jpg "Right-click on the Kyrian mission report button on the minimap opens the menu.")
-![The right-click menu with in-progress mission infos](.screenshots/mbrp_dropdown_bfa-missioncount.jpg "Mouse-over a menu entry shows details about running missions.")  
+<!-- ![Button tooltip and right-click menu with expansion names](.screenshots/mbrp_tooltip-dropdown.jpg "Right-click on the Kyrian mission report button on the minimap opens the menu.")
+![The right-click menu with in-progress mission infos](.screenshots/mbrp_dropdown_bfa-missioncount.jpg "Mouse-over a menu entry shows details about running missions.")   -->
+
+![Button tooltip and right-click menu with expansion names](https://media.forgecdn.net/attachments/586/612/mbrp_tooltip-dropdown_df-winter.jpg "Button tooltip and right-click menu with expansion names") 
+![Button tooltip and right-click menu with expansion names](https://media.forgecdn.net/attachments/586/615/mrbp_menu-tooltip_df-summary.jpg "The MRBP Dragon Isles Summary tooltip")  
 (More images on this [project's screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots))  
 
 ## About this add-on
@@ -51,7 +54,7 @@ It is still possible to access mission reports from previous expansions but the 
 ### Chat
 
 + [x] get informed in-chat on finished missions, talents, WoD garrison invasions and buildings, etc.
-+ [x] chat messages can be disabled in the settings.
++ [x] chat messages can be disabled in the settings
 
 ### Common
 
