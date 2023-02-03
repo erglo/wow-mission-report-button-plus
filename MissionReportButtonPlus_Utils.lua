@@ -835,7 +835,7 @@ end
 
 -- Find active threats in the world, if active for current player; eg. the
 -- covenant attacks in The Maw or the N'Zoth's attacks in Battle for Azeroth.
----@return table|nil activeThreats
+---@return nil|activeThreatInfo[] activeThreats
 ---@class activeThreatInfo
 ---@field questID number
 ---@field questName string
@@ -1120,10 +1120,10 @@ ElementalStormData.atlasNames = {
 	"ElementalStorm-Lesser-Earth",
 	"ElementalStorm-Lesser-Fire",
 	"ElementalStorm-Lesser-Water",
-	-- "ElementalStorm-Boss-Air"
-	-- "ElementalStorm-Boss-Earth"
-	-- "ElementalStorm-Boss-Fire"
-	-- "ElementalStorm-Boss-Water"
+	"ElementalStorm-Boss-Air",
+	"ElementalStorm-Boss-Earth",
+	"ElementalStorm-Boss-Fire",
+	"ElementalStorm-Boss-Water",
 };
 ElementalStormData.mapID = DRAGON_ISLES_MAP_ID;
 ElementalStormData.mapInfos = LocalMapUtil.GetMapChildrenInfo(ElementalStormData.mapID, Enum.UIMapType.Zone);
@@ -1142,10 +1142,13 @@ BfAFactionAssaultsData.mapInfos = {LocalMapUtil.GetMapInfo(875),  LocalMapUtil.G
 BfAFactionAssaultsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
 BfAFactionAssaultsData.ignorePrimaryMapForPOI = true;
 
-function util.poi.GetBfAFactionAssaultsInfo()
+function util.poi.GetBfAFactionAssaultsInfo()									--> TODO - Add faction ID for colors
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(BfAFactionAssaultsData);
 	if poiInfo then
 		poiInfo.parentMapInfo = LocalMapUtil.GetMapInfo(poiInfo.mapInfo.parentMapID);
+		if _log.DEVMODE then
+			print(ns.label.showBfAFactionAssaultsInfo, "-->", poiInfo.areaPoiID, poiInfo.atlasName);
+		end
 		return poiInfo;
 	end
 end
@@ -1201,10 +1204,8 @@ function util.poi.GetArgusInvasionPointsInfo()
 end
 
 local function GetArgusInvasionPointsLabel()
-	local INVASION_ONSLAUGHT_QUEST_ID = 49293;  --> EN: "Invasion Onslaught"
-	local questName = QuestUtils_GetQuestName(INVASION_ONSLAUGHT_QUEST_ID);
-	--> comes with empty string as fallback
-	return ArgusInvasionData.continentMapInfo.name..HEADER_COLON.." "..questName;
+	local areaName = ArgusInvasionData.continentMapInfo.name;
+	return areaName..HEADER_COLON.." "..L.ENTRYTOOLTIP_LEGION_ARGUS_INVASION_LABEL;
 end
 
 ----- Timewalking Vendor -----
@@ -1240,102 +1241,12 @@ function util.poi.FindTimewalkingVendor()
 	end
 end
 
------
+--------------------------------------------------------------------------------
 
--- local function SavePOIType(poiInfo)
--- 	-- local atlasName = poiInfo.atlasName;
--- 	-- local poiName = poiInfo.name;
+local PoiFilter = {};
 
--- 	-- Prepare data table
--- 	if not MRBP_GlobalSettings then
--- 		MRBP_GlobalSettings = {};
--- 	end
--- 	if (not MRBP_GlobalSettings["poiTypes"]) then
--- 		MRBP_GlobalSettings["poiTypes"] = {};
--- 	end
--- 	-- Save by atlas name (always in English)
--- 	if (not MRBP_GlobalSettings["poiTypes"][poiInfo.areaPoiID]) then
--- 		MRBP_GlobalSettings["poiTypes"][poiInfo.areaPoiID] = poiInfo;
--- 		-- MRBP_GlobalSettings["poiTypes"][atlasName] = {
--- 		-- 		["label"] = poiName,
--- 		-- 		["expansionLevel"] = poiInfo.expansionLevel,
--- 		-- 		["ignore"] = false,
--- 		-- };
--- 		-- _log:debug("Saved filter:", atlasName);
--- 		-- cprint("Saved POI:", poiInfo.areaPoiID, poiInfo.name, poiInfo.ignorable and "ignored" or '');
--- 	end
--- end
-
--- local PoiInfoCache = {};
--- PoiInfoCache.data = {};
-
--- function PoiInfoCache:GetIDString(areaPoi)
--- 	if (type(areaPoi) == "number") then
--- 		return tostring(areaPoi);
--- 	end
--- 	if (type(areaPoi) == "table") then
--- 		return tostring(areaPoi.areaPoiID);
--- 	end
--- 	return '';
--- end
-
--- function PoiInfoCache:Add(poiInfo)
--- 	local poiIDstring = self:GetIDString(poiInfo);
--- 	-- print(">>", poiIDstring, poiInfo.name);
--- 	self.data[poiIDstring] = poiInfo;
--- end
-
--- function PoiInfoCache:Get(poiInfo)
--- 	local poiIDstring = self:GetIDString(poiInfo);
--- 	-- return self.data[poiIDstring];
--- 	local cachedPoiInfo = self.data[poiIDstring];
--- 	-- print("<<", poiIDstring, GRAY_FONT_COLOR:WrapTextInColorCode(cachedPoiInfo.name));
--- 	return cachedPoiInfo;
--- end
-
--- function PoiInfoCache:HasAreaPoiID(areaPoiID)
--- 	local poiIDstring = tostring(areaPoiID);
--- 	return self.data[poiIDstring] ~= nil;
--- end
-
--- function PoiInfoCache:Remove(poiInfo)
--- 	local poiIDstring = self:GetIDString(poiInfo);
--- 	if self.data[poiIDstring] then
--- 		print("XX", poiIDstring, RED_FONT_COLOR:WrapTextInColorCode(poiInfo.name));
--- 		self.data[poiIDstring] = nil;
--- 	end
--- end
-
--- function PoiInfoCache:IsExpired(poiInfo)
--- 	local secondsLeft = C_AreaPoiInfo.GetAreaPOISecondsLeft(poiInfo.areaPoiID);
--- 	return secondsLeft and secondsLeft < 3 or false;
--- end
-
--- -- Remove all expired POIs.
--- function PoiInfoCache:Flush()
--- 	for _, poiInfo in ipairs(self.data) do
--- 		local isTimed = poiInfo.isTimed or C_AreaPoiInfo.IsAreaPOITimed(poiInfo.areaPoiID);
--- 		if (isTimed and self:IsExpired(poiInfo)) then
--- 			self:Remove(poiInfo);
--- 		end
--- 	end
--- end
-
--- Returns a table with POI IDs currently active on the world map.
----@param mapID number
----@return table areaPOIs
---
-function LocalMapUtil.GetAreaPOIForMap(mapID)
-	-- REF.: <FrameXML/Blizzard_SharedMapDataProviders/AreaPOIDataProvider.lua>
-	-- REF.: <FrameXML/Blizzard_SharedMapDataProviders/SharedMapPoiTemplates.lua>
-	-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/AreaPoiInfoDocumentation.lua>
-	-- REF.: <FrameXML/TableUtil.lua>
-	local areaPOIs = GetAreaPOIsForPlayerByMapIDCached(mapID);
-	areaPOIs = TableIsEmpty(areaPOIs) and C_AreaPoiInfo.GetAreaPOIForMap(mapID) or areaPOIs;
-	return areaPOIs;
-end
-
-local ignoreZoneAtlasNamePatterns = {
+-- Name patterns for non-relevant world map POIs; not every POI is an event.
+PoiFilter.ignoredZoneAtlasNamePatterns = {
 	"^taxinode.*",
 	"^flightmaster.*",
 	"^vignettekill.*",
@@ -1348,8 +1259,13 @@ local ignoreZoneAtlasNamePatterns = {
 	"^poi[-]torghast",
 	"^fishing[-]hole",
 };
-local function ignoreAtlasName(atlasName)
-	for _, pattern in pairs(ignoreZoneAtlasNamePatterns) do
+
+-- Check if given atlas name should be ignored.
+---@param atlasName string
+---@return boolean shouldIgnore
+--
+function PoiFilter.ShouldIgnoreAtlasName(atlasName)
+	for _, pattern in pairs(PoiFilter.ignoredZoneAtlasNamePatterns) do
 		if strmatch(atlasName, pattern) then
 			return true;
 		end
@@ -1357,41 +1273,8 @@ local function ignoreAtlasName(atlasName)
 	return false;
 end
 
-local separatedAreaPoiIDs = {
-	-- Dragonflight
-	"7342",  -- Grand Hunts - Ohn'ahra
-	"7343",  -- Grand Hunts - Waking Shores
-	"7344",  -- Grand Hunts - Thaldraszus
-	"7345",  -- Grand Hunts - Azure Span
-	"7104",  -- Siege of Dragonbane Keep
-	"7267",  -- pre-Siege of Dragonbane Keep
-	"7413",  -- post-Siege of Dragonbane Keep
-	"7261",  -- Dragonriding Race - Thaldraszus
-	"7262",  -- Dragonriding Race - Ohn'ahra
-	"7263",  -- Dragonriding Race - Azure Span
-	"7264",  -- Dragonriding Race - Thaldraszus ?
-	"7218",  -- pre-Community Feast
-	"7219",  -- pre-Community Feast
-	"7220",  -- post-Community Feast
-	"7101",  -- Camp Aylaag (east)
-	"7102",  -- Camp Aylaag (north)
-	"7103",  -- Camp Aylaag (west)
-	-- Shadowlands
-	-- Battle for Azeroth
-	"5896",  -- Faction Assaults (Horde attacking Tiragardesound)
-	"5964",  -- Faction Assaults (Horde attacking Drustvar)
-	"5969",  -- Faction Assaults (Horde attacking Nazmir)
-	"5973",  -- Faction Assaults (Alliance attacking Zuldazar)
-	-- Legion
-	"5178",  -- Legion Invasion - Stormheim
-	"5210",  -- Legion Invasion - Val'sharah
-	-- "7018",  -- Timewalking Vendor in Azsuna + Broken Shore (don't filter)
-	-- Draenor
-	-- "6985",  -- Timewalking Vendor in Ashran (don't filter)
-};
-
--- Area POIs without an icon (atlasName)
-local ignoredAreaPoiIDs = {
+-- Area POI IDs which have been already handled, or are non-relevant or which are without an icon (atlasName)
+PoiFilter.ignoredAreaPoiIDs = {
 	-- Dragonflight
 	"7089",  -- Grand Hunting Party (doubles from other zones)
 	"7090",  -- Grand Hunting Party (doubles from other zones)
@@ -1426,35 +1309,44 @@ local ignoredAreaPoiIDs = {
 	"4188",  -- Elixir of Shadow Sight
 	"4587",  -- Ashran Quartermaster (PvP)
 };
-local function ShouldIgnoreAreaPOI(poiInfo)
-	local ignoreAtlas = poiInfo.atlasName and ignoreAtlasName(strlower(poiInfo.atlasName)) or false;
-	local ignorePOI = tContains(ignoredAreaPoiIDs, tostring(poiInfo.areaPoiID));
+
+function PoiFilter.ShouldIgnoreAreaPOI(poiInfo)
+	local ignoreAtlas = poiInfo.atlasName and PoiFilter.ShouldIgnoreAtlasName(strlower(poiInfo.atlasName)) or false;
+	local ignorePOI = tContains(PoiFilter.ignoredAreaPoiIDs, tostring(poiInfo.areaPoiID));
 	return ignoreAtlas or ignorePOI;
 end
 
+-- Returns a table with POI IDs currently active on the world map.
+---@param mapID number
+---@return number[] areaPoiIDs
+-- REF.: <FrameXML/Blizzard_SharedMapDataProviders/AreaPOIDataProvider.lua>
+-- REF.: <FrameXML/Blizzard_SharedMapDataProviders/SharedMapPoiTemplates.lua>
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/AreaPoiInfoDocumentation.lua>
+-- REF.: <FrameXML/TableUtil.lua>
+--
+function LocalMapUtil.GetAreaPOIForMap(mapID)
+	local areaPOIs = GetAreaPOIsForPlayerByMapIDCached(mapID);
+	areaPOIs = TableIsEmpty(areaPOIs) and C_AreaPoiInfo.GetAreaPOIForMap(mapID) or areaPOIs;
+	return areaPOIs;
+end
+
+-- Main POI retrieval function; Gets all POIs of given map info.
+---@param mapInfo table|UiMapDetails
+---@param includeMapInfoAtPosition boolean
+---@return AreaPOIInfo[]|nil activeAreaPOIs
+---@class AreaPOIInfo
+--
 function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition)
 	local areaPOIs = LocalMapUtil.GetAreaPOIForMap(mapInfo.mapID);
 	if (areaPOIs and #areaPOIs > 0) then
 		local activeAreaPOIs = {};
 		for i, areaPoiID in ipairs(areaPOIs) do
-			-- local poiInfo;
-			-- if PoiInfoCache:HasAreaPoiID(areaPoiID) then
-			-- 	poiInfo = PoiInfoCache:Get(areaPoiID)
-			-- 	poiInfo.cached = true;  -- save
-			-- else
-			-- 	-- Hasn't been cached, yet
-			-- 	poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(mapInfo.mapID, areaPoiID);
-			-- 	poiInfo.cached = false;  -- save
-			-- end
 			local poiInfo = C_AreaPoiInfo.GetAreaPOIInfo(mapInfo.mapID, areaPoiID);
 			if not poiInfo then
-				if _log.DEVMODE then
-					print("No infos:", areaPoiID, mapInfo.mapID, mapInfo.name);  -- save
-				end
 				ClearCachedAreaPOIsForPlayer();
 				break;
 			end
-			if not ShouldIgnoreAreaPOI(poiInfo) then
+			if not PoiFilter.ShouldIgnoreAreaPOI(poiInfo) then
 				-- Add more details about this POI
 				poiInfo.isTimed = C_AreaPoiInfo.IsAreaPOITimed(areaPoiID);
 				if poiInfo.isTimed then
@@ -1463,80 +1355,127 @@ function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition)
 					-- high connection latency.
 					if (poiInfo.secondsLeft and poiInfo.secondsLeft > 0) then
 						local color = util.GetTimeRemainingColorForSeconds(poiInfo.secondsLeft, WHITE_FONT_COLOR);
-						local timeString = SecondsToTime(poiInfo.secondsLeft);
+						local timeString = SecondsToTime(poiInfo.secondsLeft);	--> TODO - Combine as util and use new time formatter class.
 						poiInfo.timeString = color:WrapTextInColorCode(timeString);
-						-- poiInfo.timeLeftString = BONUS_OBJECTIVE_TIME_LEFT:format(poiInfo.timeString);
 					end
 				end
-				if (mapInfo.mapType == Enum.UIMapType.Continent) then
+				if (includeMapInfoAtPosition or mapInfo.mapType == Enum.UIMapType.Continent) then
 					-- Needs more accurate zone infos
 					mapInfo = C_Map.GetMapInfoAtPosition(mapInfo.mapID, poiInfo.position:GetXY());
 				end
 				poiInfo.mapInfo = mapInfo;
-				if includeMapInfoAtPosition then
-					poiInfo.mapInfoAtPosition = C_Map.GetMapInfoAtPosition(mapInfo.mapID, poiInfo.position:GetXY());
-				end
-				-- if not PoiInfoCache:HasAreaPoiID(poiInfo.areaPoiID) then
-				-- 	PoiInfoCache:Add(poiInfo);
+				-- if includeMapInfoAtPosition then
+				-- 	poiInfo.mapInfoAtPosition = C_Map.GetMapInfoAtPosition(mapInfo.mapID, poiInfo.position:GetXY());
 				-- end
-				-- poiInfo.ignore = false;  -- save
 				tinsert(activeAreaPOIs, poiInfo);
-			-- else
-			-- 	poiInfo.ignore = true;  -- save
 			end
-			-- if (poiInfo.description == '') then
-			-- 	SavePOIType(poiInfo); -- save
-			-- end
 		end
 		return activeAreaPOIs;
 	end
 end
 
-function LocalMapUtil.GetAreaPOIInfoForZones(zoneMaps, isContentTypeMapInfo)
-	local mapInfos = {};
-	if not isContentTypeMapInfo then
-		for _, mapID in ipairs(zoneMaps) do
-			local mapInfo = LocalMapUtil.GetMapInfo(mapID);
-			tinsert(mapInfos, mapInfo);
-		end
-	else
-		mapInfos = zoneMaps;
-	end
+----- POI tests -----
 
-	local poiInfos = {};
-	for _, mapInfo in ipairs(mapInfos) do
-		local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(mapInfo);
-		if (activeAreaPOIs and #activeAreaPOIs > 0) then
-			for _, poiInfo in ipairs(activeAreaPOIs) do
-				if not tContains(separatedAreaPoiIDs, tostring(poiInfo.areaPoiID)) then
-					tinsert(poiInfos, poiInfo);
+if _log.DEVMODE then
+	local TestPoiUtil = {};
+
+	-- Area POI IDs which have been already handled. (This is only used for testing!)
+	--> Don't show this in the tooltip's test section!
+	TestPoiUtil.separatedAreaPoiIDs = {
+		-- Dragonflight
+		"7342",  -- Grand Hunts - Ohn'ahra
+		"7343",  -- Grand Hunts - Waking Shores
+		"7344",  -- Grand Hunts - Thaldraszus
+		"7345",  -- Grand Hunts - Azure Span
+		"7104",  -- Siege of Dragonbane Keep
+		"7267",  -- pre-Siege of Dragonbane Keep
+		"7413",  -- post-Siege of Dragonbane Keep
+		"7261",  -- Dragonriding Race - Thaldraszus
+		"7262",  -- Dragonriding Race - Ohn'ahra
+		"7263",  -- Dragonriding Race - Azure Span
+		"7264",  -- Dragonriding Race - Thaldraszus ?
+		"7218",  -- pre-Community Feast
+		"7219",  -- pre-Community Feast
+		"7220",  -- post-Community Feast
+		"7101",  -- Camp Aylaag (east)
+		"7102",  -- Camp Aylaag (north)
+		"7103",  -- Camp Aylaag (west)
+		"7232",  -- Elemental Storm (Water, Ohn'ahra/Azure Span)
+		"7246",  -- Elemental Storm (Earth, Waking Shores)
+		"7246",  -- Elemental Storm (Earth)
+		-- Shadowlands
+		-- Battle for Azeroth
+		"5896",  -- Faction Assaults (Horde attacking Tiragardesound)
+		"5964",  -- Faction Assaults (Horde attacking Drustvar)
+		"5969",  -- Faction Assaults (Horde attacking Nazmir, Alliance icon?)
+		"5973",  -- Faction Assaults (Alliance attacking Zuldazar)
+		-- Legion
+		"5178",  -- Legion Invasion - Stormheim
+		"5210",  -- Legion Invasion - Val'sharah
+		"5260",  -- Sentinax - Broken Shore
+		"5285",  -- Demon Salethan the Broodwalker - Broken Shore
+		"5291",  -- Demon Doombringer Zar'thoz - Broken Shore
+		"5292",  -- Demon Dreadblade Annihilator - Broken Shore
+		"5293",  -- Demon Xar'thok - Broken Shore
+		"5300",  -- Demon Flllurlokkr - Broken Shore
+		"5305",  -- Demon Somber Dawn - Broken Shore
+		"5306",  -- Demon Duke Sithizi - Broken Shore
+		"5308",  -- Demon Brother Badatin - Broken Shore
+		"5360",  -- Invasion Point Val - Argus, Krokuun
+		"5368",  -- Invasion Point Naigtal - Argus, Eredath
+		"5369",  -- Invasion Point Sangua - Argus, Antoran Wastes
+		"5371",  -- Invasion Point Bonich - Argus, Antoran Wastes
+		"5375",  -- Invasion Point Boss Alluradel- Argus, Antoran Wastes
+		-- "7018",  -- Timewalking Vendor in Azsuna + Broken Shore (don't filter)
+		-- Draenor
+		-- "6985",  -- Timewalking Vendor in Ashran (don't filter)
+	};
+
+	function TestPoiUtil.GetAreaPOIInfoForZones(zoneMaps, isContentTypeMapInfo)
+		local mapInfos = {};
+		if not isContentTypeMapInfo then
+			for _, mapID in ipairs(zoneMaps) do
+				local mapInfo = LocalMapUtil.GetMapInfo(mapID);
+				tinsert(mapInfos, mapInfo);
+			end
+		else
+			mapInfos = zoneMaps;
+		end
+
+		local poiInfos = {};
+		for _, mapInfo in ipairs(mapInfos) do
+			local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(mapInfo);
+			if (activeAreaPOIs and #activeAreaPOIs > 0) then
+				for _, poiInfo in ipairs(activeAreaPOIs) do
+					if not tContains(TestPoiUtil.separatedAreaPoiIDs, tostring(poiInfo.areaPoiID)) then
+						tinsert(poiInfos, poiInfo);
+					end
 				end
 			end
 		end
+		table.sort(poiInfos,
+			function (a, b)
+				return a.mapInfo.mapID < b.mapInfo.mapID;  --> 0-9
+			end
+		);
+
+		return poiInfos;
 	end
-	table.sort(poiInfos,
-		function (a, b)
-			return a.mapInfo.mapID < b.mapInfo.mapID;  -- descending
-		end
-	);
-	-- PoiInfoCache:Flush();
 
-	return poiInfos;
+	function TestPoiUtil.GetAreaPOIInfoForContinent(contMapID)
+		-- Get the map IDs of the continent of all its zones
+		local mapInfos = {};
+		local contMapInfo = LocalMapUtil.GetMapInfo(contMapID);
+		tinsert(mapInfos, contMapInfo);
+		tAppendAll(mapInfos, LocalMapUtil.GetMapChildrenInfo(contMapID, Enum.UIMapType.Zone));
+
+		local isContentTypeMapInfo = true;
+		return TestPoiUtil.GetAreaPOIInfoForZones(mapInfos, isContentTypeMapInfo);
+	end
+
+	util.map.GetAreaPOIInfoForZones = TestPoiUtil.GetAreaPOIInfoForZones;
+	util.map.GetAreaPOIInfoForContinent = TestPoiUtil.GetAreaPOIInfoForContinent;
 end
-util.map.GetAreaPOIInfoForZones = LocalMapUtil.GetAreaPOIInfoForZones;
-
-function LocalMapUtil.GetAreaPOIInfoForContinent(contMapID)
-	-- Get the map IDs of the continent of all its zones
-	local mapInfos = {};
-	local contMapInfo = LocalMapUtil.GetMapInfo(contMapID);
-	tinsert(mapInfos, contMapInfo);
-	tAppendAll(mapInfos, LocalMapUtil.GetMapChildrenInfo(contMapID, Enum.UIMapType.Zone));
-
-	local isContentTypeMapInfo = true;
-	return LocalMapUtil.GetAreaPOIInfoForZones(mapInfos, isContentTypeMapInfo);
-end
-util.map.GetAreaPOIInfoForContinent = LocalMapUtil.GetAreaPOIInfoForContinent;
-
 --------------------------------------------------------------------------------
 ----- Labels -------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -1597,26 +1536,26 @@ util.calendar.WINTER_HOLIDAY_EVENT_ID = 141;
 util.calendar.WINTER_HOLIDAY_ATLAS_NAME = "Front-Tree-Icon";
 -- util.calendar.WORLDQUESTS_EVENT_ID = 613;
 
--- local calendarUtil = {};  --> for local use (in this file)
--- calendarUtil.WORLDQUESTS_EVENT_TEXTURE_ID = "worldquest-tracker-questmarker";  -- 1467050;
--- calendarUtil.WOW_BIRTHDAY_EVENT_ID = 1262;
--- calendarUtil.TIMEWALKING_ATLAS_NAME = "TimewalkingVendor-32x32";
+local LocalCalendarUtil = {};  --> for local use (in this file)
+-- LocalCalendarUtil.WORLDQUESTS_EVENT_TEXTURE_ID = "worldquest-tracker-questmarker";  -- 1467050;
+-- LocalCalendarUtil.WOW_BIRTHDAY_EVENT_ID = 1262;
+-- LocalCalendarUtil.TIMEWALKING_ATLAS_NAME = "TimewalkingVendor-32x32";
 
-local DayEventsCache = {};
-DayEventsCache.data = {};
+LocalCalendarUtil.cache = {};
+LocalCalendarUtil.cache.data = {};
 
-function DayEventsCache:AddItem(item, itemID)
+function LocalCalendarUtil.cache:AddItem(item, itemID)
 	local itemIDstr = tostring(itemID);
 	-- Add or update item
 	self.data[itemIDstr] = item;
 end
 
-function DayEventsCache:GetItem(itemID)
+function LocalCalendarUtil.cache:GetItem(itemID)
 	local itemIDstr = tostring(itemID);
 	return self.data[itemIDstr];
 end
 
-function DayEventsCache:HasItem(itemID)
+function LocalCalendarUtil.cache:HasItem(itemID)
 	return self:GetItem(itemID) ~= nil;
 end
 --> TODO - Add expiration ???
@@ -1631,9 +1570,9 @@ end
 -- REF.: <<https://wowpedia.fandom.com/wiki/API_C_Calendar.GetDayEvent>>
 --
 local function GetActiveDayEvent(eventID)
-	if DayEventsCache:HasItem(eventID) then
+	if LocalCalendarUtil.cache:HasItem(eventID) then
 		-- print("Returning cached item", eventID, "...");
-		return DayEventsCache:GetItem(eventID);
+		return LocalCalendarUtil.cache:GetItem(eventID);
 	end
 	-- Not cached; find and return
 	local currentCalendarTime = C_DateAndTime.GetCurrentCalendarTime();  --> today
@@ -1645,15 +1584,13 @@ local function GetActiveDayEvent(eventID)
 	local numDayEvents = C_Calendar.GetNumDayEvents(monthOffset, currentCalendarTime.monthDay);
 	for eventIndex = 1, numDayEvents do
 		local event = C_Calendar.GetDayEvent(monthOffset, currentCalendarTime.monthDay, eventIndex);
-		-- if _log.DEVMODE then
 		-- 	print(eventIndex, event.eventID, event.eventType, event.calendarType,
 		-- 		util.CreateInlineIcon2(event.iconTexture)..event.title);
-		-- end
 		if (event.eventID == eventID) then
 			if (event.calendarType == "HOLIDAY") then
 				event.holidayInfo = C_Calendar.GetHolidayInfo(monthOffset, currentCalendarTime.monthDay, eventIndex);
 			end
-			DayEventsCache:AddItem(event, eventID);
+			LocalCalendarUtil.cache:AddItem(event, eventID);
 			local comparison = C_DateAndTime.CompareCalendarTime(currentCalendarTime, event.endTime);
 			return event, comparison;
 		end
