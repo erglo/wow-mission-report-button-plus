@@ -1420,6 +1420,7 @@ if _log.DEVMODE then
 		"5293",  -- Demon Xar'thok - Broken Shore
 		"5300",  -- Demon Flllurlokkr - Broken Shore
 		"5301",  -- Demon Aqueux - Broken Shore
+		"5303",  -- Demon Grossir - Broken Shore
 		"5305",  -- Demon Somber Dawn - Broken Shore
 		"5306",  -- Demon Duke Sithizi - Broken Shore
 		"5308",  -- Demon Brother Badatin - Broken Shore

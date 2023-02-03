@@ -4,12 +4,11 @@ All notable changes to this project will be documented in this file (
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.10.0+100005] - 2023-02-03
 
 ### Added
 
 - Added `Timewalking Vendor` availability hint for Draenor and Legion.
-- Added unified labels for tooltip and settings category groups.
 - Added faction colors for world map threats and assaults.
 - Dragonflight: added `Elemental Storms` details.
 - Dragonflight: added `Siege on Dragonbane Keep` details.
@@ -25,7 +24,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Changed
 
+- Updated the README file.
 - Updated the TOC file's interface version.
+- Unified labels for tooltip and settings category groups.
 - Separated and regrouped settings for each expansion.
 - The time remaining string in tooltips has been shortened. It shows now a clock icon instead of a preceding text.
 - Extended calendar specials, including a cache.

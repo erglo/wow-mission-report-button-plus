@@ -28,20 +28,38 @@ It is still possible to access mission reports from previous expansions but the 
 
 ## Features
 
+### Minimap Landing Page Button
+
 + [x] adds a right-click menu to the minimap button
 + [x] displays the minimap button of the previous expansion as long as the current command table hasn't been unlocked
 + [x] optionally shows or hides the minimap button itself permanently
 + [x] clicking a menu entry opens the (read-only) Mission Report Frame of the corresponding expansion
-+ [x] get informed in-chat on finished missions, talents, WoD garrison invasions and buildings, etc.
-+ [x] choose from a variety of settings and adjust the addon to your liking
-  + [x] or de-/select the menu entries with the expansions that are no longer of interest to you
+
+### Dropdown Menu
+
++ [x] see details about in-progress mission of each command table
++ [x] see which bounties, threats and world map events of each expansion are currently active
 + [x] expansions you (yet) don't own will be hidden in the menu
 + [x] expansions without an unlocked command table will be displayed, but disabled
   + [x] now showing a hint on how to unlock it
-+ [x] see details about in-progress mission of each command table
-+ [x] see which bounties and threats of each expansion are currently active (WIP)
-+ [x] more to come...  
-  *(Want to see some examples? Go visit this project's [screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots) )*  
++ [x] WoD: get notified about Garrison Invasions
++ [x] Legion: see details about Demon Invasions
++ [x] BfA: see details about Faction and N'Zoth Assaults
++ [x] Shadowlands: see details about Covenant Assaults in The Maw
++ [x] Dragonflight: see details about your Major Faction Renown Level progress and Dragon Isles events
+
+### Chat
+
++ [x] get informed in-chat on finished missions, talents, WoD garrison invasions and buildings, etc.
++ [x] chat messages can be disabled in the settings.
+
+### Common
+
++ [x] choose from a variety of settings and adjust the addon to your liking
+  + [x] or de-/select the menu entries with the expansions that are no longer of interest to you
++ [x] more to come...
+  
+*If you want to see some examples of these features, go visit this project's [screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots).*  
 
 ----
 
@@ -64,8 +82,10 @@ It is still possible to access mission reports from previous expansions but the 
 ### Tools used
 
 + Microsoft's [Visual Studio Code](https://code.visualstudio.com) with ...  
+  + Sumneko's [Lua Language Server](https://github.com/LuaLS/lua-language-server) extension  
   + Ketho's [World of Warcraft API](https://github.com/Ketho/vscode-wow-api) extension  
   + Stanzilla's [World of Warcraft TOC Language Support](https://github.com/Stanzilla/vscode-wow-toc) extension  
+  + David Anson's [Markdown linting and style checking](https://github.com/DavidAnson/vscode-markdownlint) extension  
 + Version control management with [Git](https://git-scm.com)
 
 ### References
