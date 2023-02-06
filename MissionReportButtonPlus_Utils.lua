@@ -1512,6 +1512,7 @@ ns.label = {
 	["showCovenantMissionInfo"] = COVENANT_MISSIONS_TITLE,
 	["showCovenantBounties"] = CALLINGS_QUESTS,
 	["showMawThreats"] = L.ENTRYTOOLTIP_SL_MAW_THREATS_LABEL,
+	["applyCovenantColors"] = L.ENTRYTOOLTIP_BFA_APPLY_FACTION_COLORS_LABEL,
 	-- Dragonflight
 	["showMajorFactionRenownLevel"] = GetMajorFactionRenownLabel(),
 	["applyMajorFactionColors"] = L.ENTRYTOOLTIP_DF_APPLY_MF_COLORS_LABEL,

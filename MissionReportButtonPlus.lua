@@ -987,7 +987,8 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 						threatExpansionLevel,
 						isShadowlandsThreat and threatInfo.questID or subCategoryID
 					);
-					local fontColor = ns.settings.applyBfAFactionColors and threatColor or nil;
+					local fontColor = ( (isBfAThreat and ns.settings.applyBfAFactionColors) or
+										(isShadowlandsThreat and ns.settings.applyCovenantColors)) and threatColor or nil;
 					tooltipText = TooltipText_AddIconLine(tooltipText, threatInfo.questName, threatInfo.atlasName, fontColor);
 					--> TODO - Add major-minor assault type icon for N'Zoth Assaults
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, threatInfo.mapInfo.name);

@@ -75,6 +75,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showCovenantMissionInfo"] = true,
 	["showCovenantBounties"] = true,
 	["showMawThreats"] = true,
+	["applyCovenantColors"] = true,
 	-- Battle for Azeroth
 	["showBfAMissionInfo"] = true,
 	["showBfABounties"] = true,
@@ -610,14 +611,12 @@ function MRBP_Settings_Register()
 			name = ns.label.showWoDGarrisonInvasionAlert,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_GARRISON_INVASION_ALERT_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
-			tag = Settings.Default.True,
 		},
 		{
 			variable = "showWoDWorldMapEvents",
 			name = ns.label.showWoDWorldMapEvents,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
-			tag = Settings.Default.True,
 		},
 		{
 			variable = "showWoDTimewalkingVendor",
@@ -653,7 +652,6 @@ function MRBP_Settings_Register()
 			name = ns.label.showLegionWorldMapEvents,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
-			tag = Settings.Default.True,
 		},
 		{
 			variable = "showLegionAssaultsInfo",
@@ -723,7 +721,6 @@ function MRBP_Settings_Register()
 			name = ns.label.showBfAWorldMapEvents,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
-			tag = Settings.Default.True,
 		},
 		{
 			variable = "showBfAFactionAssaultsInfo",
@@ -737,7 +734,6 @@ function MRBP_Settings_Register()
 			name = ns.label.applyBfAFactionColors,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BFA_FACTION_COLORS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
-			tag = Settings.Default.True,
 		},
 	};
 
@@ -766,6 +762,14 @@ function MRBP_Settings_Register()
 			name = ns.label.showMawThreats,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAW_THREATS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "applyCovenantColors",
+			name = ns.label.applyCovenantColors,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BFA_FACTION_COLORS_TOOLTIP,
+			parentVariable = "showMawThreats",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
 		},
 	};
 
@@ -815,7 +819,6 @@ function MRBP_Settings_Register()
 			name = ns.label.showDragonflightWorldMapEvents,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
-			tag = Settings.Default.True,
 		},
 		{
 			variable = "showDragonridingRaceInfo",
