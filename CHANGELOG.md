@@ -4,7 +4,12 @@ All notable changes to this project will be documented in this file (
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.11.0+100005] - 2023-02-08
+
+### Added
+
+- Shadowlands: Covenant colors.
+- Shadowlands: Covenant Renown level details.
 
 ### Changed
 
@@ -53,28 +58,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
 
 - Updated details display in menu entry tooltips and restructured its code for better readability.
 
-## [0.8.0+100002] - 2022-12-13
-
-### Added
-
-- Details about collected dragon riding glyphs were added to the Dragonflight menu entry tooltip.
-- Basic Dragonflight support
-
-### Fixed
-
-- Covenant calling icons have a transparent border which made them look much smaller. They are now properly displayed.
-
-### Changed
-
-- Extended the utility file's content by separating and adding expansion and garrison handler.
-- The settings' menu entry selection now shows expansions not owned by the player as disabled with a tooltip hint.
-- Removed `.SetCommitFlags` from settings. Usage seems to be reserved for Blizzard only.
-- Updated settings and its 'About this Add-on' section.
-
 ----
 
 ## Previous Versions
 
+🏷️ [v0.8.0](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4173683) - WoW 10.0.2 (retail)  
 🏷️ [v0.7.2](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4110896) - WoW 10.0.2 (retail)  
 🏷️ [v2022.11.20 (beta)](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4099565) - WoW 10.0.2 (retail)  
 🏷️ [v2022.11.18 (beta)](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4095108) - WoW 10.0.2 (retail)  

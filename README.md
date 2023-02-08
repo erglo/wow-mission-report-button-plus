@@ -47,7 +47,7 @@ It is still possible to access mission reports from previous expansions but the 
   + [x] now showing a hint on how to unlock it
 + [x] WoD: get notified about Garrison Invasions
 + [x] Legion: see details about Demon Invasions
-+ [x] BfA: see details about Faction and N'Zoth Assaults
++ [x] BfA: see details about Faction and N'Zoth Assaults as well as your Covenant Renown status
 + [x] Shadowlands: see details about Covenant Assaults in The Maw
 + [x] Dragonflight: see details about your Major Faction Renown Level progress and Dragon Isles events
 
