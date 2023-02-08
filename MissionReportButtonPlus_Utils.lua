@@ -742,6 +742,84 @@ local function GetMajorFactionRenownLabel()
 	return MAJOR_FACTION_LIST_TITLE.." "..PARENS_TEMPLATE:format(LANDING_PAGE_RENOWN_LABEL);
 end
 
+----- Shadowlands - Covenant utilities -----
+--
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/CovenantsDocumentation.lua>
+-- REF.: <FrameXML/Blizzard_CovenantRenown/Blizzard_CovenantRenown.lua>
+-- REF.: <FrameXML/Blizzard_CovenantSanctum/Blizzard_CovenantSanctumUpgrades.lua>
+
+local LocalCovenantUtil = {};
+LocalCovenantUtil.data = {};  -- used for updating on events
+LocalCovenantUtil.atlasNameTemplate = "SanctumUpgrades-%s-32x32";
+LocalCovenantUtil.covenantColors = {
+	["1"] = KYRIAN_BLUE_COLOR,
+	["2"] = VENTHYR_RED_COLOR,
+	["3"] = NIGHT_FAE_BLUE_COLOR,
+	["4"] = NECROLORD_GREEN_COLOR,
+};
+LocalCovenantUtil.GetCovenantColor = function(covenantID)
+	local covenantIDstring = tostring(covenantID or Enum.CovenantType.Kyrian);
+	return LocalCovenantUtil.covenantColors[covenantIDstring];
+end
+
+-- A collection of utilities for the currently active Covenant in Shadowlands. 
+util.covenant = {};
+
+function util.covenant.UpdateData(activeCovenantID)
+	local covenantID = activeCovenantID or C_Covenants.GetActiveCovenantID();
+	if (covenantID ~= util.covenant.ID) then
+		local covenantData = C_Covenants.GetCovenantData(covenantID);
+		if covenantData then
+			LocalCovenantUtil.data = {
+				ID = covenantData.ID,
+				name = covenantData.name,
+				atlasName = LocalCovenantUtil.atlasNameTemplate:format(covenantData.textureKit),
+				color = LocalCovenantUtil.GetCovenantColor(covenantData.ID),
+			};
+		end
+	end
+end
+
+-- Get a custom table with covenant data.
+---@param covenantID number
+---@return table covenantInfo
+---@class covenantInfo
+---@field ID number
+---@field name string
+---@field atlasName string
+---@field color table  A color class (see <FrameXML/GlobalColors.lua>)
+--
+function util.covenant.GetCovenantInfo(covenantID)
+	util.covenant.UpdateData(covenantID);
+	return LocalCovenantUtil.data;
+end
+
+-- Get a custom table with renown data of given covenant ID.
+---@param covenantID number
+---@return table|nil renownInfo
+---@class renownInfo
+---@field currentRenownLevel number
+---@field hasMaximumRenown boolean
+---@field maximumRenownLevel number
+--
+function util.covenant.GetRenownData(covenantID)
+	local currentRenownLevel = C_CovenantSanctumUI.GetRenownLevel();
+	if (currentRenownLevel >= 1) then
+		local renownData = {
+			currentRenownLevel = currentRenownLevel,
+			hasMaximumRenown = C_CovenantSanctumUI.HasMaximumRenown(),
+			maximumRenownLevel = #C_CovenantSanctumUI.GetRenownLevels(covenantID),
+		};
+		return renownData;
+	end
+end
+
+local function GetCovenantRenownLabel()
+	return COVENANT_PROGRESS.." "..PARENS_TEMPLATE:format(RENOWN_LEVEL_LABEL);
+end
+
+-----
+
 -- Check wether the given garrison type has running or completed missions
 -- and return the number of those missions.
 ---@param garrisonTypeID number  A landing page garrison type ID
@@ -796,10 +874,6 @@ LocalThreatUtil.TYPE_COLORS = {
 		["1530"] = CORRUPTION_COLOR,   --> Vale of Eternal Blossoms (N'Zoth Assaults)
 	},
 	["8"] = {  --> Maw Covenant Assaults
-		-- ["1"] = KYRIAN_BLUE_COLOR,
-		-- ["2"] = VENTHYR_RED_COLOR,
-		-- ["3"] = NIGHT_FAE_BLUE_COLOR,
-		-- ["4"] = NECROLORD_GREEN_COLOR,
 		["63543"] = NECROLORD_GREEN_COLOR,
 		["63822"] = VENTHYR_RED_COLOR,
 		["63823"] = NIGHT_FAE_BLUE_COLOR,
@@ -1507,15 +1581,16 @@ ns.label = {
 	["showNzothThreats"] = WORLD_MAP_THREATS,
 	["showBfAWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL,
 	["showBfAFactionAssaultsInfo"] = L.ENTRYTOOLTIP_BFA_FACTION_ASSAULTS_LABEL, --> achievementID = 13284
-	["applyBfAFactionColors"] = L.ENTRYTOOLTIP_BFA_APPLY_FACTION_COLORS_LABEL,
+	["applyBfAFactionColors"] = L.ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL,
 	-- Shadowlands
 	["showCovenantMissionInfo"] = COVENANT_MISSIONS_TITLE,
 	["showCovenantBounties"] = CALLINGS_QUESTS,
 	["showMawThreats"] = L.ENTRYTOOLTIP_SL_MAW_THREATS_LABEL,
-	["applyCovenantColors"] = L.ENTRYTOOLTIP_BFA_APPLY_FACTION_COLORS_LABEL,
+	["showCovenantRenownLevel"] = GetCovenantRenownLabel(),
+	["applyCovenantColors"] = L.ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL,
 	-- Dragonflight
 	["showMajorFactionRenownLevel"] = GetMajorFactionRenownLabel(),
-	["applyMajorFactionColors"] = L.ENTRYTOOLTIP_DF_APPLY_MF_COLORS_LABEL,
+	["applyMajorFactionColors"] = L.ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL,
 	["hideMajorFactionUnlockDescription"] = L.ENTRYTOOLTIP_DF_HIDE_MF_UNLOCK_DESCRIPTION_LABEL,
 	["showDragonGlyphs"] = L.ENTRYTOOLTIP_DF_DRAGON_GLYPHS_LABEL,
 	["autoHideCompletedDragonGlyphZones"] = L.ENTRYTOOLTIP_DF_HIDE_DRAGON_GLYPHS_LABEL,
@@ -1738,3 +1813,15 @@ end
 -- IsSwimming()
 -- local hasAlternateForm, inAlternateForm = d;
 -- (buff) Time Anomaly
+
+-----																			--> TODO - Add currency info
+
+-- REF.: <FrameXML/FormattingUtil.lua>
+-- local currencyString = GetCurrencyString(currencyID, overrideAmount, colorCode, abbreviate)
+-- local currencyString = GetCurrenciesString(currencies);
+
+-- REF.: <FrameXML/Blizzard_CovenantSanctum/Blizzard_CovenantSanctumUpgrades.lua>
+-- C_CovenantSanctumUI.GetSoulCurrencies() --> works ONLY with opened Sanctum UI (!)
+-- local soulCurrencyID = 1810;  --> "Redeemed Soul"
+-- local animaCurrencyID, maxDisplayableValue = C_CovenantSanctumUI.GetAnimaInfo();  --> 1813, 200000
+-- C_CurrencyInfo.GetCurrencyInfo(soulCurrencyID)  --> .name, .iconFileID, .quantity, .maxQuantity, 

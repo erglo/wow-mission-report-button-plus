@@ -64,7 +64,8 @@ FrameUtil.RegisterFrameForEvents(MRBP, {
 	"QUEST_TURNED_IN",
 	-- "QUEST_AUTOCOMPLETE",
 	-- "ACHIEVEMENT_EARNED",  --> achievementID, alreadyEarned
-	-- "COVENANT_CHOSEN",  --> covenantID
+	"COVENANT_CHOSEN",
+	"COVENANT_SANCTUM_RENOWN_LEVEL_CHANGED",
 	"COVENANT_CALLINGS_UPDATED",
 	"MAJOR_FACTION_UNLOCKED",
 	}
@@ -223,6 +224,20 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 				if (not ns.settings.showMinimapButton) then
 					MRBP:HideMinimapButton()
 				end
+			end
+
+		elseif (event == "COVENANT_CHOSEN") then
+			local covenantID = ...;
+			util.covenant.UpdateData(covenantID);
+
+		elseif (event == "COVENANT_SANCTUM_RENOWN_LEVEL_CHANGED") then
+			local newRenownLevel, oldRenownLevel = ...;
+			ns.cprint(COVENANT_SANCTUM_RENOWN_LEVEL_UNLOCKED:format(newRenownLevel));
+			local covenantInfo = util.covenant.GetCovenantInfo();
+			local renownInfo = util.covenant.GetRenownData(covenantInfo.ID);
+			if renownInfo.hasMaximumRenown then
+				local covenantName = covenantInfo.color:WrapTextInColorCode(covenantInfo.name);
+				print(COVENANT_SANCTUM_RENOWN_REWARD_DESC_COMPLETE:format(covenantName));
 			end
 
 		elseif (event == "COVENANT_CALLINGS_UPDATED") then
@@ -463,6 +478,7 @@ function MRBP:LoadData()
 			["title"] = GARRISON_TYPE_9_0_LANDING_PAGE_TITLE,
 			["description"] = GARRISON_TYPE_9_0_LANDING_PAGE_TOOLTIP,
 			["minimapIcon"] = string.format("shadowlands-landingbutton-%s-up", playerInfo.covenantTex),
+			-- ["minimapIcon"] = string.format("SanctumUpgrades-%s-32x32", playerInfo.covenantTex),
 			-- ["banner"] = "accountupgradebanner-shadowlands",  -- 199x133  --> TODO
 			["msg"] = {
 				["missionsTitle"] = COVENANT_MISSIONS_TITLE,
@@ -715,6 +731,26 @@ local function AddTooltipMissionInfoText(tooltipText, garrInfo)
 	else
 		if (garrInfo.missions.numCompleted > 0) then
 			tooltipText = TooltipText_AddTextLine(tooltipText, garrInfo.msg.missionsComplete);
+		end
+	end
+
+	return tooltipText;
+end
+
+local function AddTooltipCovenantRenownText(tooltipText, covenantInfo)
+	local fontColor = ns.settings.applyCovenantColors and covenantInfo.color or nil;
+	tooltipText = TooltipText_AddIconLine(tooltipText, covenantInfo.name, covenantInfo.atlasName, fontColor);
+
+	local renownInfo = util.covenant.GetRenownData(covenantInfo.ID);
+	if renownInfo then
+		-- Show current renown progress
+		local progressText = MAJOR_FACTION_RENOWN_CURRENT_PROGRESS:format(renownInfo.currentRenownLevel, renownInfo.maximumRenownLevel);
+		if renownInfo.hasMaximumRenown then
+			local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(renownInfo.currentRenownLevel);
+			tooltipText = TooltipText_AppendText(tooltipText, PARENS_TEMPLATE:format(renownLevelText));
+			tooltipText = TooltipText_AddObjectiveCompletedLine(tooltipText, COVENANT_SANCTUM_RENOWN_REWARD_TITLE_COMPLETE);
+		else
+			tooltipText = TooltipText_AddObjectiveLine(tooltipText, progressText);
 		end
 	end
 
@@ -1061,6 +1097,16 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			tooltipText = TooltipText_AddIconLine(tooltipText, factionAssaultsAreaPoiInfo.parentMapInfo.name, factionAssaultsAreaPoiInfo.atlasName, fontColor);
 			tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, factionAssaultsAreaPoiInfo.timeString);
 			tooltipText = TooltipText_AddObjectiveLine(tooltipText, factionAssaultsAreaPoiInfo.description);
+		end
+	end
+
+	----- Shadowlands -----
+
+	if (isForShadowlands and ns.settings.showCovenantRenownLevel) then
+		local covenantInfo = util.covenant.GetCovenantInfo();
+		if TableHasAnyEntries(covenantInfo) then
+			tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showCovenantRenownLevel);
+			tooltipText = AddTooltipCovenantRenownText(tooltipText, covenantInfo);
 		end
 	end
 

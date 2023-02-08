@@ -75,6 +75,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showCovenantMissionInfo"] = true,
 	["showCovenantBounties"] = true,
 	["showMawThreats"] = true,
+	["showCovenantRenownLevel"] = true,
 	["applyCovenantColors"] = true,
 	-- Battle for Azeroth
 	["showBfAMissionInfo"] = true,
@@ -732,7 +733,7 @@ function MRBP_Settings_Register()
 		{
 			variable = "applyBfAFactionColors",
 			name = ns.label.applyBfAFactionColors,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BFA_FACTION_COLORS_TOOLTIP,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 	};
@@ -764,10 +765,15 @@ function MRBP_Settings_Register()
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
+			variable = "showCovenantRenownLevel",
+			name = ns.label.showCovenantRenownLevel,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_COVENANT_RENOWN_TOOLTIP,
+			tag = Settings.Default.True,
+		},
+		{
 			variable = "applyCovenantColors",
 			name = ns.label.applyCovenantColors,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BFA_FACTION_COLORS_TOOLTIP,
-			parentVariable = "showMawThreats",
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 			tag = Settings.Default.True,
 		},
@@ -790,7 +796,7 @@ function MRBP_Settings_Register()
 		{
 			variable = "applyMajorFactionColors",
 			name = ns.label.applyMajorFactionColors,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_DF_FACTION_COLORS_TOOLTIP,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
 			parentVariable = "showMajorFactionRenownLevel",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
