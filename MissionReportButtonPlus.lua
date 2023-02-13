@@ -195,6 +195,19 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 				printDayEvent()
 			end
 
+			-- Check addons which interfere with this one; eg. by messing-up the button hooks
+			--> Currently known interference is the right-click menu of `War Plan` by cfxfox
+			local interferingAddonIDs = {"WarPlan"}
+			local informUser = false  -- avoid informing the user on every single login or reload
+			local foundMessage = WARNING_FONT_COLOR:WrapTextInColorCode("Found interfering addon:")
+			for _, interferingAddonName in ipairs(interferingAddonIDs) do
+				if IsAddOnLoaded(interferingAddonName) then
+					local addonTitle = GetAddOnMetadata(interferingAddonName, "Title")
+					_log.info(foundMessage, addonTitle)
+					self:RedoButtonHooks(informUser)
+				end
+			end
+
 		elseif (event == "QUEST_TURNED_IN") then
 			-- REF.: <FrameXML/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
 			local questID, xpReward, moneyReward = ...;
@@ -271,8 +284,7 @@ function MRBP:OnLoad()
 	_log:info(string.format("Loading %s...", ns.AddonColor:WrapTextInColorCode(ns.AddonTitle)))
 
 	-- Load settings and interface options
-	-- MRBP_InterfaceOptionsPanel:Initialize()
-	MRBP_Settings_Register();
+	MRBP_Settings_Register()
 
 	self:RegisterSlashCommands()
 	self:SetButtonHooks()
@@ -1390,7 +1402,7 @@ ns.ShowMinimapButton_User = MRBP.ShowMinimapButton_User
 -- and frame (mission report frame).
 function MRBP:SetButtonHooks()
 	if ExpansionLandingPageMinimapButton then
-		_log:info("Hooking into minimap button's tooltip + clicking behavior...")
+		_log:info("Hooking into the minimap button's tooltip + clicking behavior...")
 
 		-- Minimap button tooltip hook
 		ExpansionLandingPageMinimapButton:HookScript("OnEnter", MRBP_OnEnter)
@@ -1403,6 +1415,13 @@ function MRBP:SetButtonHooks()
 
 	-- GarrisonLandingPage (mission report frame) post hook
 	hooksecurefunc("ShowGarrisonLandingPage", MRBP_ShowGarrisonLandingPage)
+end
+
+function MRBP:RedoButtonHooks(informUser)
+	self:SetButtonHooks()
+	if informUser then
+		ns.cprint(L.CHATMSG_MINIMAPBUTTON_HOOKS_UPDATED)
+	end
 end
 
 -- Handle mouse-over behavior of the minimap button.
@@ -1517,7 +1536,7 @@ function MRBP_GetLandingPageGarrisonType()
 	return garrTypeID
 end
 
----@TODO - Find a more secure way to pre-hook this.
+--> TODO - Find a more secure way to pre-hook this.
 MRBP_GetLandingPageGarrisonType_orig = C_Garrison.GetLandingPageGarrisonType
 C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType
 
@@ -1525,10 +1544,10 @@ C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType
 
 local SLASH_CMD_ARGLIST = {
 	-- arg, description
-	-- {"version", L.SLASHCMD_DESC_VERSION},
 	{"chatmsg", L.SLASHCMD_DESC_CHATMSG},
 	{"show", L.SLASHCMD_DESC_SHOW},
 	{"hide", L.SLASHCMD_DESC_HIDE},
+	{"hook", L.SLASHCMD_DESC_HOOK},
 	{"config", BASIC_OPTIONS_TOOLTIP},  --> WoW global string
 	--> TODO - "about"
 }
@@ -1571,6 +1590,10 @@ function MRBP:RegisterSlashCommands()
 				MRBP:HideMinimapButton()
 				-- Manually set by user
 				ns.settings.showMinimapButton = false
+
+			elseif (msg == 'hook') then
+				local informUser = true
+				MRBP:RedoButtonHooks(informUser)
 
 			----- Tests -----
 			elseif (msg == 'garrtest') then

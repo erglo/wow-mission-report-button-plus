@@ -68,6 +68,8 @@ It is still possible to access mission reports from previous expansions but the 
 
 ### Known Issues
 
++ [FIXED] When using MRBP together with *cfxfox*'s addon [War Plan](https://beta.curseforge.com/wow/addons/war-plan) the minimap button's right-click handler was overridden showing only War Plan's dropdown menu. This has been fixed.  
+*In case of other addons doing something similar I added the slash command `hook`, which simply re-registers the MRBP's button hooks (tooltip + right-click menu).*
 + As soon as you unlock a command table the minimap button doesn't update automatically. The add-on gathers this information only once at startup in order to save memory. You need to reload the UI manually, eg. by typing `/reload` in the chat frame. Logging-out and -in again also works.  
   I will tend to this as soon as possible.
 

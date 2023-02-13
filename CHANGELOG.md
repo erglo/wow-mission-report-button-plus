@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file (
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.1+100005] - 2023-02-13
+
+### Added
+
+- New slash command `hook`, for manually re-registering the minimap button hooks; just in case that there are other addons interfering.
+
+### Fixed
+
+- Right-click menu interference by _cfxfox_'s [War Plan](https://beta.curseforge.com/wow/addons/war-plan), by auto-updating the minimap button hooks on player login.
+
 ## [0.11.0+100005] - 2023-02-08
 
 ### Added
@@ -46,22 +56,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
 
 - Slash command for `version` info is not needed anymore.
 
-## [0.9.0+100002] - 2022-12-27
-
-### Added
-
-- New settings for timer/colors/glyphs + localization.
-- Time remaining info for world map threats.
-- Major Factions renown status in entry tooltip.
-
-### Changed
-
-- Updated details display in menu entry tooltips and restructured its code for better readability.
-
 ----
 
 ## Previous Versions
 
+🏷️ [v0.9.0](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4274082) - WoW 10.0.2 (retail)  
 🏷️ [v0.8.0](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4173683) - WoW 10.0.2 (retail)  
 🏷️ [v0.7.2](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4110896) - WoW 10.0.2 (retail)  
 🏷️ [v2022.11.20 (beta)](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4099565) - WoW 10.0.2 (retail)  

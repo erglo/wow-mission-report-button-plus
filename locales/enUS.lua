@@ -9,10 +9,10 @@ ns.L = {
 	TOOLTIP_CLICKTEXT_MINIMAPBUTTON = "Right-click to select expansion",
 	TOOLTIP_REQUIREMENTS_TEXT_S = 'Complete "%s" to unlock content',
 	--[[ Slash command descriptions ]]--
-	SLASHCMD_DESC_VERSION = "Prints this add-on's current version info",
 	SLASHCMD_DESC_CHATMSG = "Toggles chat notifications",
 	SLASHCMD_DESC_SHOW = "Shows the minimap button",
 	SLASHCMD_DESC_HIDE = "Hides the minimap button",
+	SLASHCMD_DESC_HOOK = "Updates the minimap button hooks",
 	--[[ Chat messages ]]--
 	CHATMSG_SYNTAX_INFO_S = "Usage: '%s <argument>'",
 	CHATMSG_SILENT_S = "Chat notifications disabled. Re-enable with '%s'.",
@@ -20,6 +20,7 @@ ns.L = {
 	CHATMSG_RESET = "Settings have been reset to default values.",
 	CHATMSG_UNLOCKED_COMMANDTABLES_REQUIRED = "Requirements for displaying the minimap button not met. At least one of the command tables available must be unlocked.",
 	CHATMSG_MINIMAPBUTTON_ALREADY_SHOWN = "Minimap button is already visible.",
+	CHATMSG_MINIMAPBUTTON_HOOKS_UPDATED = "Minimap button hooks have been updated.",
 	--[[ Menu entry tooltip ]]--
 	ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL = "World Map Events",
 	ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL = "Apply Faction Colors",

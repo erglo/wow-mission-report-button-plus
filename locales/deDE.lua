@@ -13,10 +13,10 @@ ns.L = {
 	TOOLTIP_CLICKTEXT_MINIMAPBUTTON = "Rechtsklicken, um Erweiterung auszuwählen",
 	TOOLTIP_REQUIREMENTS_TEXT_S = '"%s" abschließen, um Inhalt freizuschalten',
 	--[[ Slash command descriptions ]]--
-	SLASHCMD_DESC_VERSION = "Liest die aktuelle Version dieses Addons aus",
 	SLASHCMD_DESC_CHATMSG = "Chatbenachrichtigungen ein/aus",
-	SLASHCMD_DESC_SHOW = "Blendet den Missionsbericht-Button der Minimap ein",
-	SLASHCMD_DESC_HIDE = "Blendet den Missionsbericht-Button der Minimap aus",
+	SLASHCMD_DESC_SHOW = "Missionsbericht-Button der Minikarte einblenden",
+	SLASHCMD_DESC_HIDE = "Missionsbericht-Button der Minikarte ausblenden",
+	SLASHCMD_DESC_HOOK = "Mauserkennung des Minikarten-Buttons aktualisieren",
 	--[[ Chat messages ]]--
 	CHATMSG_SYNTAX_INFO_S = "Syntax: '%s <argument>'",
 	CHATMSG_SILENT_S = "Chat-Benachrichtigungen deaktiviert. Mit '%s' reaktivieren.",
@@ -24,6 +24,7 @@ ns.L = {
 	CHATMSG_RESET = "Alle Einstellungen wurden zurückgesetzt.",
 	CHATMSG_UNLOCKED_COMMANDTABLES_REQUIRED = "Bedingungen zur Anzeige des Minikarten-Buttons nicht erfüllt. Es muss mindestens ein Befehlstisch freigeschaltet sein.",
 	CHATMSG_MINIMAPBUTTON_ALREADY_SHOWN = "Minikarten-Button ist bereits eingeblendet.",
+	CHATMSG_MINIMAPBUTTON_HOOKS_UPDATED = "Die Mauserkennung des Minikarten-Buttons wurde aktualisiert.",
 	--[[ Menu entry tooltip ]]--
 	ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL = "Weltkartenereignisse",
 	ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL = "Fraktionsfarben verwenden",
