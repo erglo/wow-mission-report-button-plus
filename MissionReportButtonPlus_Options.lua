@@ -60,7 +60,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	-- ["showEntryRequirements"] = true,
 	-- Dragonflight
 	["showMajorFactionRenownLevel"] = true,
-	["applyMajorFactionColors"] = false,
+	["applyMajorFactionColors"] = true,
 	["hideMajorFactionUnlockDescription"] = false,
 	["showDragonGlyphs"] = true,
 	["autoHideCompletedDragonGlyphZones"] = false,
@@ -84,6 +84,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showBfAFactionAssaultsInfo"] = true,
 	["showBfAWorldMapEvents"] = true,
 	["applyBfAFactionColors"] = true,
+	["showBfAIslandExpeditionsInfo"] = true,
 	-- Legion
 	["showLegionMissionInfo"] = true,
 	["showLegionBounties"] = true,
@@ -91,7 +92,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showLegionAssaultsInfo"] = true,
 	["showBrokenShoreInvasionInfo"] = true,
 	["showArgusInvasionInfo"] = true,
-	["applyInvasionColors"] = false,
+	["applyInvasionColors"] = true,
 	["showLegionTimewalkingVendor"] = true,
 	-- Warlords of Draenor
 	["showWoDMissionInfo"] = true,
@@ -736,6 +737,13 @@ function MRBP_Settings_Register()
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
+		{
+			variable = "showBfAIslandExpeditionsInfo",
+			name = ns.label.showBfAIslandExpeditionsInfo,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BFA_ISLAND_EXPEDITIONS_TOOLTIP,
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
+		},
 	};
 
 	CheckBox_CreateFromList(category, checkBoxList_BfAEntryTooltipSettings);
@@ -768,14 +776,12 @@ function MRBP_Settings_Register()
 			variable = "showCovenantRenownLevel",
 			name = ns.label.showCovenantRenownLevel,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_COVENANT_RENOWN_TOOLTIP,
-			tag = Settings.Default.True,
 		},
 		{
 			variable = "applyCovenantColors",
 			name = ns.label.applyCovenantColors,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
-			tag = Settings.Default.True,
 		},
 	};
 

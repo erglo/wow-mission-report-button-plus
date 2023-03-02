@@ -1099,18 +1099,35 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 
 	----- Battle for Azeroth -----
 
-	if (isForBattleForAzeroth and ns.settings.showBfAWorldMapEvents and ns.settings.showBfAFactionAssaultsInfo) then
-		-- tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAWorldMapEvents);
-		-- Faction Assaults
-		local factionAssaultsAreaPoiInfo = util.poi.GetBfAFactionAssaultsInfo();
-		if factionAssaultsAreaPoiInfo then
-			local fontColor = ns.settings.applyBfAFactionColors and factionAssaultsAreaPoiInfo.color or nil;
-			tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAFactionAssaultsInfo);  -- factionAssaultsAreaPoiInfo.name);
-			tooltipText = TooltipText_AddIconLine(tooltipText, factionAssaultsAreaPoiInfo.parentMapInfo.name, factionAssaultsAreaPoiInfo.atlasName, fontColor);
-			tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, factionAssaultsAreaPoiInfo.timeString);
-			tooltipText = TooltipText_AddObjectiveLine(tooltipText, factionAssaultsAreaPoiInfo.description);
+	if isForBattleForAzeroth then
+		if (ns.settings.showBfAWorldMapEvents and ns.settings.showBfAFactionAssaultsInfo) then
+			-- Faction Assaults
+			local factionAssaultsAreaPoiInfo = util.poi.GetBfAFactionAssaultsInfo();
+			if factionAssaultsAreaPoiInfo then
+				local fontColor = ns.settings.applyBfAFactionColors and factionAssaultsAreaPoiInfo.color or nil;
+				tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAFactionAssaultsInfo);  -- factionAssaultsAreaPoiInfo.name);
+				tooltipText = TooltipText_AddIconLine(tooltipText, factionAssaultsAreaPoiInfo.parentMapInfo.name, factionAssaultsAreaPoiInfo.atlasName, fontColor);
+				tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, factionAssaultsAreaPoiInfo.timeString);
+				tooltipText = TooltipText_AddObjectiveLine(tooltipText, factionAssaultsAreaPoiInfo.description);
+			end
+		end
+		if ns.settings.showBfAIslandExpeditionsInfo then
+			local islandExpeditionInfo = util.poi.GetBfAIslandExpeditionInfo();
+			tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAIslandExpeditionsInfo);
+			tooltipText = TooltipText_AddIconLine(tooltipText, islandExpeditionInfo.name, islandExpeditionInfo.atlasName);
+			local appendedTextColor = NORMAL_FONT_COLOR;
+			if islandExpeditionInfo.isFinished then
+				local prependIcon = true;
+				tooltipText = TooltipText_AddObjectiveCompletedLine(tooltipText, islandExpeditionInfo.progressText, prependIcon);
+				appendedTextColor = GRAY_FONT_COLOR;
+			else
+				tooltipText = TooltipText_AddObjectiveLine(tooltipText, islandExpeditionInfo.progressText);
+			end
+			tooltipText = TooltipText_AppendText(tooltipText, PARENS_TEMPLATE:format(islandExpeditionInfo.fulfilledPercentageString), appendedTextColor);
 		end
 	end
+
+
 
 	----- Shadowlands -----
 

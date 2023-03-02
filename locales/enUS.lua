@@ -73,6 +73,7 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_TIMEWALKING_VENDOR_TOOLTIP = "Displays a brief reminder about the whereabouts of the vendor during Timewalking events.",
 	CFG_DDMENU_ENTRYTOOLTIP_LEGION_BOUNTIES_TOOLTIP = "Lists the currently active Emissary Quests available on the Broken Isles and Argus in the tooltip.",
 	CFG_DDMENU_ENTRYTOOLTIP_BFA_BOUNTIES_TOOLTIP = "Lists the currently active Emissary Quests available on Zandalar and Kul Tiras in the tooltip.",
+	CFG_DDMENU_ENTRYTOOLTIP_BFA_ISLAND_EXPEDITIONS_TOOLTIP = "Shows the amount of Azerite you collected from the Island Expeditions.",
 	CFG_DDMENU_ENTRYTOOLTIP_COVENANT_BOUNTIES_TOOLTIP = "Lists the currently active Covenant Callings available in the Shadowlands in the tooltip.",
 	CFG_DDMENU_ENTRYTOOLTIP_LEGION_INVASION_COLORS_TOOLTIP = "Display the invasion names in a light green color.",
 	CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP = "Displays the faction names in their respective colors.",

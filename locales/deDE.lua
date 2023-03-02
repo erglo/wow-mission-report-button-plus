@@ -77,6 +77,7 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_TIMEWALKING_VENDOR_TOOLTIP = "Zeigt während Zeitwanderungsereignissen eine Erinnerung zur Verfügbarkeit des Händlers an.",
 	CFG_DDMENU_ENTRYTOOLTIP_LEGION_BOUNTIES_TOOLTIP = "Listet die verfügbaren Abgesandtenquests der Verheerten Inseln und Argus im Tooltip auf.",
 	CFG_DDMENU_ENTRYTOOLTIP_BFA_BOUNTIES_TOOLTIP = "Listet die verfügbaren Abgesandtenquests von Zandalar und Kul Tiras im Tooltip auf.",
+	CFG_DDMENU_ENTRYTOOLTIP_BFA_ISLAND_EXPEDITIONS_TOOLTIP = "Zeigt die auf Inselexpeditionen gesammelte Menge Azerit an.",
 	CFG_DDMENU_ENTRYTOOLTIP_COVENANT_BOUNTIES_TOOLTIP = "Listet die verfügbaren Paktberufungen der Schattenlande im Tooltip auf.",
 	CFG_DDMENU_ENTRYTOOLTIP_LEGION_INVASION_COLORS_TOOLTIP = "Stellt die Namen der Invasoren in einem hellen Grünton dar.",
 	CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP = "Die Namen der Fraktionen werden in ihren jeweiligen Farben dargestellt.",

@@ -1226,6 +1226,26 @@ function util.poi.GetBfAFactionAssaultsInfo()									--> TODO - Add faction ID 
 	end
 end
 
+--- BfA: Island Expeditions ---
+
+function util.poi.GetBfAIslandExpeditionInfo()
+	local islandExpeditionsQuestID = C_IslandsQueue.GetIslandsWeeklyQuestID();   --> 53435
+	local numObjectives = C_QuestLog.GetNumQuestObjectives(islandExpeditionsQuestID);  --> 1
+	local displayAsCompleted = false;
+	local text, objectiveType, isFinished, numFulfilled, numRequired = GetQuestObjectiveInfo(islandExpeditionsQuestID, numObjectives, displayAsCompleted);
+	local fulfilledPercentage = (numFulfilled / numRequired) * 100;  --> eg. (30224/36000)*100 = 83,95
+	local data = {
+		name = QuestUtils_GetQuestName(islandExpeditionsQuestID),  --> "Azerit für die Horde"
+		atlasName = "poi-islands-table",
+		isFinished = isFinished,
+		fulfilledPercentageString = PERCENTAGE_STRING:format(fulfilledPercentage),  --> eg. '83 %'
+		progressText = ISLANDS_QUEUE_WEEKLY_QUEST_PROGRESS:format(numFulfilled, numRequired),  --> "%d/%d Azerite";
+	};
+
+	return data;
+end
+Test_GetBfAIslandExpeditionInfo = util.poi.GetBfAIslandExpeditionInfo;
+
 ----- Legion: Legion Assaults -----
 
 local LegionAssaultsData = {};
@@ -1582,6 +1602,7 @@ ns.label = {
 	["showBfAWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL,
 	["showBfAFactionAssaultsInfo"] = L.ENTRYTOOLTIP_BFA_FACTION_ASSAULTS_LABEL, --> achievementID = 13284
 	["applyBfAFactionColors"] = L.ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL,
+	["showBfAIslandExpeditionsInfo"] = ISLANDS_HEADER,
 	-- Shadowlands
 	["showCovenantMissionInfo"] = COVENANT_MISSIONS_TITLE,
 	["showCovenantBounties"] = CALLINGS_QUESTS,
@@ -1776,6 +1797,9 @@ end
 -- isBounty = C_QuestLog.IsQuestBounty(questID)
 -- isCalling = C_QuestLog.IsQuestCalling(questID)
 
+-- local AZERITE_CURRENCY_ID = 1553;
+-- C_CurrencyInfo.GetCurrencyInfo(
+
 -- --> <FrameXML/QuestUtils.lua>
 -- local ECHOS_OF_NYLOTHA_CURRENCY_ID = 1803;
 -- C_CurrencyInfo.GetFactionGrantedByCurrency(currencyID);
@@ -1800,11 +1824,6 @@ end
 -- ["QuestSharing-Padlock"]={24, 29, 0.00195312, 0.0488281, 0.554688, 0.78125, false, false, "1x"},  				<--
 -- ["QuestSharing-QuestDetails-Padlock"]={20, 20, 0.537109, 0.576172, 0.835938, 0.992188, false, false, "1x"},
 -- ["Legionfall_Padlock"]={38, 45, 0.853516, 0.890625, 0.000976562, 0.0449219, false, false, "1x"},
-
---> Island Expeditions
--- C_IslandsQueue.GetIslandsWeeklyQuestID() --> 53435
--- C_QuestLog.GetNumQuestObjectives(53435)  --> 1
--- GetQuestObjectiveInfo(53435, 1, false) 	--> 30224/36000
 
 -- IsFlyableArea()
 -- IsIndoors()
