@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file (
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.1+100007] - 2023-03-29
+
+### Changed
+
+- Updated TOC file to `WoW 10.0.7`.
+
+### Fixed
+
+- Garrison types and follower constants have been renamed in `WoW 10.0.7`.
+
 ## [0.12.0+100005] - 2023-03-03
 
 ### Added

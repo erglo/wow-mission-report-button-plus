@@ -742,7 +742,7 @@ function MRBP_Settings_Register()
 			name = ns.label.showBfAIslandExpeditionsInfo,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BFA_ISLAND_EXPEDITIONS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
-			tag = Settings.Default.True,
+			-- tag = Settings.Default.True,
 		},
 	};
 

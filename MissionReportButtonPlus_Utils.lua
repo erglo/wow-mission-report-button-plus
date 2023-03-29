@@ -385,27 +385,27 @@ util.expansion.data = {
 	["WarlordsOfDraenor"] = {
 		["ID"] = LE_EXPANSION_WARLORDS_OF_DRAENOR,  -- 5
 		["name"] = EXPANSION_NAME5,
-		["garrisonTypeID"] = Enum.GarrisonType.Type_6_0,
+		["garrisonTypeID"] = Enum.GarrisonType.Type_6_0_Garrison,
 		["continents"] = {572}  --> Draenor
 		-- **Note:** No bounties in Draenor; only available since Legion.
 	},
 	["Legion"] = {
 		["ID"] = LE_EXPANSION_LEGION,  -- 6
 		["name"] = EXPANSION_NAME6,
-		["garrisonTypeID"] = Enum.GarrisonType.Type_7_0,
+		["garrisonTypeID"] = Enum.GarrisonType.Type_7_0_Garrison,
 		["continents"] = {619, 905},  --> Broken Isles + Argus
 	},
 	["BattleForAzeroth"] = {
 		["ID"] = LE_EXPANSION_BATTLE_FOR_AZEROTH,  -- 7
 		["name"] = EXPANSION_NAME7,
-		["garrisonTypeID"] = Enum.GarrisonType.Type_8_0,
+		["garrisonTypeID"] = Enum.GarrisonType.Type_8_0_Garrison,
 		["continents"] = {875, 876},  -- Zandalar, Kul Tiras
 		["poiZones"] = {1355, 62, 14, 81},  -- Nazjatar, Darkshore, Arathi Highlands, Silithus
 	},
 	["Shadowlands"] = {
 		["ID"] = LE_EXPANSION_SHADOWLANDS,  -- 8
 		["name"] = EXPANSION_NAME8,
-		["garrisonTypeID"] = Enum.GarrisonType.Type_9_0,
+		["garrisonTypeID"] = Enum.GarrisonType.Type_9_0_Garrison,
 		["continents"] = {1550},  --> Shadowlands
 	},
 	["Dragonflight"] = {
@@ -562,11 +562,11 @@ util.garrison = {};
 
 -- -- Available follower types of each garrison landing page
 -- util.garrison.GARRISON_FOLLOWER_TYPES = {
--- 	Enum.GarrisonFollowerType.FollowerType_6_0,
--- 	Enum.GarrisonFollowerType.FollowerType_6_2,
--- 	Enum.GarrisonFollowerType.FollowerType_7_0,
--- 	Enum.GarrisonFollowerType.FollowerType_8_0,
--- 	Enum.GarrisonFollowerType.FollowerType_9_0,
+-- 	Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower,
+-- 	Enum.GarrisonFollowerType.FollowerType_6_0_Boat,
+-- 	Enum.GarrisonFollowerType.FollowerType_7_0_GarrisonFollower,
+-- 	Enum.GarrisonFollowerType.FollowerType_8_0_GarrisonFollower,
+-- 	Enum.GarrisonFollowerType.FollowerType_9_0_GarrisonFollower,
 -- };
 
 -- Check if given garrison type ID is unlocked.

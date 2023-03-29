@@ -429,8 +429,8 @@ function MRBP:LoadData()
 				["missionsTitle"] = GARRISON_MISSIONS_TITLE,
 				["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,  --> "%d/%d Ready for pickup"
 				["missionsEmptyProgress"] = GARRISON_EMPTY_IN_PROGRESS_LIST,
-				["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_6_0].strings.LANDING_COMPLETE,
-				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(Enum.GarrisonType.Type_6_0, playerInfo.factionGroup).requirementText,
+				["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower].strings.LANDING_COMPLETE or '???',
+				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(Enum.GarrisonType.Type_6_0_Garrison, playerInfo.factionGroup).requirementText,
 			},
 			["expansion"] = util.expansion.data.WarlordsOfDraenor,
 			["continents"] = {572},  --> Draenor
@@ -447,7 +447,7 @@ function MRBP:LoadData()
 				["missionsTitle"] = GARRISON_MISSIONS,
 				["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
 				["missionsEmptyProgress"] = GARRISON_EMPTY_IN_PROGRESS_LIST,
-				["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_7_0].strings.LANDING_COMPLETE,
+				["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_7_0_GarrisonFollower].strings.LANDING_COMPLETE,
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.Legion.garrisonTypeID, playerInfo.className).requirementText,
 			},
 			["expansion"] = util.expansion.data.Legion,
@@ -470,7 +470,7 @@ function MRBP:LoadData()
 				["missionsTitle"] = GARRISON_MISSIONS,
 				["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
 				["missionsEmptyProgress"] = GARRISON_EMPTY_IN_PROGRESS_LIST,
-				["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_8_0].strings.LANDING_COMPLETE,
+				["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_8_0_GarrisonFollower].strings.LANDING_COMPLETE,
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.BattleForAzeroth.garrisonTypeID, playerInfo.factionGroup).requirementText,
 			},
 			["expansion"] = util.expansion.data.BattleForAzeroth,
@@ -496,7 +496,7 @@ function MRBP:LoadData()
 				["missionsTitle"] = COVENANT_MISSIONS_TITLE,
 				["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
 				["missionsEmptyProgress"] = COVENANT_MISSIONS_EMPTY_IN_PROGRESS,
-				["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_9_0].strings.LANDING_COMPLETE,
+				["missionsComplete"] = GarrisonFollowerOptions[Enum.GarrisonFollowerType.FollowerType_9_0_GarrisonFollower].strings.LANDING_COMPLETE,
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.Shadowlands.garrisonTypeID, playerInfo.covenantID).requirementText,
 			},
 			["expansion"] = util.expansion.data.Shadowlands,
@@ -1531,7 +1531,7 @@ function MRBP_GetLandingPageGarrisonType()
 	if (garrTypeID > 0 and not MRBP_IsGarrisonRequirementMet(garrTypeID) ) then
 		-- Build and return garrison type ID of previous expansion.
 		local minExpansionID = util.expansion.GetMinimumExpansionLevel()  --> min. available, eg. 8 (Shadowlands)
-		-- Need last attribute of eg. 'Enum.GarrisonType.Type_8_0'
+		-- Need last attribute of eg. 'Enum.GarrisonType.Type_8_0_Garrison'
 		local garrTypeID_Minimum = Enum.GarrisonType["Type_"..tostring(minExpansionID).."_0"]
 
 		if (_log.level == _log.DEBUG) then
