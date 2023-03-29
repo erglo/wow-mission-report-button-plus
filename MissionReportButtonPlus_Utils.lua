@@ -656,6 +656,7 @@ function util.garrison.GetDragonGlyphsCount()
 		{mapID = 2023, achievementID = 16576},  -- "Ohn'ahran Plains Glyph Hunter"
 		{mapID = 2024, achievementID = 16577},  -- "Azure Span Glyph Hunter"
 		{mapID = 2025, achievementID = 16578},  -- "Thaldraszus Glyph Hunter"
+		{mapID = 2151, achievementID = 17411},  -- "Forbidden Reach Glyph Hunter"
 	};
 	local glyphsPerZone = {};  -- Glyph count by map ID
 	local numGlyphsTotal = 0;  -- The total number of glyphs from all zones
