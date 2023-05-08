@@ -310,7 +310,8 @@ local function CheckBox_CreateFromList(category, checkBoxList)
 	for i, cb in ipairs(checkBoxList) do
 		local setting, initializer = CheckBox_Create(category, cb.variable, cb.name, cb.tooltip);
 		if cb.tag then
-			initializer:SetNewTagShown(Settings.Default.True);
+			-- initializer:SetNewTagShown(Settings.Default.True);
+			setting:SetNewTagShown(Settings.Default.True);
 		end
 		if cb.parentVariable then
 			setting.parentVariable = cb.parentVariable;

@@ -8,7 +8,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
   
 ### Fixed  
   
-- [Issue #5] "In retail version 10.1, SetNewTagShown is nil".  
 - Some of the world map icons have been updated or merged in `WoW 10.0.7` which led to the problem that the world map events on the Dragon Isles couldn't be identified and didn't appear in the tooltip details.  
   
 ----  
@@ -24,6 +23,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
 - Updated dragon glyphs counter for Zaralek Cavern.  
 - Updated functions which have been renamed or removed in `Deprecated_10_1_0.lua`.  
 - Updated TOC file version to `WoW 10.1.0`.  
+  
+### Fixed  
+  
+- [Issue #5] "In retail version 10.1, SetNewTagShown is nil". Blizzard devs moved `SetNewTagShown` from the initializer to the setting mixin class.  
   
 ## [0.12.2+100007] - 2023-03-30  
   
