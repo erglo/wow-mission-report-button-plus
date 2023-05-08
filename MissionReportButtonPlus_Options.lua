@@ -951,10 +951,10 @@ function MRBP_Settings_Register()
 		metaValue:SetJustifyH("LEFT");
 		if ( strlower(infoLabel) == "author" ) then
 			-- Append author's email address behind name
-			local authorName, authorMail = GetAddOnMetadata(AddonID, infoLabel), GetAddOnMetadata(AddonID, "X-Email");
+			local authorName, authorMail = ns.GetAddOnMetadata(AddonID, infoLabel), ns.GetAddOnMetadata(AddonID, "X-Email");
 			metaValue:SetText(string.format("%s <%s>", authorName, authorMail));
 		else
-			metaValue:SetText(GetAddOnMetadata(AddonID, infoLabel));
+			metaValue:SetText(ns.GetAddOnMetadata(AddonID, infoLabel));
 		end
 		--> TODO - Make email and website links clickable.
 		-- TALENT_FRAME_DROP_DOWN_EXPORT = "Teilen |cnLIGHTGRAY_FONT_COLOR:(in Zwischenablage kopieren)|r";

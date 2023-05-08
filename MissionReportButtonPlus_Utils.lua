@@ -23,7 +23,10 @@
 local AddonID, ns = ...;
 local L = ns.L;
 
-ns.AddonTitle = GetAddOnMetadata(AddonID, "Title");
+-- Backwards compatibility
+ns.GetAddOnMetadata = C_AddOns.GetAddOnMetadata;  --> WoW 10.1.0
+
+ns.AddonTitle = ns.GetAddOnMetadata(AddonID, "Title");
 ns.AddonTitleShort = 'MRBP';
 ns.AddonColor = CreateColor(0.6, 0.6, 0.6);	--> light gray
 ns.AddonTitleSeparator = HEADER_COLON; --> WoW global string
@@ -82,15 +85,15 @@ ns.utilities = util;
 -- Print the current add-on's version infos to chat.
 --
 function util.printVersion(shortVersionOnly)
-	local version = GetAddOnMetadata(AddonID, "Version");
+	local version = ns.GetAddOnMetadata(AddonID, "Version");
 	if version then
 		if shortVersionOnly then
 			print(ns.AddonColor:WrapTextInColorCode(version));
 		else
-			local title = GetAddOnMetadata(AddonID, "Title");
-			local author = GetAddOnMetadata(AddonID, "Author");
-			local notes_enUS = GetAddOnMetadata(AddonID, "Notes");
-			local notes_local = GetAddOnMetadata(AddonID, "Notes-"..GetLocale());
+			local title = ns.GetAddOnMetadata(AddonID, "Title");
+			local author = ns.GetAddOnMetadata(AddonID, "Author");
+			local notes_enUS = ns.GetAddOnMetadata(AddonID, "Notes");
+			local notes_local = ns.GetAddOnMetadata(AddonID, "Notes-"..GetLocale());
 			local notes = notes_local or notes_enUS;
 			local output = title..'|n'..version..' by '..author..'|n'..notes;
 			print(ns.AddonColor:WrapTextInColorCode(output));
@@ -556,7 +559,7 @@ end
 -- REF.: <FrameXML/GarrisonBaseUtils.lua>
 -- REF.: <FrameXML/Blizzard_GarrisonUI/Blizzard_GarrisonMissionUI.lua>
 
--- A collection of garrison related helper functions; also used for backward 
+-- A collection of garrison related helper functions; also used for backwards 
 -- compatibility with often changing WoW globals
 util.garrison = {};
 
@@ -585,6 +588,14 @@ function util.garrison.IsDraenorInvasionAvailable()
 end
 
 ----- Dragonflight -----
+--
+-- REF.: <FrameXML/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
+
+-- local function IsDragonflightLandingPageUnlocked()
+-- 	return GetCVarBitfield("unlockedExpansionLandingPages", Enum.ExpansionLandingPageType.Dragonflight);
+-- end
+-- TODO - Needed ???
+--> Check MRBP_COMMAND_TABLE_UNLOCK_QUESTS in core; need quest IDs for requirements.
 
 -- Check if the dragon riding feature in Dragonflight is unlocked.
 ---@return boolean isUnlocked
@@ -652,11 +663,12 @@ end
 --
 function util.garrison.GetDragonGlyphsCount()
 	local DRAGONRIDING_GLYPH_HUNTER_ACHIEVEMENTS = {
-		{mapID = 2022, achievementID = 16575},  -- "Waking Shores Glyph Hunter"
-		{mapID = 2023, achievementID = 16576},  -- "Ohn'ahran Plains Glyph Hunter"
-		{mapID = 2024, achievementID = 16577},  -- "Azure Span Glyph Hunter"
-		{mapID = 2025, achievementID = 16578},  -- "Thaldraszus Glyph Hunter"
-		{mapID = 2151, achievementID = 17411},  -- "Forbidden Reach Glyph Hunter"
+		{mapID = 2022, achievementID = 16575},  -- Waking Shores Glyph Hunter
+		{mapID = 2023, achievementID = 16576},  -- Ohn'ahran Plains Glyph Hunter
+		{mapID = 2024, achievementID = 16577},  -- Azure Span Glyph Hunter
+		{mapID = 2025, achievementID = 16578},  -- Thaldraszus Glyph Hunter
+		{mapID = 2151, achievementID = 17411},  -- Forbidden Reach Glyph Hunter
+		{mapID = 2133, achievementID = 18150},  -- Zaralek Cavern Glyph Hunter
 	};
 	local glyphsPerZone = {};  -- Glyph count by map ID
 	local numGlyphsTotal = 0;  -- The total number of glyphs from all zones
@@ -1166,7 +1178,7 @@ end
 ----- Iskaara Community Feast -----
 
 local CommunityFeastData = {};
-CommunityFeastData.areaPoiIDs = {7218, 7219, 7220};
+CommunityFeastData.areaPoiIDs = {7218, 7219, 7220};  --, 7393};
 CommunityFeastData.mapID = 2024;  --> Azure Span
 CommunityFeastData.mapInfo = LocalMapUtil.GetMapInfo(CommunityFeastData.mapID);
 CommunityFeastData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
@@ -1174,6 +1186,7 @@ CommunityFeastData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
 function util.poi.GetCommunityFeastInfo()
 	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(CommunityFeastData);
 end
+Test_GetCommunityFeastInfo = util.poi.GetCommunityFeastInfo;
 
 ----- Siege on Dragonbane Keep event -----
 
@@ -1245,7 +1258,6 @@ function util.poi.GetBfAIslandExpeditionInfo()
 
 	return data;
 end
-Test_GetBfAIslandExpeditionInfo = util.poi.GetBfAIslandExpeditionInfo;
 
 ----- Legion: Legion Assaults -----
 
@@ -1383,6 +1395,7 @@ PoiFilter.ignoredAreaPoiIDs = {
 	"7392",  -- Maruukai
 	"7393",  -- Iskaara
 	"7394",  -- Obsidianzitadelle und Drachenfluchfestung
+	"7414",  -- Zskera Vaults
 	-- Shadowlands
 	-- "6640",  -- Torghast, The Maw
 	"6991",  -- Kyrian Assault, The Maw (covered as threat)

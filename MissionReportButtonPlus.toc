@@ -1,8 +1,9 @@
-## Interface: 100007
+## Interface: 100100
 ## Title: Mission Report Button Plus
+## IconAtlas: dragonflight-landingbutton-up
 ## Notes: Adds a right-click menu to the mission reports button on the minimap|nwith access to reports from current and previous expansions.
 ## Notes-deDE: Erweitert den Missionsbericht-Button der Minikarte mit einer Auswahl|nvon Berichten früherer Erweiterungen.
-## Version: v0.12.2
+## Version: v0.13.0
 ## Author: ergloCoder
 ## X-Email: erglo.coder+MRBP@gmail.com
 ## X-Project-Homepage: https://www.curseforge.com/wow/addons/mission-report-button-plus

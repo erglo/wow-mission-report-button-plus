@@ -202,7 +202,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			local foundMessage = WARNING_FONT_COLOR:WrapTextInColorCode("Found interfering addon:")
 			for _, interferingAddonName in ipairs(interferingAddonIDs) do
 				if IsAddOnLoaded(interferingAddonName) then
-					local addonTitle = GetAddOnMetadata(interferingAddonName, "Title")
+					local addonTitle = ns.GetAddOnMetadata(interferingAddonName, "Title")
 					_log.info(foundMessage, addonTitle)
 					self:RedoButtonHooks(informUser)
 				end
@@ -1308,8 +1308,11 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 			info.tooltipOnButton = ns.settings.showEntryTooltip and 1 or nil;
 			info.tooltipTitle = ns.settings.preferExpansionName and garrInfo.title or garrInfo.expansion.name;
 			info.tooltipText = BuildMenuEntryTooltip(garrInfo, activeThreats);
+			-- info.tooltipWarning = "Warning example";
 			if ns.settings.showMissionTypeIcons then
 				info.icon = filename;
+				-- info.iconTooltipTitle = "Testtitle";
+				-- info.iconTooltipText = "Testtext";
 				info.tCoordLeft = txLeft;
 				info.tCoordRight = txRight;
 				info.tCoordTop = txTop;
@@ -1348,6 +1351,7 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 		info.tooltipOnButton = 1
 		info.tooltipTitle = SETTINGS  --> WoW global string
 		info.tooltipText = BASIC_OPTIONS_TOOLTIP  --> WoW global string
+		-- info.tooltipBackdropStyle = BACKDROP_GOLD_DIALOG_32_32;
 
 		UIDropDownMenu_AddButton(info)
 	end

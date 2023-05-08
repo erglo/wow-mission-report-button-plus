@@ -4,84 +4,56 @@ All notable changes to this project will be documented in this file (
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.12.2+100007] - 2023-03-30
-
-### Changed
-
-- Updated dragon glyphs counter for Forbidden Reach.
-
-## [0.12.1+100007] - 2023-03-29
-
-### Changed
-
-- Updated TOC file to `WoW 10.0.7`.
-
-### Fixed
-
-- Garrison types and follower constants have been renamed in `WoW 10.0.7`.
-
-## [0.12.0+100005] - 2023-03-03
-
-### Added
-
-- Battle for Azeroth: Amount of collected Azerite from `Island Expeditions`.
-
-## [0.11.1+100005] - 2023-02-13
-
-### Added
-
-- New slash command `hook`, for manually re-registering the minimap button hooks; just in case that there are other addons interfering.
-
-### Fixed
-
-- Right-click menu interference by _cfxfox_'s [War Plan](https://beta.curseforge.com/wow/addons/war-plan), by auto-updating the minimap button hooks on player login.
-
-## [0.11.0+100005] - 2023-02-08
-
-### Added
-
-- Shadowlands: Covenant colors.
-- Shadowlands: Covenant Renown level details.
-
-### Changed
-
-- Separated threat colors settings for Shadowlands and BfA.
-
-## [0.10.0+100005] - 2023-02-03
-
-### Added
-
-- Added `Timewalking Vendor` availability hint for Draenor and Legion.
-- Added faction colors for world map threats and assaults.
-- Dragonflight: added `Elemental Storms` details.
-- Dragonflight: added `Siege on Dragonbane Keep` details.
-- Dragonflight: added `Iskaara Community Feast` details.
-- Dragonflight: added `Clan Aylaag` details.
-- Dragonflight: added `Dragonriding Race` details.
-- Dragonflight: added `Grand Hunts` details.
-- Battle for Azeroth: added `Faction Assaults` details.
-- Legion: added `Invasion Rifts` details from Argus.
-- Legion: added `Demon Invasion` details from Broken Shore.
-- Legion: added `Legion Assaults` details to tooltip and settings.
-- Warlords of Draenor: added `Garrison Invasion alert` to tooltip and settings.
-
-### Changed
-
-- Updated the README file.
-- Updated the TOC file's interface version.
-- Unified labels for tooltip and settings category groups.
-- Separated and regrouped settings for each expansion.
-- The time remaining string in tooltips has been shortened. It shows now a clock icon instead of a preceding text.
-- Extended calendar specials, including a cache.
-
-### Removed
-
-- Slash command for `version` info is not needed anymore.
-
-----
-
-## Previous Versions
-
+## [Unreleased]  
+  
+### Fixed  
+  
+- [Issue #5] "In retail version 10.1, SetNewTagShown is nil".  
+- Some of the world map icons have been updated or merged in `WoW 10.0.7` which led to the problem that the world map events on the Dragon Isles couldn't be identified and didn't appear in the tooltip details.  
+  
+----  
+  
+## [0.13.0+100100] - 2023-05-08  
+  
+### Added  
+  
+- New addon icon; the Addon list now supports displaying addon icons which can be added to the TOC file.  
+  
+### Changed  
+  
+- Updated dragon glyphs counter for Zaralek Cavern.  
+- Updated functions which have been renamed or removed in `Deprecated_10_1_0.lua`.  
+- Updated TOC file version to `WoW 10.1.0`.  
+  
+## [0.12.2+100007] - 2023-03-30  
+  
+### Changed  
+  
+- Updated dragon glyphs counter for Forbidden Reach.  
+  
+## [0.12.1+100007] - 2023-03-29  
+  
+### Changed  
+  
+- Updated TOC file to `WoW 10.0.7`.  
+  
+### Fixed  
+  
+- Garrison types and follower constants have been renamed in `WoW 10.0.7`.  
+  
+## [0.12.0+100005] - 2023-03-03  
+  
+### Added  
+  
+- Battle for Azeroth: Amount of collected Azerite from `Island Expeditions`.  
+  
+----  
+  
+## Previous Versions  
+  
+🏷️ [v0.11.1](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4394724) - WoW 10.0.5 (retail)  
+🏷️ [v0.11.0](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4388074) - WoW 10.0.5 (retail)  
+🏷️ [v0.10.0](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4378645) - WoW 10.0.5 (retail)  
 🏷️ [v0.9.0](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4274082) - WoW 10.0.2 (retail)  
 🏷️ [v0.8.0](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4173683) - WoW 10.0.2 (retail)  
 🏷️ [v0.7.2](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4110896) - WoW 10.0.2 (retail)  
