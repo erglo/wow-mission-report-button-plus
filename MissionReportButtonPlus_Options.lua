@@ -44,6 +44,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showChatNotifications"] = true,
 	["showMinimapButton"] = true,
 	["showAddonNameInTooltip"] = true,
+	-- ["hideInAddonCompartment"] = false,
 	-- Dropdown menu
 	["showEntryTooltip"] = true,
 	["preferExpansionName"] = true,
@@ -207,7 +208,7 @@ local function CheckBox_OnValueChanged(owner, setting, value)
 		-- Print user feedback on selected setting to chat
 		printOption(setting.name, value);
 	end
-	if (setting.variable == "showMinimapButton") then  --> temporary solution for beta2
+	if (setting.variable == "showMinimapButton") then
 		-- Manually set by user
 		local shouldShowMinimapButton = value;
 		if shouldShowMinimapButton then
@@ -216,6 +217,14 @@ local function CheckBox_OnValueChanged(owner, setting, value)
 			ns:HideMinimapButton();
 		end
 	end
+	-- if (setting.variable == "hideInAddonCompartment") then
+	-- 	-- Toggle Addon Compartment entry
+	-- 	if value then
+	-- 		util.AddonCompartment.RemoveAddon();
+	-- 	else
+	-- 		util.AddonCompartment.ReregisterAddon();
+	-- 	end
+	-- end
 	-- Handle "activeMenuEntries"
 	local varName, indexString = strsplit('#', setting.variable);
 	if indexString then
@@ -397,6 +406,13 @@ function MRBP_Settings_Register()
 			tooltip = L.CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TOOLTIP,
 			parentVariable = "showMinimapButton",
 		},
+		-- {
+		-- 	variable = "hideInAddonCompartment",
+		-- 	name = "Vom Addon Compartment entfernen",  -- "Hide in Addon Compartment",
+		-- 	tooltip = "Do not show this addon in the Addon Compartment.",
+		-- 	-- parentVariable = "showMinimapButton",
+		-- 	tag = Settings.Default.True,
+		-- },
 	};
 
 	CheckBox_CreateFromList(category, checkBoxList_CommonSettings);
@@ -743,7 +759,6 @@ function MRBP_Settings_Register()
 			name = ns.label.showBfAIslandExpeditionsInfo,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BFA_ISLAND_EXPEDITIONS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
-			-- tag = Settings.Default.True,
 		},
 	};
 

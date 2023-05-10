@@ -16,7 +16,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
   
 ### Added  
   
-- New addon icon; the Addon list now supports displaying addon icons which can be added to the TOC file.  
+- Addon Compartment details.
+- New addon icon; the Addon List now supports displaying addon icons which can be added to the TOC file.  
+- Alternative icon for Evoker class in Legion.
   
 ### Changed  
   

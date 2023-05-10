@@ -124,6 +124,21 @@ function util.tcount(tbl)
 	return n;
 end
 
+-- Strip the hyphen character from German locale strings.
+---@param text string
+---@return string
+--
+function util.strip_DE_hyphen(text)
+	if (GetLocale() == "deDE") then
+		local prefix, postfix = strsplit('-', text);
+		if postfix then
+			-- Only when text contained a hyphen is postfix non-empty
+			return prefix..strtrim(postfix);
+		end
+	end
+	return text;
+end
+
 --------------------------------------------------------------------------------
 ----- Atlas + Textures ---------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -135,6 +150,47 @@ function util.GetAtlasInfo(atlas)
 	if info then
 		local file = info.filename or info.file;
 		return file, info.width, info.height, info.leftTexCoord, info.rightTexCoord, info.topTexCoord, info.bottomTexCoord, info.tilesHorizontally, info.tilesVertically;
+	end
+end
+
+-- Convert an atlas name to a texture file and add it to given tooltip.
+--
+-- REF.: <https://wowpedia.fandom.com/wiki/API_GameTooltip_AddTexture>
+--
+function util.GameTooltip_AddAtlas(tooltip, atlasName, atlasWidth, atlasHeight, anchor, marginRight)
+	local atlasInfo = C_Texture.GetAtlasInfo(atlasName)
+	tooltip:AddTexture(atlasInfo.file, {
+		width = atlasWidth or 16,    -- atlasInfo.width,
+		height = atlasHeight or 16,  -- atlasInfo.height,
+		texCoords = {
+			left = atlasInfo.leftTexCoord,
+			right = atlasInfo.rightTexCoord,
+			top = atlasInfo.topTexCoord,
+			bottom = atlasInfo.bottomTexCoord,
+		},
+		margin = {
+			left = 0,
+			right = marginRight or 1,
+			top = 0,
+			bottom = 0,
+		},
+		anchor = anchor or Enum.TooltipTextureAnchor.LeftCenter,
+	})
+end
+
+-- Add given text as an objective line with a prepending icon
+function util.GameTooltip_AddObjectiveLine(tooltip, text, isCompleted, wrap, leftOffset, altTexture)
+	local defaultLeftOffset = 8;
+	if not isCompleted then
+		GameTooltip_AddNormalLine(tooltip, text, wrap, leftOffset or defaultLeftOffset);
+		if (altTexture and type(tonumber(altTexture)) ~= "number") then
+			util.GameTooltip_AddAtlas(tooltip, altTexture);
+			return;
+		end
+		GameTooltip:AddTexture(altTexture or 3083385, {margin={left=2, right=3, top=0, bottom=0}});  --> dash icon
+	else
+		GameTooltip_AddDisabledLine(tooltip, text, wrap, leftOffset or defaultLeftOffset);
+		GameTooltip:AddTexture(628564, {margin={left=2, right=3, top=0, bottom=0}});  --> check mark icon
 	end
 end
 
@@ -594,7 +650,7 @@ end
 -- local function IsDragonflightLandingPageUnlocked()
 -- 	return GetCVarBitfield("unlockedExpansionLandingPages", Enum.ExpansionLandingPageType.Dragonflight);
 -- end
--- TODO - Needed ???
+																				--> TODO - Needed ???
 --> Check MRBP_COMMAND_TABLE_UNLOCK_QUESTS in core; need quest IDs for requirements.
 
 -- Check if the dragon riding feature in Dragonflight is unlocked.
@@ -969,6 +1025,7 @@ function util.threats.GetActiveThreats()
 		return activeThreats;
 	end
 end
+-- Test_GetActiveThreats = util.threats.GetActiveThreats;
 
 --------------------------------------------------------------------------------
 ----- POI event handler --------------------------------------------------------
@@ -1673,7 +1730,7 @@ end
 function LocalCalendarUtil.cache:HasItem(itemID)
 	return self:GetItem(itemID) ~= nil;
 end
---> TODO - Add expiration ???
+																				--> TODO - Add expiration ???
 --  C_DateAndTime.CompareCalendarTime(lhsCalendarTime, rhsCalendarTime)
 
 -- Find and return the currently active calendar day event by given ID.
@@ -1793,12 +1850,39 @@ function util.calendar.IsTodayWorldQuestDayEvent()
 	return false, nil, nil;
 end
 
+----- Addon Compartment -------------------------------------------------------- --> TODO - Useful ???
+
+-- local AddonCompartmentUtil = {};
+-- util.AddonCompartment = AddonCompartmentUtil;
+
+-- function AddonCompartmentUtil.RemoveAddon()
+-- 	for index, compartmentAddon in ipairs(AddonCompartmentFrame.registeredAddons) do
+-- 		if (compartmentAddon.text == ns.AddonTitle) then
+-- 			_log:debug("Found and removing from index:", index);
+-- 			-- Backup dropdown button info
+-- 			AddonCompartmentUtil.info = AddonCompartmentFrame.registeredAddons[index];
+-- 			AddonCompartmentFrame.registeredAddons[index] = nil;
+-- 			AddonCompartmentFrame:UpdateDisplay();
+-- 			return true;
+-- 		end
+-- 	end
+-- 	return false;
+-- end
+
+-- function AddonCompartmentUtil.ReregisterAddon()
+-- 	if AddonCompartmentUtil.info then
+-- 		table.insert(AddonCompartmentFrame.registeredAddons, AddonCompartmentUtil.info);
+-- 		AddonCompartmentFrame:UpdateDisplay();
+-- 		_log:debug("Addon re-registered.");
+-- 	end
+-- 	return false;
+-- end
+
 ----- more to come -------------------------------------------------------------
 
 --> TODO
--- Shadowlands renown level progress
--- BfA Island Expeditions
--- Long/short time format
+-- Timewalking Dragonflight (2023-05-03)
+-- Angriff von Fyrakk
 
 ----- Tests --------------------------------------------------------------------
 

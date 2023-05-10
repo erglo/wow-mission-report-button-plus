@@ -441,7 +441,8 @@ function MRBP:LoadData()
 			["tagName"] = playerInfo.className,
 			["title"] = ORDER_HALL_LANDING_PAGE_TITLE,
 			["description"] = MINIMAP_ORDER_HALL_LANDING_PAGE_TOOLTIP,
-			["minimapIcon"] = string.format("legionmission-landingbutton-%s-up", playerInfo.className),
+			["minimapIcon"] = playerInfo.className == "EVOKER" and "UF-Essence-Icon-Active" or  -- "legionmission-landingbutton-demonhunter-up" or
+							  string.format("legionmission-landingbutton-%s-up", playerInfo.className),
 			-- ["banner"] = "accountupgradebanner-legion",  -- 199x117  --> TODO
 			["msg"] = {
 				["missionsTitle"] = GARRISON_MISSIONS,
@@ -1450,7 +1451,11 @@ end
 --
 -- REF.: <FrameXML/Minimap.xml>
 -- REF.: <FrameXML/SharedTooltipTemplates.lua>
-function MRBP_OnEnter(self)
+function MRBP_OnEnter(self, button, description_only)
+	if description_only then
+		-- Needed for Addon Compartment details
+		return self.description;
+	end
 	GameTooltip:SetOwner(self, "ANCHOR_LEFT");
 	GameTooltip:SetText(self.title, 1, 1, 1);
 	GameTooltip:AddLine(self.description, nil, nil, nil, true);
@@ -1660,5 +1665,161 @@ function MRBP:RegisterSlashCommands()
 
 			_log.level = prev_loglvl
 		end
+	end
+end
+
+----- Addon Compartment --------------------------------------------------------
+--
+-- REF.: <https://wowpedia.fandom.com/wiki/Addon_compartment>
+-- REF.: <FrameXML/GameTooltip.lua>
+-- REF.: <FrameXML/SharedTooltipTemplates.lua>
+
+function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
+	local addonTitle = button.value;
+	-- local addonIcon = button.icon;
+	local leftOffset = 8;
+	local tooltip = GameTooltip;
+
+	tooltip:SetOwner(button, "ANCHOR_LEFT");
+	GameTooltip_SetTitle(tooltip, addonTitle);
+	local wrapLine = false;
+	-- GameTooltip_AddNormalLine(tooltip, DRAGONFLIGHT_LANDING_PAGE_TOOLTIP, wrapLine);
+	GameTooltip_AddNormalLine(tooltip, MRBP_OnEnter(ExpansionLandingPageMinimapButton, nil, true), wrapLine);
+	util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-leftbutton");
+	GameTooltip_AddNormalLine(tooltip, BASIC_OPTIONS_TOOLTIP);
+	util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-rightbutton");
+	if MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight) then
+		GameTooltip_AddNormalLine(tooltip, GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE.." - "..LANDING_DRAGONRIDING_PANEL_SUBTITLE);
+		util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-middlebutton");
+	end
+	GameTooltip_AddBlankLineToTooltip(tooltip);
+
+	-- Display data for each expansion
+	local sortFunc = ns.settings.reverseSortorder and util.expansion.SortAscending or util.expansion.SortDescending;
+	local expansionList = util.expansion.GetExpansionsWithLandingPage(sortFunc);
+	local activeThreats = util.threats.GetActiveThreats();
+
+	for _, expansion in ipairs(expansionList) do
+		local garrInfo = MRBP_GARRISON_TYPE_INFOS[expansion.garrisonTypeID];
+		garrInfo.shouldShowDisabled = not MRBP_IsGarrisonRequirementMet(expansion.garrisonTypeID);
+		local playerOwnsExpansion = util.expansion.DoesPlayerOwnExpansion(expansion.ID);
+		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(expansion.ID)); --> user option
+		garrInfo.missions = {};
+		garrInfo.missions.numInProgress, garrInfo.missions.numCompleted = util.garrison.GetInProgressMissionCount(expansion.garrisonTypeID);
+
+		if (playerOwnsExpansion and isActiveEntry) then
+			if garrInfo.shouldShowDisabled then
+				GameTooltip_AddDisabledLine(tooltip, expansion.name);
+				util.GameTooltip_AddAtlas(tooltip, garrInfo.minimapIcon, 36, 36, Enum.TooltipTextureAnchor.RightCenter);
+				GameTooltip_AddErrorLine(tooltip, garrInfo.msg.requirementText, nil, leftOffset);
+			else
+				-- Expansion name
+				GameTooltip_AddHighlightLine(tooltip, expansion.name);
+				util.GameTooltip_AddAtlas(tooltip, garrInfo.minimapIcon, 36, 36, Enum.TooltipTextureAnchor.RightCenter);
+				-- Major Factions
+				local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansion.ID);
+				if TableHasAnyEntries(majorFactionData) then
+					for _, factionData in ipairs(majorFactionData) do
+						if factionData.isUnlocked then
+							local factionAtlasName = "MajorFactions_MapIcons_"..factionData.textureKit.."64";
+							local factionColor = util.garrison.GetMajorFactionColor(factionData);  -- WHITE_FONT_COLOR
+							local renownLevelText = factionColor:WrapTextInColorCode(MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel));
+							local reputationLevelText = format("%d/%d", factionData.renownReputationEarned, factionData.renownLevelThreshold);
+							local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID);
+							local lineText = format("%s: %s - %s", util.strip_DE_hyphen(factionData.name), renownLevelText, reputationLevelText);
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, hasMaxRenown, wrapLine, leftOffset, factionAtlasName);
+						end
+					end
+				end
+				-- Dragon Glyphs
+				if (expansion.ID == util.expansion.data.Dragonflight.ID) then
+					local treeCurrencyInfo = util.garrison.GetDragonRidingTreeCurrencyInfo();
+					local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = util.garrison.GetDragonGlyphsCount();
+					local collectedAmountString = WHITE_FONT_COLOR:WrapTextInColorCode(format("%d/%d", numGlyphsCollected, numGlyphsTotal));
+					local isCompleted = numGlyphsCollected == numGlyphsTotal;
+					util.GameTooltip_AddObjectiveLine(tooltip, ns.label.showDragonGlyphs..": "..collectedAmountString, isCompleted, nil, leftOffset, treeCurrencyInfo.texture);
+				end
+				-- Covenant Renown
+				if (expansion.ID == util.expansion.data.Shadowlands.ID) then
+					local covenantInfo = util.covenant.GetCovenantInfo();
+					local renownInfo = util.covenant.GetRenownData(covenantInfo.ID);
+					if renownInfo then
+						local renownLevelText = GARRISON_TYPE_9_0_LANDING_PAGE_RENOWN_LEVEL:format(renownInfo.currentRenownLevel);  --, renownInfo.maximumRenownLevel);
+						local lineText = format("%s: %s", covenantInfo.name, WHITE_FONT_COLOR:WrapTextInColorCode(renownLevelText));
+						util.GameTooltip_AddObjectiveLine(tooltip, lineText, renownInfo.hasMaximumRenown, nil, leftOffset, covenantInfo.atlasName);
+					end
+				end
+				-- Command table missions
+				if (expansion.ID ~= util.expansion.data.Dragonflight.ID and garrInfo.missions.numInProgress > 0) then
+					local hasCompletedAllMissions = garrInfo.missions.numCompleted == garrInfo.missions.numInProgress;
+					local progressText = string.format("%d/%d", garrInfo.missions.numCompleted, garrInfo.missions.numInProgress);
+					util.GameTooltip_AddObjectiveLine(tooltip, garrInfo.msg.missionsTitle..": "..progressText, hasCompletedAllMissions);
+				end
+				-- Bounty Board + Covenant Callings
+				if (expansion.ID ~= util.expansion.data.Dragonflight.ID and
+					expansion.ID ~= util.expansion.data.WarlordsOfDraenor.ID) then
+					local bountyBoard = garrInfo.bountyBoard;
+					if bountyBoard.areBountiesUnlocked then
+						util.GameTooltip_AddObjectiveLine(tooltip, format("%s: %d/3", bountyBoard.title, #bountyBoard.bounties), #bountyBoard.bounties == 0);
+					end
+				end
+				-- Threats (Maw + N'Zoth)
+				if activeThreats then
+					local expansionThreats = activeThreats[expansion.ID];
+					if expansionThreats then
+						if (expansion.ID == util.expansion.data.Shadowlands.ID) then
+							local covenantAssaultInfo = expansionThreats[1];
+							local covenantAssaultColor = util.threats.GetExpansionThreatColor(expansion.ID, covenantAssaultInfo.questID);
+							local timeLeft = covenantAssaultInfo.timeLeftString and covenantAssaultInfo.timeLeftString or "...";
+							GameTooltip_AddColoredLine(tooltip, covenantAssaultInfo.questName..": "..timeLeft, covenantAssaultColor, wrapLine, leftOffset);
+							util.GameTooltip_AddAtlas(tooltip, covenantAssaultInfo.atlasName);
+						else
+							for _, assaultInfo in ipairs(expansionThreats) do
+								local assaultColor = util.threats.GetExpansionThreatColor(expansion.ID, assaultInfo.mapInfo.mapID);
+								local timeLeft = assaultInfo.timeLeftString and assaultInfo.timeLeftString or "...";
+								GameTooltip_AddColoredLine(tooltip, assaultInfo.mapInfo.name..": "..timeLeft, assaultColor, wrapLine, leftOffset);
+								util.GameTooltip_AddAtlas(tooltip, assaultInfo.atlasName);
+							end
+						end
+					end
+				end
+				-- BfA Faction Assaults
+				if (expansion.ID == util.expansion.data.BattleForAzeroth.ID) then
+					local factionAssaultsAreaPoiInfo = util.poi.GetBfAFactionAssaultsInfo();
+					if factionAssaultsAreaPoiInfo then
+						GameTooltip_AddColoredLine(tooltip, factionAssaultsAreaPoiInfo.description..": "..factionAssaultsAreaPoiInfo.timeString, factionAssaultsAreaPoiInfo.color, wrapLine, leftOffset);
+						util.GameTooltip_AddAtlas(tooltip, factionAssaultsAreaPoiInfo.atlasName);
+					end
+				end
+				-- Legion Assaults
+				if (expansion.ID == util.expansion.data.Legion.ID) then
+					local legionAssaultsAreaPoiInfo = util.poi.GetLegionAssaultsInfo();
+					if legionAssaultsAreaPoiInfo then
+						GameTooltip_AddColoredLine(tooltip, legionAssaultsAreaPoiInfo.description..": "..legionAssaultsAreaPoiInfo.timeString, INVASION_FONT_COLOR, nil, leftOffset);
+						util.GameTooltip_AddAtlas(tooltip, legionAssaultsAreaPoiInfo.atlasName);
+					end
+				end
+				-- Garrison Invasion
+				if (expansion.ID == util.expansion.data.WarlordsOfDraenor.ID and util.garrison.IsDraenorInvasionAvailable()) then
+					GameTooltip_AddColoredLine(tooltip, GARRISON_LANDING_INVASION_ALERT, WARNING_FONT_COLOR, nil, leftOffset);
+					util.GameTooltip_AddAtlas(tooltip, "worldquest-tracker-questmarker");
+				end
+			end
+		end
+	end
+
+	tooltip:Show();
+end
+MissionReportButtonPlus_OnAddonCompartmentLeave = GameTooltip_Hide;
+
+function MissionReportButtonPlus_OnAddonCompartmentClick(addonName, mouseButton, button)
+	if (mouseButton == "LeftButton") then
+		MRBP_OnClick(button, mouseButton, true);
+	end
+	if (mouseButton == "RightButton") then
+		MRBP_Settings_OpenToCategory(addonName);
+	end
+	if (mouseButton == "MiddleButton" and MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight)) then
+		DragonridingPanelSkillsButtonMixin:OnClick();
 	end
 end
