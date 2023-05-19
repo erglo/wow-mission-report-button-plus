@@ -408,6 +408,36 @@ util.achieve = {};
 -- end
 
 --------------------------------------------------------------------------------
+----- World map utilities ------------------------------------------------------
+--------------------------------------------------------------------------------
+-- REF.: <FrameXML/Blizzard_WorldMap/Blizzard_WorldMapTemplates.lua>
+-- REF.: <https://wowpedia.fandom.com/wiki/UI_escape_sequences>
+
+-- A collection of map related functions.
+util.map = {};
+
+-- **Note:** Not to confuse with `MapUtil`, a WoW global class.
+local LocalMapUtil = {};
+
+-- Return informations about given map zone.
+---@param mapID number  A UiMapID of a location from the world map.
+---@return UiMapDetails table MapDocumentation.UiMapDetails
+--
+function LocalMapUtil.GetMapInfo(mapID)
+	return C_Map.GetMapInfo(mapID);
+end
+
+-- Get the mapInfo of each child zone of given map.
+---@param mapID number
+---@param mapType number|Enum.UIMapType
+---@param allDescendants boolean
+---@return UiMapDetails[] table
+--
+function LocalMapUtil.GetMapChildrenInfo(mapID, mapType, allDescendants)
+	return C_Map.GetMapChildrenInfo(mapID, mapType, allDescendants);
+end
+
+--------------------------------------------------------------------------------
 ----- Expansion utilities ------------------------------------------------------
 --------------------------------------------------------------------------------
 -- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/ExpansionDocumentation.lua>
@@ -480,12 +510,25 @@ util.expansion.data = {
 ---@return table ExpansionData
 ---
 function util.expansion.GetExpansionData(expansionID)
-	for name, expansion in pairs(util.expansion.data) do
+	for _, expansion in pairs(util.expansion.data) do
 		if (expansion.ID == expansionID) then
 			return expansion;
 		end
 	end
-	return {};
+	return {};																	--> TODO - Add default table for new expansions
+end
+
+---Return the expansion data of given expansion ID.
+---@param garrisonTypeID number  A landing page garrison type ID
+---@return table|nil ExpansionData
+---
+function util.expansion.GetExpansionDataByGarrisonType(garrisonTypeID)
+	for _, expansion in pairs(util.expansion.data) do
+		if (expansion.garrisonTypeID == garrisonTypeID) then
+			return expansion;
+		end
+	end
+	-- return {};
 end
 
 ---Comparison function: sort expansion list by ID in *ascending* order.
@@ -577,36 +620,6 @@ function util.expansion.DoesPlayerOwnExpansion(expansionID)
 end  --> TODO - Not good enough, refine this
 
 --------------------------------------------------------------------------------
------ World map utilities ------------------------------------------------------
---------------------------------------------------------------------------------
--- REF.: <FrameXML/Blizzard_WorldMap/Blizzard_WorldMapTemplates.lua>
--- REF.: <https://wowpedia.fandom.com/wiki/UI_escape_sequences>
-
--- A collection of map related functions.
-util.map = {};
-
--- **Note:** Not to confuse with `MapUtil`, a WoW global class.
-local LocalMapUtil = {};
-
--- Return informations about given map zone.
----@param mapID number  A UiMapID of a location from the world map.
----@return UiMapDetails table MapDocumentation.UiMapDetails
---
-function LocalMapUtil.GetMapInfo(mapID)
-	return C_Map.GetMapInfo(mapID);
-end
-
--- Get the mapInfo of each child zone of given map.
----@param mapID number
----@param mapType number|Enum.UIMapType
----@param allDescendants boolean
----@return UiMapDetails[] table
---
-function LocalMapUtil.GetMapChildrenInfo(mapID, mapType, allDescendants)
-	return C_Map.GetMapChildrenInfo(mapID, mapType, allDescendants);
-end
-
---------------------------------------------------------------------------------
 ----- Garrison utilities -------------------------------------------------------
 --------------------------------------------------------------------------------
 -- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/GarrisonInfoDocumentation.lua>
@@ -643,15 +656,53 @@ function util.garrison.IsDraenorInvasionAvailable()
 	return C_Garrison.IsInvasionAvailable();
 end
 
------ Dragonflight -----
---
--- REF.: <FrameXML/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
 
--- local function IsDragonflightLandingPageUnlocked()
--- 	return GetCVarBitfield("unlockedExpansionLandingPages", Enum.ExpansionLandingPageType.Dragonflight);
+-- function IsExpansionLandingPageUnlocked(garrisonTypeID)
+-- 	local expansion = util.expansion.GetExpansionDataByGarrisonType(garrisonTypeID);
+-- 	if (expansion and expansion.ID >= util.expansion.data.Dragonflight.ID)
+-- 		return C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(expansion.ID);
+-- 	end
 -- end
 																				--> TODO - Needed ???
 --> Check MRBP_COMMAND_TABLE_UNLOCK_QUESTS in core; need quest IDs for requirements.
+
+----- Missions -----
+
+-- Check wether the given garrison type has running or completed missions
+-- and return the number of those missions.
+---@param garrisonTypeID number  A landing page garrison type ID
+---@return number numInProgress  Number of currently running missions
+---@return number numCompleted  Number of completed missions
+--
+function util.garrison.GetInProgressMissionCount(garrisonTypeID)
+	local numInProgress, numCompleted = 0, 0;
+	local missions;
+
+	_log:info("Counting in-progress missions for garrison type", garrisonTypeID);
+
+	for followerType, followerOptions in pairs(GarrisonFollowerOptions) do
+		if (followerOptions.garrisonType == garrisonTypeID) then
+			missions = C_Garrison.GetInProgressMissions(followerType);
+			if missions then
+				for i, mission in ipairs(missions) do
+					if (mission.isComplete == nil) then
+						-- Quick fix: the 'isComplete' attribute is sometimes nil even though the mission is finished.
+						mission.isComplete = mission.timeLeftSeconds == 0;
+					end
+					if mission.isComplete then
+						numCompleted = numCompleted + 1;
+					end
+					numInProgress = numInProgress + 1;
+				end
+			end
+		end
+	end
+	_log:debug(string.format("Got %d missions active and %d completed.", numInProgress, numCompleted));
+
+	return numInProgress, numCompleted;
+end
+
+----- Dragonflight -----
 
 -- Check if the dragon riding feature in Dragonflight is unlocked.
 ---@return boolean isUnlocked
@@ -885,42 +936,6 @@ end
 
 local function GetCovenantRenownLabel()
 	return COVENANT_PROGRESS.." "..PARENS_TEMPLATE:format(RENOWN_LEVEL_LABEL);
-end
-
------
-
--- Check wether the given garrison type has running or completed missions
--- and return the number of those missions.
----@param garrisonTypeID number  A landing page garrison type ID
----@return number numInProgress  Number of currently running missions
----@return number numCompleted  Number of completed missions
---
-function util.garrison.GetInProgressMissionCount(garrisonTypeID)
-	local numInProgress, numCompleted = 0, 0;
-	local missions;
-
-	_log:info("Counting in-progress missions for garrison type", garrisonTypeID);
-
-	for followerType, followerOptions in pairs(GarrisonFollowerOptions) do
-		if (followerOptions.garrisonType == garrisonTypeID) then
-			missions = C_Garrison.GetInProgressMissions(followerType);
-			if missions then
-				for i, mission in ipairs(missions) do
-					if (mission.isComplete == nil) then
-						-- Quick fix: the 'isComplete' attribute is sometimes nil even though the mission is finished.
-						mission.isComplete = mission.timeLeftSeconds == 0;
-					end
-					if mission.isComplete then
-						numCompleted = numCompleted + 1;
-					end
-					numInProgress = numInProgress + 1;
-				end
-			end
-		end
-	end
-	_log:debug(string.format("Got %d missions active and %d completed.", numInProgress, numCompleted));
-
-	return numInProgress, numCompleted;
 end
 
 --------------------------------------------------------------------------------
@@ -1519,7 +1534,7 @@ function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition)
 					-- high connection latency.
 					if (poiInfo.secondsLeft and poiInfo.secondsLeft > 0) then
 						local color = util.GetTimeRemainingColorForSeconds(poiInfo.secondsLeft, WHITE_FONT_COLOR);
-						local timeString = SecondsToTime(poiInfo.secondsLeft);	--> TODO - Combine as util and use new time formatter class.
+						local timeString = SecondsToTime(poiInfo.secondsLeft) or '';	--> TODO - Combine as util and use new time formatter class.
 						poiInfo.timeString = color:WrapTextInColorCode(timeString);
 					end
 				end

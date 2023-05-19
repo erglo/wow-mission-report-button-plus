@@ -326,14 +326,13 @@ local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
 		["Alliance"] = {51715, "War of Shadows"},
 	},
 	[util.expansion.data.Shadowlands.garrisonTypeID] = {
-		[Enum.CovenantType.Kyrian] = {57878, "Choosing Your Purpose"},  	--> alt.: 62000 (when skipping story mode)
+		[Enum.CovenantType.Kyrian] = {57878, "Choosing Your Purpose"},
 		[Enum.CovenantType.Venthyr] = {57878, "Choosing Your Purpose"}, 	--> optional: 59319, "Advancing Our Efforts"
 		[Enum.CovenantType.NightFae] = {57878, "Choosing Your Purpose"},	--> optional: 61552, "The Hunt Watches"
 		[Enum.CovenantType.Necrolord] = {57878, "Choosing Your Purpose"},
-		["alt"] = {62000, "Choosing Your Purpose"},
+		["alt"] = {62000, "Choosing Your Purpose"},  --> when skipping story mode
 	},
 	[util.expansion.data.Dragonflight.garrisonTypeID] = {
-		-- REF.: <FrameXML/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
 		["Horde"] ={65444, "To the Dragon Isles!"},
 		["Alliance"] = {67700, "To the Dragon Isles!"},
 		-- ["alt"] = {68798, "Dragon Glyphs and You"},
@@ -552,9 +551,9 @@ function MRBP_IsGarrisonRequirementMet(garrTypeID)
 	_log:debug("hasGarrison:", hasGarrison)
 	_log:debug("isQuestCompleted:", isQuestCompleted)
 
-	--> FIXME - Work-around for Dragonflight's ExpansionLandingPage
-	if (garrTypeID == util.expansion.data.Dragonflight.garrisonTypeID) then
-		return isQuestCompleted;
+	if (garrInfo.expansion.ID >= util.expansion.data.Dragonflight.ID) then
+		local isUnlocked = C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(garrInfo.expansion.ID);
+		return isUnlocked or isQuestCompleted;
 	end
 
 	return hasGarrison and isQuestCompleted
@@ -583,10 +582,12 @@ ns.MRBP_IsAnyGarrisonRequirementMet = MRBP_IsAnyGarrisonRequirementMet;
 ---@param garrTypeID number
 --
 local function MRBP_ToggleLandingPageFrames(garrTypeID)
-	-- Always (!) hide the GarrisonLandingPage; all visible UI widgets can only be 
-	-- loaded properly on opening.
-	if (garrTypeID ~= util.expansion.data.Dragonflight.garrisonTypeID) then
+	local expansion = util.expansion.GetExpansionDataByGarrisonType(garrTypeID);
+	-- Always (!) hide the GarrisonLandingPage; all visible UI widgets can only
+	-- be loaded properly on opening.
+	if (expansion.ID < util.expansion.data.Dragonflight.ID) then
 		if (ExpansionLandingPage and ExpansionLandingPage:IsShown()) then
+			_log:debug("Hiding ExpansionLandingPage");
 			HideUIPanel(ExpansionLandingPage);
 		end
 		if (GarrisonLandingPage == nil) then
@@ -613,7 +614,8 @@ local function MRBP_ToggleLandingPageFrames(garrTypeID)
 			_log:debug("Hiding GarrisonLandingPage1 type", GarrisonLandingPage.garrTypeID);
 			HideUIPanel(GarrisonLandingPage);
 		end
-		ToggleExpansionLandingPage();
+		-- ToggleExpansionLandingPage();
+		ExpansionLandingPageMinimapButton:ToggleLandingPage()
 	end
 end
 
@@ -1358,6 +1360,12 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 	end
 end
 
+local function MRBP_ReloadDropdown()
+	MRBP.dropdown = nil
+	MRBP:GarrisonLandingPageDropDown_OnLoad()
+end
+ns.MRBP_ReloadDropdown = MRBP_ReloadDropdown
+
 -- Display the ExpansionLandingPageMinimapButton
 function MRBP:ShowMinimapButton(isCalledByUser)
 	if (_log.level == _log.DEBUG) then
@@ -1487,9 +1495,9 @@ function MRBP_OnClick(self, button, isDown)
 		UIDropDownMenu_Refresh(MRBP.dropdown)
 		ToggleDropDownMenu(1, nil, MRBP.dropdown, self, -14, 5)
 	else
-		-- Pass-through clicking to the original function on LeftButton click,
-		-- but hide an eventually already shown landing button.
-		if (GarrisonLandingPage and GarrisonLandingPage:IsShown()) then
+		-- Pass-through the button click to the original function on LeftButton
+		-- click, but hide an eventually already opened landing page frame.
+		if (not ExpansionLandingPageMinimapButton.garrisonMode and GarrisonLandingPage and GarrisonLandingPage:IsShown()) then
 			HideUIPanel(GarrisonLandingPage);
 		end
 		ExpansionLandingPageMinimapButton:OnClick(button);
@@ -1518,12 +1526,6 @@ function MRBP_ShowGarrisonLandingPage(garrTypeID)
 		GarrisonLandingPage.InvasionBadge:Hide()
 	end
 end
-
-local function MRBP_ReloadDropdown()
-	MRBP.dropdown = nil
-	MRBP:GarrisonLandingPageDropDown_OnLoad()
-end
-ns.MRBP_ReloadDropdown = MRBP_ReloadDropdown
 
 -- Return the garrison type of the previous expansion, as long as the most
 -- current one hasn't been unlocked.
@@ -1737,7 +1739,7 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 					local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = util.garrison.GetDragonGlyphsCount();
 					local collectedAmountString = WHITE_FONT_COLOR:WrapTextInColorCode(format("%d/%d", numGlyphsCollected, numGlyphsTotal));
 					local isCompleted = numGlyphsCollected == numGlyphsTotal;
-					util.GameTooltip_AddObjectiveLine(tooltip, ns.label.showDragonGlyphs..": "..collectedAmountString, isCompleted, nil, leftOffset, treeCurrencyInfo.texture);
+					util.GameTooltip_AddObjectiveLine(tooltip, ns.label.showDragonGlyphs..": "..collectedAmountString, isCompleted, wrapLine, leftOffset, treeCurrencyInfo.texture);
 				end
 				-- Covenant Renown
 				if (expansion.ID == util.expansion.data.Shadowlands.ID) then
@@ -1746,7 +1748,7 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 					if renownInfo then
 						local renownLevelText = GARRISON_TYPE_9_0_LANDING_PAGE_RENOWN_LEVEL:format(renownInfo.currentRenownLevel);  --, renownInfo.maximumRenownLevel);
 						local lineText = format("%s: %s", covenantInfo.name, WHITE_FONT_COLOR:WrapTextInColorCode(renownLevelText));
-						util.GameTooltip_AddObjectiveLine(tooltip, lineText, renownInfo.hasMaximumRenown, nil, leftOffset, covenantInfo.atlasName);
+						util.GameTooltip_AddObjectiveLine(tooltip, lineText, renownInfo.hasMaximumRenown, wrapLine, leftOffset, covenantInfo.atlasName);
 					end
 				end
 				-- Command table missions
@@ -1795,7 +1797,7 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 				if (expansion.ID == util.expansion.data.Legion.ID) then
 					local legionAssaultsAreaPoiInfo = util.poi.GetLegionAssaultsInfo();
 					if legionAssaultsAreaPoiInfo then
-						GameTooltip_AddColoredLine(tooltip, legionAssaultsAreaPoiInfo.description..": "..legionAssaultsAreaPoiInfo.timeString, INVASION_FONT_COLOR, nil, leftOffset);
+						GameTooltip_AddColoredLine(tooltip, legionAssaultsAreaPoiInfo.description..": "..legionAssaultsAreaPoiInfo.timeString, INVASION_FONT_COLOR, wrapLine, leftOffset);
 						util.GameTooltip_AddAtlas(tooltip, legionAssaultsAreaPoiInfo.atlasName);
 					end
 				end

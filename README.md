@@ -8,7 +8,7 @@ Adds a right-click menu to the mission report button on the minimap (aka. the `G
   
 ![Button tooltip and right-click menu with expansion names](.screenshots/mbrp_tooltip-dropdown_df-winter.jpg "Button tooltip and right-click menu with expansion names")
 ![Button tooltip and right-click menu with expansion names](.screenshots/mrbp_menu-tooltip_df-summary.jpg "The MRBP Dragon Isles Summary tooltip")  
-(More images on this [project's screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots))  
+(More images can be found on this project's [screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots))  
 
 ## About this add-on
 
@@ -49,7 +49,7 @@ It is still possible to access mission reports from previous expansions but the 
 + [x] Legion: see details about Demon Invasions
 + [x] BfA: see details about Faction and N'Zoth Assaults as well as your Covenant Renown status
 + [x] Shadowlands: see details about Covenant Assaults in The Maw
-+ [x] Dragonflight: see details about your Major Faction Renown Level progress and Dragon Isles events
++ [x] Dragonflight: see a summary about your Major Faction Renown Level progress and Dragon Isles events
 
 ### Chat
 
@@ -61,6 +61,11 @@ It is still possible to access mission reports from previous expansions but the 
 + [x] choose from a variety of settings and adjust the addon to your liking
   + [x] or de-/select the menu entries with the expansions that are no longer of interest to you
 + [x] more to come...
+
+### NEW: Add-on Compartment
+
++ [x] get an overview of all expansions with a landing page
++ [x] in case you're hiding your minimap (button) you won't lose track of your mission progress and other expansion details
   
 *If you want to see some examples of these features, go visit this project's [screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots).*  
 
@@ -68,7 +73,8 @@ It is still possible to access mission reports from previous expansions but the 
 
 ### Known Issues
 
-+ [FIXED] When using MRBP together with *cfxfox*'s addon [War Plan](https://beta.curseforge.com/wow/addons/war-plan) the minimap button's right-click handler was overridden showing only War Plan's dropdown menu. This has been fixed.  
++ When opening the garrison landing page of Draenor with an *upgraded* character an recursion error occurs. The game expects a list with mission details but receives empty values instead. I will tend to this as soon as possible, but it seems to be a sever-side problem at first glance.
++ [FIXED] When using MRBP together with *cfxfox*'s add-on [War Plan](https://beta.curseforge.com/wow/addons/war-plan) the minimap button's right-click handler was overridden showing only War Plan's dropdown menu. This has been fixed.  
 *In case of other addons doing something similar I added the slash command `hook`, which simply re-registers the MRBP's button hooks (tooltip + right-click menu).*
 + As soon as you unlock a command table the minimap button doesn't update automatically. The add-on gathers this information only once at startup in order to save memory. You need to reload the UI manually, eg. by typing `/reload` in the chat frame. Logging-out and -in again also works.  
   I will tend to this as soon as possible.

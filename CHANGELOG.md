@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
   
 ----  
   
-## [0.13.0+100100] - 2023-05-08  
+## [0.13.0+100100] - 2023-05-19  
   
 ### Added  
   
@@ -28,7 +28,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
   
 ### Fixed  
   
+- Toggling a garrison type landing page didn't work correctly when the `ExpansionLandingPageMinimapButton` was in garrison mode.
+- Dragonflight unlocking requirement hasn't been recognized correctly; using built-in function introduced in Dragonflight now as well.
 - [Issue #5] "In retail version 10.1, SetNewTagShown is nil". Blizzard devs moved `SetNewTagShown` from the initializer to the setting mixin class.  
+- Corrected a misspelled string in the German locale file.  
   
 ## [0.12.2+100007] - 2023-03-30  
   
