@@ -1534,7 +1534,7 @@ function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition)
 					-- high connection latency.
 					if (poiInfo.secondsLeft and poiInfo.secondsLeft > 0) then
 						local color = util.GetTimeRemainingColorForSeconds(poiInfo.secondsLeft, WHITE_FONT_COLOR);
-						local timeString = SecondsToTime(poiInfo.secondsLeft) or '';	--> TODO - Combine as util and use new time formatter class.
+						local timeString = SecondsToTime(poiInfo.secondsLeft);	--> TODO - Combine as util and use new time formatter class.
 						poiInfo.timeString = color:WrapTextInColorCode(timeString);
 					end
 				end

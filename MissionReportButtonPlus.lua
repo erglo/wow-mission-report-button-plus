@@ -1789,7 +1789,8 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 				if (expansion.ID == util.expansion.data.BattleForAzeroth.ID) then
 					local factionAssaultsAreaPoiInfo = util.poi.GetBfAFactionAssaultsInfo();
 					if factionAssaultsAreaPoiInfo then
-						GameTooltip_AddColoredLine(tooltip, factionAssaultsAreaPoiInfo.description..": "..factionAssaultsAreaPoiInfo.timeString, factionAssaultsAreaPoiInfo.color, wrapLine, leftOffset);
+						local timeLeft = factionAssaultsAreaPoiInfo.timeString or "...";
+						GameTooltip_AddColoredLine(tooltip, factionAssaultsAreaPoiInfo.description..": "..timeLeft, factionAssaultsAreaPoiInfo.color, wrapLine, leftOffset);
 						util.GameTooltip_AddAtlas(tooltip, factionAssaultsAreaPoiInfo.atlasName);
 					end
 				end
@@ -1797,7 +1798,8 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 				if (expansion.ID == util.expansion.data.Legion.ID) then
 					local legionAssaultsAreaPoiInfo = util.poi.GetLegionAssaultsInfo();
 					if legionAssaultsAreaPoiInfo then
-						GameTooltip_AddColoredLine(tooltip, legionAssaultsAreaPoiInfo.description..": "..legionAssaultsAreaPoiInfo.timeString, INVASION_FONT_COLOR, wrapLine, leftOffset);
+						local timeLeft = legionAssaultsAreaPoiInfo.timeString or "...";
+						GameTooltip_AddColoredLine(tooltip, legionAssaultsAreaPoiInfo.description..": "..timeLeft, INVASION_FONT_COLOR, wrapLine, leftOffset);
 						util.GameTooltip_AddAtlas(tooltip, legionAssaultsAreaPoiInfo.atlasName);
 					end
 				end
