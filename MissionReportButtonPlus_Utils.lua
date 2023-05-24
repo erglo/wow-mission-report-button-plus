@@ -360,19 +360,23 @@ end
 --------------------------------------------------------------------------------
 ----- Achievement utilities ----------------------------------------------------
 --------------------------------------------------------------------------------
+-- REF.: <https://wowpedia.fandom.com/wiki/World_of_Warcraft_API#Achievements>
 
 -- A collection of utility functions handling achievement details.
 util.achieve = {};
 
--- -- A wrapper for 'GetAchievementInfo' with pre-selected return values.
+-- -- A wrapper for 'GetAchievementInfo' with pre-selected return values. Such as:
+-- -- id, name, completed, description, icon.
 -- ---@param achievementID number
 -- ---@return table achievementInfo
 -- --
--- function util.achieve.GetCustomAchievementInfo(achievementID)				--> TODO - Keep ???
--- 	-- REF.: <https://wowpedia.fandom.com/wiki/API_GetAchievementInfo>
+-- -- REF.: <https://wowpedia.fandom.com/wiki/API_GetAchievementInfo>
+-- --
+-- function util.achieve.GetCustomAchievementInfo(achievementID)					--> TODO - Keep ???
 -- 	-- Default return values:
--- 	--  1:id, 2:name, 3:points, 4:completed, 5:month, 6:day, 7:year, 8:description, 9:flags,
--- 	--  10:icon, 11:rewardText, 12:isGuild, 13:wasEarnedByMe, 14:earnedBy, 15:isStatistic
+-- 	-- 1:id, 2:name, 3:points, 4:completed, 5:month, 6:day, 7:year,
+-- 	-- 8:description, 9:flags, 10:icon, 11:rewardText, 12:isGuild,
+-- 	-- 13:wasEarnedByMe, 14:earnedBy, 15:isStatistic
 -- 	local data = SafePack(GetAchievementInfo(achievementID));
 -- 	local achievementInfo = {
 -- 		id = data[1],
@@ -384,28 +388,106 @@ util.achieve = {};
 -- 	return achievementInfo;
 -- end
 
--- Requirement: Uktulu Flight Master
---> "Friend of the Dragon Isles" (achievementID = 16808)
---> -->  "The Chieftain's Duty" --> (or) "While the Iron Is Hot" (questID = 66444)
 
--- local DEFENDER_OF_THE_BROKEN_ISLES_ID = 11544;
--- local FISHERFRIEND_OF_THE_ISLES_ID = 11725;
--- local numCriteria = GetAchievementNumCriteria(info.achievementID);
 -- function util.achieve.GetCriteriaCount(achievementID)
--- 	local DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID = 15794;
--- 	local DRAGONRIDING_INTRO_QUEST_ID = 68798;
--- 	local hasAccountAchievement = select(4, GetAchievementInfo(DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID));
--- 	return hasAccountAchievement or LocalQuestUtil.IsQuestFlaggedCompleted(DRAGONRIDING_INTRO_QUEST_ID);
--- 	local numCriteria = GetAchievementNumCriteria(info.achievementID);
--- 	local mapInfo = LocalMapUtil.GetMapInfo(info.mapID);
+-- 	local numCriteria = GetAchievementNumCriteria(achievementID);
 -- 	local numComplete = 0;
 -- 	for i=1, numCriteria do
--- 		local criteriaCompleted = select(3, GetAchievementCriteriaInfo(info.achievementID, i));
+-- 		-- Return values from GetAchievementCriteriaInfo: 1:criteriaString,
+-- 		-- 2:criteriaType, 3:completed, 4:quantity, 5:reqQuantity, 6:charName,
+-- 		-- 7:flags, 8:assetID, 9:quantityString, 10:criteriaID, 11:eligible,
+-- 		-- [12:duration], [13:elapsed]
+-- 		--
+-- 		-- Map criteriaType with assetID (currently used ones only)
+-- 		local criteriaTypeMap = {
+-- 			["killNPC"] = 0,  --> assetID == creatureID
+-- 			["questType"] = 27,	--> assetID == questID
+-- 			["factionType"] = 46, --> assetID == factionID 
+-- 		}
+-- 		local criteriaString, criteriaType, criteriaCompleted, _, _, _, _, assetID = GetAchievementCriteriaInfo(achievementID, i);
 -- 		if criteriaCompleted then
 -- 			numComplete = numComplete + 1;
 -- 		end
 -- 	end
 -- end
+
+
+util.achieve.INVASION_OBLITERATION_ID = 12026;  -- Legion Invasion Point Generals
+-- local ENVISION_INVASION_ERADICATION_ID = 12028;
+-- local DEFENDER_OF_THE_BROKEN_ISLES_ID = 11544;
+
+-- Pattern: {[areaPoi] = creatureID, ...}
+local AREAPOI_NPC_MAP = {
+	-- Legion Generals (Greater Invasion Point)
+	["5376"] = 124492,  -- Occularus
+	["5380"] = 124555,  -- Sotanathor
+	["5381"] = 124514,  -- Matron Folnuna
+	["5375"] = 124625,  -- Mistress Alluradel  -- criteriaType=0, assetID=124625(creatureID), criteriaID=37454, encounterID=2083
+	["5379"] = 124592,  -- Inquisitor Meto
+	["5377"] = 124719,  -- Pit Lord Vilemus
+};
+--> Demonic commanders (Invasion Point)
+-- 125137 Mazgoroth
+-- 125148 Gorgoloth
+-- 125252 Dread Knight Zak'gal
+-- 125272 Fel Lord Kaz'ral
+-- 125280 Flamecaller Vezrah
+-- 125314 Flameweaver Verathix
+-- 125483 Harbinger Drel'nathar
+-- 125527 Dreadbringer Valus
+-- 125578 Malphazel
+-- 125587 Vogrethar the Defiled
+-- 125634 Vel'thrak the Punisher
+-- 125655 Flamebringer Az'rothel
+-- 125666 Baldrazar
+
+--> Defender of the Broken Isles
+-- 630,  -- Azsuna
+-- 634,  -- Stormheim
+-- 641,  -- Val'sharah
+-- 650,  -- Highmountain   -- criteriaType = 27, assetID = 47194 (questID), criteriaID = 36547
+
+
+-- Check if given areaPoiID has an NPC for an achievement.
+---@param areaPoiID number
+---@return boolean isRelevant
+---@return integer|nil creatureID
+--
+function util.achieve.IsRelevantAreaPOI(areaPoiID)
+	local areaPoiIDstring = tostring(areaPoiID);
+	local creatureID = AREAPOI_NPC_MAP[areaPoiIDstring];
+	local isRelevant = creatureID ~= nil;
+
+	return isRelevant, creatureID;
+end
+
+-- Check if the criteria of given assetID for given achievementID has been completed.
+---@param achievementID number
+---@param assetID number
+---@return boolean isCompleted
+-- 
+--> REF.: <https://wowpedia.fandom.com/wiki/API_GetAchievementNumCriteria>  
+--> REF.: <https://wowpedia.fandom.com/wiki/API_GetAchievementCriteriaInfo>  
+--
+function util.achieve.IsAssetCriteriaCompleted(achievementID, assetID)
+	local numCriteria = GetAchievementNumCriteria(achievementID);
+	for i=1, numCriteria do
+		-- Default return values:
+		-- 1:criteriaString, 2:criteriaType, 3:completed, 4:quantity, 5:reqQuantity,
+		-- 6:charName, 7:flags, 8:assetID, 9:quantityString, 10:criteriaID,
+		-- 11:eligible, [12:duration], [13:elapsed]
+		-- local _, _, isCompleted, _, _, _, _, criteriaAssetID = GetAchievementCriteriaInfo(achievementID, i);
+		local criteriaInfo = SafePack(GetAchievementCriteriaInfo(achievementID, i));
+		local isCompleted, criteriaAssetID = criteriaInfo[3], criteriaInfo[8];
+		-- The assetID can be anything depending on the criteriaType, eg. a creatureID, questID, etc.
+		if (criteriaAssetID == assetID) then
+			return isCompleted;
+		end
+	end
+	return false;
+end
+-- Test_IsAssetCriteriaCompleted = util.achieve.IsAssetCriteriaCompleted;
+-- -- Test_IsAssetCriteriaCompleted(12026, 124719)
 
 --------------------------------------------------------------------------------
 ----- World map utilities ------------------------------------------------------
@@ -612,12 +694,12 @@ end
 ---@param expansionID number  The expansion level 
 ---@return boolean playerOwnsExpansion
 --
-function util.expansion.DoesPlayerOwnExpansion(expansionID)
+function util.expansion.DoesPlayerOwnExpansion(expansionID)						--> TODO - Not good enough, refine this - Needed ???
 	local maxLevelForExpansion = GetMaxLevelForExpansionLevel(expansionID);
 	local maxLevelForCurrentExpansion = util.expansion.GetMaxPlayerLevel();
 	local playerOwnsExpansion = maxLevelForExpansion <= maxLevelForCurrentExpansion;
 	return playerOwnsExpansion;
-end  --> TODO - Not good enough, refine this
+end
 
 --------------------------------------------------------------------------------
 ----- Garrison utilities -------------------------------------------------------
@@ -949,7 +1031,7 @@ local LocalThreatUtil = {};
 
 -- REF.: <FrameXML/SharedColorConstants.lua>
 LocalThreatUtil.TYPE_COLORS = {
-	-- ["5"] = YELLOW_FONT_COLOR,  --> TODO - Add Garrison Invasions to threat list; currently only as chat info
+	-- ["5"] = YELLOW_FONT_COLOR,  						--> TODO - Add Garrison Invasions to threat list; currently only as chat info
 	["6"] = INVASION_FONT_COLOR,  --> Legion Invasions
 	["7"] = {
 		["AllianceAssaultsMapBanner"] = PLAYER_FACTION_COLORS[1],
@@ -1331,7 +1413,7 @@ function util.poi.GetBfAIslandExpeditionInfo()
 	return data;
 end
 
------ Legion: Legion Assaults -----
+----- Legion: Legion Assaults (Legion Invasion on The Broken Isles) -----
 
 local LegionAssaultsData = {};
 LegionAssaultsData.atlasName = "legioninvasion-map-icon-portal";
@@ -1348,7 +1430,7 @@ function util.poi.GetLegionAssaultsInfo()
 	end
 end
 
------ Legion: Broken Shore Invasion -----
+----- Legion: Broken Shore Invasion (Demon Invasions) -----
 
 local BrokenShoreInvasionData = {};
 BrokenShoreInvasionData.atlasNames = {"DemonInvasion5", "DemonShip", "DemonShip_East"};
@@ -1367,7 +1449,7 @@ local function GetBrokenShoreInvasionLabel()
 	return areaName..HEADER_COLON.." "..SPLASH_LEGION_PREPATCH_FEATURE1_TITLE;
 end
 
------ Legion: Argus Invasion -----
+----- Legion: Argus Invasion (Invasion Points) -----
 
 local ArgusInvasionData = {};
 ArgusInvasionData.atlasNames = {"poi-rift1", "poi-rift2"};
@@ -1385,6 +1467,24 @@ local function GetArgusInvasionPointsLabel()
 	local areaName = ArgusInvasionData.continentMapInfo.name;
 	return areaName..HEADER_COLON.." "..L.ENTRYTOOLTIP_LEGION_ARGUS_INVASION_LABEL;
 end
+
+local GreaterInvasionPointData = {};
+GreaterInvasionPointData.atlasName = "poi-rift2";
+GreaterInvasionPointData.continentMapID = 905;
+GreaterInvasionPointData.mapInfos = LocalMapUtil.GetMapChildrenInfo(GreaterInvasionPointData.continentMapID);
+GreaterInvasionPointData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
+
+function util.poi.GetGreaterInvasionPointDataInfo()
+	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(GreaterInvasionPointData);
+	if poiInfo then
+		local _, creatureID = util.achieve.IsRelevantAreaPOI(poiInfo.areaPoiID);
+		local achievementID = util.achieve.INVASION_OBLITERATION_ID;  -- Legion Invasion Point Generals
+		local isCompleted = util.achieve.IsAssetCriteriaCompleted(achievementID, creatureID);
+		poiInfo.isCompleted = isCompleted;
+	end
+	return poiInfo;
+end
+Test_GetGreaterInvasionPointDataInfo = util.poi.GetGreaterInvasionPointDataInfo;
 
 ----- Timewalking Vendor -----
 
@@ -1462,12 +1562,14 @@ PoiFilter.ignoredAreaPoiIDs = {
 	"7097",  -- Grand Hunting Party (double: Ohn'ahra, Thaldraszus)
 	"7099",  -- Grand Hunting Party (double: Ohn'ahra, Thaldraszus)
 	"7053",  -- Grand Hunting Party (double: Ohn'ahra, Thaldraszus)
-	"7365",  -- Drachenschuppenbasislager
-	"7391",  -- Sitz der Aspekte
+	"7365",  -- Dragonscale Basecamp
+	"7391",  -- The Seat of the Aspects
 	"7392",  -- Maruukai
 	"7393",  -- Iskaara
-	"7394",  -- Obsidianzitadelle und Drachenfluchfestung
+	"7394",  -- Obsidian Citadel + Dragonbane Keep
 	"7414",  -- Zskera Vaults
+	"7408",  -- Primal Storm at Froststone Vault - Forbidden Reach
+	"7489",  -- Loamm
 	-- Shadowlands
 	-- "6640",  -- Torghast, The Maw
 	"6991",  -- Kyrian Assault, The Maw (covered as threat)
@@ -1562,6 +1664,7 @@ if _log.DEVMODE then
 	--> Don't show this in the tooltip's test section!
 	TestPoiUtil.separatedAreaPoiIDs = {
 		-- Dragonflight
+		"7096",  -- Grand Hunts - Azure Span
 		"7342",  -- Grand Hunts - Ohn'ahra
 		"7343",  -- Grand Hunts - Waking Shores
 		"7344",  -- Grand Hunts - Thaldraszus
@@ -1573,16 +1676,18 @@ if _log.DEVMODE then
 		"7262",  -- Dragonriding Race - Ohn'ahran Plains
 		"7263",  -- Dragonriding Race - Azure Span
 		"7264",  -- Dragonriding Race - Thaldraszus
-		"7218",  -- pre-Community Feast
-		"7219",  -- pre-Community Feast
-		"7220",  -- post-Community Feast
+		-- "7218",  -- pre-Community Feast
+		-- "7219",  -- pre-Community Feast
+		-- "7220",  -- post-Community Feast
 		"7101",  -- Camp Aylaag (east)
 		"7102",  -- Camp Aylaag (north)
 		"7103",  -- Camp Aylaag (west)
+		"7221",  -- Elemental Storm (Air)
 		"7232",  -- Elemental Storm (Water)
 		"7235",  -- Elemental Storm (Fire)
 		"7245",  -- Elemental Storm (Air)
 		"7246",  -- Elemental Storm (Earth)
+		"7257",  -- Elemental Storm (???) - Waking Shores
 		-- Shadowlands
 		-- Battle for Azeroth
 		"5896",  -- Faction Assaults (Horde attacking Tiragardesound)
@@ -1592,24 +1697,49 @@ if _log.DEVMODE then
 		-- Legion
 		"5178",  -- Legion Invasion - Stormheim
 		"5210",  -- Legion Invasion - Val'sharah
+		"5252",  -- Sentinax - Broken Shore
+		"5258",  -- Sentinax - Broken Shore
 		"5260",  -- Sentinax - Broken Shore
 		"5261",  -- Sentinax (East) - Broken Shore
-		"5285",  -- Demon Salethan the Broodwalker - Broken Shore
-		"5291",  -- Demon Doombringer Zar'thoz - Broken Shore
+		"5284",  -- Demon Malgrazoth - Broken Shore
+		"5285",  -- Demon Salethan - Broken Shore
+		"5286",  -- Demon Malorus - Broken Shore
+		"5287",  -- Demon Emberfire - Broken Shore
+		"5289",  -- Demon Emberfire - Broken Shore
+		"5290",  -- Demon Inquisitor Chillbane - Broken Shore
+		"5291",  -- Demon Zar'thoz - Broken Shore
 		"5292",  -- Demon Dreadblade Annihilator - Broken Shore
 		"5293",  -- Demon Xar'thok - Broken Shore
+		"5294",  -- Demon Xorogun - Broken Shore
+		"5295",  -- Demon Corrupted Bonebreaker - Broken Shore
+		"5296",  -- Demon Zelthae - Broken Shore
+		"5297",  -- Demon Dreadeye - Broken Shore
+		"5298",  -- Demon Hel'nurath - Broken Shore
+		"5299",  -- Demon Bruva - Broken Shore
 		"5300",  -- Demon Flllurlokkr - Broken Shore
 		"5301",  -- Demon Aqueux - Broken Shore
 		"5303",  -- Demon Grossir - Broken Shore
+		"5304",  -- Demon Eldrathe - Broken Shore
 		"5305",  -- Demon Somber Dawn - Broken Shore
-		"5306",  -- Demon Duke Sithizi - Broken Shore
-		"5308",  -- Demon Brother Badatin - Broken Shore
+		"5306",  -- Demon Sithizi - Broken Shore
+		"5307",  -- Demon Eye of Gurgh - Broken Shore
+		"5308",  -- Demon Badatin - Broken Shore
+		"5350",  -- Invasion Point Sangua - Argus, Krokuun
 		"5359",  -- Invasion Point Cen'gar - Argus, Krokuun
 		"5360",  -- Invasion Point Val - Argus, Krokuun
+		"5366",  -- Invasion Point Bonich - Argus, Eredath
+		"5367",  -- Invasion Point Aurinor - Argus, Eredath
 		"5368",  -- Invasion Point Naigtal - Argus, Eredath
 		"5369",  -- Invasion Point Sangua - Argus, Antoran Wastes
+		"5370",  -- Invasion Point Cen'gar - Argus, Antoran Wastes
 		"5371",  -- Invasion Point Bonich - Argus, Antoran Wastes
-		"5375",  -- Invasion Point Boss Alluradel- Argus, Antoran Wastes
+		"5374",  -- Invasion Point Naigtal - Argus, Antoran Wastes
+		"5375",  -- Invasion Point Boss Alluradel - Argus, Antoran Wastes
+		"5376",  -- Invasion Point Boss Occularus
+		"5377",  -- Invasion Point Boss Pit Lord Vilemus
+		"5379",  -- Invasion Point Boss Meto - Argus, Antoran Wastes
+		"5380",  -- Invasion Point Boss Sotanathor
+		"5381",  -- Invasion Point Boss Matron Folnuna
 		-- "7018",  -- Timewalking Vendor in Azsuna + Broken Shore (don't filter)
 		-- Draenor
 		-- "6985",  -- Timewalking Vendor in Ashran (don't filter)
@@ -1660,6 +1790,7 @@ if _log.DEVMODE then
 	util.map.GetAreaPOIInfoForZones = TestPoiUtil.GetAreaPOIInfoForZones;
 	util.map.GetAreaPOIInfoForContinent = TestPoiUtil.GetAreaPOIInfoForContinent;
 end
+
 --------------------------------------------------------------------------------
 ----- Labels -------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -1895,9 +2026,14 @@ end
 
 ----- more to come -------------------------------------------------------------
 
---> TODO
+--> TODO - More ideas
 -- Timewalking Dragonflight (2023-05-03)
--- Angriff von Fyrakk
+-- Fyrakk Assaults
+-- Forscher unter Feuer
+-- local FISHERFRIEND_OF_THE_ISLES_ID = 11725;  -- Fishing achievement
+-- local UNDER_THE_WEATHER_ID = 17540;  -- Elemental Storm achievement
+-- Reputation reminder if ready to collect reward 
+-- <https://www.wowhead.com/de/today-in-wow>
 
 ----- Tests --------------------------------------------------------------------
 

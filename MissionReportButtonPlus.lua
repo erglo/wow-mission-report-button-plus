@@ -423,7 +423,7 @@ function MRBP:LoadData()
 			["title"] = GARRISON_LANDING_PAGE_TITLE,
 			["description"] = MINIMAP_GARRISON_LANDING_PAGE_TOOLTIP,
 			["minimapIcon"] = string.format("GarrLanding-MinimapIcon-%s-Up", playerInfo.factionGroup),
-			-- ["banner"] = "accountupgradebanner-wod",  -- 199x117  --> TODO
+			-- ["banner"] = "accountupgradebanner-wod",  -- 199x117  			--> TODO - Use with new frame
 			["msg"] = {  --> menu entry tooltip messages
 				["missionsTitle"] = GARRISON_MISSIONS_TITLE,
 				["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,  --> "%d/%d Ready for pickup"
@@ -442,7 +442,7 @@ function MRBP:LoadData()
 			["description"] = MINIMAP_ORDER_HALL_LANDING_PAGE_TOOLTIP,
 			["minimapIcon"] = playerInfo.className == "EVOKER" and "UF-Essence-Icon-Active" or  -- "legionmission-landingbutton-demonhunter-up" or
 							  string.format("legionmission-landingbutton-%s-up", playerInfo.className),
-			-- ["banner"] = "accountupgradebanner-legion",  -- 199x117  --> TODO
+			-- ["banner"] = "accountupgradebanner-legion",  -- 199x117  		--> TODO - Use with new frame
 			["msg"] = {
 				["missionsTitle"] = GARRISON_MISSIONS,
 				["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
@@ -465,7 +465,7 @@ function MRBP:LoadData()
 			["title"] = GARRISON_TYPE_8_0_LANDING_PAGE_TITLE,
 			["description"] = GARRISON_TYPE_8_0_LANDING_PAGE_TOOLTIP,
 			["minimapIcon"] = string.format("bfa-landingbutton-%s-up", playerInfo.factionGroup),
-			-- ["banner"] = "accountupgradebanner-bfa",  -- 199x133  --> TODO
+			-- ["banner"] = "accountupgradebanner-bfa",  -- 199x133  			--> TODO - Use with new frame
 			["msg"] = {
 				["missionsTitle"] = GARRISON_MISSIONS,
 				["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
@@ -491,7 +491,7 @@ function MRBP:LoadData()
 			["description"] = GARRISON_TYPE_9_0_LANDING_PAGE_TOOLTIP,
 			["minimapIcon"] = string.format("shadowlands-landingbutton-%s-up", playerInfo.covenantTex),
 			-- ["minimapIcon"] = string.format("SanctumUpgrades-%s-32x32", playerInfo.covenantTex),
-			-- ["banner"] = "accountupgradebanner-shadowlands",  -- 199x133  --> TODO
+			-- ["banner"] = "accountupgradebanner-shadowlands",  -- 199x133  	--> TODO - Use with new frame
 			["msg"] = {
 				["missionsTitle"] = COVENANT_MISSIONS_TITLE,
 				["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
@@ -515,7 +515,7 @@ function MRBP:LoadData()
 			["title"] = DRAGONFLIGHT_LANDING_PAGE_TITLE,
 			["description"] = DRAGONFLIGHT_LANDING_PAGE_TOOLTIP,
 			["minimapIcon"] = "dragonflight-landingbutton-up",
-			-- ["banner"] = "accountupgradebanner-dragonflight",  -- 199x133  --> TODO 
+			-- ["banner"] = "accountupgradebanner-dragonflight",  -- 199x133  	--> TODO - Use with new frame
 			["msg"] = {
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.Dragonflight.garrisonTypeID, playerInfo.factionGroup).requirementText,
 			},
@@ -1092,6 +1092,15 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			if TableHasAnyEntries(riftAreaPoiInfos) then
 				tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showArgusInvasionInfo);
 				for _, riftPoi in ipairs(riftAreaPoiInfos) do
+					-- local p = CopyTable(riftPoi);
+					-- print("Invasion:", p.areaPoiID, p.description, "-->" ,p.mapInfo.name);
+					local isRelevant, creatureID = util.achieve.IsRelevantAreaPOI(riftPoi.areaPoiID);
+					if isRelevant then
+						local achievementID = util.achieve.INVASION_OBLITERATION_ID;  -- Legion Invasion Point Generals
+						local isCompleted = util.achieve.IsAssetCriteriaCompleted(achievementID, creatureID);
+						fontColor = isCompleted and GRAY_FONT_COLOR or fontColor;
+						riftPoi.description = isCompleted and riftPoi.description.." "..TOOLTIP_CHECK_MARK_ICON_STRING or riftPoi.description;
+					end
 					tooltipText = TooltipText_AddIconLine(tooltipText, riftPoi.description, riftPoi.atlasName, fontColor);
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, riftPoi.mapInfo.name);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, riftPoi.timeString);
@@ -1801,6 +1810,13 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 						local timeLeft = legionAssaultsAreaPoiInfo.timeString or "...";
 						GameTooltip_AddColoredLine(tooltip, legionAssaultsAreaPoiInfo.description..": "..timeLeft, INVASION_FONT_COLOR, wrapLine, leftOffset);
 						util.GameTooltip_AddAtlas(tooltip, legionAssaultsAreaPoiInfo.atlasName);
+					end
+					-- Legion: Invasion Points
+					local greaterInvasionAreaPoiInfo = util.poi.GetGreaterInvasionPointDataInfo();
+					if greaterInvasionAreaPoiInfo then
+						local timeLeft = greaterInvasionAreaPoiInfo.timeString or "...";
+						local lineText = greaterInvasionAreaPoiInfo.description..": "..timeLeft;
+						util.GameTooltip_AddObjectiveLine(tooltip, lineText, greaterInvasionAreaPoiInfo.isCompleted, wrapLine, leftOffset, greaterInvasionAreaPoiInfo.atlasName);
 					end
 				end
 				-- Garrison Invasion

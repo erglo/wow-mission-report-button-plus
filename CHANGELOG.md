@@ -1,10 +1,17 @@
-# Changelog
-
-All notable changes to this project will be documented in this file (or linked to this file).
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
+# Changelog  
+  
+All notable changes to this project will be documented in this file (or linked to this file).  
+  
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).  
+  
 ## [Unreleased]  
+  
+// TODO: Add new tool TODO tree to Readme file
+  
+### Added
+  
+- Icon hints for `Legion Assaults` and `Argus Invasions` by checking the achievements "Defender of the Broken Isles", "Invasion Obliteration" and "Envision Invasion Eradication".
+- Legion: added `Greater Invasion Point` details to the addon compartment as well as an icon hint cross-referencing globally the achievement "Invasion Obliteration".
   
 ### Fixed  
   
