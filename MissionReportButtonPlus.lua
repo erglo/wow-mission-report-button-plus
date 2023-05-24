@@ -1236,6 +1236,16 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					end
 				end
 			end
+			-- Fyrakk Assaults
+			if ns.settings.showFyrakkAssaultsInfo then
+				local dfFyrakkAssaultsAreaPoiInfo = util.poi.GetFyrakkAssaultsInfo();
+				if dfFyrakkAssaultsAreaPoiInfo then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, dfFyrakkAssaultsAreaPoiInfo.name);
+					tooltipText = TooltipText_AddIconLine(tooltipText, dfFyrakkAssaultsAreaPoiInfo.mapInfo.name, dfFyrakkAssaultsAreaPoiInfo.atlasName);
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfFyrakkAssaultsAreaPoiInfo.timeString);
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfFyrakkAssaultsAreaPoiInfo.description);
+				end
+			end
 		end
 	end
 
@@ -1749,6 +1759,15 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 					local collectedAmountString = WHITE_FONT_COLOR:WrapTextInColorCode(format("%d/%d", numGlyphsCollected, numGlyphsTotal));
 					local isCompleted = numGlyphsCollected == numGlyphsTotal;
 					util.GameTooltip_AddObjectiveLine(tooltip, ns.label.showDragonGlyphs..": "..collectedAmountString, isCompleted, wrapLine, leftOffset, treeCurrencyInfo.texture);
+					-- Fyrakk Assaults
+					if ns.settings.showFyrakkAssaultsInfo then
+						local dfFyrakkAssaultsAreaPoiInfo = util.poi.GetFyrakkAssaultsInfo();
+						if dfFyrakkAssaultsAreaPoiInfo then
+							local timeLeft = dfFyrakkAssaultsAreaPoiInfo.timeString or "...";
+							GameTooltip_AddNormalLine(tooltip, dfFyrakkAssaultsAreaPoiInfo.name..": "..timeLeft, wrapLine, leftOffset);
+							util.GameTooltip_AddAtlas(tooltip, dfFyrakkAssaultsAreaPoiInfo.atlasName);
+						end
+					end
 				end
 				-- Covenant Renown
 				if (expansion.ID == util.expansion.data.Shadowlands.ID) then

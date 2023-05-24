@@ -72,6 +72,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showCommunityFeastInfo"] = true,
 	["showDragonbaneKeepInfo"] = true,
 	["showElementalStormsInfo"] = true,
+	["showFyrakkAssaultsInfo"] = true,
 	-- Shadowlands
 	["showCovenantMissionInfo"] = true,
 	["showCovenantBounties"] = true,
@@ -889,6 +890,14 @@ function MRBP_Settings_Register()
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ELEMENTAL_STORMS),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showFyrakkAssaultsInfo",
+			name = ns.label.showFyrakkAssaultsInfo,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_FYRAKK_ASSAULTS),
+			parentVariable = "showDragonflightWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
 		},
 	};
 

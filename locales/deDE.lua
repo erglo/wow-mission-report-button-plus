@@ -43,6 +43,7 @@ ns.L = {
 	ENTRYTOOLTIP_DF_COMMUNITY_FEAST_LABEL = "Gemeinschaftliches Festmahl",
 	ENTRYTOOLTIP_DF_DRAGONBANE_KEEP_LABEL = "Belagerung der Drachenfluchfestung",
 	ENTRYTOOLTIP_DF_ELEMENTAL_STORMS_LABEL = "Elementarstürme",
+	ENTRYTOOLTIP_DF_FYRAKK_ASSAULTS_LABEL = "Angriffe von Fyrakk",
 	--[[ UI options ]]--
 	CFG_ADDONINFOS_VERSION = "Version",
 	CFG_ADDONINFOS_AUTHOR = "Entwickler",
@@ -98,6 +99,7 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ISKAARA_FEAST = "des Gemeinschaftliches Festmahls der Tuskarr von Iskaara",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DRAGONBANE_KEEP = "der Belagerung der Drachenfluchfestung in der Küste des Erwachens",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ELEMENTAL_STORMS = "der Elementarstürme auf den Dracheninseln",
+	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_FYRAKK_ASSAULTS = "der Angriffe von Fyrakk auf die Dracheninseln",
 	CFG_DDMENU_ENTRYSELECTION_LABEL = "Menüeinträge",
 	CFG_DDMENU_ENTRYSELECTION_TOOLTIP = "Wählt hier die Einträge des Dropdownmenüs aus. Deaktiviert einfach die Erweiterungen die euch nicht mehr interessieren.",
 	CFG_DDMENU_ENTRYSELECTION_TEXT_D = "%d |4Menüeintrag:Menüeinträge; gewählt",

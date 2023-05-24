@@ -1376,6 +1376,20 @@ function util.poi.GetElementalStormsInfo()
 	return LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(ElementalStormData);
 end
 
+----- Fyrakk Assaults -----
+
+local FyrakkAssaultsData = {};
+FyrakkAssaultsData.widgetSetID = 779;
+FyrakkAssaultsData.mapID = DRAGON_ISLES_MAP_ID;
+FyrakkAssaultsData.mapInfo = LocalMapUtil.GetMapInfo(FyrakkAssaultsData.mapID);
+FyrakkAssaultsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
+FyrakkAssaultsData.ignorePrimaryMapForPOI = true;
+
+function util.poi.GetFyrakkAssaultsInfo()
+	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(FyrakkAssaultsData);
+end
+Test_GetFyrakkAssaultsInfo = util.poi.GetFyrakkAssaultsInfo;
+
 ----- Battle for Azeroth: Faction Assaults -----
 
 local BfAFactionAssaultsData = {};
@@ -1683,15 +1697,19 @@ if _log.DEVMODE then
 		"7102",  -- Camp Aylaag (north)
 		"7103",  -- Camp Aylaag (west)
 		"7221",  -- Elemental Storm (Air)
+		"7231",  -- Elemental Storm (Fire)
 		"7232",  -- Elemental Storm (Water)
 		"7235",  -- Elemental Storm (Fire)
 		"7245",  -- Elemental Storm (Air)
 		"7246",  -- Elemental Storm (Earth)
 		"7257",  -- Elemental Storm (???) - Waking Shores
+		"7429",  -- Fyrakk Assaults - Ohn'ahra (continent view)
+		"7471",  -- Fyrakk Assaults - Ohn'ahra
 		-- Shadowlands
 		-- Battle for Azeroth
 		"5896",  -- Faction Assaults (Horde attacking Tiragardesound)
 		"5964",  -- Faction Assaults (Horde attacking Drustvar)
+		"5966",  -- Faction Assaults (Horde attacking Stormsong Valley)
 		"5969",  -- Faction Assaults (Horde attacking Nazmir, Alliance icon?)
 		"5973",  -- Faction Assaults (Alliance attacking Zuldazar)
 		-- Legion
@@ -1699,6 +1717,7 @@ if _log.DEVMODE then
 		"5210",  -- Legion Invasion - Val'sharah
 		"5252",  -- Sentinax - Broken Shore
 		"5258",  -- Sentinax - Broken Shore
+		"5259",  -- Sentinax (East) - Broken Shore
 		"5260",  -- Sentinax - Broken Shore
 		"5261",  -- Sentinax (East) - Broken Shore
 		"5284",  -- Demon Malgrazoth - Broken Shore
@@ -1840,6 +1859,7 @@ ns.label = {
 	["showCommunityFeastInfo"] = L.ENTRYTOOLTIP_DF_COMMUNITY_FEAST_LABEL,
 	["showDragonbaneKeepInfo"] = L.ENTRYTOOLTIP_DF_DRAGONBANE_KEEP_LABEL,
 	["showElementalStormsInfo"] = L.ENTRYTOOLTIP_DF_ELEMENTAL_STORMS_LABEL,
+	["showFyrakkAssaultsInfo"] = L.ENTRYTOOLTIP_DF_FYRAKK_ASSAULTS_LABEL,
 };
 
 --------------------------------------------------------------------------------
@@ -2028,7 +2048,6 @@ end
 
 --> TODO - More ideas
 -- Timewalking Dragonflight (2023-05-03)
--- Fyrakk Assaults
 -- Forscher unter Feuer
 -- local FISHERFRIEND_OF_THE_ISLES_ID = 11725;  -- Fishing achievement
 -- local UNDER_THE_WEATHER_ID = 17540;  -- Elemental Storm achievement

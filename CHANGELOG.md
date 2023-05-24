@@ -11,7 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
 ### Added
   
 - Icon hints for `Legion Assaults` and `Argus Invasions` by checking the achievements "Defender of the Broken Isles", "Invasion Obliteration" and "Envision Invasion Eradication".
-- Legion: added `Greater Invasion Point` details to the addon compartment as well as an icon hint cross-referencing globally the achievement "Invasion Obliteration".
+- Dragonflight: added `Fyrakk Assaults` details.
+- Legion: added `Greater Invasion Point` details as well as an icon hint cross-referencing the achievement "Invasion Obliteration".
   
 ### Fixed  
   
