@@ -74,6 +74,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showElementalStormsInfo"] = true,
 	["showFyrakkAssaultsInfo"] = true,
 	["showResearchersUnderFireInfo"] = true,
+	["hideEventDescriptions"] = false,
 	-- Shadowlands
 	["showCovenantMissionInfo"] = true,
 	["showCovenantBounties"] = true,
@@ -902,6 +903,14 @@ function MRBP_Settings_Register()
 			name = ns.label.showResearchersUnderFireInfo,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE)..
 					  "|n|n"..L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN,
+			parentVariable = "showDragonflightWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
+		},
+		{
+			variable = "hideEventDescriptions",
+			name = ns.label.hideEventDescriptions,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS,
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 			tag = Settings.Default.True,

@@ -40,6 +40,7 @@ ns.L = {
 	ENTRYTOOLTIP_DF_DRAGONBANE_KEEP_LABEL = "Siege on Dragonbane Keep",
 	ENTRYTOOLTIP_DF_ELEMENTAL_STORMS_LABEL = "Elemental Storms",
 	ENTRYTOOLTIP_DF_FYRAKK_ASSAULTS_LABEL = "Fyrakk Assaults",
+	ENTRYTOOLTIP_DF_HIDE_EVENT_DESCRIPTIONS_LABEL = "Hide event descriptions",
 	--[[ UI options ]]--
 	CFG_ADDONINFOS_VERSION = "Version",
 	CFG_ADDONINFOS_AUTHOR = "Author",
@@ -98,6 +99,7 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_FYRAKK_ASSAULTS = "the Fyrakk Assaults on the Dragon Isles",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE = "Researchers Under Fire in the Zaralek Cavern",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN = "(Works in Zaralek Cavern only!)",
+	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS = "Hides additional event description texts when enabled.",
 	CFG_DDMENU_ENTRYSELECTION_LABEL = "Menu Items",
 	CFG_DDMENU_ENTRYSELECTION_TOOLTIP = "Choose the dropdown menu's entry items that should be displayed. Simply uncheck those items which are no longer of interest to you.",
 	CFG_DDMENU_ENTRYSELECTION_TEXT_D = "%d |4menu item:menu items; selected",

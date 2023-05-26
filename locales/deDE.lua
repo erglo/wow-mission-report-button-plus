@@ -44,6 +44,7 @@ ns.L = {
 	ENTRYTOOLTIP_DF_DRAGONBANE_KEEP_LABEL = "Belagerung der Drachenfluchfestung",
 	ENTRYTOOLTIP_DF_ELEMENTAL_STORMS_LABEL = "Elementarstürme",
 	ENTRYTOOLTIP_DF_FYRAKK_ASSAULTS_LABEL = "Angriffe von Fyrakk",
+	ENTRYTOOLTIP_DF_HIDE_EVENT_DESCRIPTIONS_LABEL = "Ereigniszusatztexte ausblenden",
 	--[[ UI options ]]--
 	CFG_ADDONINFOS_VERSION = "Version",
 	CFG_ADDONINFOS_AUTHOR = "Entwickler",
@@ -102,6 +103,7 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_FYRAKK_ASSAULTS = "der Angriffe von Fyrakk auf die Dracheninseln",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE = "von Forscher unter Feuer in der Zaralekhöhle",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN = "(Funktioniert nur in der Zaralekhöhle!)",
+	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS = "Wenn aktiviert, werden Texte die weitere Details zu einem Ereignis beschreiben, ausgeblendet.",
 	CFG_DDMENU_ENTRYSELECTION_LABEL = "Menüeinträge",
 	CFG_DDMENU_ENTRYSELECTION_TOOLTIP = "Wählt hier die Einträge des Dropdownmenüs aus. Deaktiviert einfach die Erweiterungen die euch nicht mehr interessieren.",
 	CFG_DDMENU_ENTRYSELECTION_TEXT_D = "%d |4Menüeintrag:Menüeinträge; gewählt",

@@ -1192,7 +1192,9 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					if campAreaPoiInfo.timeString then
 						tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, campAreaPoiInfo.timeString);
 					else
-						tooltipText = TooltipText_AddObjectiveLine(tooltipText, campAreaPoiInfo.description);
+						-- if not ns.settings.hideEventDescriptions then
+						tooltipText = TooltipText_AddObjectiveLine(tooltipText, campAreaPoiInfo.description);			--> TODO - Camp Aylaag description
+						-- end
 					end
 				end
 			end
@@ -1212,7 +1214,9 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, feastAreaPoiInfo.name);  -- ns.label.showCommunityFeastInfo
 					tooltipText = TooltipText_AddIconLine(tooltipText, feastAreaPoiInfo.mapInfo.name, feastAreaPoiInfo.atlasName);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, feastAreaPoiInfo.timeString);
-					tooltipText = TooltipText_AddObjectiveLine(tooltipText, feastAreaPoiInfo.description);
+					if not ns.settings.hideEventDescriptions then
+						tooltipText = TooltipText_AddObjectiveLine(tooltipText, feastAreaPoiInfo.description);
+					end
 				end
 			end
 			-- Siege on Dragonbane Keep
@@ -1222,7 +1226,9 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, siegeAreaPoiInfo.name);  -- ns.label.showDragonbaneKeepInfo
 					tooltipText = TooltipText_AddIconLine(tooltipText, siegeAreaPoiInfo.mapInfo.name, siegeAreaPoiInfo.atlasName);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, siegeAreaPoiInfo.timeString);
-					tooltipText = TooltipText_AddObjectiveLine(tooltipText, siegeAreaPoiInfo.description);
+					if not ns.settings.hideEventDescriptions then
+						tooltipText = TooltipText_AddObjectiveLine(tooltipText, siegeAreaPoiInfo.description);
+					end
 				end
 			end
 			-- Elemental Storms
@@ -1243,7 +1249,9 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, dfFyrakkAssaultsAreaPoiInfo.name);
 					tooltipText = TooltipText_AddIconLine(tooltipText, dfFyrakkAssaultsAreaPoiInfo.mapInfo.name, dfFyrakkAssaultsAreaPoiInfo.atlasName);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfFyrakkAssaultsAreaPoiInfo.timeString);
-					tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfFyrakkAssaultsAreaPoiInfo.description);
+					if not ns.settings.hideEventDescriptions then
+						tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfFyrakkAssaultsAreaPoiInfo.description);
+					end
 				end
 			end
 			----- Researchers Under Fire
@@ -1253,7 +1261,9 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, dfResearchersUnderFireInfo.name);
 					tooltipText = TooltipText_AddIconLine(tooltipText, dfResearchersUnderFireInfo.mapInfo.name, dfResearchersUnderFireInfo.atlasName);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfResearchersUnderFireInfo.timeString);
-					tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfResearchersUnderFireInfo.description);
+					if not ns.settings.hideEventDescriptions then
+						tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfResearchersUnderFireInfo.description);
+					end
 				end
 			end
 		end

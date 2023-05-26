@@ -6,15 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
   
 ## [Unreleased]  
   
-// TODO: Add new tool TODO tree to Readme file
+### Added  
   
-### Added
-  
+- World Map Event description texts can now be hidden via settings.
 - Dragonflight: added `Researchers Under Fire` details.
 - Dragonflight: added `Fyrakk Assaults` details.
 - Legion: added `Greater Invasion Point` details as well as an icon hint cross-referencing the achievement "Invasion Obliteration".
   
-### Changed
+### Changed  
   
 - Reworked the World Map Event category name retrieval for better performance and lesser localizing effort.
   

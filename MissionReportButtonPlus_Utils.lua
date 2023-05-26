@@ -1676,9 +1676,6 @@ function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition)
 					mapInfo = C_Map.GetMapInfoAtPosition(mapInfo.mapID, poiInfo.position:GetXY());
 				end
 				poiInfo.mapInfo = mapInfo;
-				-- if includeMapInfoAtPosition then
-				-- 	poiInfo.mapInfoAtPosition = C_Map.GetMapInfoAtPosition(mapInfo.mapID, poiInfo.position:GetXY());
-				-- end
 				tinsert(activeAreaPOIs, poiInfo);
 			end
 		end
@@ -1931,6 +1928,7 @@ ns.label = {
 	["showElementalStormsInfo"] = L.ENTRYTOOLTIP_DF_ELEMENTAL_STORMS_LABEL,
 	["showFyrakkAssaultsInfo"] = L.ENTRYTOOLTIP_DF_FYRAKK_ASSAULTS_LABEL,
 	["showResearchersUnderFireInfo"] = GetWorldMapEventLabel("showResearchersUnderFireInfo"),
+	["hideEventDescriptions"] = L.ENTRYTOOLTIP_DF_HIDE_EVENT_DESCRIPTIONS_LABEL,
 };
 
 --------------------------------------------------------------------------------
