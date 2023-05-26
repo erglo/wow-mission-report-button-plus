@@ -1246,6 +1246,16 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfFyrakkAssaultsAreaPoiInfo.description);
 				end
 			end
+			----- Researchers Under Fire
+			if ns.settings.showResearchersUnderFireInfo then
+				local dfResearchersUnderFireInfo = util.poi.GetResearchersUnderFireDataInfo();
+				if dfResearchersUnderFireInfo then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, dfResearchersUnderFireInfo.name);
+					tooltipText = TooltipText_AddIconLine(tooltipText, dfResearchersUnderFireInfo.mapInfo.name, dfResearchersUnderFireInfo.atlasName);
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfResearchersUnderFireInfo.timeString);
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfResearchersUnderFireInfo.description);
+				end
+			end
 		end
 	end
 
@@ -1766,6 +1776,15 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 							local timeLeft = dfFyrakkAssaultsAreaPoiInfo.timeString or "...";
 							GameTooltip_AddNormalLine(tooltip, dfFyrakkAssaultsAreaPoiInfo.name..": "..timeLeft, wrapLine, leftOffset);
 							util.GameTooltip_AddAtlas(tooltip, dfFyrakkAssaultsAreaPoiInfo.atlasName);
+						end
+					end
+					-- Researchers Under Fire
+					if ns.settings.showResearchersUnderFireInfo then
+						local dfResearchersUnderFireInfo = util.poi.GetResearchersUnderFireDataInfo();
+						if dfResearchersUnderFireInfo then
+							local timeLeft = dfResearchersUnderFireInfo.timeString or "...";
+							GameTooltip_AddNormalLine(tooltip, dfResearchersUnderFireInfo.name..": "..timeLeft, wrapLine, leftOffset);
+							util.GameTooltip_AddAtlas(tooltip, dfResearchersUnderFireInfo.atlasName);
 						end
 					end
 				end

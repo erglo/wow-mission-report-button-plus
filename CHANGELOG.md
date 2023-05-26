@@ -10,9 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
   
 ### Added
   
-- Icon hints for `Legion Assaults` and `Argus Invasions` by checking the achievements "Defender of the Broken Isles", "Invasion Obliteration" and "Envision Invasion Eradication".
+- Dragonflight: added `Researchers Under Fire` details.
 - Dragonflight: added `Fyrakk Assaults` details.
 - Legion: added `Greater Invasion Point` details as well as an icon hint cross-referencing the achievement "Invasion Obliteration".
+  
+### Changed
+  
+- Reworked the World Map Event category name retrieval for better performance and lesser localizing effort.
   
 ### Fixed  
   

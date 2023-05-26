@@ -139,6 +139,14 @@ function util.strip_DE_hyphen(text)
 	return text;
 end
 
+-- Check if given string is nil or empty.
+---@param str string
+---@return boolean isEmpty
+--
+function StringIsEmpty(str)
+	return str == nil or strlen(str) == 0;
+end
+
 --------------------------------------------------------------------------------
 ----- Atlas + Textures ---------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -357,6 +365,18 @@ function LocalQuestUtil.GetWorldQuestZoneID(questID)
 	return C_TaskQuest.GetQuestZoneID(questID);
 end
 
+--> REF.: <FrameXML/QuestUtils.lua>
+--
+function LocalQuestUtil.GetQuestName(questID)
+	if not HaveQuestData(questID) then
+		C_QuestLog.RequestLoadQuestByID(questID);
+	end
+	return QuestUtils_GetQuestName(questID);
+end
+Test_GetQuestName = LocalQuestUtil.GetQuestName;
+-- Test_GetQuestName(74905)
+-- QuestUtils_GetQuestName(74905)
+
 --------------------------------------------------------------------------------
 ----- Achievement utilities ----------------------------------------------------
 --------------------------------------------------------------------------------
@@ -426,20 +446,6 @@ local AREAPOI_NPC_MAP = {
 	["5379"] = 124592,  -- Inquisitor Meto
 	["5377"] = 124719,  -- Pit Lord Vilemus
 };
---> Demonic commanders (Invasion Point)
--- 125137 Mazgoroth
--- 125148 Gorgoloth
--- 125252 Dread Knight Zak'gal
--- 125272 Fel Lord Kaz'ral
--- 125280 Flamecaller Vezrah
--- 125314 Flameweaver Verathix
--- 125483 Harbinger Drel'nathar
--- 125527 Dreadbringer Valus
--- 125578 Malphazel
--- 125587 Vogrethar the Defiled
--- 125634 Vel'thrak the Punisher
--- 125655 Flamebringer Az'rothel
--- 125666 Baldrazar
 
 --> Defender of the Broken Isles
 -- 630,  -- Azsuna
@@ -1379,16 +1385,27 @@ end
 ----- Fyrakk Assaults -----
 
 local FyrakkAssaultsData = {};
-FyrakkAssaultsData.widgetSetID = 779;
+FyrakkAssaultsData.widgetSetIDs = {779, 780};
 FyrakkAssaultsData.mapID = DRAGON_ISLES_MAP_ID;
-FyrakkAssaultsData.mapInfo = LocalMapUtil.GetMapInfo(FyrakkAssaultsData.mapID);
+FyrakkAssaultsData.mapInfos = LocalMapUtil.GetMapChildrenInfo(FyrakkAssaultsData.mapID, Enum.UIMapType.Zone);
 FyrakkAssaultsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
-FyrakkAssaultsData.ignorePrimaryMapForPOI = true;
 
 function util.poi.GetFyrakkAssaultsInfo()
-	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(FyrakkAssaultsData);
+	return LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(FyrakkAssaultsData);
 end
-Test_GetFyrakkAssaultsInfo = util.poi.GetFyrakkAssaultsInfo;
+
+----- Researchers Under Fire -----
+
+local ResearchersUnderFireData = {};
+ResearchersUnderFireData.widgetSetID = 807;
+ResearchersUnderFireData.mapID = 2133;
+ResearchersUnderFireData.mapInfo = LocalMapUtil.GetMapInfo(ResearchersUnderFireData.mapID);
+ResearchersUnderFireData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
+ResearchersUnderFireData.ignorePrimaryMapForPOI = true;
+
+function util.poi.GetResearchersUnderFireDataInfo()
+	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(ResearchersUnderFireData);
+end
 
 ----- Battle for Azeroth: Faction Assaults -----
 
@@ -1702,9 +1719,14 @@ if _log.DEVMODE then
 		"7235",  -- Elemental Storm (Fire)
 		"7245",  -- Elemental Storm (Air)
 		"7246",  -- Elemental Storm (Earth)
-		"7257",  -- Elemental Storm (???) - Waking Shores
+		-- "7257",  -- Elemental Storm (???) - Waking Shores
+		"7258",  -- Elemental Storm (Earth)
+		"7260",  -- Elemental Storm (Water) - Waking Shores
 		"7429",  -- Fyrakk Assaults - Ohn'ahra (continent view)
+		"7459",  -- pre-Researchers Under Fire - Zaralek Cavern
+		"7461",  -- mid-Researchers Under Fire - Zaralek Cavern (expedition running)
 		"7471",  -- Fyrakk Assaults - Ohn'ahra
+		"7486",  -- Fyrakk Assaults - Ohn'ahra
 		-- Shadowlands
 		-- Battle for Azeroth
 		"5896",  -- Faction Assaults (Horde attacking Tiragardesound)
@@ -1713,9 +1735,11 @@ if _log.DEVMODE then
 		"5969",  -- Faction Assaults (Horde attacking Nazmir, Alliance icon?)
 		"5973",  -- Faction Assaults (Alliance attacking Zuldazar)
 		-- Legion
+		"5175",  -- Legion Invasion - Azsuna
 		"5178",  -- Legion Invasion - Stormheim
 		"5210",  -- Legion Invasion - Val'sharah
 		"5252",  -- Sentinax - Broken Shore
+		"5257",  -- Sentinax - Broken Shore
 		"5258",  -- Sentinax - Broken Shore
 		"5259",  -- Sentinax (East) - Broken Shore
 		"5260",  -- Sentinax - Broken Shore
@@ -1752,6 +1776,7 @@ if _log.DEVMODE then
 		"5369",  -- Invasion Point Sangua - Argus, Antoran Wastes
 		"5370",  -- Invasion Point Cen'gar - Argus, Antoran Wastes
 		"5371",  -- Invasion Point Bonich - Argus, Antoran Wastes
+		"5373",  -- Invasion Point Aurinor - Argus, Antoran Wastes
 		"5374",  -- Invasion Point Naigtal - Argus, Antoran Wastes
 		"5375",  -- Invasion Point Boss Alluradel - Argus, Antoran Wastes
 		"5376",  -- Invasion Point Boss Occularus
@@ -1814,6 +1839,51 @@ end
 ----- Labels -------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
+local function LoadGlobalVariable()
+	-- Prepare account-wide (global) settingsMenuEntry
+	if not MRBP_GlobalSettings then
+		_log:debug(".. initializing account-wide (global) settings");
+		MRBP_GlobalSettings = {};
+	end
+	-- Prepare for category labels
+	ns.currentLocale = GetLocale();
+	_log:debug(".. currently used locale is", ns.currentLocale);
+	if not MRBP_GlobalSettings[ns.currentLocale] then
+		_log:debug(".. initializing labels table");
+		MRBP_GlobalSettings[ns.currentLocale] = {};
+		MRBP_GlobalSettings[ns.currentLocale].labels = {};
+	end
+end
+
+local referenceQuestMap = {
+	showResearchersUnderFireInfo = 74906,
+};
+
+local function GetWorldMapEventLabel(referenceID)
+	local questID = referenceQuestMap[referenceID];
+	if questID then
+		LoadGlobalVariable();
+		local questName = MRBP_GlobalSettings[ns.currentLocale].labels[referenceID];
+		if StringIsEmpty(questName) then
+			questName = QuestUtils_GetQuestName(questID);
+		end
+		if StringIsEmpty(questName) then
+			C_QuestLog.RequestLoadQuestByID(questID);
+			return GetWorldMapEventLabel(referenceID);
+		end
+		-- Save for later
+		if not StringIsEmpty(questName) and not MRBP_GlobalSettings[ns.currentLocale].labels[referenceID] then
+			MRBP_GlobalSettings[ns.currentLocale].labels[referenceID] = questName;
+		end
+		return questName or '...';
+	end
+end
+-- questID=74906, spellID=409284  --> Researchers Under Fire
+-- spell=411463/fyrakk-assaults-smoke-preload
+
+-- C_Spell.IsSpellDataCached(spellID)
+-- C_Spell.RequestLoadSpellData(spellID)
+
 -- A collection of labels category groups in the menu entry tooltip as well as the settings.
 --> Note: The label are sorted by the settings variables.
 ns.label = {
@@ -1860,6 +1930,7 @@ ns.label = {
 	["showDragonbaneKeepInfo"] = L.ENTRYTOOLTIP_DF_DRAGONBANE_KEEP_LABEL,
 	["showElementalStormsInfo"] = L.ENTRYTOOLTIP_DF_ELEMENTAL_STORMS_LABEL,
 	["showFyrakkAssaultsInfo"] = L.ENTRYTOOLTIP_DF_FYRAKK_ASSAULTS_LABEL,
+	["showResearchersUnderFireInfo"] = GetWorldMapEventLabel("showResearchersUnderFireInfo"),
 };
 
 --------------------------------------------------------------------------------

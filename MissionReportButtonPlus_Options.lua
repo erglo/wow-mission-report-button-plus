@@ -73,6 +73,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showDragonbaneKeepInfo"] = true,
 	["showElementalStormsInfo"] = true,
 	["showFyrakkAssaultsInfo"] = true,
+	["showResearchersUnderFireInfo"] = true,
 	-- Shadowlands
 	["showCovenantMissionInfo"] = true,
 	["showCovenantBounties"] = true,
@@ -149,13 +150,10 @@ local function LoadSettings(verbose)
 		end
 	end
 
-	-- Prepare account-wide (global) settings (currently unused)
-	if (MRBP_GlobalSettings ~= nil) then
-		-- Empty old values for next phase: settings profiles
-		MRBP_GlobalSettings = nil;
-	-- else
-	-- 	MRBP_GlobalSettings = {};
-	-- 	_log:debug(".. initializing account-wide (global) settings");
+	-- Prepare account-wide (global) settings
+	if (MRBP_GlobalSettings == nil) then
+		_log:debug(".. initializing account-wide (global) settings");
+		MRBP_GlobalSettings = {};
 	end
 
 	_log:info("Settings are up-to-date.");
@@ -895,6 +893,15 @@ function MRBP_Settings_Register()
 			variable = "showFyrakkAssaultsInfo",
 			name = ns.label.showFyrakkAssaultsInfo,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_FYRAKK_ASSAULTS),
+			parentVariable = "showDragonflightWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
+		},
+		{
+			variable = "showResearchersUnderFireInfo",
+			name = ns.label.showResearchersUnderFireInfo,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE)..
+					  "|n|n"..L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN,
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 			tag = Settings.Default.True,
