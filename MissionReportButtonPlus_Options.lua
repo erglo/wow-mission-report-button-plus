@@ -969,36 +969,47 @@ function MRBP_Settings_Register()
 
 	-- Show user some infos about this add-on.
 	local addonInfos = {
-		--> label, tag
+		--> label, tag, non-tag-text
 		{L.CFG_ADDONINFOS_VERSION, "Version"},
 		{L.CFG_ADDONINFOS_AUTHOR, "Author"},
-		-- {L.CFG_ADDONINFOS_EMAIL, "X-Email"},
-		{L.CFG_ADDONINFOS_HOMEPAGE, "X-Project-Homepage"},
+		{L.CFG_ADDONINFOS_HOMEPAGE, nil, " GitHub [1], CurseForge [2], Wago [3], WOWInterface [4]"},
+		{"[1]", "X-Project-Repository"},
+		{"[2]", "X-Project-Homepage"},
+		{"[3]", "X-Project-Homepage-Wago"},
+		{"[4]", "X-Project-Homepage-WOWInterface"},
 		{L.CFG_ADDONINFOS_LICENSE, "X-License"},
 	};
 	local parentFrame = mainSubText;
 	local labelText, infoLabel;
 
-	for _, infos in ipairs(addonInfos) do
-		labelText, infoLabel = infos[1], infos[2];
-		local metaLabel = aboutFrame:CreateFontString(aboutFrame:GetName().."MetaLabel"..infoLabel, "ARTWORK", "GameFontNormalSmall");
+	for i, infos in ipairs(addonInfos) do
+		labelText, infoLabel, infoText = SafeUnpack(infos);
+		local metaLabel = aboutFrame:CreateFontString(aboutFrame:GetName().."MetaLabel"..tostring(i), "ARTWORK", "GameFontNormalSmall");
 		metaLabel:SetPoint("TOPLEFT", parentFrame, "BOTTOMLEFT", 0, -8);
 		metaLabel:SetWidth(100);
 		metaLabel:SetJustifyH("RIGHT");
 		metaLabel:SetText(labelText..HEADER_COLON);  --> WoW global string
 
-		local metaValue = aboutFrame:CreateFontString(aboutFrame:GetName().."MetaValue"..infoLabel, "ARTWORK", "GameFontHighlightSmall");
-		metaValue:SetPoint("LEFT", metaLabel, "RIGHT", 4, 0);
-		metaValue:SetJustifyH("LEFT");
-		if ( strlower(infoLabel) == "author" ) then
-			-- Append author's email address behind name
-			local authorName, authorMail = ns.GetAddOnMetadata(AddonID, infoLabel), ns.GetAddOnMetadata(AddonID, "X-Email");
-			metaValue:SetText(string.format("%s <%s>", authorName, authorMail));
-		else
-			metaValue:SetText(ns.GetAddOnMetadata(AddonID, infoLabel));
+		if infoLabel then
+			local metaValue = aboutFrame:CreateFontString(aboutFrame:GetName().."MetaValue"..tostring(i), "ARTWORK", "GameFontHighlightSmall");
+			metaValue:SetPoint("LEFT", metaLabel, "RIGHT", 4, 0);
+			metaValue:SetJustifyH("LEFT");
+			if ( strlower(infoLabel) == "author" ) then
+				-- Append author's email address behind name
+				local authorName, authorMail = ns.GetAddOnMetadata(AddonID, infoLabel), ns.GetAddOnMetadata(AddonID, "X-Email");
+				metaValue:SetText(string.format("%s <%s>", authorName, authorMail));
+			else
+				metaValue:SetText(ns.GetAddOnMetadata(AddonID, infoLabel));
+			end
+			--> TODO - Make email and website links clickable.
+			-- TALENT_FRAME_DROP_DOWN_EXPORT = "Teilen |cnLIGHTGRAY_FONT_COLOR:(in Zwischenablage kopieren)|r";
 		end
-		--> TODO - Make email and website links clickable.
-		-- TALENT_FRAME_DROP_DOWN_EXPORT = "Teilen |cnLIGHTGRAY_FONT_COLOR:(in Zwischenablage kopieren)|r";
+		if infoText then
+			local metaText = aboutFrame:CreateFontString(aboutFrame:GetName().."MetaText"..tostring(i), "ARTWORK", "GameFontNormalSmall");
+			metaText:SetPoint("LEFT", metaLabel, "RIGHT", 4, 0);
+			metaText:SetJustifyH("LEFT");
+			metaText:SetText(infoText);
+		end
 
 		parentFrame = metaLabel;
 	end
