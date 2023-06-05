@@ -3,13 +3,19 @@ package-as: MissionReportButtonPlus
 enable-nolib-creation: no
 
 ignore:
+    - .github
     - .screenshots
     - .vscode
     - .gitignore
     - README.md
+    - README.bbcode
 
 manual-changelog:
     filename: CHANGELOG.md
     markup-type: markdown
+
+wowi-convert-changelog: yes
+# Indicates the BigWigsMods packager to convert the changelog from Markdown to
+# BBCode for WoWInterface.
 
 license-output: LICENSE.txt

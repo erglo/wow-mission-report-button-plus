@@ -1,0 +1,37 @@
+name: Package and release
+# Ref.: <https://github.com/BigWigsMods/packager/wiki/GitHub-Actions-workflow>
+
+on:
+  push:
+    branches: 
+      - main
+    tags:
+      # Start actions only with version 'v0.14.0'; allow up to 'v0.99.999+'
+      - 'v0.[1-9][4-9].[0-9]+'
+
+jobs:
+  
+  release:
+
+    runs-on: ubuntu-latest
+
+    env:
+      # CF_API_KEY: ${{ secrets.CF_API_KEY }}   # currently not in use; pushed directly to CF
+      WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
+      WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+      # "GITHUB_TOKEN" is a secret always provided to the workflow
+      # for your own token, the name cannot start with "GITHUB_"
+    
+    steps:
+
+      - name: Clone project
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          # gets entire git history, needed for automatic changelogs
+      
+      - name: Package and release
+        uses: BigWigsMods/packager@v2
+        # with:
+        #   args: -g wrath -w 0

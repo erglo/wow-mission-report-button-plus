@@ -2,11 +2,17 @@
 ## Title: Mission Report Button Plus
 ## Notes: Adds a right-click menu to the mission reports button on the minimap|nwith access to reports from current and previous expansions.
 ## Notes-deDE: Erweitert den Missionsbericht-Button der Minikarte mit einer Auswahl|nvon Berichten früherer Erweiterungen.
-## Version: v0.13.0
+## Version: v0.14.0
 ## Author: ergloCoder
 ## X-Email: erglo.coder+MRBP@gmail.com
-## X-Project-Homepage: https://www.curseforge.com/wow/addons/mission-report-button-plus
 ## X-Project-Repository: https://github.com/erglo/mission-report-button-plus
+## X-Project-Homepage: https://www.curseforge.com/wow/addons/mission-report-button-plus
+## X-Project-Homepage-Wago: https://addons.wago.io/addons/mission-report-button-plus
+## X-Project-Homepage-WOWInterface: https://www.wowinterface.com/downloads/info26583-MissionReportButtonPlus.html
+
+## X-Curse-Project-ID: 461804
+## X-Wago-ID: YK9EbzKL
+## X-WoWI-ID: 26583
 
 ## X-License: GNU General Public License Version 3
 ## X-Category: Garrison, Map & Minimap, Miscellaneous

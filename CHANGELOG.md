@@ -4,24 +4,22 @@ All notable changes to this project will be documented in this file (
   
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).  
   
-## [Unreleased]  
+----  
+  
+## [0.14.0] - 2023-06-05  
   
 ### Added  
   
-- World Map Event description texts can now be hidden via settings.
-- Dragonflight: added `Researchers Under Fire` details.
-- Dragonflight: added `Fyrakk Assaults` details.
-- Legion: added `Greater Invasion Point` details as well as an icon hint cross-referencing the achievement "Invasion Obliteration".
+- [Issue #3] Automated packaging and releasing to `GitHub`, `CurseForge`, `Wago` and `WoWInterface`.  
+- World Map Event description texts can now be hidden via settings.  
+- Dragonflight: added `Researchers Under Fire` details.  
+- Dragonflight: added `Fyrakk Assaults` details.  
+- Legion: added `Greater Invasion Point` details as well as an icon hint cross-referencing the achievement "Invasion Obliteration".  
   
 ### Changed  
   
-- Reworked the World Map Event category name retrieval for better performance and lesser localizing effort.
-  
-### Fixed  
-  
-- Some of the world map icons have been updated or merged in `WoW 10.0.7` which led to the problem that the world map events on the Dragon Isles couldn't be identified and didn't appear in the tooltip details.  
-  
-----  
+- Updated project meta files.  
+- Reworked the World Map Event category name retrieval for better performance and lesser localizing effort.  
   
 ## [0.13.0+100100] - 2023-05-19  
   
@@ -44,32 +42,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
 - [Issue #5] "In retail version 10.1, SetNewTagShown is nil". Blizzard devs moved `SetNewTagShown` from the initializer to the setting mixin class.  
 - Corrected a misspelled string in the German locale file.  
   
-## [0.12.2+100007] - 2023-03-30  
-  
-### Changed  
-  
-- Updated dragon glyphs counter for Forbidden Reach.  
-  
-## [0.12.1+100007] - 2023-03-29  
-  
-### Changed  
-  
-- Updated TOC file to `WoW 10.0.7`.  
-  
-### Fixed  
-  
-- Garrison types and follower constants have been renamed in `WoW 10.0.7`.  
-  
-## [0.12.0+100005] - 2023-03-03  
-  
-### Added  
-  
-- Battle for Azeroth: Amount of collected Azerite from `Island Expeditions`.  
-  
 ----  
   
-## Previous Versions  
+## Previous Versions (CurseForge)  
   
+🏷️ [v0.12.2](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4465019) - WoW 10.0.7 (retail)  
+🏷️ [v0.12.1](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4464214) - WoW 10.0.7 (retail)  
+🏷️ [v0.12.0](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4419495) - WoW 10.0.5 (retail)  
 🏷️ [v0.11.1](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4394724) - WoW 10.0.5 (retail)  
 🏷️ [v0.11.0](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4388074) - WoW 10.0.5 (retail)  
 🏷️ [v0.10.0](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/4378645) - WoW 10.0.5 (retail)  
@@ -84,3 +63,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1
 🏷️ [v2021.10.02 (beta)](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/3479455) - WoW 9.1.0 (retail)  
 🏷️ [v2021.05.15 (alpha)](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/3310841) - WoW 9.0.5 (retail)  
 🏷️ [v2021.03.26 (alpha)](https://www.curseforge.com/wow/addons/mission-report-button-plus/files/3251909) - WoW 9.0.5 (retail)  
+  
