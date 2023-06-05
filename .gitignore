@@ -1,2 +1,5 @@
-.vscode*
+.vscode
 .synkron.syncdb
+
+# Local packaging test
+.release
