@@ -22,6 +22,7 @@
 
 local AddonID, ns = ...;
 local L = ns.L;
+ns.currentLocale = GetLocale();
 
 -- Backwards compatibility
 ns.GetAddOnMetadata = C_AddOns.GetAddOnMetadata;  --> WoW 10.1.0
@@ -93,7 +94,7 @@ function util.printVersion(shortVersionOnly)
 			local title = ns.GetAddOnMetadata(AddonID, "Title");
 			local author = ns.GetAddOnMetadata(AddonID, "Author");
 			local notes_enUS = ns.GetAddOnMetadata(AddonID, "Notes");
-			local notes_local = ns.GetAddOnMetadata(AddonID, "Notes-"..GetLocale());
+			local notes_local = ns.GetAddOnMetadata(AddonID, "Notes-"..ns.currentLocale);
 			local notes = notes_local or notes_enUS;
 			local output = title..'|n'..version..' by '..author..'|n'..notes;
 			print(ns.AddonColor:WrapTextInColorCode(output));
@@ -129,7 +130,7 @@ end
 ---@return string
 --
 function util.strip_DE_hyphen(text)
-	if (GetLocale() == "deDE") then
+	if (ns.currentLocale == "deDE") then
 		local prefix, postfix = strsplit('-', text);
 		if postfix then
 			-- Only when text contained a hyphen is postfix non-empty
@@ -1407,6 +1408,16 @@ function util.poi.GetResearchersUnderFireDataInfo()
 	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(ResearchersUnderFireData);
 end
 
+local function GetResearchersUnderFireLabel()
+	local questID = 74906;
+	local localizedQuestName = QuestUtils_GetQuestName(questID);
+	-- if StringIsEmpty(localizedQuestName) then
+	-- 	C_QuestLog.RequestLoadQuestByID(questID);
+	-- 	localizedQuestName = QuestUtils_GetQuestName(questID);
+	-- end
+	return localizedQuestName or "Researchers Under Fire";
+end
+
 ----- Battle for Azeroth: Faction Assaults -----
 
 local BfAFactionAssaultsData = {};
@@ -1836,51 +1847,6 @@ end
 ----- Labels -------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
-local function LoadGlobalVariable()
-	-- Prepare account-wide (global) settingsMenuEntry
-	if not MRBP_GlobalSettings then
-		_log:debug(".. initializing account-wide (global) settings");
-		MRBP_GlobalSettings = {};
-	end
-	-- Prepare for category labels
-	ns.currentLocale = GetLocale();
-	_log:debug(".. currently used locale is", ns.currentLocale);
-	if not MRBP_GlobalSettings[ns.currentLocale] then
-		_log:debug(".. initializing labels table");
-		MRBP_GlobalSettings[ns.currentLocale] = {};
-		MRBP_GlobalSettings[ns.currentLocale].labels = {};
-	end
-end
-
-local referenceQuestMap = {
-	showResearchersUnderFireInfo = 74906,
-};
-
-local function GetWorldMapEventLabel(referenceID)
-	local questID = referenceQuestMap[referenceID];
-	if questID then
-		LoadGlobalVariable();
-		local questName = MRBP_GlobalSettings[ns.currentLocale].labels[referenceID];
-		if StringIsEmpty(questName) then
-			questName = QuestUtils_GetQuestName(questID);
-		end
-		if StringIsEmpty(questName) then
-			C_QuestLog.RequestLoadQuestByID(questID);
-			return GetWorldMapEventLabel(referenceID);
-		end
-		-- Save for later
-		if not StringIsEmpty(questName) and not MRBP_GlobalSettings[ns.currentLocale].labels[referenceID] then
-			MRBP_GlobalSettings[ns.currentLocale].labels[referenceID] = questName;
-		end
-		return questName or '...';
-	end
-end
--- questID=74906, spellID=409284  --> Researchers Under Fire
--- spell=411463/fyrakk-assaults-smoke-preload
-
--- C_Spell.IsSpellDataCached(spellID)
--- C_Spell.RequestLoadSpellData(spellID)
-
 -- A collection of labels category groups in the menu entry tooltip as well as the settings.
 --> Note: The label are sorted by the settings variables.
 ns.label = {
@@ -1927,7 +1893,7 @@ ns.label = {
 	["showDragonbaneKeepInfo"] = L.ENTRYTOOLTIP_DF_DRAGONBANE_KEEP_LABEL,
 	["showElementalStormsInfo"] = L.ENTRYTOOLTIP_DF_ELEMENTAL_STORMS_LABEL,
 	["showFyrakkAssaultsInfo"] = L.ENTRYTOOLTIP_DF_FYRAKK_ASSAULTS_LABEL,
-	["showResearchersUnderFireInfo"] = GetWorldMapEventLabel("showResearchersUnderFireInfo"),
+	["showResearchersUnderFireInfo"] = GetResearchersUnderFireLabel(),
 	["hideEventDescriptions"] = L.ENTRYTOOLTIP_DF_HIDE_EVENT_DESCRIPTIONS_LABEL,
 };
 

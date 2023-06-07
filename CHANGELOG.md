@@ -1,25 +1,32 @@
-# Changelog  
-  
-All notable changes to this project will be documented in this file (or linked to this file).  
-  
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).  
-  
-----  
-  
-## [0.14.0] - 2023-06-05  
-  
-### Added  
-  
-- [Issue #3] Automated packaging and releasing to `GitHub`, `CurseForge`, `Wago` and `WoWInterface`.  
-- World Map Event description texts can now be hidden via settings.  
-- Dragonflight: added `Researchers Under Fire` details.  
-- Dragonflight: added `Fyrakk Assaults` details.  
-- Legion: added `Greater Invasion Point` details as well as an icon hint cross-referencing the achievement "Invasion Obliteration".  
-  
-### Changed  
-  
-- Updated project meta files.  
-- Reworked the World Map Event category name retrieval for better performance and lesser localizing effort.  
+# Changelog
+
+All notable changes to this project will be documented in this file (or linked to this file).
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+----
+
+## [0.14.1+100100] - 2023-06-07
+
+### Fixed
+
+- [Issue #6] An recursion error occurred when retrieving the localized title for the `Researchers Under Fire` event.
+- Clicking the entry in the Addon Compartment without having any Expansion Landing Pages unlocked will now be ignored.
+
+## [0.14.0+100100] - 2023-06-05
+
+### Added
+
+- [Issue #3] Automated packaging and releasing to `GitHub`, `CurseForge`, `Wago` and `WoWInterface`.
+- World Map Event description texts can now be hidden via settings.
+- Dragonflight: added `Researchers Under Fire` details.
+- Dragonflight: added `Fyrakk Assaults` details.
+- Legion: added `Greater Invasion Point` details as well as an icon hint cross-referencing the achievement "Invasion Obliteration".
+
+### Changed
+
+- Updated project meta files.
+- Reworked the World Map Event category name retrieval for better performance and lesser localizing effort.
   
 ## [0.13.0+100100] - 2023-05-19  
   

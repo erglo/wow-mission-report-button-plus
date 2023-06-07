@@ -1724,8 +1724,8 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 	tooltip:SetOwner(button, "ANCHOR_LEFT");
 	GameTooltip_SetTitle(tooltip, addonTitle);
 	local wrapLine = false;
-	-- GameTooltip_AddNormalLine(tooltip, DRAGONFLIGHT_LANDING_PAGE_TOOLTIP, wrapLine);
 	GameTooltip_AddNormalLine(tooltip, MRBP_OnEnter(ExpansionLandingPageMinimapButton, nil, true), wrapLine);
+	--> The above line doesn't show up if the ExpansionLandingPageButton doesn't exist
 	util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-leftbutton");
 	GameTooltip_AddNormalLine(tooltip, BASIC_OPTIONS_TOOLTIP);
 	util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-rightbutton");
@@ -1882,7 +1882,10 @@ MissionReportButtonPlus_OnAddonCompartmentLeave = GameTooltip_Hide;
 
 function MissionReportButtonPlus_OnAddonCompartmentClick(addonName, mouseButton, button)
 	if (mouseButton == "LeftButton") then
-		MRBP_OnClick(button, mouseButton, true);
+		local result =  MRBP_IsAnyGarrisonRequirementMet();
+		if result then
+			MRBP_OnClick(button, mouseButton, true);
+		end
 	end
 	if (mouseButton == "RightButton") then
 		MRBP_Settings_OpenToCategory(addonName);
