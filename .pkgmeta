@@ -11,7 +11,7 @@ ignore:
     - README.bbcode
 
 manual-changelog:
-    filename: CHANGELOG.md
+    filename: CHANGELOG-LATEST.md
     markup-type: markdown
 
 wowi-convert-changelog: yes
