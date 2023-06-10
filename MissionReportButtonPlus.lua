@@ -697,6 +697,21 @@ local function TooltipText_AddObjectiveCompletedLine(tooltipText, text, prependI
 	return TooltipText_AddObjectiveLine(tooltipText, text, fontColor).." "..TOOLTIP_CHECK_MARK_ICON_STRING;
 end
 
+-- (text, isCompleted, wrap, leftOffset, altTexture)
+local function TooltipText_AddObjectiveLine_2(tooltipText, text, isCompleted, lineColor, alternativeIcon, prependCompleteIcon)
+	local isIconString = true;
+	if not isCompleted then
+		return TooltipText_AddIconLine(tooltipText, text, TOOLTIP_DASH_ICON_STRING, lineColor, isIconString);
+	elseif prependCompleteIcon then
+		-- Replace the dash icon with the check mark icon
+		return TooltipText_AddIconLine(tooltipText, text, TOOLTIP_CHECK_MARK_ICON_STRING, DISABLED_FONT_COLOR, isIconString);
+	else
+		-- Append icon at line end
+		tooltipText = TooltipText_AddIconLine(tooltipText, text, TOOLTIP_DASH_ICON_STRING, DISABLED_FONT_COLOR, isIconString);
+		return tooltipText.." "..TOOLTIP_CHECK_MARK_ICON_STRING;
+	end
+end
+
 -- Add time remaining string starting with a dash and a clock icon.
 ---@param tooltipText string
 ---@param timeString string
@@ -1072,7 +1087,10 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				tooltipText = TooltipText_AddHeaderLine(tooltipText, legionAssaultsAreaPoiInfo.name);  -- ns.label.showLegionAssaultsInfo
 				tooltipText = TooltipText_AddIconLine(tooltipText, legionAssaultsAreaPoiInfo.parentMapInfo.name, legionAssaultsAreaPoiInfo.atlasName, fontColor);
 				tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, legionAssaultsAreaPoiInfo.timeString);
-				tooltipText = TooltipText_AddObjectiveLine(tooltipText, legionAssaultsAreaPoiInfo.description);
+				-- local assaultColor = legionAssaultsAreaPoiInfo.isCompleted and GRAY_FONT_COLOR or fontColor;
+				-- local description = legionAssaultsAreaPoiInfo.isCompleted and legionAssaultsAreaPoiInfo.description.." "..TOOLTIP_CHECK_MARK_ICON_STRING or legionAssaultsAreaPoiInfo.description;
+				-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, description, assaultColor);
+				tooltipText = TooltipText_AddObjectiveLine_2(tooltipText, legionAssaultsAreaPoiInfo.description, legionAssaultsAreaPoiInfo.isCompleted, fontColor);
 			end
 		end
 		-- Demon Invasions (Broken Shores)
@@ -1092,16 +1110,11 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			if TableHasAnyEntries(riftAreaPoiInfos) then
 				tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showArgusInvasionInfo);
 				for _, riftPoi in ipairs(riftAreaPoiInfos) do
-					-- local p = CopyTable(riftPoi);
-					-- print("Invasion:", p.areaPoiID, p.description, "-->" ,p.mapInfo.name);
-					local isRelevant, creatureID = util.achieve.IsRelevantAreaPOI(riftPoi.areaPoiID);
-					if isRelevant then
-						local achievementID = util.achieve.INVASION_OBLITERATION_ID;  -- Legion Invasion Point Generals
-						local isCompleted = util.achieve.IsAssetCriteriaCompleted(achievementID, creatureID);
-						fontColor = isCompleted and GRAY_FONT_COLOR or fontColor;
-						riftPoi.description = isCompleted and riftPoi.description.." "..TOOLTIP_CHECK_MARK_ICON_STRING or riftPoi.description;
+					local lineColor = riftPoi.isCompleted and GRAY_FONT_COLOR or fontColor;
+					tooltipText = TooltipText_AddIconLine(tooltipText, riftPoi.description, riftPoi.atlasName, lineColor);
+					if riftPoi.isCompleted then
+						tooltipText = TooltipText_AppendText(tooltipText, TOOLTIP_CHECK_MARK_ICON_STRING, lineColor);
 					end
-					tooltipText = TooltipText_AddIconLine(tooltipText, riftPoi.description, riftPoi.atlasName, fontColor);
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, riftPoi.mapInfo.name);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, riftPoi.timeString);
 				end
@@ -1856,8 +1869,8 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 					local legionAssaultsAreaPoiInfo = util.poi.GetLegionAssaultsInfo();
 					if legionAssaultsAreaPoiInfo then
 						local timeLeft = legionAssaultsAreaPoiInfo.timeString or "...";
-						GameTooltip_AddColoredLine(tooltip, legionAssaultsAreaPoiInfo.description..": "..timeLeft, INVASION_FONT_COLOR, wrapLine, leftOffset);
-						util.GameTooltip_AddAtlas(tooltip, legionAssaultsAreaPoiInfo.atlasName);
+						local lineText = legionAssaultsAreaPoiInfo.description..": "..timeLeft;
+						util.GameTooltip_AddObjectiveLine(tooltip, lineText, legionAssaultsAreaPoiInfo.isCompleted, wrapLine, leftOffset, legionAssaultsAreaPoiInfo.atlasName);
 					end
 					-- Legion: Invasion Points
 					local greaterInvasionAreaPoiInfo = util.poi.GetGreaterInvasionPointDataInfo();

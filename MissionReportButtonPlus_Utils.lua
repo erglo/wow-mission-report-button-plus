@@ -432,40 +432,47 @@ util.achieve = {};
 -- 	end
 -- end
 
-
-util.achieve.INVASION_OBLITERATION_ID = 12026;  -- Legion Invasion Point Generals
+-- Achievements IDs
+local INVASION_OBLITERATION_ID = 12026;  -- Legion Invasion Point Generals
 -- local ENVISION_INVASION_ERADICATION_ID = 12028;
--- local DEFENDER_OF_THE_BROKEN_ISLES_ID = 11544;
+local DEFENDER_OF_THE_BROKEN_ISLES_ID = 11544;
+-- local FRONTLINE_WARRIOR_HORDE_ASSAULTS = 13284;  -- BfA Faction Assaults
+-- local FRONTLINE_WARRIOR_ALLIANCE_ASSAULTS = 13283;  -- BfA Faction Assaults
 
--- Pattern: {[areaPoi] = creatureID, ...}
-local AREAPOI_NPC_MAP = {
-	-- Legion Generals (Greater Invasion Point)
+-- Pattern: {[areaPoi] = assetID, ...}
+local AREA_POI_ASSET_MAP = {
+	-- Legion Generals (Greater Invasion Points on Argus)
+	["5375"] = 124625,  -- Mistress Alluradel
 	["5376"] = 124492,  -- Occularus
+	["5377"] = 124719,  -- Pit Lord Vilemus
+	["5379"] = 124592,  -- Inquisitor Meto
 	["5380"] = 124555,  -- Sotanathor
 	["5381"] = 124514,  -- Matron Folnuna
-	["5375"] = 124625,  -- Mistress Alluradel  -- criteriaType=0, assetID=124625(creatureID), criteriaID=37454, encounterID=2083
-	["5379"] = 124592,  -- Inquisitor Meto
-	["5377"] = 124719,  -- Pit Lord Vilemus
+	-- Legion: Defender of the Broken Isles
+	["5175"] = 47193,  -- Azsuna
+	["5177"] = 47194,  -- Highmountain
+	["5178"] = 47195,  -- Stormheim
+	["5210"] = 47196,  -- Val'sharahs
+	-- -- BfA Faction Assaults (Horde)
+	-- ["5966"] = 53939,  -- Stormsong Valley
 };
 
---> Defender of the Broken Isles
--- 630,  -- Azsuna
--- 634,  -- Stormheim
--- 641,  -- Val'sharah
--- 650,  -- Highmountain   -- criteriaType = 27, assetID = 47194 (questID), criteriaID = 36547
-
-
--- Check if given areaPoiID has an NPC for an achievement.
+-- Check if given areaPoiID has an assetID for an achievement.
 ---@param areaPoiID number
 ---@return boolean isRelevant
----@return integer|nil creatureID
 --
 function util.achieve.IsRelevantAreaPOI(areaPoiID)
 	local areaPoiIDstring = tostring(areaPoiID);
-	local creatureID = AREAPOI_NPC_MAP[areaPoiIDstring];
-	local isRelevant = creatureID ~= nil;
+	return AREA_POI_ASSET_MAP[areaPoiIDstring] ~= nil;
+end
 
-	return isRelevant, creatureID;
+-- Return the assetID for given areaPoiID.
+---@param areaPoiID number
+---@return integer assetID
+--
+function util.achieve.GetAreaPOIAssetID(areaPoiID)
+	local areaPoiIDstring = tostring(areaPoiID);
+	return AREA_POI_ASSET_MAP[areaPoiIDstring];
 end
 
 -- Check if the criteria of given assetID for given achievementID has been completed.
@@ -494,7 +501,8 @@ function util.achieve.IsAssetCriteriaCompleted(achievementID, assetID)
 	return false;
 end
 -- Test_IsAssetCriteriaCompleted = util.achieve.IsAssetCriteriaCompleted;
--- -- Test_IsAssetCriteriaCompleted(12026, 124719)
+-- -- Test_IsAssetCriteriaCompleted(11544, 47193)
+-- -- GetAchievementCriteriaInfo(11544, 1)
 
 --------------------------------------------------------------------------------
 ----- World map utilities ------------------------------------------------------
@@ -1237,7 +1245,7 @@ end
 
 LocalPoiUtil.SingleArea = {};
 
--- Find and return the world map POI for given event data table.
+-- Scan a single zone and return the world map POI for given event data table.
 ---@param eventData table  A custom table with data for a specific world map event.
 ---@return table|nil areaPoiInfo
 --
@@ -1270,6 +1278,10 @@ end
 
 LocalPoiUtil.MultipleAreas = {};
 
+-- Scan multiple zones and return a single world map POI for given event data table.
+---@param eventData table
+---@return table|nil areaPoiInfo
+--
 function LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(eventData)
 	for _, mapInfo in ipairs(eventData.mapInfos) do
 		local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(mapInfo);
@@ -1463,11 +1475,17 @@ LegionAssaultsData.mapID =  619;  --> Broken Isles
 LegionAssaultsData.mapInfo = LocalMapUtil.GetMapInfo(LegionAssaultsData.mapID);
 LegionAssaultsData.ignorePrimaryMapForPOI = true;
 LegionAssaultsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
+LegionAssaultsData.achievementID = DEFENDER_OF_THE_BROKEN_ISLES_ID;
 
 function util.poi.GetLegionAssaultsInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(LegionAssaultsData);
 	if poiInfo then
 		poiInfo.parentMapInfo = LocalMapUtil.GetMapInfo(poiInfo.mapInfo.parentMapID);
+		if util.achieve.IsRelevantAreaPOI(poiInfo.areaPoiID) then
+			local assetID = util.achieve.GetAreaPOIAssetID(poiInfo.areaPoiID);
+			local isCompleted = util.achieve.IsAssetCriteriaCompleted(LegionAssaultsData.achievementID, assetID);
+			poiInfo.isCompleted = isCompleted;
+		end
 		return poiInfo;
 	end
 end
@@ -1500,9 +1518,20 @@ ArgusInvasionData.continentMapInfo = LocalMapUtil.GetMapInfo(ArgusInvasionData.c
 ArgusInvasionData.mapInfos = LocalMapUtil.GetMapChildrenInfo(ArgusInvasionData.continentMapID);
 ArgusInvasionData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
 ArgusInvasionData.SortingFunction = LocalPoiUtil.SortPoiIDsAscending;
+ArgusInvasionData.achievementID = INVASION_OBLITERATION_ID;  -- Invasion Point Generals
 
 function util.poi.GetArgusInvasionPointsInfo()
-	return LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(ArgusInvasionData);
+	local poiInfoTable = LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(ArgusInvasionData);
+	if TableHasAnyEntries(poiInfoTable) then
+		for _, poiInfo in ipairs(poiInfoTable) do
+			if util.achieve.IsRelevantAreaPOI(poiInfo.areaPoiID) then
+				local assetID = util.achieve.GetAreaPOIAssetID(poiInfo.areaPoiID);
+				local isCompleted = util.achieve.IsAssetCriteriaCompleted(ArgusInvasionData.achievementID, assetID);
+				poiInfo.isCompleted = isCompleted;
+			end
+		end
+	end
+	return poiInfoTable;
 end
 
 local function GetArgusInvasionPointsLabel()
@@ -1515,18 +1544,17 @@ GreaterInvasionPointData.atlasName = "poi-rift2";
 GreaterInvasionPointData.continentMapID = 905;
 GreaterInvasionPointData.mapInfos = LocalMapUtil.GetMapChildrenInfo(GreaterInvasionPointData.continentMapID);
 GreaterInvasionPointData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
+GreaterInvasionPointData.achievementID = INVASION_OBLITERATION_ID;  -- Invasion Point Generals
 
 function util.poi.GetGreaterInvasionPointDataInfo()
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(GreaterInvasionPointData);
-	if poiInfo then
-		local _, creatureID = util.achieve.IsRelevantAreaPOI(poiInfo.areaPoiID);
-		local achievementID = util.achieve.INVASION_OBLITERATION_ID;  -- Legion Invasion Point Generals
-		local isCompleted = util.achieve.IsAssetCriteriaCompleted(achievementID, creatureID);
+	if (poiInfo and util.achieve.IsRelevantAreaPOI(poiInfo.areaPoiID)) then
+		local assetID = util.achieve.GetAreaPOIAssetID(poiInfo.areaPoiID);
+		local isCompleted = util.achieve.IsAssetCriteriaCompleted(GreaterInvasionPointData.achievementID, assetID);
 		poiInfo.isCompleted = isCompleted;
 	end
 	return poiInfo;
 end
-Test_GetGreaterInvasionPointDataInfo = util.poi.GetGreaterInvasionPointDataInfo;
 
 ----- Timewalking Vendor -----
 

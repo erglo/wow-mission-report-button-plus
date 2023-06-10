@@ -8,9 +8,12 @@ ignore:
     - .vscode
     - .gitignore
     - CHANGELOG.md
-    - README-CF.md      # CurseForge
-    - README-WI.bbcode  # WoWInterface
-    - README.md         # GitHub + Wago.io
+    - README.md
+    # --> GitHub + Wago.io
+    - README-CF.md
+    # --> CurseForge
+    - README-WI.bbcode
+    # --> WoWInterface
 
 manual-changelog:
     filename: CHANGELOG-LATEST.md

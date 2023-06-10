@@ -82,7 +82,7 @@ It is still possible to access mission reports from previous expansions but the 
 ### Download sources  
   
 + [![CurseForge](https://img.shields.io/badge/%F0%9F%94%97-CurseForge-f16436)](https://www.curseforge.com/wow/addons/mission-report-button-plus "CurseForge.com") [![Wago.io](https://img.shields.io/badge/%F0%9F%94%97-Wago.io-c1272d)](https://addons.wago.io/addons/mission-report-button-plus "Wago.io") [![WOWInterface](https://img.shields.io/badge/%F0%9F%94%97-WOWInterface-da8a00)](https://www.wowinterface.com/downloads/info26583-MissionReportButtonPlus.html "WOWInterface.com") [![GitHub](https://img.shields.io/badge/%F0%9F%94%97-GitHub-6e7681)](https://github.com/erglo/mission-report-button-plus "GitHub.com")  
-<!-- Part below is needed for CurseForge's lame Markdown efforts -->
+<!-- Part below is needed for CurseForge's lame Markdown rendering efforts -->
 <!-- + [CurseForge](https://www.curseforge.com/wow/addons/mission-report-button-plus),
 [WOWInterface](https://www.wowinterface.com/downloads/info26583-MissionReportButtonPlus.html),
 [Wago.io](https://addons.wago.io/addons/mission-report-button-plus),

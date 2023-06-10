@@ -3,3 +3,4 @@
 
 # Local packaging test
 .release
+.env
