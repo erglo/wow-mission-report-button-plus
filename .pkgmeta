@@ -7,8 +7,10 @@ ignore:
     - .screenshots
     - .vscode
     - .gitignore
-    - README.md
-    - README.bbcode
+    - CHANGELOG.md
+    - README-CF.md      # CurseForge
+    - README-WI.bbcode  # WoWInterface
+    - README.md         # GitHub + Wago.io
 
 manual-changelog:
     filename: CHANGELOG-LATEST.md

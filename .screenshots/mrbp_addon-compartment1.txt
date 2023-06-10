@@ -1,0 +1,4 @@
+
+An example of the Addon Compartment + tooltip
+
+The tooltip gives you a summary for each expansion.

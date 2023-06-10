@@ -1,11 +1,19 @@
-# Mission Report Button Plus
-
+# Mission Report Button Plus  
+  
 Adds a right-click menu to the mission report button on the minimap (aka. the `Garrison-/ExpansionLandingPageMinimapButton`) for selecting mission reports and summaries of current and previous expansions.  
 *(See full feature list [below](#features))*  
   
 ![Button tooltip and right-click menu with expansion names](https://raw.githubusercontent.com/erglo/mission-report-button-plus/main/.screenshots/mbrp_tooltip-dropdown_df-winter.jpg "Button tooltip and right-click menu with expansion names")
 ![Button tooltip and right-click menu with expansion names](https://raw.githubusercontent.com/erglo/mission-report-button-plus/main/.screenshots/mrbp_menu-tooltip_df-summary.jpg "The MRBP Dragon Isles Summary tooltip")  
 (More images can be found on this addon's [screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots) on CurseForge.)  
+  
+## Status  
+  
++ GitHub:  
+  ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/erglo/mission-report-button-plus?label=latest&logo=GitHub&logoColor=lightgray) ![GitHub Release Date](https://img.shields.io/github/release-date/erglo/mission-report-button-plus?logo=GitHub&logoColor=lightgray) ![GitHub all releases](https://img.shields.io/github/downloads/erglo/mission-report-button-plus/total?logo=GitHub&logoColor=lightgray) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/erglo/mission-report-button-plus/release.yml?branch=main&logo=GitHub&logoColor=lightgray)  
+  
++ CurseForge:  
+  ![CurseForge downloads](https://cf.way2muchnoise.eu/full_461804_%20(E04E14-5A5A5A-FFFFFF-010101-1C1C1C).svg) ![CurseForge WoW version](https://cf.way2muchnoise.eu/versions/WoW-retail%20_461804_latest(5A5A5A-E04E14-FFFFFF-010101).svg)  
   
 ## About this addon  
   
@@ -37,7 +45,7 @@ It is still possible to access mission reports from previous expansions but the 
 
 ### Dropdown Menu
 
-+ [x] see details about in-progress mission of each command table  
++ [x] see details about in-progress missions of each command table  
 + [x] see which bounties, threats and world map events of each expansion are currently active  
 + [x] expansions you (yet) don't own will be hidden in the menu  
 + [x] expansions without unlocked requirements (eg. a command table) will be displayed, but disabled  
@@ -73,10 +81,12 @@ It is still possible to access mission reports from previous expansions but the 
 
 ### Download sources  
   
-+ [CurseForge](https://www.curseforge.com/wow/addons/mission-report-button-plus),
++ [![CurseForge](https://img.shields.io/badge/%F0%9F%94%97-CurseForge-f16436)](https://www.curseforge.com/wow/addons/mission-report-button-plus "CurseForge.com") [![Wago.io](https://img.shields.io/badge/%F0%9F%94%97-Wago.io-c1272d)](https://addons.wago.io/addons/mission-report-button-plus "Wago.io") [![WOWInterface](https://img.shields.io/badge/%F0%9F%94%97-WOWInterface-da8a00)](https://www.wowinterface.com/downloads/info26583-MissionReportButtonPlus.html "WOWInterface.com") [![GitHub](https://img.shields.io/badge/%F0%9F%94%97-GitHub-6e7681)](https://github.com/erglo/mission-report-button-plus "GitHub.com")  
+<!-- Part below is needed for CurseForge's lame Markdown efforts -->
+<!-- + [CurseForge](https://www.curseforge.com/wow/addons/mission-report-button-plus),
 [WOWInterface](https://www.wowinterface.com/downloads/info26583-MissionReportButtonPlus.html),
-[Wago](https://addons.wago.io/addons/mission-report-button-plus),
-[GitHub](https://github.com/erglo/mission-report-button-plus).  
+[Wago.io](https://addons.wago.io/addons/mission-report-button-plus),
+[GitHub](https://github.com/erglo/mission-report-button-plus).   -->
   
 ### Install manually  
   
@@ -91,7 +101,7 @@ It is still possible to access mission reports from previous expansions but the 
 + Search for `Mission Report Button Plus` inside the app and click on "Install".  
 + Done. Start or reload your game.  
   
-#### :information_source: Further help  
+#### ℹ Further help  
   
 + [WoWInterface - FAQ: Installing AddOns](https://www.wowinterface.com/forums/faq.php?faq=install)  
 + [Wowhead - AddOns: How to Install and Maintain](https://www.wowhead.com/guide/addons-how-to-install-and-maintain-1998)  
@@ -102,9 +112,8 @@ It is still possible to access mission reports from previous expansions but the 
 ## Interested in helping?  
   
 *Contributors are most welcome!*  
-[Report a problem](https://github.com/erglo/mission-report-button-plus/issues) on the repository's issues page as soon as you find any errors.  
-[Start translating](https://www.curseforge.com/wow/addons/mission-report-button-plus/localization) when you're missing your language or simply want to help with localization.  
-[Leave a comment](https://www.curseforge.com/wow/addons/mission-report-button-plus#comments) on CurseForge if you have a *feature request* or *tell me what you think* about this addon.  
+[Report a problem](https://github.com/erglo/mission-report-button-plus/issues) or send a feature request on the repository's issues page.  
+[Help translating](https://www.curseforge.com/wow/addons/mission-report-button-plus/localization) on CurseForge if you're missing your language or simply want to help with localization.  
   
 ### Known Issues  
   
@@ -114,23 +123,23 @@ It is still possible to access mission reports from previous expansions but the 
 + As soon as you unlock a command table the minimap button doesn't update automatically. The addon gathers this information only once at startup in order to save memory. You need to reload the UI manually, eg. by typing `/reload` in the chat frame. Logging-out and -in again also works. I will tend to this as soon as possible.  
   
 ----  
-----  
   
-### Tools used  
+### Tools  
   
 + Microsoft's [Visual Studio Code](https://code.visualstudio.com) with ...  
   + Sumneko's [Lua Language Server](https://github.com/LuaLS/lua-language-server) extension  
   + Ketho's [World of Warcraft API](https://github.com/Ketho/vscode-wow-api) extension  
   + Stanzilla's [World of Warcraft TOC Language Support](https://github.com/Stanzilla/vscode-wow-toc) extension  
   + David Anson's [Markdown linting and style checking](https://github.com/DavidAnson/vscode-markdownlint) extension  
-+ Version control management with [Git](https://git-scm.com)  
++ Version control management with [Git](https://git-scm.com) + [GitHub](https://github.com/)  
+  + GitHub workflow via [BigWigsMods/packager](https://github.com/BigWigsMods/packager)  
   
 ### References  
   
-+ Townlong Yak's FrameXML archive (<https://www.townlong-yak.com/framexml/live>)  
-+ WoWpedia's World of Warcraft API (<https://wowpedia.fandom.com/wiki/World_of_Warcraft_API>)  
-+ Wowhead.com (<https://www.wowhead.com>)  
-+ Matt Cone's "The Markdown Guide" (<https://www.markdownguide.org>)  
++ Townlong Yak's [FrameXML archive](https://www.townlong-yak.com/framexml/live)  
++ WoWpedia's [World of Warcraft API](https://wowpedia.fandom.com/wiki/World_of_Warcraft_API)  
++ [Wowhead.com](https://www.wowhead.com)  
++ Matt Cone's ["The Markdown Guide"](https://www.markdownguide.org)  
   *(Buy his [book](https://www.markdownguide.org/book)!)*  
-+ The Git Book (<https://git-scm.com/book>)  
-+ Documentation for Visual Studio Code (<https://code.visualstudio.com/docs>)  
++ [The Git Book](https://git-scm.com/book)  
++ [Documentation](https://code.visualstudio.com/docs) for Visual Studio Code  
