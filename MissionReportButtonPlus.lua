@@ -675,40 +675,32 @@ end
 --
 local function TooltipText_AddIconLine(tooltipText, text, iconID, lineColor, isIconString)
 	local fontColor = lineColor or WHITE_FONT_COLOR;
-	local iconString = isIconString and iconID or util.CreateInlineIcon(iconID);
+	local iconString = isIconString and iconID or util.CreateInlineIcon1(iconID);  --> with offset -1
 	tooltipText = tooltipText.."|n"..iconString.." "..fontColor:WrapTextInColorCode(text);
 	return tooltipText;
 end
 
-local function TooltipText_AddObjectiveLine(tooltipText, text, lineColor)
-	local isIconString = true;
-	return TooltipText_AddIconLine(tooltipText, text, TOOLTIP_DASH_ICON_STRING, lineColor, isIconString);
-end
-
---> Line color defaults to DISABLED_FONT_COLOR
-local function TooltipText_AddObjectiveCompletedLine(tooltipText, text, prependIcon, alternativeLineColor)
-	local fontColor = alternativeLineColor or DISABLED_FONT_COLOR;
-	if prependIcon then
-		-- Replace the dash icon with the check mark icon
-		local isIconString = true;
-		return TooltipText_AddIconLine(tooltipText, text, TOOLTIP_CHECK_MARK_ICON_STRING, fontColor, isIconString);
-	end
-	-- Append icon
-	return TooltipText_AddObjectiveLine(tooltipText, text, fontColor).." "..TOOLTIP_CHECK_MARK_ICON_STRING;
-end
-
--- (text, isCompleted, wrap, leftOffset, altTexture)
-local function TooltipText_AddObjectiveLine_2(tooltipText, text, isCompleted, lineColor, alternativeIcon, prependCompleteIcon)
-	local isIconString = true;
+-- Add a white or gray colored text line to given tooltip text with a preceding dash or check mark icon, depending
+-- whether the objective has been completed.
+---@param tooltipText string  The required tooltip string
+---@param text string  The label or message text
+---@param isCompleted boolean|nil  A line with a completed objective will be shown in a gray text color with a check mark in front of it.
+---@param lineColor table|nil  A color class (see <FrameXML/GlobalColors.lua>); defaults to WHITE_FONT_COLOR
+---@param appendCompleteIcon boolean|nil  Append the icon at the end of the line, instead of in front of it (default)
+---@param alternativeIcon string|nil  An atlas string
+---@return string tooltipText
+--
+local function TooltipText_AddObjectiveLine(tooltipText, text, isCompleted, lineColor, appendCompleteIcon, alternativeIcon)
+	local isIconString = alternativeIcon == nil;
 	if not isCompleted then
-		return TooltipText_AddIconLine(tooltipText, text, TOOLTIP_DASH_ICON_STRING, lineColor, isIconString);
-	elseif prependCompleteIcon then
-		-- Replace the dash icon with the check mark icon
-		return TooltipText_AddIconLine(tooltipText, text, TOOLTIP_CHECK_MARK_ICON_STRING, DISABLED_FONT_COLOR, isIconString);
-	else
+		return TooltipText_AddIconLine(tooltipText, text, alternativeIcon or TOOLTIP_DASH_ICON_STRING, lineColor, isIconString);
+	elseif appendCompleteIcon then
 		-- Append icon at line end
-		tooltipText = TooltipText_AddIconLine(tooltipText, text, TOOLTIP_DASH_ICON_STRING, DISABLED_FONT_COLOR, isIconString);
+		tooltipText = TooltipText_AddIconLine(tooltipText, text, alternativeIcon or TOOLTIP_DASH_ICON_STRING, DISABLED_FONT_COLOR, isIconString);
 		return tooltipText.." "..TOOLTIP_CHECK_MARK_ICON_STRING;
+	else
+		-- Replace the dash icon with the check mark icon
+		return TooltipText_AddIconLine(tooltipText, text, alternativeIcon or TOOLTIP_CHECK_MARK_ICON_STRING, DISABLED_FONT_COLOR, isIconString);
 	end
 end
 
@@ -745,11 +737,7 @@ local function AddTooltipMissionInfoText(tooltipText, garrInfo)
 	-- Mission counter
 	if (garrInfo.missions.numInProgress > 0) then
 		local progressText = string.format(garrInfo.msg.missionsReadyCount, garrInfo.missions.numCompleted, garrInfo.missions.numInProgress);
-		if hasCompletedAllMissions then
-			tooltipText = TooltipText_AddObjectiveCompletedLine(tooltipText, progressText);
-		else
-			tooltipText = TooltipText_AddObjectiveLine(tooltipText, progressText);
-		end
+		tooltipText = TooltipText_AddObjectiveLine(tooltipText, progressText, hasCompletedAllMissions);
 	else
 		tooltipText = TooltipText_AddTextLine(tooltipText, garrInfo.msg.missionsEmptyProgress);
 	end
@@ -776,12 +764,12 @@ local function AddTooltipCovenantRenownText(tooltipText, covenantInfo)
 		-- Show current renown progress
 		local progressText = MAJOR_FACTION_RENOWN_CURRENT_PROGRESS:format(renownInfo.currentRenownLevel, renownInfo.maximumRenownLevel);
 		if renownInfo.hasMaximumRenown then
+			-- Append max. level after covenant name
 			local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(renownInfo.currentRenownLevel);
 			tooltipText = TooltipText_AppendText(tooltipText, PARENS_TEMPLATE:format(renownLevelText));
-			tooltipText = TooltipText_AddObjectiveCompletedLine(tooltipText, COVENANT_SANCTUM_RENOWN_REWARD_TITLE_COMPLETE);
-		else
-			tooltipText = TooltipText_AddObjectiveLine(tooltipText, progressText);
+			progressText = COVENANT_SANCTUM_RENOWN_REWARD_TITLE_COMPLETE;
 		end
+		tooltipText = TooltipText_AddObjectiveLine(tooltipText, progressText, renownInfo.hasMaximumRenown);
 	end
 
 	return tooltipText;
@@ -798,21 +786,21 @@ local function AddTooltipDragonFlightFactionsRenownText(tooltipText)
 			local factionColor = ns.settings.applyMajorFactionColors and util.garrison.GetMajorFactionColor(factionData) or WHITE_FONT_COLOR;
 			tooltipText = TooltipText_AddIconLine(tooltipText, factionData.name, factionIconString, factionColor, isIconString);
 			if factionData.isUnlocked then
+				-- Append renown level
 				local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel);
 				tooltipText = TooltipText_AppendText(tooltipText, PARENS_TEMPLATE:format(renownLevelText), NORMAL_FONT_COLOR);
 				-- Show current renown progress
-				if util.garrison.HasMaximumMajorFactionRenown(factionData.factionID) then
-					tooltipText = TooltipText_AddObjectiveCompletedLine(tooltipText, MAJOR_FACTION_MAX_RENOWN_REACHED);
-				else
-					local progressText = MAJOR_FACTION_RENOWN_CURRENT_PROGRESS:format(factionData.renownReputationEarned, factionData.renownLevelThreshold);
-					tooltipText = TooltipText_AddObjectiveLine(tooltipText, progressText);
-				end
+				local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID);
+				local progressText = MAJOR_FACTION_RENOWN_CURRENT_PROGRESS:format(factionData.renownReputationEarned, factionData.renownLevelThreshold);
+				local lineText = hasMaxRenown and MAJOR_FACTION_MAX_RENOWN_REACHED or progressText;
+				local appendCompleteIcon = true;
+				tooltipText = TooltipText_AddObjectiveLine(tooltipText, lineText, hasMaxRenown, nil, appendCompleteIcon);
 			else
 				-- Major faction is not unlocked, yet :(
-				tooltipText = TooltipText_AddObjectiveLine(tooltipText, MAJOR_FACTION_BUTTON_FACTION_LOCKED, DISABLED_FONT_COLOR);
+				tooltipText = TooltipText_AddObjectiveLine(tooltipText, MAJOR_FACTION_BUTTON_FACTION_LOCKED, nil, DISABLED_FONT_COLOR);
 				-- Show unlock reason
 				if not ns.settings.hideMajorFactionUnlockDescription then
-					tooltipText = TooltipText_AddObjectiveLine(tooltipText, factionData.unlockDescription, DISABLED_FONT_COLOR);
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, factionData.unlockDescription, nil, DISABLED_FONT_COLOR);
 				end
 			end
 		end
@@ -828,26 +816,20 @@ local function AddTooltipDragonGlyphsText(tooltipText)
 	-- Add counter of collected glyphs per zone
 	for mapName, count in pairs(glyphsPerZone) do
 		local zoneName = mapName..HEADER_COLON;
-		if (count.numComplete ~= count.numTotal) then
+		local isComplete = count.numComplete == count.numTotal;
+		if not (isComplete and ns.settings.autoHideCompletedDragonGlyphZones) then
+			tooltipText = TooltipText_AddObjectiveLine(tooltipText, zoneName, isComplete);
+			local lineColor = isComplete and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR;
 			local countedText = GENERIC_FRACTION_STRING:format(count.numComplete, count.numTotal);
-			tooltipText = TooltipText_AddObjectiveLine(tooltipText, zoneName);
-			tooltipText = TooltipText_AppendText(tooltipText, countedText, NORMAL_FONT_COLOR);
-		else
-			if not ns.settings.autoHideCompletedDragonGlyphZones then
-				local glyphsPerZoneText = TRADESKILL_NAME_RANK:format(zoneName, count.numComplete, count.numTotal);
-				local prependCheckMarkIcon = false;
-				tooltipText = TooltipText_AddObjectiveCompletedLine(tooltipText, glyphsPerZoneText, prependCheckMarkIcon);
-			end
+			tooltipText = TooltipText_AppendText(tooltipText, countedText, lineColor);
 		end
 	end
 	-- Add glyph collection summary
 	local currencySymbolString = util.CreateInlineIcon(treeCurrencyInfo.texture, 16, 16, 0, -1);
-	local youCollectedAmountString = TRADESKILL_NAME_RANK:format(YOU_COLLECTED_LABEL, numGlyphsCollected, numGlyphsTotal).." "..currencySymbolString;
-	if (numGlyphsCollected ~= numGlyphsTotal) then
-		tooltipText = TooltipText_AddObjectiveLine(tooltipText, youCollectedAmountString);
-	else
-		tooltipText = TooltipText_AddObjectiveCompletedLine(tooltipText, youCollectedAmountString);
-	end
+	local youCollectedAmountString = TRADESKILL_NAME_RANK:format(YOU_COLLECTED_LABEL, numGlyphsCollected, numGlyphsTotal);
+	local collectedAll = numGlyphsCollected == numGlyphsTotal;
+	local appendCompleteIcon = true;
+	tooltipText = TooltipText_AddObjectiveLine(tooltipText, youCollectedAmountString, collectedAll, nil, appendCompleteIcon, treeCurrencyInfo.texture);
 	if (treeCurrencyInfo.quantity > 0) then
 		local availableAmountText = PROFESSIONS_CURRENCY_AVAILABLE:format(treeCurrencyInfo.quantity, currencySymbolString);
 		tooltipText = TooltipText_AddObjectiveLine(tooltipText, availableAmountText);
@@ -1004,28 +986,28 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				-- Retrieves callings through event listening and on opening the mission frame; try to update (again).
 				CovenantCalling_CheckCallings()
 			end
-			for _, bountyData in ipairs(bountyBoard.bounties) do
-				if bountyData then
-					local questName = QuestUtils_GetQuestName(bountyData.questID)
-					local icon = util.CreateInlineIcon(bountyData.icon);
-					local isIconString = true;
-					if isForShadowlands then
-						-- REF.: <FrameXML/TextureUtil.lua>
-						-- REF.: CreateTextureMarkup(file, fileWidth, fileHeight, width, height, left, right, top, bottom, xOffset, yOffset)
-						icon = CreateTextureMarkup(bountyData.icon, 256, 256, 16, 16, 0.28, 0.74, 0.26, 0.72, 1, -1);
+			local isIconString = true;
+			if (#bountyBoard.bounties > 0) then
+				for _, bountyData in ipairs(bountyBoard.bounties) do
+					if bountyData then
+						local questName = QuestUtils_GetQuestName(bountyData.questID)
+						local icon = util.CreateInlineIcon(bountyData.icon);
+						if isForShadowlands then
+							-- REF.: CreateTextureMarkup(file, fileWidth, fileHeight, width, height, left, right, top, bottom, xOffset, yOffset)
+							icon = CreateTextureMarkup(bountyData.icon, 256, 256, 16, 16, 0.28, 0.74, 0.26, 0.72, 1, -1);
+						end
+						if bountyData.turninRequirementText then
+							tooltipText = TooltipText_AddIconLine(tooltipText, questName, icon, DISABLED_FONT_COLOR, isIconString);
+							-- if ns.settings.showBountyRequirements then			--> TODO - Re-add option to settings
+							tooltipText = TooltipText_AddObjectiveLine(tooltipText, bountyData.turninRequirementText, nil, WARNING_FONT_COLOR);
+							-- end
+						else
+							tooltipText = TooltipText_AddIconLine(tooltipText, questName, icon, nil, isIconString);
+						end
 					end
-					if bountyData.turninRequirementText then
-						-- REF.: <FrameXML/WorldMapBountyBoard.lua>
-						tooltipText = TooltipText_AddIconLine(tooltipText, questName, icon, DISABLED_FONT_COLOR, isIconString);
-						-- if ns.settings.showBountyRequirements then
-						tooltipText = TooltipText_AddObjectiveLine(tooltipText, bountyData.turninRequirementText, WARNING_FONT_COLOR);
-						-- end
-					else
-						tooltipText = TooltipText_AddIconLine(tooltipText, questName, icon, nil, isIconString);
-					end
-				-- else
-				-- 	tooltipText = tooltipText.."|n"..bountyBoard.noBountiesMessage
 				end
+			elseif not isForShadowlands then
+				tooltipText = TooltipText_AddIconLine(tooltipText, bountyBoard.noBountiesMessage, TOOLTIP_DASH_ICON_STRING, nil, isIconString);
 			end
 		end
 	end
@@ -1078,7 +1060,6 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 	----- Legion -----
 
 	if (isForLegion and ns.settings.showLegionWorldMapEvents) then
-		-- tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showLegionWorldMapEvents);
 		-- Legion Invasion
 		local fontColor = ns.settings.applyInvasionColors and INVASION_FONT_COLOR or nil;  --> defaults to white
 		if ns.settings.showLegionAssaultsInfo then
@@ -1087,10 +1068,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				tooltipText = TooltipText_AddHeaderLine(tooltipText, legionAssaultsAreaPoiInfo.name);  -- ns.label.showLegionAssaultsInfo
 				tooltipText = TooltipText_AddIconLine(tooltipText, legionAssaultsAreaPoiInfo.parentMapInfo.name, legionAssaultsAreaPoiInfo.atlasName, fontColor);
 				tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, legionAssaultsAreaPoiInfo.timeString);
-				-- local assaultColor = legionAssaultsAreaPoiInfo.isCompleted and GRAY_FONT_COLOR or fontColor;
-				-- local description = legionAssaultsAreaPoiInfo.isCompleted and legionAssaultsAreaPoiInfo.description.." "..TOOLTIP_CHECK_MARK_ICON_STRING or legionAssaultsAreaPoiInfo.description;
-				-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, description, assaultColor);
-				tooltipText = TooltipText_AddObjectiveLine_2(tooltipText, legionAssaultsAreaPoiInfo.description, legionAssaultsAreaPoiInfo.isCompleted, fontColor);
+				tooltipText = TooltipText_AddObjectiveLine(tooltipText, legionAssaultsAreaPoiInfo.description, legionAssaultsAreaPoiInfo.isCompleted, fontColor);
 			end
 		end
 		-- Demon Invasions (Broken Shores)
@@ -1140,14 +1118,8 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			local islandExpeditionInfo = util.poi.GetBfAIslandExpeditionInfo();
 			tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAIslandExpeditionsInfo);
 			tooltipText = TooltipText_AddIconLine(tooltipText, islandExpeditionInfo.name, islandExpeditionInfo.atlasName);
-			local appendedTextColor = NORMAL_FONT_COLOR;
-			if islandExpeditionInfo.isFinished then
-				local prependIcon = true;
-				tooltipText = TooltipText_AddObjectiveCompletedLine(tooltipText, islandExpeditionInfo.progressText, prependIcon);
-				appendedTextColor = GRAY_FONT_COLOR;
-			else
-				tooltipText = TooltipText_AddObjectiveLine(tooltipText, islandExpeditionInfo.progressText);
-			end
+			tooltipText = TooltipText_AddObjectiveLine(tooltipText, islandExpeditionInfo.progressText, islandExpeditionInfo.isFinished);
+			local appendedTextColor = islandExpeditionInfo.isFinished and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR;
 			tooltipText = TooltipText_AppendText(tooltipText, PARENS_TEMPLATE:format(islandExpeditionInfo.fulfilledPercentageString), appendedTextColor);
 		end
 	end
@@ -1205,8 +1177,8 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					if campAreaPoiInfo.timeString then
 						tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, campAreaPoiInfo.timeString);
 					else
-						-- if not ns.settings.hideEventDescriptions then
-						tooltipText = TooltipText_AddObjectiveLine(tooltipText, campAreaPoiInfo.description);			--> TODO - Camp Aylaag description
+						-- if not ns.settings.hideEventDescriptions then		--> TODO - Camp Aylaag description
+						tooltipText = TooltipText_AddObjectiveLine(tooltipText, campAreaPoiInfo.description);
 						-- end
 					end
 				end

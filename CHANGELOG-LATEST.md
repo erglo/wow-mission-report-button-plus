@@ -1,12 +1,10 @@
 ## Latest changes
 
-<!-- @debug@ -->
 <!-- Dynamic badges: ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/erglo/mission-report-button-plus?logo=GitHub&logoColor=lightgray "Current release version")
 ![CurseForge](https://cf.way2muchnoise.eu/versions/WoW-retail%20%20_461804_latest(5A5A5A-E04E14-FFFFFF-010101).svg "Game version (CurseForge)")
 
 Static badges: [![WoW](https://img.shields.io/badge/WoW--retail-10.1.0-orange)](https://addons.wago.io/addons/mission-report-button-plus "Supported game version")
 !["tag-latest"](https://img.shields.io/badge/tag-v0.15.0-informational?logo=GitHub&logoColor=lightgray "Test version") -->
-<!-- @end-debug@ -->
 
 <!-- Rendered badges - Unfortunately most addon hosting websites do not support
      badges, but fortunately GitHub renders them as images :) -->
@@ -18,9 +16,11 @@ Static badges: [![WoW](https://img.shields.io/badge/WoW--retail-10.1.0-orange)](
 
 ### Changed
 
+- A try-next-day hint message will now be shown if all Bounty Board quest have been completed.
 - Updated readme files + homepages and added some badges.
 - Split the changelog into 2 files for complete and latest changes.
 
+<!-- TODO - Add "achievement tracking" info to README -->
 ----
 
 ## Previous changes
