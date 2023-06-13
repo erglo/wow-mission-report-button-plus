@@ -12,11 +12,12 @@ Static badges: [![WoW](https://img.shields.io/badge/WoW--retail-10.1.0-orange)](
 
 ### Added
 
-- Legion: cross-referencing `Legion Assaults` with the achievement "Defender of the Broken Isles".
+- Battle for Azeroth: cross-reference for `Faction Assaults` with the achievements "Frontline Warrior".
+- Legion: cross-reference for `Legion Assaults` with the achievement "Defender of the Broken Isles".
 
 ### Changed
 
-- A try-next-day hint message will now be shown if all Bounty Board quest have been completed.
+- A try-next-day hint message will now be shown when all Bounty Board quest have been completed.
 - Updated readme files + homepages and added some badges.
 - Split the changelog into 2 files for complete and latest changes.
 

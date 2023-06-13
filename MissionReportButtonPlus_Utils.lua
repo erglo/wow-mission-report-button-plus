@@ -188,10 +188,11 @@ function util.GameTooltip_AddAtlas(tooltip, atlasName, atlasWidth, atlasHeight, 
 end
 
 -- Add given text as an objective line with a prepending icon
-function util.GameTooltip_AddObjectiveLine(tooltip, text, isCompleted, wrap, leftOffset, altTexture)
+function util.GameTooltip_AddObjectiveLine(tooltip, text, isCompleted, wrap, leftOffset, altTexture, altColor)
 	local defaultLeftOffset = 8;
 	if not isCompleted then
-		GameTooltip_AddNormalLine(tooltip, text, wrap, leftOffset or defaultLeftOffset);
+		-- GameTooltip_AddNormalLine(tooltip, text, wrap, leftOffset or defaultLeftOffset);
+		GameTooltip_AddColoredLine(tooltip, text, altColor or NORMAL_FONT_COLOR, wrap, leftOffset or defaultLeftOffset);
 		if (altTexture and type(tonumber(altTexture)) ~= "number") then
 			util.GameTooltip_AddAtlas(tooltip, altTexture);
 			return;
@@ -374,9 +375,6 @@ function LocalQuestUtil.GetQuestName(questID)
 	end
 	return QuestUtils_GetQuestName(questID);
 end
-Test_GetQuestName = LocalQuestUtil.GetQuestName;
--- Test_GetQuestName(74905)
--- QuestUtils_GetQuestName(74905)
 
 --------------------------------------------------------------------------------
 ----- Achievement utilities ----------------------------------------------------
@@ -384,60 +382,15 @@ Test_GetQuestName = LocalQuestUtil.GetQuestName;
 -- REF.: <https://wowpedia.fandom.com/wiki/World_of_Warcraft_API#Achievements>
 
 -- A collection of utility functions handling achievement details.
-util.achieve = {};
-
--- -- A wrapper for 'GetAchievementInfo' with pre-selected return values. Such as:
--- -- id, name, completed, description, icon.
--- ---@param achievementID number
--- ---@return table achievementInfo
--- --
--- -- REF.: <https://wowpedia.fandom.com/wiki/API_GetAchievementInfo>
--- --
--- function util.achieve.GetCustomAchievementInfo(achievementID)					--> TODO - Keep ???
--- 	-- Default return values:
--- 	-- 1:id, 2:name, 3:points, 4:completed, 5:month, 6:day, 7:year,
--- 	-- 8:description, 9:flags, 10:icon, 11:rewardText, 12:isGuild,
--- 	-- 13:wasEarnedByMe, 14:earnedBy, 15:isStatistic
--- 	local data = SafePack(GetAchievementInfo(achievementID));
--- 	local achievementInfo = {
--- 		id = data[1],
--- 		name = data[2],
--- 		completed = data[4],
--- 		description = data[8],
--- 		icon = data[10],
--- 	};
--- 	return achievementInfo;
--- end
-
-
--- function util.achieve.GetCriteriaCount(achievementID)
--- 	local numCriteria = GetAchievementNumCriteria(achievementID);
--- 	local numComplete = 0;
--- 	for i=1, numCriteria do
--- 		-- Return values from GetAchievementCriteriaInfo: 1:criteriaString,
--- 		-- 2:criteriaType, 3:completed, 4:quantity, 5:reqQuantity, 6:charName,
--- 		-- 7:flags, 8:assetID, 9:quantityString, 10:criteriaID, 11:eligible,
--- 		-- [12:duration], [13:elapsed]
--- 		--
--- 		-- Map criteriaType with assetID (currently used ones only)
--- 		local criteriaTypeMap = {
--- 			["killNPC"] = 0,  --> assetID == creatureID
--- 			["questType"] = 27,	--> assetID == questID
--- 			["factionType"] = 46, --> assetID == factionID 
--- 		}
--- 		local criteriaString, criteriaType, criteriaCompleted, _, _, _, _, assetID = GetAchievementCriteriaInfo(achievementID, i);
--- 		if criteriaCompleted then
--- 			numComplete = numComplete + 1;
--- 		end
--- 	end
--- end
+local LocalAchievementUtil = {}
+-- util.achieve = {};
 
 -- Achievements IDs
 local INVASION_OBLITERATION_ID = 12026;  -- Legion Invasion Point Generals
 -- local ENVISION_INVASION_ERADICATION_ID = 12028;
 local DEFENDER_OF_THE_BROKEN_ISLES_ID = 11544;
--- local FRONTLINE_WARRIOR_HORDE_ASSAULTS = 13284;  -- BfA Faction Assaults
--- local FRONTLINE_WARRIOR_ALLIANCE_ASSAULTS = 13283;  -- BfA Faction Assaults
+local FRONTLINE_WARRIOR_ALLIANCE_ASSAULTS = 13283;  -- BfA Faction Assaults
+local FRONTLINE_WARRIOR_HORDE_ASSAULTS = 13284;  -- BfA Faction Assaults
 
 -- Pattern: {[areaPoi] = assetID, ...}
 local AREA_POI_ASSET_MAP = {
@@ -453,24 +406,45 @@ local AREA_POI_ASSET_MAP = {
 	["5177"] = 47194,  -- Highmountain
 	["5178"] = 47195,  -- Stormheim
 	["5210"] = 47196,  -- Val'sharahs
-	-- -- BfA Faction Assaults (Horde)
-	-- ["5966"] = 53939,  -- Stormsong Valley
+	-- BfA Faction Assaults {Horde, Alliance}
+	["5896"] = {54314, 53711},  -- Tiragardesound
+	["5964"] = {54319, 54318},  -- Drustvar
+	["5966"] = {54316, 54317},  -- Stormsong Valley
+	["5969"] = {54326, 54325},  -- Nazmir
+	["5970"] = {54322, 54315},  -- Vol'dun
+	["5973"] = {54323, 54324},  -- Zuldazar
 };
+
+-- @debug@
+function Test_ListAchievementAssetIDs(achievementID)
+	local aID, aName = GetAchievementInfo(achievementID);
+	print(aID, aName);
+	local numCriteria = GetAchievementNumCriteria(achievementID);
+	for i=1, numCriteria do
+		local criteriaInfo = SafePack(GetAchievementCriteriaInfo(achievementID, i));
+		local cName, cType, isCompleted, criteriaAssetID = criteriaInfo[1], criteriaInfo[2], criteriaInfo[3], criteriaInfo[8];
+		print(i, criteriaAssetID, isCompleted, cName);
+	end
+end
+-- @end-debug@
+-- Test_ListAchievementAssetIDs(12028)
+-- GetAchievementInfo(12028)
+-- GetAchievementCriteriaInfo(12028, 3)
 
 -- Check if given areaPoiID has an assetID for an achievement.
 ---@param areaPoiID number
 ---@return boolean isRelevant
 --
-function util.achieve.IsRelevantAreaPOI(areaPoiID)
+function LocalAchievementUtil.IsRelevantAreaPOI(areaPoiID)
 	local areaPoiIDstring = tostring(areaPoiID);
 	return AREA_POI_ASSET_MAP[areaPoiIDstring] ~= nil;
 end
 
 -- Return the assetID for given areaPoiID.
 ---@param areaPoiID number
----@return integer assetID
+---@return integer|table assetID
 --
-function util.achieve.GetAreaPOIAssetID(areaPoiID)
+function LocalAchievementUtil.GetAreaPOIAssetID(areaPoiID)
 	local areaPoiIDstring = tostring(areaPoiID);
 	return AREA_POI_ASSET_MAP[areaPoiIDstring];
 end
@@ -483,14 +457,13 @@ end
 --> REF.: <https://wowpedia.fandom.com/wiki/API_GetAchievementNumCriteria>  
 --> REF.: <https://wowpedia.fandom.com/wiki/API_GetAchievementCriteriaInfo>  
 --
-function util.achieve.IsAssetCriteriaCompleted(achievementID, assetID)
+function LocalAchievementUtil.IsAssetCriteriaCompleted(achievementID, assetID)
 	local numCriteria = GetAchievementNumCriteria(achievementID);
 	for i=1, numCriteria do
 		-- Default return values:
 		-- 1:criteriaString, 2:criteriaType, 3:completed, 4:quantity, 5:reqQuantity,
 		-- 6:charName, 7:flags, 8:assetID, 9:quantityString, 10:criteriaID,
 		-- 11:eligible, [12:duration], [13:elapsed]
-		-- local _, _, isCompleted, _, _, _, _, criteriaAssetID = GetAchievementCriteriaInfo(achievementID, i);
 		local criteriaInfo = SafePack(GetAchievementCriteriaInfo(achievementID, i));
 		local isCompleted, criteriaAssetID = criteriaInfo[3], criteriaInfo[8];
 		-- The assetID can be anything depending on the criteriaType, eg. a creatureID, questID, etc.
@@ -500,9 +473,6 @@ function util.achieve.IsAssetCriteriaCompleted(achievementID, assetID)
 	end
 	return false;
 end
--- Test_IsAssetCriteriaCompleted = util.achieve.IsAssetCriteriaCompleted;
--- -- Test_IsAssetCriteriaCompleted(11544, 47193)
--- -- GetAchievementCriteriaInfo(11544, 1)
 
 --------------------------------------------------------------------------------
 ----- World map utilities ------------------------------------------------------
@@ -814,7 +784,6 @@ function util.garrison.IsDragonridingUnlocked()
 	local hasAccountAchievement = select(4, GetAchievementInfo(DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID));
 	return hasAccountAchievement or LocalQuestUtil.IsQuestFlaggedCompleted(DRAGONRIDING_INTRO_QUEST_ID);
 end
--- Test_IsDragonridingUnlocked = util.garrison.IsDragonridingUnlocked;
 
 -- -- Create a string with the amount and icon of given currency info.
 -- ---@param treeCurrencyInfo table  A TreeCurrencyInfo table
@@ -1107,13 +1076,10 @@ function util.threats.GetActiveThreats()
 			if LocalQuestUtil.IsActiveWorldQuest(questID) then
 				local questInfo = LocalQuestUtil.GetWorldQuestInfoByQuestID(questID);
 				local typeAtlas = QuestUtil.GetThreatPOIIcon(questID);
-				-- local questName = util.CreateInlineIcon1(typeAtlas)..questInfo.title;
 				local mapID = LocalQuestUtil.GetWorldQuestZoneID(questID);
 				local mapInfo = LocalMapUtil.GetMapInfo(mapID);
 				local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(questID);
 				local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString;
-				-- local timeLeftString = timeLeftInfo and timeLeftInfo.timeString or '';
-				-- print("questID:", questID, questInfo.factionID);
 				local questExpansionLevel = GetQuestExpansion(questID);
 				if questExpansionLevel then
 					_log:debug("Threat:", questID, questInfo.title, ">", mapID, mapInfo.name, "expLvl:", questExpansionLevel);
@@ -1137,7 +1103,6 @@ function util.threats.GetActiveThreats()
 		return activeThreats;
 	end
 end
--- Test_GetActiveThreats = util.threats.GetActiveThreats;
 
 --------------------------------------------------------------------------------
 ----- POI event handler --------------------------------------------------------
@@ -1359,7 +1324,7 @@ CommunityFeastData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
 function util.poi.GetCommunityFeastInfo()
 	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(CommunityFeastData);
 end
-Test_GetCommunityFeastInfo = util.poi.GetCommunityFeastInfo;
+-- Test_GetCommunityFeastInfo = util.poi.GetCommunityFeastInfo;
 
 ----- Siege on Dragonbane Keep event -----
 
@@ -1437,13 +1402,22 @@ BfAFactionAssaultsData.atlasNames = {"AllianceAssaultsMapBanner", "HordeAssaults
 BfAFactionAssaultsData.mapInfos = {LocalMapUtil.GetMapInfo(875),  LocalMapUtil.GetMapInfo(876)};  --> Zandalar, Kul Tiras
 BfAFactionAssaultsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
 BfAFactionAssaultsData.ignorePrimaryMapForPOI = true;
-BfAFactionAssaultsData.expansionIDstring = tostring(util.expansion.data.BattleForAzeroth.ID);
+local expansionIDstringBfA = tostring(util.expansion.data.BattleForAzeroth.ID);
+local playerFactionGroup = UnitFactionGroup("player");  --> Needed to index: {1:Horde, 2:Alliance}
+local playerFactionIndex = playerFactionGroup == 'Horde' and 1 or 2;
+BfAFactionAssaultsData.achievementIDs = {FRONTLINE_WARRIOR_HORDE_ASSAULTS, FRONTLINE_WARRIOR_ALLIANCE_ASSAULTS};
 
 function util.poi.GetBfAFactionAssaultsInfo()									--> TODO - Add faction ID for colors
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(BfAFactionAssaultsData);
 	if poiInfo then
 		poiInfo.parentMapInfo = LocalMapUtil.GetMapInfo(poiInfo.mapInfo.parentMapID);
-		poiInfo.color = LocalThreatUtil.TYPE_COLORS[BfAFactionAssaultsData.expansionIDstring][poiInfo.atlasName];
+		poiInfo.color = LocalThreatUtil.TYPE_COLORS[expansionIDstringBfA][poiInfo.atlasName];
+		if LocalAchievementUtil.IsRelevantAreaPOI(poiInfo.areaPoiID) then
+			local assetID = LocalAchievementUtil.GetAreaPOIAssetID(poiInfo.areaPoiID)[playerFactionIndex];
+			local achievementID = BfAFactionAssaultsData.achievementIDs[playerFactionIndex];
+			local isCompleted = LocalAchievementUtil.IsAssetCriteriaCompleted(achievementID, assetID);
+			poiInfo.isCompleted = isCompleted;
+		end
 		return poiInfo;
 	end
 end
@@ -1481,9 +1455,9 @@ function util.poi.GetLegionAssaultsInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(LegionAssaultsData);
 	if poiInfo then
 		poiInfo.parentMapInfo = LocalMapUtil.GetMapInfo(poiInfo.mapInfo.parentMapID);
-		if util.achieve.IsRelevantAreaPOI(poiInfo.areaPoiID) then
-			local assetID = util.achieve.GetAreaPOIAssetID(poiInfo.areaPoiID);
-			local isCompleted = util.achieve.IsAssetCriteriaCompleted(LegionAssaultsData.achievementID, assetID);
+		if LocalAchievementUtil.IsRelevantAreaPOI(poiInfo.areaPoiID) then
+			local assetID = LocalAchievementUtil.GetAreaPOIAssetID(poiInfo.areaPoiID);
+			local isCompleted = LocalAchievementUtil.IsAssetCriteriaCompleted(LegionAssaultsData.achievementID, assetID);
 			poiInfo.isCompleted = isCompleted;
 		end
 		return poiInfo;
@@ -1524,9 +1498,9 @@ function util.poi.GetArgusInvasionPointsInfo()
 	local poiInfoTable = LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(ArgusInvasionData);
 	if TableHasAnyEntries(poiInfoTable) then
 		for _, poiInfo in ipairs(poiInfoTable) do
-			if util.achieve.IsRelevantAreaPOI(poiInfo.areaPoiID) then
-				local assetID = util.achieve.GetAreaPOIAssetID(poiInfo.areaPoiID);
-				local isCompleted = util.achieve.IsAssetCriteriaCompleted(ArgusInvasionData.achievementID, assetID);
+			if LocalAchievementUtil.IsRelevantAreaPOI(poiInfo.areaPoiID) then
+				local assetID = LocalAchievementUtil.GetAreaPOIAssetID(poiInfo.areaPoiID);
+				local isCompleted = LocalAchievementUtil.IsAssetCriteriaCompleted(ArgusInvasionData.achievementID, assetID);
 				poiInfo.isCompleted = isCompleted;
 			end
 		end
@@ -1548,9 +1522,9 @@ GreaterInvasionPointData.achievementID = INVASION_OBLITERATION_ID;  -- Invasion 
 
 function util.poi.GetGreaterInvasionPointDataInfo()
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(GreaterInvasionPointData);
-	if (poiInfo and util.achieve.IsRelevantAreaPOI(poiInfo.areaPoiID)) then
-		local assetID = util.achieve.GetAreaPOIAssetID(poiInfo.areaPoiID);
-		local isCompleted = util.achieve.IsAssetCriteriaCompleted(GreaterInvasionPointData.achievementID, assetID);
+	if (poiInfo and LocalAchievementUtil.IsRelevantAreaPOI(poiInfo.areaPoiID)) then
+		local assetID = LocalAchievementUtil.GetAreaPOIAssetID(poiInfo.areaPoiID);
+		local isCompleted = LocalAchievementUtil.IsAssetCriteriaCompleted(GreaterInvasionPointData.achievementID, assetID);
 		poiInfo.isCompleted = isCompleted;
 	end
 	return poiInfo;
@@ -1768,13 +1742,17 @@ if _log.DEVMODE then
 		"5896",  -- Faction Assaults (Horde attacking Tiragardesound)
 		"5964",  -- Faction Assaults (Horde attacking Drustvar)
 		"5966",  -- Faction Assaults (Horde attacking Stormsong Valley)
-		"5969",  -- Faction Assaults (Horde attacking Nazmir, Alliance icon?)
+		"5969",  -- Faction Assaults (Alliance attacking Nazmir)
+		"5970",  -- Faction Assaults (Alliance attacking Vol'dun)
 		"5973",  -- Faction Assaults (Alliance attacking Zuldazar)
 		-- Legion
 		"5175",  -- Legion Invasion - Azsuna
+		"5177",  -- Legion Invasion - Highmountain
 		"5178",  -- Legion Invasion - Stormheim
 		"5210",  -- Legion Invasion - Val'sharah
 		"5252",  -- Sentinax - Broken Shore
+		"5254",  -- Sentinax (East) - Broken Shore
+		"5255",  -- Sentinax (East) - Broken Shore
 		"5257",  -- Sentinax - Broken Shore
 		"5258",  -- Sentinax - Broken Shore
 		"5259",  -- Sentinax (East) - Broken Shore
@@ -1784,6 +1762,7 @@ if _log.DEVMODE then
 		"5285",  -- Demon Salethan - Broken Shore
 		"5286",  -- Demon Malorus - Broken Shore
 		"5287",  -- Demon Emberfire - Broken Shore
+		"5288",  -- Demon Glug - Broken Shore
 		"5289",  -- Demon Emberfire - Broken Shore
 		"5290",  -- Demon Inquisitor Chillbane - Broken Shore
 		"5291",  -- Demon Zar'thoz - Broken Shore

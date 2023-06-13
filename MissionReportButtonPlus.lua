@@ -1108,10 +1108,10 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			local factionAssaultsAreaPoiInfo = util.poi.GetBfAFactionAssaultsInfo();
 			if factionAssaultsAreaPoiInfo then
 				local fontColor = ns.settings.applyBfAFactionColors and factionAssaultsAreaPoiInfo.color or nil;
-				tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAFactionAssaultsInfo);  -- factionAssaultsAreaPoiInfo.name);
+				tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAFactionAssaultsInfo);
 				tooltipText = TooltipText_AddIconLine(tooltipText, factionAssaultsAreaPoiInfo.parentMapInfo.name, factionAssaultsAreaPoiInfo.atlasName, fontColor);
 				tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, factionAssaultsAreaPoiInfo.timeString);
-				tooltipText = TooltipText_AddObjectiveLine(tooltipText, factionAssaultsAreaPoiInfo.description);
+				tooltipText = TooltipText_AddObjectiveLine(tooltipText, factionAssaultsAreaPoiInfo.description, factionAssaultsAreaPoiInfo.isCompleted);
 			end
 		end
 		if ns.settings.showBfAIslandExpeditionsInfo then
@@ -1832,8 +1832,8 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 					local factionAssaultsAreaPoiInfo = util.poi.GetBfAFactionAssaultsInfo();
 					if factionAssaultsAreaPoiInfo then
 						local timeLeft = factionAssaultsAreaPoiInfo.timeString or "...";
-						GameTooltip_AddColoredLine(tooltip, factionAssaultsAreaPoiInfo.description..": "..timeLeft, factionAssaultsAreaPoiInfo.color, wrapLine, leftOffset);
-						util.GameTooltip_AddAtlas(tooltip, factionAssaultsAreaPoiInfo.atlasName);
+						local lineText = factionAssaultsAreaPoiInfo.description..": "..timeLeft;
+						util.GameTooltip_AddObjectiveLine(tooltip, lineText, factionAssaultsAreaPoiInfo.isCompleted, wrapLine, leftOffset, factionAssaultsAreaPoiInfo.atlasName, factionAssaultsAreaPoiInfo.color);
 					end
 				end
 				-- Legion Assaults
