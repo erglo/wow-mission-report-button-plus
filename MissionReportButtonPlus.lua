@@ -624,6 +624,9 @@ end
 local TOOLTIP_DASH_ICON_STRING = util.CreateInlineIcon(3083385);
 local TOOLTIP_CLOCK_ICON_STRING = util.CreateInlineIcon1("auctionhouse-icon-clock");  -- "worldquest-icon-clock");
 local TOOLTIP_CHECK_MARK_ICON_STRING = util.CreateInlineIcon(628564);
+local TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING = util.CreateInlineIcon(130751);
+-- local TOOLTIP_GRAY_CHECK_MARK_ICON_STRING = util.CreateInlineIcon(130750);
+-- local TOOLTIP_ORANGE_CHECK_MARK_ICON_STRING = util.CreateInlineIcon("Adventures-Checkmark");
 
 -- Add a text in normal font color to given tooltip text.
 ---@param tooltipText string
@@ -690,17 +693,18 @@ end
 ---@param alternativeIcon string|nil  An atlas string
 ---@return string tooltipText
 --
-local function TooltipText_AddObjectiveLine(tooltipText, text, isCompleted, lineColor, appendCompleteIcon, alternativeIcon)
+local function TooltipText_AddObjectiveLine(tooltipText, text, isCompleted, lineColor, appendCompleteIcon, alternativeIcon, isTrackingAchievement)
 	local isIconString = alternativeIcon == nil;
+	local checkMarkIconString = isTrackingAchievement and TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING or TOOLTIP_CHECK_MARK_ICON_STRING;
 	if not isCompleted then
 		return TooltipText_AddIconLine(tooltipText, text, alternativeIcon or TOOLTIP_DASH_ICON_STRING, lineColor, isIconString);
 	elseif appendCompleteIcon then
 		-- Append icon at line end
 		tooltipText = TooltipText_AddIconLine(tooltipText, text, alternativeIcon or TOOLTIP_DASH_ICON_STRING, DISABLED_FONT_COLOR, isIconString);
-		return tooltipText.." "..TOOLTIP_CHECK_MARK_ICON_STRING;
+		return tooltipText.." "..checkMarkIconString;
 	else
 		-- Replace the dash icon with the check mark icon
-		return TooltipText_AddIconLine(tooltipText, text, alternativeIcon or TOOLTIP_CHECK_MARK_ICON_STRING, DISABLED_FONT_COLOR, isIconString);
+		return TooltipText_AddIconLine(tooltipText, text, alternativeIcon or checkMarkIconString, DISABLED_FONT_COLOR, isIconString);
 	end
 end
 
@@ -1034,7 +1038,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 										(isShadowlandsThreat and ns.settings.applyCovenantColors)) and threatInfo.color or nil;
 					-- tooltipText = TooltipText_AddIconLine(tooltipText, threatInfo.questName, threatInfo.atlasName, fontColor);
 					local appendCompleteIcon = true;
-					tooltipText = TooltipText_AddObjectiveLine(tooltipText, threatInfo.questName, threatInfo.isCompleted, fontColor, appendCompleteIcon, threatInfo.atlasName);
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, threatInfo.questName, threatInfo.isCompleted, fontColor, appendCompleteIcon, threatInfo.atlasName, threatInfo.isCompleted);
 					--> TODO - Add major-minor assault type icon for N'Zoth Assaults
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, threatInfo.mapInfo.name);
 					if (threatInfo.timeLeftString) then  -- and ns.settings.showThreatsTimeRemaining) then
@@ -1058,14 +1062,13 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 
 	if (isForLegion and ns.settings.showLegionWorldMapEvents) then
 		-- Legion Invasion
-		local fontColor = ns.settings.applyInvasionColors and INVASION_FONT_COLOR or nil;  --> defaults to white
 		if ns.settings.showLegionAssaultsInfo then
 			local legionAssaultsAreaPoiInfo = util.poi.GetLegionAssaultsInfo();
 			if legionAssaultsAreaPoiInfo then
 				tooltipText = TooltipText_AddHeaderLine(tooltipText, legionAssaultsAreaPoiInfo.name);  -- ns.label.showLegionAssaultsInfo
-				tooltipText = TooltipText_AddIconLine(tooltipText, legionAssaultsAreaPoiInfo.parentMapInfo.name, legionAssaultsAreaPoiInfo.atlasName, fontColor);
+				tooltipText = TooltipText_AddIconLine(tooltipText, legionAssaultsAreaPoiInfo.parentMapInfo.name, legionAssaultsAreaPoiInfo.atlasName, legionAssaultsAreaPoiInfo.color);
 				tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, legionAssaultsAreaPoiInfo.timeString);
-				tooltipText = TooltipText_AddObjectiveLine(tooltipText, legionAssaultsAreaPoiInfo.description, legionAssaultsAreaPoiInfo.isCompleted, fontColor);
+				tooltipText = TooltipText_AddObjectiveLine(tooltipText, legionAssaultsAreaPoiInfo.description, legionAssaultsAreaPoiInfo.isCompleted, nil, nil, nil, legionAssaultsAreaPoiInfo.isCompleted);
 			end
 		end
 		-- Demon Invasions (Broken Shores)
@@ -1074,7 +1077,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			if TableHasAnyEntries(demonAreaPoiInfos) then
 				tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBrokenShoreInvasionInfo);
 				for _, demonPoi in ipairs(demonAreaPoiInfos) do
-					tooltipText = TooltipText_AddIconLine(tooltipText, demonPoi.name, demonPoi.atlasName, fontColor);
+					tooltipText = TooltipText_AddIconLine(tooltipText, demonPoi.name, demonPoi.atlasName, demonPoi.color);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, demonPoi.timeString);
 				end
 			end
@@ -1085,11 +1088,8 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			if TableHasAnyEntries(riftAreaPoiInfos) then
 				tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showArgusInvasionInfo);
 				for _, riftPoi in ipairs(riftAreaPoiInfos) do
-					local lineColor = riftPoi.isCompleted and GRAY_FONT_COLOR or fontColor;
-					tooltipText = TooltipText_AddIconLine(tooltipText, riftPoi.description, riftPoi.atlasName, lineColor);
-					if riftPoi.isCompleted then
-						tooltipText = TooltipText_AppendText(tooltipText, TOOLTIP_CHECK_MARK_ICON_STRING, lineColor);
-					end
+					local appendCompleteIcon = true;
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, riftPoi.description, riftPoi.isCompleted, riftPoi.color, appendCompleteIcon, riftPoi.atlasName, riftPoi.isCompleted);
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, riftPoi.mapInfo.name);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, riftPoi.timeString);
 				end
@@ -1108,7 +1108,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAFactionAssaultsInfo);
 				tooltipText = TooltipText_AddIconLine(tooltipText, factionAssaultsAreaPoiInfo.parentMapInfo.name, factionAssaultsAreaPoiInfo.atlasName, fontColor);
 				tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, factionAssaultsAreaPoiInfo.timeString);
-				tooltipText = TooltipText_AddObjectiveLine(tooltipText, factionAssaultsAreaPoiInfo.description, factionAssaultsAreaPoiInfo.isCompleted);
+				tooltipText = TooltipText_AddObjectiveLine(tooltipText, factionAssaultsAreaPoiInfo.description, factionAssaultsAreaPoiInfo.isCompleted, nil, nil, nil, factionAssaultsAreaPoiInfo.isCompleted);
 			end
 		end
 		if ns.settings.showBfAIslandExpeditionsInfo then
@@ -1812,7 +1812,7 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 							local covenantAssaultInfo = expansionThreats[1];
 							local timeLeftText = covenantAssaultInfo.timeLeftString and covenantAssaultInfo.timeLeftString or "...";
 							local lineText = covenantAssaultInfo.questName..": "..timeLeftText;
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText, covenantAssaultInfo.isCompleted, wrapLine, leftOffset, covenantAssaultInfo.atlasName, covenantAssaultInfo.color);
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, covenantAssaultInfo.isCompleted, wrapLine, leftOffset, covenantAssaultInfo.atlasName, covenantAssaultInfo.color, covenantAssaultInfo.isCompleted);
 						else
 							for _, assaultInfo in ipairs(expansionThreats) do
 								local timeLeft = assaultInfo.timeLeftString and assaultInfo.timeLeftString or "...";
@@ -1828,7 +1828,7 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 					if factionAssaultsAreaPoiInfo then
 						local timeLeft = factionAssaultsAreaPoiInfo.timeString or "...";
 						local lineText = factionAssaultsAreaPoiInfo.description..": "..timeLeft;
-						util.GameTooltip_AddObjectiveLine(tooltip, lineText, factionAssaultsAreaPoiInfo.isCompleted, wrapLine, leftOffset, factionAssaultsAreaPoiInfo.atlasName, factionAssaultsAreaPoiInfo.color);
+						util.GameTooltip_AddObjectiveLine(tooltip, lineText, factionAssaultsAreaPoiInfo.isCompleted, wrapLine, leftOffset, factionAssaultsAreaPoiInfo.atlasName, factionAssaultsAreaPoiInfo.color, factionAssaultsAreaPoiInfo.isCompleted);
 					end
 				end
 				-- Legion Assaults
@@ -1837,14 +1837,14 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 					if legionAssaultsAreaPoiInfo then
 						local timeLeft = legionAssaultsAreaPoiInfo.timeString or "...";
 						local lineText = legionAssaultsAreaPoiInfo.description..": "..timeLeft;
-						util.GameTooltip_AddObjectiveLine(tooltip, lineText, legionAssaultsAreaPoiInfo.isCompleted, wrapLine, leftOffset, legionAssaultsAreaPoiInfo.atlasName);
+						util.GameTooltip_AddObjectiveLine(tooltip, lineText, legionAssaultsAreaPoiInfo.isCompleted, wrapLine, leftOffset, legionAssaultsAreaPoiInfo.atlasName, legionAssaultsAreaPoiInfo.color, legionAssaultsAreaPoiInfo.isCompleted);
 					end
 					-- Legion: Invasion Points
 					local greaterInvasionAreaPoiInfo = util.poi.GetGreaterInvasionPointDataInfo();
 					if greaterInvasionAreaPoiInfo then
 						local timeLeft = greaterInvasionAreaPoiInfo.timeString or "...";
 						local lineText = greaterInvasionAreaPoiInfo.description..": "..timeLeft;
-						util.GameTooltip_AddObjectiveLine(tooltip, lineText, greaterInvasionAreaPoiInfo.isCompleted, wrapLine, leftOffset, greaterInvasionAreaPoiInfo.atlasName);
+						util.GameTooltip_AddObjectiveLine(tooltip, lineText, greaterInvasionAreaPoiInfo.isCompleted, wrapLine, leftOffset, greaterInvasionAreaPoiInfo.atlasName, greaterInvasionAreaPoiInfo.color, greaterInvasionAreaPoiInfo.isCompleted);
 					end
 				end
 				-- Garrison Invasion

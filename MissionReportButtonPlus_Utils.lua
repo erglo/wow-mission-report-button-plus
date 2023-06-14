@@ -188,19 +188,21 @@ function util.GameTooltip_AddAtlas(tooltip, atlasName, atlasWidth, atlasHeight, 
 end
 
 -- Add given text as an objective line with a prepending icon
-function util.GameTooltip_AddObjectiveLine(tooltip, text, isCompleted, wrap, leftOffset, altTexture, altColor)
+function util.GameTooltip_AddObjectiveLine(tooltip, text, isCompleted, wrap, leftOffset, altDashIcon, altColor, isTrackingAchievement)
 	local defaultLeftOffset = 8;
 	if not isCompleted then
 		-- GameTooltip_AddNormalLine(tooltip, text, wrap, leftOffset or defaultLeftOffset);
 		GameTooltip_AddColoredLine(tooltip, text, altColor or NORMAL_FONT_COLOR, wrap, leftOffset or defaultLeftOffset);
-		if (altTexture and type(tonumber(altTexture)) ~= "number") then
-			util.GameTooltip_AddAtlas(tooltip, altTexture);
+		if (altDashIcon and type(tonumber(altDashIcon)) ~= "number") then
+			util.GameTooltip_AddAtlas(tooltip, altDashIcon);
 			return;
 		end
-		GameTooltip:AddTexture(altTexture or 3083385, {margin={left=2, right=3, top=0, bottom=0}});  --> dash icon
+		GameTooltip:AddTexture(altDashIcon or 3083385, {margin={left=2, right=3, top=0, bottom=0}});  --> dash icon
 	else
 		GameTooltip_AddDisabledLine(tooltip, text, wrap, leftOffset or defaultLeftOffset);
-		GameTooltip:AddTexture(628564, {margin={left=2, right=3, top=0, bottom=0}});  --> check mark icon
+		-- GameTooltip:AddTexture(628564, {margin={left=2, right=3, top=0, bottom=0}});
+		local checkMarkIcon = isTrackingAchievement and "common-icon-checkmark-yellow" or "common-icon-checkmark";
+		util.GameTooltip_AddAtlas(tooltip, checkMarkIcon);
 	end
 end
 
@@ -391,6 +393,7 @@ local DEFENDER_OF_THE_BROKEN_ISLES_ID = 11544;
 local FRONTLINE_WARRIOR_ALLIANCE_ASSAULTS_ID = 13283;  -- BfA Faction Assaults
 local FRONTLINE_WARRIOR_HORDE_ASSAULTS_ID = 13284;  -- BfA Faction Assaults
 local UNITED_FRONT_ID = 15000;  -- Shadowlands threat in The Maw 
+--> TODO - COVENANT_CAMPAIGN = 14790
 
 -- Pattern: {[areaPoi] = assetID, ...}
 local AREA_POI_ASSET_MAP = {
@@ -488,7 +491,7 @@ function LocalAchievementUtil.AddAchievementData(achievementID, eventInfo)
 	if LocalAchievementUtil.IsRelevantAreaPOI(eventID) then
 		local assetID = LocalAchievementUtil.GetAreaPOIAssetID(eventID);
 		local isCompleted = LocalAchievementUtil.IsAssetCriteriaCompleted(achievementID, assetID);
-		eventInfo.isCompleted = isCompleted;
+		eventInfo.isCompleted = ns.settings.showAchievementTracking and isCompleted or false;
 	end
 end
 
@@ -1106,6 +1109,8 @@ function util.threats.GetActiveThreats()
 				local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString;
 				local questExpansionLevel = GetQuestExpansion(questID);
 				local isShadowlandsThreat = questExpansionLevel == util.expansion.data.Shadowlands.ID;
+				-- print(questExpansionLevel, isShadowlandsThreat and questID or mapID);
+				local threatColor = LocalThreatUtil.GetExpansionThreatColor(questExpansionLevel, isShadowlandsThreat and questID or mapID);
 				if questExpansionLevel then
 					_log:debug("Threat:", questID, questInfo.title, ">", mapID, mapInfo.name, "expLvl:", questExpansionLevel);
 					if ( not activeThreats[questExpansionLevel] ) then
@@ -1119,7 +1124,7 @@ function util.threats.GetActiveThreats()
 						factionID = questInfo.factionID,
 					 	mapInfo = mapInfo,
 						timeLeftString = timeLeftString,
-						color = LocalThreatUtil.GetExpansionThreatColor(questExpansionLevel, isShadowlandsThreat and questID or mapID),
+						color = threatColor,
 					};
 					LocalAchievementUtil.AddAchievementData(UNITED_FRONT_ID, threatInfo);
 					_log:debug("Adding threat:", questExpansionLevel, questID, questInfo.title);
@@ -1431,7 +1436,7 @@ BfAFactionAssaultsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasNam
 BfAFactionAssaultsData.ignorePrimaryMapForPOI = true;
 local expansionIDstringBfA = tostring(util.expansion.data.BattleForAzeroth.ID);
 local playerFactionGroup = UnitFactionGroup("player");  --> Needed to index: {1:Horde, 2:Alliance}
-local playerFactionIndex = playerFactionGroup == 'Horde' and 1 or 2;
+BfAFactionAssaultsData.playerFactionIndex = playerFactionGroup == 'Horde' and 1 or 2;
 BfAFactionAssaultsData.achievementIDs = {FRONTLINE_WARRIOR_HORDE_ASSAULTS_ID, FRONTLINE_WARRIOR_ALLIANCE_ASSAULTS_ID};
 
 function util.poi.GetBfAFactionAssaultsInfo()
@@ -1439,7 +1444,7 @@ function util.poi.GetBfAFactionAssaultsInfo()
 	if poiInfo then
 		poiInfo.parentMapInfo = LocalMapUtil.GetMapInfo(poiInfo.mapInfo.parentMapID);
 		poiInfo.color = LocalThreatUtil.TYPE_COLORS[expansionIDstringBfA][poiInfo.atlasName];
-		local achievementID = BfAFactionAssaultsData.achievementIDs[playerFactionIndex];
+		local achievementID = BfAFactionAssaultsData.achievementIDs[BfAFactionAssaultsData.playerFactionIndex];
 		LocalAchievementUtil.AddAchievementData(achievementID, poiInfo);
 		return poiInfo;
 	end
@@ -1478,6 +1483,7 @@ function util.poi.GetLegionAssaultsInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(LegionAssaultsData);
 	if poiInfo then
 		poiInfo.parentMapInfo = LocalMapUtil.GetMapInfo(poiInfo.mapInfo.parentMapID);
+		poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
 		LocalAchievementUtil.AddAchievementData(LegionAssaultsData.achievementID, poiInfo);
 		return poiInfo;
 	end
@@ -1494,7 +1500,11 @@ BrokenShoreInvasionData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasNa
 BrokenShoreInvasionData.SortingFunction = LocalPoiUtil.SortPoiIDsAscending;
 
 function util.poi.GetBrokenShoreInvasionInfo()
-	return LocalPoiUtil.SingleArea.GetMultipleAreaPoiInfos(BrokenShoreInvasionData);
+	local poiInfo = LocalPoiUtil.SingleArea.GetMultipleAreaPoiInfos(BrokenShoreInvasionData);
+	if poiInfo then
+		poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
+		return poiInfo;
+	end
 end
 
 local function GetBrokenShoreInvasionLabel()
@@ -1517,6 +1527,7 @@ function util.poi.GetArgusInvasionPointsInfo()
 	local poiInfoTable = LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(ArgusInvasionData);
 	if TableHasAnyEntries(poiInfoTable) then
 		for _, poiInfo in ipairs(poiInfoTable) do
+			poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
 			LocalAchievementUtil.AddAchievementData(ArgusInvasionData.achievementID, poiInfo);
 		end
 	end
@@ -1538,6 +1549,7 @@ GreaterInvasionPointData.achievementID = INVASION_OBLITERATION_ID;  -- Invasion 
 function util.poi.GetGreaterInvasionPointDataInfo()
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(GreaterInvasionPointData);
 	if poiInfo then
+		poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
 		LocalAchievementUtil.AddAchievementData(GreaterInvasionPointData.achievementID, poiInfo);
 		return poiInfo;
 	end
@@ -1917,6 +1929,23 @@ ns.label = {
 	["hideEventDescriptions"] = L.ENTRYTOOLTIP_DF_HIDE_EVENT_DESCRIPTIONS_LABEL,
 };
 
+function ns.label.GetTrackedAchievementTitles(textColor)
+	local fontColor = textColor or HIGHLIGHT_FONT_COLOR;
+	local trackedAchievements = {
+		LegionAssaultsData.achievementID,
+		ArgusInvasionData.achievementID,
+		BfAFactionAssaultsData.achievementIDs[BfAFactionAssaultsData.playerFactionIndex],
+		UNITED_FRONT_ID,  --> Shadowlands, The Maw assault threat
+	};
+	table.sort(trackedAchievements);
+	local titles = {};
+	for _, achievementID in ipairs(trackedAchievements) do
+		local aID, aName = GetAchievementInfo(achievementID);
+		tinsert(titles, fontColor:WrapTextInColorCode(aName));
+	end
+	return titles;
+end
+
 --------------------------------------------------------------------------------
 ----- Specials -----------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -2071,6 +2100,7 @@ function util.calendar.IsTodayWorldQuestDayEvent()
 	return false, nil, nil;
 end
 
+--@do-not-package@
 ----- Addon Compartment -------------------------------------------------------- --> TODO - Useful ???
 
 -- local AddonCompartmentUtil = {};
@@ -2167,3 +2197,4 @@ end
 -- local soulCurrencyID = 1810;  --> "Redeemed Soul"
 -- local animaCurrencyID, maxDisplayableValue = C_CovenantSanctumUI.GetAnimaInfo();  --> 1813, 200000
 -- C_CurrencyInfo.GetCurrencyInfo(soulCurrencyID)  --> .name, .iconFileID, .quantity, .maxQuantity, 
+--@end-do-not-package@

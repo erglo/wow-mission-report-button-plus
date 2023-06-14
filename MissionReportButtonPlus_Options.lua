@@ -45,6 +45,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showMinimapButton"] = true,
 	["showAddonNameInTooltip"] = true,
 	-- ["hideInAddonCompartment"] = false,
+	["showAchievementTracking"] = true,
 	-- Dropdown menu
 	["showEntryTooltip"] = true,
 	["preferExpansionName"] = true,
@@ -413,6 +414,12 @@ function MRBP_Settings_Register()
 		-- 	-- parentVariable = "showMinimapButton",
 		-- 	tag = Settings.Default.True,
 		-- },
+		{
+			variable = "showAchievementTracking",
+			name = L.CFG_TRACK_ACHIEVEMENTS_TEXT,
+			tooltip = L.CFG_TRACK_ACHIEVEMENTS_TOOLTIP.."|n|n- "..strjoin("|n- ", SafeUnpack(ns.label.GetTrackedAchievementTitles())),
+			tag = Settings.Default.True,
+		},
 	};
 
 	CheckBox_CreateFromList(category, checkBoxList_CommonSettings);
@@ -896,7 +903,6 @@ function MRBP_Settings_Register()
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_FYRAKK_ASSAULTS),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
-			tag = Settings.Default.True,
 		},
 		{
 			variable = "showResearchersUnderFireInfo",
@@ -905,7 +911,6 @@ function MRBP_Settings_Register()
 					  "|n|n"..L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN,
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
-			tag = Settings.Default.True,
 		},
 		{
 			variable = "hideEventDescriptions",
@@ -913,7 +918,7 @@ function MRBP_Settings_Register()
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS,
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
-			tag = Settings.Default.True,
+			-- tag = Settings.Default.True,
 		},
 	};
 
@@ -972,10 +977,10 @@ function MRBP_Settings_Register()
 		--> label, tag, non-tag-text
 		{L.CFG_ADDONINFOS_VERSION, "Version"},
 		{L.CFG_ADDONINFOS_AUTHOR, "Author"},
-		{L.CFG_ADDONINFOS_HOMEPAGE, nil, " GitHub [1], CurseForge [2], Wago [3], WOWInterface [4]"},
+		{L.CFG_ADDONINFOS_HOMEPAGE, nil, " GitHub [1], Wago [2], CurseForge [3], WOWInterface [4]"},
 		{"[1]", "X-Project-Repository"},
-		{"[2]", "X-Project-Homepage"},
-		{"[3]", "X-Project-Homepage-Wago"},
+		{"[2]", "X-Project-Homepage-Wago"},
+		{"[3]", "X-Project-Homepage"},
 		{"[4]", "X-Project-Homepage-WOWInterface"},
 		{L.CFG_ADDONINFOS_LICENSE, "X-License"},
 	};
