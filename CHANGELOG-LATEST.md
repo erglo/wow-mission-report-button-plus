@@ -12,6 +12,7 @@ Static badges: [![WoW](https://img.shields.io/badge/WoW--retail-10.1.0-orange)](
 
 ### Added
 
+- New settings option for achievement tracking hints.
 - Shadowlands: cross-reference for `Maw Assault` threats with the achievement "United Front".
 - Battle for Azeroth: cross-reference for `Faction Assaults` with the achievements "Frontline Warrior".
 - Legion: cross-reference for `Legion Assaults` with the achievement "Defender of the Broken Isles".

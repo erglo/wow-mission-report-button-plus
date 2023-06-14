@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [0.15.0+100100] - 2023-06-14
+
+### Added
+
+- New settings option for achievement tracking hints.
+- Shadowlands: cross-reference for `Maw Assault` threats with the achievement "United Front".
+- Battle for Azeroth: cross-reference for `Faction Assaults` with the achievements "Frontline Warrior".
+- Legion: cross-reference for `Legion Assaults` with the achievement "Defender of the Broken Isles".
+
+### Changed
+
+- A try-next-day hint message will now be shown when all Bounty Board quest have been completed.
+- Updated readme files + homepages and added some badges.
+- Split the changelog into 2 files for complete and latest changes.
+
 ## [0.14.1+100100] - 2023-06-07
 
 ### Fixed
