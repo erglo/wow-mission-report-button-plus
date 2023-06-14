@@ -6,7 +6,7 @@ Adds a right-click menu to the mission report button on the minimap (aka. the `G
 ![Button tooltip and right-click menu with expansion names](https://media.forgecdn.net/attachments/586/612/mbrp_tooltip-dropdown_df-winter.jpg "Button tooltip and right-click menu with expansion names") 
 ![Button tooltip and right-click menu with expansion names](https://media.forgecdn.net/attachments/586/615/mrbp_menu-tooltip_df-summary.jpg "The MRBP Dragon Isles Summary tooltip")  
 (More images can be found on this project's [screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots))  
-&nbsp; &nbsp;  
+&nbsp;  
 
 ----  
 &nbsp;  
@@ -68,6 +68,7 @@ It is still possible to access mission reports from previous expansions but the 
   
 🗹 choose from a variety of settings and adjust the addon to your liking  
 &nbsp; &nbsp; &rArr; or de-/select the menu entries with the expansions that are no longer of interest to you  
+🗹 some events are linked to an achievement; see whether you achieved it or not by an icon hint  
 🗹 **many more things to come**...  
   
 *If you want to see some examples of these features, go visit this project's [screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots) here on CurseForge..*  
@@ -79,10 +80,7 @@ It is still possible to access mission reports from previous expansions but the 
 
 ### Download sources  
   
-+ [CurseForge](https://www.curseforge.com/wow/addons/mission-report-button-plus),
-[WOWInterface](https://www.wowinterface.com/downloads/info26583-MissionReportButtonPlus.html),
-[Wago.io](https://addons.wago.io/addons/mission-report-button-plus),
-[GitHub](https://github.com/erglo/mission-report-button-plus).  
++ [![CurseForge](https://camo.githubusercontent.com/48404c2885f4a76d04c9c5e2f48c90d572c49226b88e71577f6512cc74d95172/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2546302539462539342539372d4375727365466f7267652d663136343336)](https://www.curseforge.com/wow/addons/mission-report-button-plus) [![Wago.io](https://camo.githubusercontent.com/7ed4c70d9f0c1d700b5b7fd1d18dc242e772e54f9efd3ad8f728de757e52b862/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2546302539462539342539372d5761676f2e696f2d633132373264)](https://addons.wago.io/addons/mission-report-button-plus) [![WoWInterface](https://camo.githubusercontent.com/a112960875472813cbe1f296ec1bc65c78645abb09165af8d524500dc4a4a829/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2546302539462539342539372d576f57496e746572666163652d646138613030)](https://www.wowinterface.com/downloads/info26583-MissionReportButtonPlus.html) [![GitHub](https://camo.githubusercontent.com/e0186baf731dff7487d43970c94fd54fbe0bb1d5709b182cbc1c7cb61f0db993/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2546302539462539342539372d4769744875622d366537363831)](https://github.com/erglo/mission-report-button-plus)  
   
 ### Install manually  
   

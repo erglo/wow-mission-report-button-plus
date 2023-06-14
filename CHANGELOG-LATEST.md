@@ -22,7 +22,6 @@ Static badges: [![WoW](https://img.shields.io/badge/WoW--retail-10.1.0-orange)](
 - Updated readme files + homepages and added some badges.
 - Split the changelog into 2 files for complete and latest changes.
 
-<!-- TODO - Add "achievement tracking" info to README -->
 ----
 
 ## Previous changes
