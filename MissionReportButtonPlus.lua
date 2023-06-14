@@ -1030,14 +1030,11 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, zoneName);
 				end
 				for i, threatInfo in ipairs(threatData) do
-					local subCategoryID = isBfAThreat and threatInfo.mapInfo.mapID;
-					local threatColor = util.threats.GetExpansionThreatColor(
-						threatExpansionLevel,
-						isShadowlandsThreat and threatInfo.questID or subCategoryID
-					);
 					local fontColor = ( (isBfAThreat and ns.settings.applyBfAFactionColors) or
-										(isShadowlandsThreat and ns.settings.applyCovenantColors)) and threatColor or nil;
-					tooltipText = TooltipText_AddIconLine(tooltipText, threatInfo.questName, threatInfo.atlasName, fontColor);
+										(isShadowlandsThreat and ns.settings.applyCovenantColors)) and threatInfo.color or nil;
+					-- tooltipText = TooltipText_AddIconLine(tooltipText, threatInfo.questName, threatInfo.atlasName, fontColor);
+					local appendCompleteIcon = true;
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, threatInfo.questName, threatInfo.isCompleted, fontColor, appendCompleteIcon, threatInfo.atlasName);
 					--> TODO - Add major-minor assault type icon for N'Zoth Assaults
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, threatInfo.mapInfo.name);
 					if (threatInfo.timeLeftString) then  -- and ns.settings.showThreatsTimeRemaining) then
@@ -1813,15 +1810,13 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 					if expansionThreats then
 						if (expansion.ID == util.expansion.data.Shadowlands.ID) then
 							local covenantAssaultInfo = expansionThreats[1];
-							local covenantAssaultColor = util.threats.GetExpansionThreatColor(expansion.ID, covenantAssaultInfo.questID);
-							local timeLeft = covenantAssaultInfo.timeLeftString and covenantAssaultInfo.timeLeftString or "...";
-							GameTooltip_AddColoredLine(tooltip, covenantAssaultInfo.questName..": "..timeLeft, covenantAssaultColor, wrapLine, leftOffset);
-							util.GameTooltip_AddAtlas(tooltip, covenantAssaultInfo.atlasName);
+							local timeLeftText = covenantAssaultInfo.timeLeftString and covenantAssaultInfo.timeLeftString or "...";
+							local lineText = covenantAssaultInfo.questName..": "..timeLeftText;
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, covenantAssaultInfo.isCompleted, wrapLine, leftOffset, covenantAssaultInfo.atlasName, covenantAssaultInfo.color);
 						else
 							for _, assaultInfo in ipairs(expansionThreats) do
-								local assaultColor = util.threats.GetExpansionThreatColor(expansion.ID, assaultInfo.mapInfo.mapID);
 								local timeLeft = assaultInfo.timeLeftString and assaultInfo.timeLeftString or "...";
-								GameTooltip_AddColoredLine(tooltip, assaultInfo.mapInfo.name..": "..timeLeft, assaultColor, wrapLine, leftOffset);
+								GameTooltip_AddColoredLine(tooltip, assaultInfo.mapInfo.name..": "..timeLeft, assaultInfo.color, wrapLine, leftOffset);
 								util.GameTooltip_AddAtlas(tooltip, assaultInfo.atlasName);
 							end
 						end

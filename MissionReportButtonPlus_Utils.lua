@@ -382,15 +382,15 @@ end
 -- REF.: <https://wowpedia.fandom.com/wiki/World_of_Warcraft_API#Achievements>
 
 -- A collection of utility functions handling achievement details.
+util.achieve = {};
 local LocalAchievementUtil = {}
--- util.achieve = {};
 
 -- Achievements IDs
 local INVASION_OBLITERATION_ID = 12026;  -- Legion Invasion Point Generals
--- local ENVISION_INVASION_ERADICATION_ID = 12028;
 local DEFENDER_OF_THE_BROKEN_ISLES_ID = 11544;
-local FRONTLINE_WARRIOR_ALLIANCE_ASSAULTS = 13283;  -- BfA Faction Assaults
-local FRONTLINE_WARRIOR_HORDE_ASSAULTS = 13284;  -- BfA Faction Assaults
+local FRONTLINE_WARRIOR_ALLIANCE_ASSAULTS_ID = 13283;  -- BfA Faction Assaults
+local FRONTLINE_WARRIOR_HORDE_ASSAULTS_ID = 13284;  -- BfA Faction Assaults
+local UNITED_FRONT_ID = 15000;  -- Shadowlands threat in The Maw 
 
 -- Pattern: {[areaPoi] = assetID, ...}
 local AREA_POI_ASSET_MAP = {
@@ -413,6 +413,11 @@ local AREA_POI_ASSET_MAP = {
 	["5969"] = {54326, 54325},  -- Nazmir
 	["5970"] = {54322, 54315},  -- Vol'dun
 	["5973"] = {54323, 54324},  -- Zuldazar
+	-- Shadowlands (threat in The Maw)
+	["63543"] = 63543,  -- Necrolord Assault
+	["63822"] = 63822,  -- Venthyr Assault
+	["63823"] = 63823,  -- Night Fae Assault
+	["63824"] = 63824,  -- Kyrian Assault
 };
 
 -- @debug@
@@ -427,7 +432,7 @@ function Test_ListAchievementAssetIDs(achievementID)
 	end
 end
 -- @end-debug@
--- Test_ListAchievementAssetIDs(12028)
+-- Test_ListAchievementAssetIDs(15000)
 -- GetAchievementInfo(12028)
 -- GetAchievementCriteriaInfo(12028, 3)
 
@@ -442,7 +447,7 @@ end
 
 -- Return the assetID for given areaPoiID.
 ---@param areaPoiID number
----@return integer|table assetID
+---@return number|table assetID
 --
 function LocalAchievementUtil.GetAreaPOIAssetID(areaPoiID)
 	local areaPoiIDstring = tostring(areaPoiID);
@@ -451,7 +456,7 @@ end
 
 -- Check if the criteria of given assetID for given achievementID has been completed.
 ---@param achievementID number
----@param assetID number
+---@param assetID number|table
 ---@return boolean isCompleted
 -- 
 --> REF.: <https://wowpedia.fandom.com/wiki/API_GetAchievementNumCriteria>  
@@ -472,6 +477,19 @@ function LocalAchievementUtil.IsAssetCriteriaCompleted(achievementID, assetID)
 		end
 	end
 	return false;
+end
+
+-- Add achievement relevant details in-place to given areaPoiInfo or threatInfo for given achievementID.
+---@param achievementID number  The achievement identification number
+---@param eventInfo table  A areaPoiInfo or threatInfo table
+--
+function LocalAchievementUtil.AddAchievementData(achievementID, eventInfo)
+	local eventID = eventInfo.areaPoiID or eventInfo.questID;
+	if LocalAchievementUtil.IsRelevantAreaPOI(eventID) then
+		local assetID = LocalAchievementUtil.GetAreaPOIAssetID(eventID);
+		local isCompleted = LocalAchievementUtil.IsAssetCriteriaCompleted(achievementID, assetID);
+		eventInfo.isCompleted = isCompleted;
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -1045,7 +1063,13 @@ function LocalThreatUtil.GetThreatQuests()
 	return C_TaskQuest.GetThreatQuests();
 end
 
-function util.threats.GetExpansionThreatColor(expansionID, subCategoryID, fallbackColor)
+-- Retrieve the faction color of given world threat.
+---@param expansionID number  The expansion level number
+---@param subCategoryID number  Either a questID or a mapID, depending whether it's a threat for Shadowlands or BfA
+---@param fallbackColor table  A color class (see <FrameXML/GlobalColors.lua>); defaults to NORMAL_FONT_COLOR
+---@return table factionColor  A color class (see <FrameXML/GlobalColors.lua>); defaults to NORMAL_FONT_COLOR
+--
+function LocalThreatUtil.GetExpansionThreatColor(expansionID, subCategoryID, fallbackColor)
 	local colorTypeID = tostring(expansionID);
 	local threatColor;
 	if subCategoryID then
@@ -1081,6 +1105,7 @@ function util.threats.GetActiveThreats()
 				local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(questID);
 				local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString;
 				local questExpansionLevel = GetQuestExpansion(questID);
+				local isShadowlandsThreat = questExpansionLevel == util.expansion.data.Shadowlands.ID;
 				if questExpansionLevel then
 					_log:debug("Threat:", questID, questInfo.title, ">", mapID, mapInfo.name, "expLvl:", questExpansionLevel);
 					if ( not activeThreats[questExpansionLevel] ) then
@@ -1089,12 +1114,14 @@ function util.threats.GetActiveThreats()
 					end
 					local threatInfo = {
 						questID = questID,
-						questName = questInfo.title,  -- questName,
+						questName = questInfo.title,
 						atlasName = typeAtlas,
 						factionID = questInfo.factionID,
 					 	mapInfo = mapInfo,
 						timeLeftString = timeLeftString,
+						color = LocalThreatUtil.GetExpansionThreatColor(questExpansionLevel, isShadowlandsThreat and questID or mapID),
 					};
+					LocalAchievementUtil.AddAchievementData(UNITED_FRONT_ID, threatInfo);
 					_log:debug("Adding threat:", questExpansionLevel, questID, questInfo.title);
 					tinsert(activeThreats[questExpansionLevel], threatInfo);
 				end
@@ -1405,19 +1432,15 @@ BfAFactionAssaultsData.ignorePrimaryMapForPOI = true;
 local expansionIDstringBfA = tostring(util.expansion.data.BattleForAzeroth.ID);
 local playerFactionGroup = UnitFactionGroup("player");  --> Needed to index: {1:Horde, 2:Alliance}
 local playerFactionIndex = playerFactionGroup == 'Horde' and 1 or 2;
-BfAFactionAssaultsData.achievementIDs = {FRONTLINE_WARRIOR_HORDE_ASSAULTS, FRONTLINE_WARRIOR_ALLIANCE_ASSAULTS};
+BfAFactionAssaultsData.achievementIDs = {FRONTLINE_WARRIOR_HORDE_ASSAULTS_ID, FRONTLINE_WARRIOR_ALLIANCE_ASSAULTS_ID};
 
-function util.poi.GetBfAFactionAssaultsInfo()									--> TODO - Add faction ID for colors
+function util.poi.GetBfAFactionAssaultsInfo()
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(BfAFactionAssaultsData);
 	if poiInfo then
 		poiInfo.parentMapInfo = LocalMapUtil.GetMapInfo(poiInfo.mapInfo.parentMapID);
 		poiInfo.color = LocalThreatUtil.TYPE_COLORS[expansionIDstringBfA][poiInfo.atlasName];
-		if LocalAchievementUtil.IsRelevantAreaPOI(poiInfo.areaPoiID) then
-			local assetID = LocalAchievementUtil.GetAreaPOIAssetID(poiInfo.areaPoiID)[playerFactionIndex];
-			local achievementID = BfAFactionAssaultsData.achievementIDs[playerFactionIndex];
-			local isCompleted = LocalAchievementUtil.IsAssetCriteriaCompleted(achievementID, assetID);
-			poiInfo.isCompleted = isCompleted;
-		end
+		local achievementID = BfAFactionAssaultsData.achievementIDs[playerFactionIndex];
+		LocalAchievementUtil.AddAchievementData(achievementID, poiInfo);
 		return poiInfo;
 	end
 end
@@ -1455,11 +1478,7 @@ function util.poi.GetLegionAssaultsInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(LegionAssaultsData);
 	if poiInfo then
 		poiInfo.parentMapInfo = LocalMapUtil.GetMapInfo(poiInfo.mapInfo.parentMapID);
-		if LocalAchievementUtil.IsRelevantAreaPOI(poiInfo.areaPoiID) then
-			local assetID = LocalAchievementUtil.GetAreaPOIAssetID(poiInfo.areaPoiID);
-			local isCompleted = LocalAchievementUtil.IsAssetCriteriaCompleted(LegionAssaultsData.achievementID, assetID);
-			poiInfo.isCompleted = isCompleted;
-		end
+		LocalAchievementUtil.AddAchievementData(LegionAssaultsData.achievementID, poiInfo);
 		return poiInfo;
 	end
 end
@@ -1498,11 +1517,7 @@ function util.poi.GetArgusInvasionPointsInfo()
 	local poiInfoTable = LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(ArgusInvasionData);
 	if TableHasAnyEntries(poiInfoTable) then
 		for _, poiInfo in ipairs(poiInfoTable) do
-			if LocalAchievementUtil.IsRelevantAreaPOI(poiInfo.areaPoiID) then
-				local assetID = LocalAchievementUtil.GetAreaPOIAssetID(poiInfo.areaPoiID);
-				local isCompleted = LocalAchievementUtil.IsAssetCriteriaCompleted(ArgusInvasionData.achievementID, assetID);
-				poiInfo.isCompleted = isCompleted;
-			end
+			LocalAchievementUtil.AddAchievementData(ArgusInvasionData.achievementID, poiInfo);
 		end
 	end
 	return poiInfoTable;
@@ -1522,12 +1537,10 @@ GreaterInvasionPointData.achievementID = INVASION_OBLITERATION_ID;  -- Invasion 
 
 function util.poi.GetGreaterInvasionPointDataInfo()
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(GreaterInvasionPointData);
-	if (poiInfo and LocalAchievementUtil.IsRelevantAreaPOI(poiInfo.areaPoiID)) then
-		local assetID = LocalAchievementUtil.GetAreaPOIAssetID(poiInfo.areaPoiID);
-		local isCompleted = LocalAchievementUtil.IsAssetCriteriaCompleted(GreaterInvasionPointData.achievementID, assetID);
-		poiInfo.isCompleted = isCompleted;
+	if poiInfo then
+		LocalAchievementUtil.AddAchievementData(GreaterInvasionPointData.achievementID, poiInfo);
+		return poiInfo;
 	end
-	return poiInfo;
 end
 
 ----- Timewalking Vendor -----
