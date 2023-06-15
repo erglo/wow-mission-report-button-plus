@@ -393,7 +393,9 @@ local DEFENDER_OF_THE_BROKEN_ISLES_ID = 11544;
 local FRONTLINE_WARRIOR_ALLIANCE_ASSAULTS_ID = 13283;  -- BfA Faction Assaults
 local FRONTLINE_WARRIOR_HORDE_ASSAULTS_ID = 13284;  -- BfA Faction Assaults
 local UNITED_FRONT_ID = 15000;  -- Shadowlands threat in The Maw 
---> TODO - COVENANT_CAMPAIGN = 14790
+local DEAD_MEN_TELL_SOME_TALES_ID = 15647;  -- Shadowlands Covenant Campaign
+--> Note: The assetIDs returned for this achievement are always 0,
+--  see util.covenant.UpdateData(...) for alternative solution.
 
 -- Pattern: {[areaPoi] = assetID, ...}
 local AREA_POI_ASSET_MAP = {
@@ -423,19 +425,17 @@ local AREA_POI_ASSET_MAP = {
 	["63824"] = 63824,  -- Kyrian Assault
 };
 
--- @debug@
-function Test_ListAchievementAssetIDs(achievementID)
-	local aID, aName = GetAchievementInfo(achievementID);
-	print(aID, aName);
-	local numCriteria = GetAchievementNumCriteria(achievementID);
-	for i=1, numCriteria do
-		local criteriaInfo = SafePack(GetAchievementCriteriaInfo(achievementID, i));
-		local cName, cType, isCompleted, criteriaAssetID = criteriaInfo[1], criteriaInfo[2], criteriaInfo[3], criteriaInfo[8];
-		print(i, criteriaAssetID, isCompleted, cName);
-	end
-end
--- @end-debug@
--- Test_ListAchievementAssetIDs(15000)
+-- function Test_ListAchievementAssetIDs(achievementID)
+-- 	local aID, aName = GetAchievementInfo(achievementID);
+-- 	print(aID, aName);
+-- 	local numCriteria = GetAchievementNumCriteria(achievementID);
+-- 	for i=1, numCriteria do
+-- 		local criteriaInfo = SafePack(GetAchievementCriteriaInfo(achievementID, i));
+-- 		local cName, cType, isCompleted, criteriaAssetID, criteriaID = criteriaInfo[1], criteriaInfo[2], criteriaInfo[3], criteriaInfo[8], criteriaInfo[10];
+-- 		print(i, criteriaAssetID, criteriaID, "isCompleted:", isCompleted, "-->", cName);
+-- 	end
+-- end
+-- Test_ListAchievementAssetIDs(13284)
 -- GetAchievementInfo(12028)
 -- GetAchievementCriteriaInfo(12028, 3)
 
@@ -486,12 +486,13 @@ end
 ---@param achievementID number  The achievement identification number
 ---@param eventInfo table  A areaPoiInfo or threatInfo table
 --
-function LocalAchievementUtil.AddAchievementData(achievementID, eventInfo)
+function LocalAchievementUtil.AddAchievementData(achievementID, eventInfo, index)
 	local eventID = eventInfo.areaPoiID or eventInfo.questID;
 	if LocalAchievementUtil.IsRelevantAreaPOI(eventID) then
-		local assetID = LocalAchievementUtil.GetAreaPOIAssetID(eventID);
-		local isCompleted = LocalAchievementUtil.IsAssetCriteriaCompleted(achievementID, assetID);
-		eventInfo.isCompleted = ns.settings.showAchievementTracking and isCompleted or false;
+		local assetInfo = LocalAchievementUtil.GetAreaPOIAssetID(eventID);
+		local assetID = index and assetInfo[index] or assetInfo;
+		local complete = LocalAchievementUtil.IsAssetCriteriaCompleted(achievementID, assetID);
+		eventInfo.isCompleted = ns.settings.showAchievementTracking and complete or false;
 	end
 end
 
@@ -955,33 +956,39 @@ end
 -- REF.: <FrameXML/Blizzard_CovenantRenown/Blizzard_CovenantRenown.lua>
 -- REF.: <FrameXML/Blizzard_CovenantSanctum/Blizzard_CovenantSanctumUpgrades.lua>
 
+-- A collection of utilities for the currently active Covenant in Shadowlands. 
+util.covenant = {};
+
 local LocalCovenantUtil = {};
 LocalCovenantUtil.data = {};  -- used for updating on events
 LocalCovenantUtil.atlasNameTemplate = "SanctumUpgrades-%s-32x32";
 LocalCovenantUtil.covenantColors = {
-	["1"] = KYRIAN_BLUE_COLOR,
-	["2"] = VENTHYR_RED_COLOR,
-	["3"] = NIGHT_FAE_BLUE_COLOR,
-	["4"] = NECROLORD_GREEN_COLOR,
+	[Enum.CovenantType.Kyrian] = KYRIAN_BLUE_COLOR,
+	[Enum.CovenantType.Venthyr] = VENTHYR_RED_COLOR,
+	[Enum.CovenantType.NightFae] = NIGHT_FAE_BLUE_COLOR,
+	[Enum.CovenantType.Necrolord] = NECROLORD_GREEN_COLOR,
 };
-LocalCovenantUtil.GetCovenantColor = function(covenantID)
-	local covenantIDstring = tostring(covenantID or Enum.CovenantType.Kyrian);
-	return LocalCovenantUtil.covenantColors[covenantIDstring];
-end
-
--- A collection of utilities for the currently active Covenant in Shadowlands. 
-util.covenant = {};
+LocalCovenantUtil.COVENANT_CAMPAIGN = {
+	-- DEAD_MEN_TELL_SOME_TALES_ID  --> Note: returns no assetID; not usable with AREA_POI_ASSET_MAP.
+	[Enum.CovenantType.Kyrian] = 62557,  --> "Our Realm Reclaimed"
+	[Enum.CovenantType.Necrolord] = 62406,  --> "Staff of the Primus"
+	[Enum.CovenantType.NightFae] = 60108,  --> "Drust and Ashes"
+	[Enum.CovenantType.Venthyr] = 58407,  --> "The Medallion of Dominion"
+};
 
 function util.covenant.UpdateData(activeCovenantID)
 	local covenantID = activeCovenantID or C_Covenants.GetActiveCovenantID();
 	if (covenantID ~= util.covenant.ID) then
 		local covenantData = C_Covenants.GetCovenantData(covenantID);
 		if covenantData then
+			local campaignQuestID = LocalCovenantUtil.COVENANT_CAMPAIGN[covenantData.ID];
+			local complete = LocalQuestUtil.IsQuestFlaggedCompleted(campaignQuestID);
 			LocalCovenantUtil.data = {
 				ID = covenantData.ID,
 				name = covenantData.name,
 				atlasName = LocalCovenantUtil.atlasNameTemplate:format(covenantData.textureKit),
-				color = LocalCovenantUtil.GetCovenantColor(covenantData.ID),
+				color = LocalCovenantUtil.covenantColors[covenantData.ID],
+				isCompleted = ns.settings.showAchievementTracking and complete or false;
 			};
 		end
 	end
@@ -1445,7 +1452,7 @@ function util.poi.GetBfAFactionAssaultsInfo()
 		poiInfo.parentMapInfo = LocalMapUtil.GetMapInfo(poiInfo.mapInfo.parentMapID);
 		poiInfo.color = LocalThreatUtil.TYPE_COLORS[expansionIDstringBfA][poiInfo.atlasName];
 		local achievementID = BfAFactionAssaultsData.achievementIDs[BfAFactionAssaultsData.playerFactionIndex];
-		LocalAchievementUtil.AddAchievementData(achievementID, poiInfo);
+		LocalAchievementUtil.AddAchievementData(achievementID, poiInfo, BfAFactionAssaultsData.playerFactionIndex);
 		return poiInfo;
 	end
 end
@@ -1731,20 +1738,22 @@ if _log.DEVMODE then
 	TestPoiUtil.separatedAreaPoiIDs = {
 		-- Dragonflight
 		"7096",  -- Grand Hunts - Azure Span
-		"7342",  -- Grand Hunts - Ohn'ahra
-		"7343",  -- Grand Hunts - Waking Shores
-		"7344",  -- Grand Hunts - Thaldraszus
-		"7345",  -- Grand Hunts - Azure Span
-		"7104",  -- Siege of Dragonbane Keep
-		"7267",  -- pre-Siege of Dragonbane Keep
-		"7413",  -- post-Siege of Dragonbane Keep
 		"7261",  -- Dragonriding Race - Thaldraszus
 		"7262",  -- Dragonriding Race - Ohn'ahran Plains
 		"7263",  -- Dragonriding Race - Azure Span
 		"7264",  -- Dragonriding Race - Thaldraszus
+		"7267",  -- pre-Siege of Dragonbane Keep
+		"7104",  -- Siege of Dragonbane Keep
+		"7413",  -- post-Siege of Dragonbane Keep
 		-- "7218",  -- pre-Community Feast
 		-- "7219",  -- pre-Community Feast
 		-- "7220",  -- post-Community Feast
+		"7342",  -- Grand Hunts - Ohn'ahra
+		"7343",  -- Grand Hunts - Waking Shores
+		"7344",  -- Grand Hunts - Thaldraszus
+		"7345",  -- Grand Hunts - Azure Span
+		"7432",  -- Fyrakk Assaults - Azure Span
+		"7433",  -- Fyrakk Assaults - Azure Span
 		"7101",  -- Camp Aylaag (east)
 		"7102",  -- Camp Aylaag (north)
 		"7103",  -- Camp Aylaag (west)
@@ -1752,6 +1761,7 @@ if _log.DEVMODE then
 		"7231",  -- Elemental Storm (Fire)
 		"7232",  -- Elemental Storm (Water)
 		"7235",  -- Elemental Storm (Fire)
+		"7237",  -- Elemental Storm (Air)
 		"7245",  -- Elemental Storm (Air)
 		"7246",  -- Elemental Storm (Earth)
 		-- "7257",  -- Elemental Storm (???) - Waking Shores
@@ -1778,6 +1788,7 @@ if _log.DEVMODE then
 		"5252",  -- Sentinax - Broken Shore
 		"5254",  -- Sentinax (East) - Broken Shore
 		"5255",  -- Sentinax (East) - Broken Shore
+		"5256",  -- Sentinax (East) - Broken Shore
 		"5257",  -- Sentinax - Broken Shore
 		"5258",  -- Sentinax - Broken Shore
 		"5259",  -- Sentinax (East) - Broken Shore
@@ -1801,6 +1812,7 @@ if _log.DEVMODE then
 		"5299",  -- Demon Bruva - Broken Shore
 		"5300",  -- Demon Flllurlokkr - Broken Shore
 		"5301",  -- Demon Aqueux - Broken Shore
+		"5302",  -- Demon Nix - Broken Shore
 		"5303",  -- Demon Grossir - Broken Shore
 		"5304",  -- Demon Eldrathe - Broken Shore
 		"5305",  -- Demon Somber Dawn - Broken Shore
@@ -1936,6 +1948,7 @@ function ns.label.GetTrackedAchievementTitles(textColor)
 		ArgusInvasionData.achievementID,
 		BfAFactionAssaultsData.achievementIDs[BfAFactionAssaultsData.playerFactionIndex],
 		UNITED_FRONT_ID,  --> Shadowlands, The Maw assault threat
+		DEAD_MEN_TELL_SOME_TALES_ID,  --> Shadowlands Covenant Campaign
 	};
 	table.sort(trackedAchievements);
 	local titles = {};

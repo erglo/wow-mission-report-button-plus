@@ -760,19 +760,18 @@ local function AddTooltipMissionInfoText(tooltipText, garrInfo)
 end
 
 local function AddTooltipCovenantRenownText(tooltipText, covenantInfo)
-	local fontColor = ns.settings.applyCovenantColors and covenantInfo.color or nil;
-	tooltipText = TooltipText_AddIconLine(tooltipText, covenantInfo.name, covenantInfo.atlasName, fontColor);
-
 	local renownInfo = util.covenant.GetRenownData(covenantInfo.ID);
 	if renownInfo then
-		-- Show current renown progress
+		local fontColor = ns.settings.applyCovenantColors and covenantInfo.color or nil;
+		local lineText = covenantInfo.name;
 		local progressText = MAJOR_FACTION_RENOWN_CURRENT_PROGRESS:format(renownInfo.currentRenownLevel, renownInfo.maximumRenownLevel);
 		if renownInfo.hasMaximumRenown then
 			-- Append max. level after covenant name
 			local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(renownInfo.currentRenownLevel);
-			tooltipText = TooltipText_AppendText(tooltipText, PARENS_TEMPLATE:format(renownLevelText));
+			lineText = lineText.." "..HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(PARENS_TEMPLATE:format(renownLevelText));
 			progressText = COVENANT_SANCTUM_RENOWN_REWARD_TITLE_COMPLETE;
 		end
+		tooltipText = TooltipText_AddObjectiveLine(tooltipText, lineText, covenantInfo.isCompleted, fontColor, true, covenantInfo.atlasName, covenantInfo.isCompleted);
 		tooltipText = TooltipText_AddObjectiveLine(tooltipText, progressText, renownInfo.hasMaximumRenown);
 	end
 
@@ -1787,7 +1786,7 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 					if renownInfo then
 						local renownLevelText = GARRISON_TYPE_9_0_LANDING_PAGE_RENOWN_LEVEL:format(renownInfo.currentRenownLevel);  --, renownInfo.maximumRenownLevel);
 						local lineText = format("%s: %s", covenantInfo.name, WHITE_FONT_COLOR:WrapTextInColorCode(renownLevelText));
-						util.GameTooltip_AddObjectiveLine(tooltip, lineText, renownInfo.hasMaximumRenown, wrapLine, leftOffset, covenantInfo.atlasName);
+						util.GameTooltip_AddObjectiveLine(tooltip, lineText, covenantInfo.isCompleted, wrapLine, leftOffset, covenantInfo.atlasName, nil, covenantInfo.isCompleted);
 					end
 				end
 				-- Command table missions

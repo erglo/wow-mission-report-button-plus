@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [0.15.1+100100] - 2023-06-15
+
+### Added
+
+- Shadowlands: cross-reference for `Covenant Campaigns` with the achievement "Dead Men Tell Some Tales".
+
+### Fixed
+
+- BfA achievement for `Faction Assaults` didn't show the tracking hint properly.
+
 ## [0.15.0+100100] - 2023-06-14
 
 ### Added

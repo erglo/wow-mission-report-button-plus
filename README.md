@@ -10,7 +10,7 @@ Adds a right-click menu to the mission report button on the minimap (aka. the `G
 ## Status
 
 + GitHub:
-  ![GitHub release (latest by date)](https://img.shields.io/github/v/release/erglo/mission-report-button-plus?label=latest&logo=GitHub&logoColor=lightgray) ![GitHub Release Date](https://img.shields.io/github/release-date/erglo/mission-report-button-plus?logo=GitHub&logoColor=lightgray) ![GitHub all releases](https://img.shields.io/github/downloads/erglo/mission-report-button-plus/total?logo=GitHub&logoColor=lightgray) ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/erglo/mission-report-button-plus/release.yml?branch=main&logo=GitHub&logoColor=lightgray)
+  ![GitHub release (latest by date)](https://img.shields.io/github/v/release/erglo/mission-report-button-plus?label=latest&logo=GitHub&logoColor=lightgray) ![GitHub Release Date](https://img.shields.io/github/release-date/erglo/mission-report-button-plus?logo=GitHub&logoColor=lightgray) ![GitHub all releases](https://img.shields.io/github/downloads/erglo/mission-report-button-plus/total?logo=GitHub&logoColor=lightgray) ![GitHub last commit](https://img.shields.io/github/last-commit/erglo/mission-report-button-plus?logo=GitHub&logoColor=lightgray)
 
 + CurseForge:
   ![CurseForge downloads](https://cf.way2muchnoise.eu/full_461804_%20(E04E14-5A5A5A-FFFFFF-010101-1C1C1C).svg) ![CurseForge WoW version](https://cf.way2muchnoise.eu/versions/WoW-retail%20_461804_latest(5A5A5A-E04E14-FFFFFF-010101).svg)
