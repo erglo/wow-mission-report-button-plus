@@ -1531,18 +1531,19 @@ end
 function MRBP_ShowGarrisonLandingPage(garrTypeID)
 	_log:debug("Opening report for garrTypeID:", garrTypeID, MRBP_GARRISON_TYPE_INFOS[garrTypeID].title)
 
-	if (GarrisonLandingPageReport ~= nil) then
-		if (garrTypeID ~= util.expansion.data.Shadowlands.garrisonTypeID) then
-			-- Quick fix: the covenant missions don't hide some frame parts properly
-			GarrisonLandingPageReport.Sections:Hide()
-			GarrisonLandingPage.FollowerTab.CovenantFollowerPortraitFrame:Hide()
-		else
-			GarrisonLandingPageReport.Sections:Show()
-		end
-	end
-	-- Quick fix for the invasion alert badge from WoD garrison on the upper
-	-- side of the mission report frame only shows it for garrison missions.
-	if ( garrTypeID ~= util.expansion.data.WarlordsOfDraenor.garrisonTypeID and GarrisonLandingPage.InvasionBadge:IsShown() ) then
+	-- if (GarrisonLandingPageReport ~= nil) then
+	-- 	if (garrTypeID ~= util.expansion.data.Shadowlands.garrisonTypeID) then
+	-- 		-- Quick fix: the covenant missions don't hide some frame parts properly
+	-- 		GarrisonLandingPageReport.Sections:Hide()
+	-- 		GarrisonLandingPage.FollowerTab.CovenantFollowerPortraitFrame:Hide()
+	-- 	else
+	-- 		GarrisonLandingPageReport.Sections:Show()
+	-- 	end
+	-- end
+	-- Quick fix for the invasion alert badge from the WoD garrison reports
+	-- frame on top of the mission report frame now only shows for garrison
+	-- missions. Without this it shows on top of every ExpansionLandingPage.
+	if  (garrTypeID ~= util.expansion.data.WarlordsOfDraenor.garrisonTypeID or ns.settings.hideWoDGarrisonInvasionAlertIcon) and GarrisonLandingPage.InvasionBadge:IsShown() then
 		GarrisonLandingPage.InvasionBadge:Hide()
 	end
 end

@@ -116,6 +116,8 @@ ns.L = {
 	CFG_DDMENU_STYLESELECTION_VALUE1_TOOLTIP = "Dieser Stil entspricht dem Aussehen der normalen Tooltip-Blase.",
 	CFG_DDMENU_STYLESELECTION_VALUE2_TEXT = "Dropdownmenü",
 	CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP = "Dieser Stil entspricht dem Aussehen der Dialoge vor der Dragonflight-Erweiterung.",
+	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT = "Alarm-Symbol ausblenden",
+	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP = "Das Invasionsalarm-Symbol am oberen Rand des Missionsberichtsfensters eurer Draenor-Garnison ausblenden, selbst wenn Invasionen verfügbar sind.",
 	CFG_ABOUT_ADDON_LABEL = "Über dieses Addon",
 	CFG_ABOUT_SLASHCMD_LABEL = "Slash-Befehle",
 	--[[ Testing ]]--

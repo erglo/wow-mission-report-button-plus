@@ -102,6 +102,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	-- Warlords of Draenor
 	["showWoDMissionInfo"] = true,
 	["showWoDGarrisonInvasionAlert"] = true,
+	["hideWoDGarrisonInvasionAlertIcon"] = false,
 	["showWoDWorldMapEvents"] = true,
 	["showWoDTimewalkingVendor"] = true,
 	-- Tests
@@ -418,7 +419,6 @@ function MRBP_Settings_Register()
 			variable = "showAchievementTracking",
 			name = L.CFG_TRACK_ACHIEVEMENTS_TEXT,
 			tooltip = L.CFG_TRACK_ACHIEVEMENTS_TOOLTIP.."|n|n- "..strjoin("|n- ", SafeUnpack(ns.label.GetTrackedAchievementTitles())),
-			tag = Settings.Default.True,
 		},
 	};
 
@@ -593,12 +593,6 @@ function MRBP_Settings_Register()
 
 	-- local checkBoxList_EntryTooltipSettings = {
 	-- 	-- {
-	-- 	-- 	variable = "showMissionCountInTooltip",
-	-- 	-- 	name = L.CFG_DDMENU_ENTRYTOOLTIP_INPROGRESS_TEXT,
-	-- 	-- 	tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_INPROGRESS_TOOLTIP,
-	-- 	-- 	modifyPredicate = ShouldShowEntryTooltip,
-	-- 	-- },
-	-- 	-- {
 	-- 	-- 	variable = "showBountyRequirements",
 	-- 	-- 	name = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTYREQUIREMENTS_TEXT,
 	-- 	-- 	tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTYREQUIREMENTS_TOOLTIP,
@@ -637,6 +631,14 @@ function MRBP_Settings_Register()
 			name = ns.label.showWoDGarrisonInvasionAlert,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_GARRISON_INVASION_ALERT_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "hideWoDGarrisonInvasionAlertIcon",
+			name = L.CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT,
+			tooltip = L.CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP,
+			parentVariable = "showWoDGarrisonInvasionAlert",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
 		},
 		{
 			variable = "showWoDWorldMapEvents",
@@ -918,7 +920,6 @@ function MRBP_Settings_Register()
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS,
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
-			-- tag = Settings.Default.True,
 		},
 	};
 

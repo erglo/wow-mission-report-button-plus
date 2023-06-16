@@ -86,7 +86,6 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_COVENANT_RENOWN_TOOLTIP = "Shows the progress of your Renown level with your Covenant in Shadowlands.",
 	CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_RENOWN_TOOLTIP = "Shows the progress of your reputation with the major factions on the Dragon Isles.",
 	CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_UNLOCK_TOOLTIP = "Displays a hint on how to unlock a major faction.",
-
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP = "Displays brief availability details about %s in the tooltip.",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_LEGION_INVASION = "the Legion Invasions on the Broken Isles",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DEMON_INVASION = "the Demon Invasions on the Broken Shores",
@@ -112,6 +111,8 @@ ns.L = {
 	CFG_DDMENU_STYLESELECTION_VALUE1_TOOLTIP = "The look of this style is that of a common tooltip bubble.",
 	CFG_DDMENU_STYLESELECTION_VALUE2_TEXT = "Dropdown Menu Style",
 	CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP = "This style represents the look of a common dialog (pre-Dragonflight).",
+	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT = "Hide Alert Icon",
+	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP = "Hide the Invasion Alert icon on top of the Draenor Garrison Landing Page frame, even if an invasion is available.",
 	CFG_ABOUT_ADDON_LABEL = "About this Add-on",
 	CFG_ABOUT_SLASHCMD_LABEL = "Slash Commands",
 	--[[ Testing ]]--

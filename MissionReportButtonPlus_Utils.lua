@@ -1761,6 +1761,7 @@ if _log.DEVMODE then
 		"7231",  -- Elemental Storm (Fire)
 		"7232",  -- Elemental Storm (Water)
 		"7235",  -- Elemental Storm (Fire)
+		"7236",  -- Elemental Storm (Water)
 		"7237",  -- Elemental Storm (Air)
 		"7245",  -- Elemental Storm (Air)
 		"7246",  -- Elemental Storm (Earth)
