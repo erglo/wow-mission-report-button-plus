@@ -250,7 +250,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			local renownInfo = util.covenant.GetRenownData(covenantInfo.ID);
 			if renownInfo.hasMaximumRenown then
 				local covenantName = covenantInfo.color:WrapTextInColorCode(covenantInfo.name);
-				print(COVENANT_SANCTUM_RENOWN_REWARD_DESC_COMPLETE:format(covenantName));
+				ns.cprint(COVENANT_SANCTUM_RENOWN_REWARD_DESC_COMPLETE:format(covenantName));
 			end
 
 		elseif (event == "COVENANT_CALLINGS_UPDATED") then
@@ -1694,13 +1694,16 @@ function MRBP:RegisterSlashCommands()
 	end
 end
 
+--------------------------------------------------------------------------------
 ----- Addon Compartment --------------------------------------------------------
+--------------------------------------------------------------------------------
 --
 -- REF.: <https://wowpedia.fandom.com/wiki/Addon_compartment>
 -- REF.: <FrameXML/GameTooltip.lua>
 -- REF.: <FrameXML/SharedTooltipTemplates.lua>
 
-function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
+-- function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
+function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 	local addonTitle = button.value;
 	-- local addonIcon = button.icon;
 	local leftOffset = 8;
@@ -1861,9 +1864,10 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 
 	tooltip:Show();
 end
-MissionReportButtonPlus_OnAddonCompartmentLeave = GameTooltip_Hide;
+ns.MissionReportButtonPlus_OnAddonCompartmentLeave = GameTooltip_Hide;
 
-function MissionReportButtonPlus_OnAddonCompartmentClick(addonName, mouseButton, button)
+-- function nMissionReportButtonPlus_OnAddonCompartmentClick(addonName, mouseButton, button)
+function ns.MissionReportButtonPlus_OnAddonCompartmentClick(button, _, _, _, mouseButton)
 	if (mouseButton == "LeftButton") then
 		local result =  MRBP_IsAnyGarrisonRequirementMet();
 		if result then
@@ -1871,7 +1875,7 @@ function MissionReportButtonPlus_OnAddonCompartmentClick(addonName, mouseButton,
 		end
 	end
 	if (mouseButton == "RightButton") then
-		MRBP_Settings_OpenToCategory(addonName);
+		MRBP_Settings_OpenToCategory(AddonID);
 	end
 	if (mouseButton == "MiddleButton" and MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight)) then
 		DragonridingPanelSkillsButtonMixin:OnClick();

@@ -7,7 +7,8 @@
 
 ### Added
 
-- Warlords of Draenor: the Garrison Invasion alert icon on top of the Garrison Landing Page (Mission) Report frame can now be hidden permanently, even if your Garrison is being invaded.
+- The Addon Compartment entry is now optional and can be de-/activated in the settings.
+- Warlords of Draenor: the `Garrison Invasion alert icon` on top of the Garrison Landing Page (Mission) Report frame can now be hidden permanently, even if your Garrison is being invaded.
 &nbsp;  
 
 ## Previous changes

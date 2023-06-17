@@ -44,7 +44,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showChatNotifications"] = true,
 	["showMinimapButton"] = true,
 	["showAddonNameInTooltip"] = true,
-	-- ["hideInAddonCompartment"] = false,
+	["showInAddonCompartment"] = true,
 	["showAchievementTracking"] = true,
 	-- Dropdown menu
 	["showEntryTooltip"] = true,
@@ -212,21 +212,20 @@ local function CheckBox_OnValueChanged(owner, setting, value)
 	end
 	if (setting.variable == "showMinimapButton") then
 		-- Manually set by user
-		local shouldShowMinimapButton = value;
-		if shouldShowMinimapButton then
+		if value then
 			ns:ShowMinimapButton_User()
 		else
 			ns:HideMinimapButton();
 		end
 	end
-	-- if (setting.variable == "hideInAddonCompartment") then
-	-- 	-- Toggle Addon Compartment entry
-	-- 	if value then
-	-- 		util.AddonCompartment.RemoveAddon();
-	-- 	else
-	-- 		util.AddonCompartment.ReregisterAddon();
-	-- 	end
-	-- end
+	if (setting.variable == "showInAddonCompartment") then
+		-- Toggle Addon Compartment entry
+		if value then
+			util.AddonCompartment.RegisterAddon();
+		else
+			util.AddonCompartment.UnregisterAddon();
+		end
+	end
 	-- Handle "activeMenuEntries"
 	local varName, indexString = strsplit('#', setting.variable);
 	if indexString then
@@ -408,13 +407,13 @@ function MRBP_Settings_Register()
 			tooltip = L.CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TOOLTIP,
 			parentVariable = "showMinimapButton",
 		},
-		-- {
-		-- 	variable = "hideInAddonCompartment",
-		-- 	name = "Vom Addon Compartment entfernen",  -- "Hide in Addon Compartment",
-		-- 	tooltip = "Do not show this addon in the Addon Compartment.",
-		-- 	-- parentVariable = "showMinimapButton",
-		-- 	tag = Settings.Default.True,
-		-- },
+		util.AddonCompartment.IsAddonCompartmentAvailable() and {
+			variable = "showInAddonCompartment",								--> TODO - L10n
+			name = "Addon Compartment",  -- "Hide in Addon Compartment",
+			tooltip = "Show this addon in the Addon Compartment.",
+			-- parentVariable = "showMinimapButton",
+			tag = Settings.Default.True,
+		},
 		{
 			variable = "showAchievementTracking",
 			name = L.CFG_TRACK_ACHIEVEMENTS_TEXT,
@@ -423,6 +422,10 @@ function MRBP_Settings_Register()
 	};
 
 	CheckBox_CreateFromList(category, checkBoxList_CommonSettings);
+
+	if (ns.settings.showInAddonCompartment and not util.AddonCompartment.IsAddonRegistered()) then
+		util.AddonCompartment.RegisterAddon();
+	end
 
 	------- Dropdown menu settings ---------------------------------------------
 

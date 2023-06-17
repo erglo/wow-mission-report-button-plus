@@ -1080,15 +1080,18 @@ end
 ---@return table factionColor  A color class (see <FrameXML/GlobalColors.lua>); defaults to NORMAL_FONT_COLOR
 --
 function LocalThreatUtil.GetExpansionThreatColor(expansionID, subCategoryID, fallbackColor)
-	local colorTypeID = tostring(expansionID);
-	local threatColor;
-	if subCategoryID then
-		local colorSubtypeID = tostring(subCategoryID);
-		threatColor = LocalThreatUtil.TYPE_COLORS[colorTypeID][colorSubtypeID];
-	else
-		threatColor = LocalThreatUtil.TYPE_COLORS[colorTypeID];
+	if expansionID > 0 then
+		local colorTypeID = tostring(expansionID);
+		local threatColor;
+		if subCategoryID then
+			local colorSubtypeID = tostring(subCategoryID);
+			threatColor = LocalThreatUtil.TYPE_COLORS[colorTypeID][colorSubtypeID];
+		else
+			threatColor = LocalThreatUtil.TYPE_COLORS[colorTypeID];
+		end
+		return threatColor or fallbackColor or NORMAL_FONT_COLOR;
 	end
-	return threatColor or fallbackColor or NORMAL_FONT_COLOR;
+	return fallbackColor or NORMAL_FONT_COLOR;
 end
 
 -- Find active threats in the world, if active for current player; eg. the
@@ -2201,35 +2204,60 @@ function util.calendar.IsTodayWorldQuestDayEvent()
 	return false, nil, nil;
 end
 
+--------------------------------------------------------------------------------
+----- Addon Compartment --------------------------------------------------------
+--------------------------------------------------------------------------------
+-- REF.: <FrameXML/AddonCompartment.lua>
+-- REF.: <https://wowpedia.fandom.com/wiki/API_C_AddOns.GetAddOnMetadata>
+
+local LocalAddonCompartmentUtil = {};
+util.AddonCompartment = LocalAddonCompartmentUtil;
+
+function LocalAddonCompartmentUtil.IsAddonCompartmentAvailable()
+	return AddonCompartmentFrame ~= nil;
+end
+
+function LocalAddonCompartmentUtil.IsAddonRegistered()
+	if LocalAddonCompartmentUtil.IsAddonCompartmentAvailable() then
+		return tContains(AddonCompartmentFrame.registeredAddons, LocalAddonCompartmentUtil.info);
+	end
+end
+
+function LocalAddonCompartmentUtil.RegisterAddon()
+	-- if LocalAddonCompartmentUtil.IsAddonCompartmentAvailable() then
+	if not util.AddonCompartment.IsAddonRegistered() then
+		LocalAddonCompartmentUtil.info = {
+			text = C_AddOns.GetAddOnMetadata(AddonID, "Title"),
+			icon = C_AddOns.GetAddOnMetadata(AddonID, "IconTexture") or C_AddOns.GetAddOnMetadata(AddonID, "IconAtlas"),
+			notCheckable = true,
+			registerForAnyClick = true,
+			func = ns.MissionReportButtonPlus_OnAddonCompartmentClick,
+			funcOnEnter = ns.MissionReportButtonPlus_OnAddonCompartmentEnter,
+			funcOnLeave = ns.MissionReportButtonPlus_OnAddonCompartmentLeave,
+		};
+		AddonCompartmentFrame:RegisterAddon(LocalAddonCompartmentUtil.info);
+		_log:info("[AC] Addon registered.");
+	else
+		_log:info("[AC] Addon already registered.");
+	end
+end
+
+function LocalAddonCompartmentUtil.UnregisterAddon()
+	if LocalAddonCompartmentUtil.IsAddonRegistered() then
+		for index, compartmentAddon in ipairs(AddonCompartmentFrame.registeredAddons) do
+			if (compartmentAddon.text == ns.AddonTitle) then
+				tremove(AddonCompartmentFrame.registeredAddons, index);
+				AddonCompartmentFrame:UpdateDisplay();
+				_log:debug("[AC] Found and removed from index:", index);
+				_log:info("[AC] Addon unregistered.");
+				return;
+			end
+		end
+	end
+	_log:info("[AC] Addon wasn't registered.");
+end
+
 --@do-not-package@
------ Addon Compartment -------------------------------------------------------- --> TODO - Useful ???
-
--- local AddonCompartmentUtil = {};
--- util.AddonCompartment = AddonCompartmentUtil;
-
--- function AddonCompartmentUtil.RemoveAddon()
--- 	for index, compartmentAddon in ipairs(AddonCompartmentFrame.registeredAddons) do
--- 		if (compartmentAddon.text == ns.AddonTitle) then
--- 			_log:debug("Found and removing from index:", index);
--- 			-- Backup dropdown button info
--- 			AddonCompartmentUtil.info = AddonCompartmentFrame.registeredAddons[index];
--- 			AddonCompartmentFrame.registeredAddons[index] = nil;
--- 			AddonCompartmentFrame:UpdateDisplay();
--- 			return true;
--- 		end
--- 	end
--- 	return false;
--- end
-
--- function AddonCompartmentUtil.ReregisterAddon()
--- 	if AddonCompartmentUtil.info then
--- 		table.insert(AddonCompartmentFrame.registeredAddons, AddonCompartmentUtil.info);
--- 		AddonCompartmentFrame:UpdateDisplay();
--- 		_log:debug("Addon re-registered.");
--- 	end
--- 	return false;
--- end
-
 ----- more to come -------------------------------------------------------------
 
 --> TODO - More ideas
