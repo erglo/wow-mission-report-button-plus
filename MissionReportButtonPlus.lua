@@ -1170,6 +1170,9 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				if campAreaPoiInfo then
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, campAreaPoiInfo.name);  -- ns.label.showCampAylaagInfo
 					tooltipText = TooltipText_AddIconLine(tooltipText, campAreaPoiInfo.mapInfo.name, campAreaPoiInfo.atlasName);
+					if campAreaPoiInfo.closetFlightPoint then
+						tooltipText = TooltipText_AddObjectiveLine(tooltipText, campAreaPoiInfo.closetFlightPoint.cleanNodeName);
+					end
 					if campAreaPoiInfo.timeString then
 						tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, campAreaPoiInfo.timeString);
 					else

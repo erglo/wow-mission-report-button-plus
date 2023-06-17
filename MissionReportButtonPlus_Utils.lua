@@ -1254,7 +1254,7 @@ LocalPoiUtil.SingleArea = {};
 ---@return table|nil areaPoiInfo
 --
 function LocalPoiUtil.SingleArea.GetAreaPoiInfo(eventData)
-	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeMapInfoAtPosition);
+	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeMapInfoAtPosition, eventData.includeClosestFlightPoint);
 	if (activeAreaPOIs and #activeAreaPOIs > 0) then
 		for _, poiInfo in ipairs(activeAreaPOIs) do
 			if eventData.CompareFunction(eventData, poiInfo) then
@@ -1347,6 +1347,7 @@ CampAylaagData.mapID = 2023;  --> Ohn'ahra
 CampAylaagData.mapInfo = LocalMapUtil.GetMapInfo(CampAylaagData.mapID);
 CampAylaagData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
 CampAylaagData.includeMapInfoAtPosition = true;
+CampAylaagData.includeClosestFlightPoint = true;
 
 function util.poi.GetCampAylaagInfo()
 	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(CampAylaagData);
@@ -1693,10 +1694,11 @@ end
 -- Main POI retrieval function; Gets all POIs of given map info.
 ---@param mapInfo table|UiMapDetails
 ---@param includeMapInfoAtPosition boolean
+---@param includeClosestFlightPoint boolean
 ---@return AreaPOIInfo[]|nil activeAreaPOIs
 ---@class AreaPOIInfo
 --
-function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition)
+function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition, includeClosestFlightPoint)
 	local areaPOIs = LocalMapUtil.GetAreaPOIForMap(mapInfo.mapID);
 	if (areaPOIs and #areaPOIs > 0) then
 		local activeAreaPOIs = {};
@@ -1722,6 +1724,9 @@ function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition)
 				if (includeMapInfoAtPosition or mapInfo.mapType == Enum.UIMapType.Continent) then
 					-- Needs more accurate zone infos
 					mapInfo = C_Map.GetMapInfoAtPosition(mapInfo.mapID, poiInfo.position:GetXY());
+				end
+				if includeClosestFlightPoint then
+					poiInfo.closetFlightPoint = LocalMapUtil.GetClosestFlightPoint(mapInfo.mapID, poiInfo.position:GetXY());
 				end
 				poiInfo.mapInfo = mapInfo;
 				tinsert(activeAreaPOIs, poiInfo);
@@ -1764,6 +1769,7 @@ if _log.DEVMODE then
 		"7471",  -- Fyrakk Assaults - Ohn'ahra
 		"7486",  -- Fyrakk Assaults - Ohn'ahra
 		"7221",  -- Elemental Storm (Air)
+		"7224",  -- Elemental Storm (Water)
 		"7231",  -- Elemental Storm (Fire)
 		"7232",  -- Elemental Storm (Water)
 		"7235",  -- Elemental Storm (Fire)
