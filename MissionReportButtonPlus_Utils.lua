@@ -1611,7 +1611,7 @@ PoiFilter.ignoredZoneAtlasNamePatterns = {
 	"map[-]icon[-].*classhall",
 	"^Zidormi.*",
 	"^poi[-]torghast",
-	"^fishing[-]hole",
+	-- "^fishing[-]hole",
 };
 
 -- Check if given atlas name should be ignored.
@@ -1646,6 +1646,9 @@ PoiFilter.ignoredAreaPoiIDs = {
 	"7414",  -- Zskera Vaults
 	"7408",  -- Primal Storm at Froststone Vault - Forbidden Reach
 	"7489",  -- Loamm
+	"7086",  -- Fishing Hole, Waken Shore
+	"7272",  -- Fishing Hole, Waken Shore
+	"7412",  -- Fishing Hole, Forbidden Isle
 	-- Shadowlands
 	-- "6640",  -- Torghast, The Maw
 	"6991",  -- Kyrian Assault, The Maw (covered as threat)
@@ -1738,41 +1741,43 @@ if _log.DEVMODE then
 	TestPoiUtil.separatedAreaPoiIDs = {
 		-- Dragonflight
 		"7096",  -- Grand Hunts - Azure Span
-		"7261",  -- Dragonriding Race - Thaldraszus
-		"7262",  -- Dragonriding Race - Ohn'ahran Plains
-		"7263",  -- Dragonriding Race - Azure Span
-		"7264",  -- Dragonriding Race - Thaldraszus
-		"7267",  -- pre-Siege of Dragonbane Keep
-		"7104",  -- Siege of Dragonbane Keep
-		"7413",  -- post-Siege of Dragonbane Keep
-		-- "7218",  -- pre-Community Feast
-		-- "7219",  -- pre-Community Feast
-		-- "7220",  -- post-Community Feast
 		"7342",  -- Grand Hunts - Ohn'ahra
 		"7343",  -- Grand Hunts - Waking Shores
 		"7344",  -- Grand Hunts - Thaldraszus
 		"7345",  -- Grand Hunts - Azure Span
-		"7432",  -- Fyrakk Assaults - Azure Span
-		"7433",  -- Fyrakk Assaults - Azure Span
 		"7101",  -- Camp Aylaag (east)
 		"7102",  -- Camp Aylaag (north)
 		"7103",  -- Camp Aylaag (west)
+		"7261",  -- Dragonriding Race - Thaldraszus
+		"7262",  -- Dragonriding Race - Ohn'ahran Plains
+		"7263",  -- Dragonriding Race - Azure Span
+		"7264",  -- Dragonriding Race - Thaldraszus
+		"7104",  -- Siege of Dragonbane Keep
+		"7267",  -- pre-Siege of Dragonbane Keep
+		"7413",  -- post-Siege of Dragonbane Keep
+		-- "7218",  -- pre-Community Feast
+		-- "7219",  -- pre-Community Feast
+		-- "7220",  -- post-Community Feast
+		"7429",  -- Fyrakk Assaults - Ohn'ahra (continent view)
+		"7432",  -- Fyrakk Assaults - Azure Span
+		"7433",  -- Fyrakk Assaults - Azure Span
+		"7471",  -- Fyrakk Assaults - Ohn'ahra
+		"7486",  -- Fyrakk Assaults - Ohn'ahra
 		"7221",  -- Elemental Storm (Air)
 		"7231",  -- Elemental Storm (Fire)
 		"7232",  -- Elemental Storm (Water)
 		"7235",  -- Elemental Storm (Fire)
 		"7236",  -- Elemental Storm (Water)
 		"7237",  -- Elemental Storm (Air)
+		"7239",  -- Elemental Storm (Fire)
 		"7245",  -- Elemental Storm (Air)
 		"7246",  -- Elemental Storm (Earth)
 		-- "7257",  -- Elemental Storm (???) - Waking Shores
 		"7258",  -- Elemental Storm (Earth)
+		"7259",  -- Elemental Storm (Fire)
 		"7260",  -- Elemental Storm (Water) - Waking Shores
-		"7429",  -- Fyrakk Assaults - Ohn'ahra (continent view)
 		"7459",  -- pre-Researchers Under Fire - Zaralek Cavern
 		"7461",  -- mid-Researchers Under Fire - Zaralek Cavern (expedition running)
-		"7471",  -- Fyrakk Assaults - Ohn'ahra
-		"7486",  -- Fyrakk Assaults - Ohn'ahra
 		-- Shadowlands
 		-- Battle for Azeroth
 		"5896",  -- Faction Assaults (Horde attacking Tiragardesound)
@@ -1887,6 +1892,82 @@ if _log.DEVMODE then
 	util.map.GetAreaPOIInfoForZones = TestPoiUtil.GetAreaPOIInfoForZones;
 	util.map.GetAreaPOIInfoForContinent = TestPoiUtil.GetAreaPOIInfoForContinent;
 end
+
+--------------------------------------------------------------------------------
+
+local FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR = ",";
+
+-- Separate the zone name from the taxi node name and return both.
+---@param taxiNodeData MapTaxiNodeInfo
+---@param sep string
+---@return string
+---@return string
+--
+local function trimTaxiNodeName(taxiNodeData, sep)
+	sep = sep or FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR;
+	local nodeNameMatch, zoneNameMatch = strsplit(FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR, taxiNodeData.name);
+	return strtrim(nodeNameMatch), strtrim(zoneNameMatch);
+end
+
+-- Calculate the distance from given position to the closest flight point.
+---@param mapID number|nil
+---@param posX number|nil
+---@param posY number|nil
+---@return MapTaxiNodeInfo|nil taxiNodeData
+--
+--> REF.: <FrameXML/Blizzard_APIDocumentationGenerated/TaxiMapDocumentation.lua>  
+--> REF.: <FrameXML/MathUtil.lua>
+--
+function LocalMapUtil.GetClosestFlightPoint(mapID, posX, posY)
+	-- local prev_loglvl = _log.level
+	-- _log.level = _log.DEBUG
+
+	-- If no mapID given, defaults to the player's position
+	if not mapID then
+		mapID = C_Map.GetBestMapForUnit("player");
+		local playerPosition = C_Map.GetPlayerMapPosition(mapID, "player");
+		if playerPosition then
+			posX, posY = playerPosition:GetXY();
+		else
+			posX, posY = 0, 0;
+		end
+	end
+	local mapInfo = LocalMapUtil.GetMapInfo(mapID);
+
+	_log:info("Searching for closest flight point to...")
+	_log:info("-->", mapInfo.mapID, mapInfo.name);
+
+	local mapTaxiNodes = C_TaxiMap.GetTaxiNodesForMap(mapInfo.mapID);
+	-- local allowedTaxiNodes = ;
+	local allowedFlightPathFactions = {
+		Enum.FlightPathFaction[UnitFactionGroup("player")],
+		Enum.FlightPathFaction["Neutral"],
+	};
+	local closest = 0.01;  --> distance threshold
+
+	-- Calculate closest flight master
+	for slotIndex, taxiNodeData in pairs(mapTaxiNodes) do
+		if tContains(allowedFlightPathFactions, taxiNodeData.faction) then
+			-- REF.: CalculateDistanceSq(x1, y1, x2, y2)
+			local distance = CalculateDistanceSq(posX, posY, taxiNodeData.position:GetXY());
+			local isInCloseRange = distance and distance < closest or false;
+			-- _log:debug("distance:", distance, "isInCloseRange:", isInCloseRange);
+			if isInCloseRange then
+				_log:info("Found", taxiNodeData.nodeID, YELLOW_FONT_COLOR:WrapTextInColorCode(taxiNodeData.name));
+				_log:info("--> as closest at:", distance);
+				taxiNodeData.cleanNodeName, taxiNodeData.cleanZoneName = trimTaxiNodeName(taxiNodeData);
+				-- _log.level = prev_loglvl;
+				return taxiNodeData;
+			end
+			_log:debug("Skipping", distance, taxiNodeData.nodeID);  --, taxiNodeData.name);
+		end
+	end
+	-- _log.level = prev_loglvl;
+end
+Test_GetClosestFlightPoint = LocalMapUtil.GetClosestFlightPoint;
+-- Test_GetClosestFlightPoint(2023, 0.713, 0.313)
+-- C_Map.GetPlayerMapPosition(C_Map.GetBestMapForUnit("player"), "player")
+-- Test_GetClosestFlightPoint(2022, 0.422, 0.668)
 
 --------------------------------------------------------------------------------
 ----- Labels -------------------------------------------------------------------

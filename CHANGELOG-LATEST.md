@@ -10,8 +10,6 @@
 - Warlords of Draenor: the Garrison Invasion alert icon on top of the Garrison Landing Page (Mission) Report frame can now be hidden permanently, even if your Garrison is being invaded.
 &nbsp;  
 
-___________________________________________________________________
-
 ## Previous changes
 
 - For a complete history of changes see the [changelog file on GitHub](https://github.com/erglo/mission-report-button-plus/blob/main/CHANGELOG.md "CHANGELOG.md").
