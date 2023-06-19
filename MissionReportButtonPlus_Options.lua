@@ -408,10 +408,9 @@ function MRBP_Settings_Register()
 			parentVariable = "showMinimapButton",
 		},
 		util.AddonCompartment.IsAddonCompartmentAvailable() and {
-			variable = "showInAddonCompartment",								--> TODO - L10n
-			name = "Addon Compartment",  -- "Hide in Addon Compartment",
-			tooltip = "Show this addon in the Addon Compartment.",
-			-- parentVariable = "showMinimapButton",
+			variable = "showInAddonCompartment",
+			name = L.CFG_SHOW_ADDON_COMPARTMENT_TEXT,
+			tooltip = L.CFG_SHOW_ADDON_COMPARTMENT_TOOLTIP,
 			tag = Settings.Default.True,
 		},
 		{
