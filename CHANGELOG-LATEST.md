@@ -9,6 +9,14 @@
 
 - The Addon Compartment entry is now optional and can be de-/activated in the settings.
 - Warlords of Draenor: the `Garrison Invasion alert icon` on top of the Garrison Landing Page (Mission) Report frame can now be hidden permanently, even if your Garrison is being invaded.
+
+### Changed
+
+- Dragonflight: the `Aylaag Camp` entry now additionally shows the name of the closest flight point for easier camp location identification.
+
+### Removed
+
+- Some of the world map icons have been merged in `WoW 10.0.7` which led to the problem that the details about the `Iskaara Community Feast` event on the Dragon Isles can no longer be retrieved by its area POI icon and had to be removed.
 &nbsp;  
 
 ## Previous changes

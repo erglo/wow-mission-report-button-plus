@@ -1191,18 +1191,18 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, huntsAreaPoiInfo.timeString);
 				end
 			end
-			-- Iskaara Community Feast
-			if ns.settings.showCommunityFeastInfo then
-				local feastAreaPoiInfo = util.poi.GetCommunityFeastInfo();
-				if feastAreaPoiInfo then
-					tooltipText = TooltipText_AddHeaderLine(tooltipText, feastAreaPoiInfo.name);  -- ns.label.showCommunityFeastInfo
-					tooltipText = TooltipText_AddIconLine(tooltipText, feastAreaPoiInfo.mapInfo.name, feastAreaPoiInfo.atlasName);
-					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, feastAreaPoiInfo.timeString);
-					if not ns.settings.hideEventDescriptions then
-						tooltipText = TooltipText_AddObjectiveLine(tooltipText, feastAreaPoiInfo.description);
-					end
-				end
-			end
+			-- -- Iskaara Community Feast
+			-- if ns.settings.showCommunityFeastInfo then
+			-- 	local feastAreaPoiInfo = util.poi.GetCommunityFeastInfo();
+			-- 	if feastAreaPoiInfo then
+			-- 		tooltipText = TooltipText_AddHeaderLine(tooltipText, feastAreaPoiInfo.name);  -- ns.label.showCommunityFeastInfo
+			-- 		tooltipText = TooltipText_AddIconLine(tooltipText, feastAreaPoiInfo.mapInfo.name, feastAreaPoiInfo.atlasName);
+			-- 		tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, feastAreaPoiInfo.timeString);
+			-- 		if not ns.settings.hideEventDescriptions then
+			-- 			tooltipText = TooltipText_AddObjectiveLine(tooltipText, feastAreaPoiInfo.description);
+			-- 		end
+			-- 	end
+			-- end
 			-- Siege on Dragonbane Keep
 			if ns.settings.showDragonbaneKeepInfo then
 				local siegeAreaPoiInfo = util.poi.GetDragonbaneKeepInfo();

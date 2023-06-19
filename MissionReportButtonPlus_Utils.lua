@@ -1358,16 +1358,16 @@ end
 
 ----- Iskaara Community Feast -----
 
-local CommunityFeastData = {};
-CommunityFeastData.areaPoiIDs = {7218, 7219, 7220};  --, 7393};
-CommunityFeastData.mapID = 2024;  --> Azure Span
-CommunityFeastData.mapInfo = LocalMapUtil.GetMapInfo(CommunityFeastData.mapID);
-CommunityFeastData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
+-- local CommunityFeastData = {};
+-- CommunityFeastData.areaPoiIDs = {7218, 7219, 7220, 7393};
+-- CommunityFeastData.mapID = 2024;  --> Azure Span
+-- CommunityFeastData.mapInfo = LocalMapUtil.GetMapInfo(CommunityFeastData.mapID);
+-- CommunityFeastData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
 
-function util.poi.GetCommunityFeastInfo()
-	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(CommunityFeastData);
-end
--- Test_GetCommunityFeastInfo = util.poi.GetCommunityFeastInfo;
+-- function util.poi.GetCommunityFeastInfo()
+-- 	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(CommunityFeastData);
+-- end
+-- -- Test_GetCommunityFeastInfo = util.poi.GetCommunityFeastInfo;
 
 ----- Siege on Dragonbane Keep event -----
 
@@ -1775,6 +1775,7 @@ if _log.DEVMODE then
 		"7224",  -- Elemental Storm (Water)
 		"7231",  -- Elemental Storm (Fire)
 		"7232",  -- Elemental Storm (Water)
+		"7233",  -- Elemental Storm (Air)
 		"7235",  -- Elemental Storm (Fire)
 		"7236",  -- Elemental Storm (Water)
 		"7237",  -- Elemental Storm (Air)
@@ -2024,7 +2025,7 @@ ns.label = {
 	--> Unlocked after Abenteuermodus "Es geht voran"
 	["showCampAylaagInfo"] = L.ENTRYTOOLTIP_DF_CAMP_AYLAAG_LABEL,
 	["showGrandHuntsInfo"] = L.ENTRYTOOLTIP_DF_GRAND_HUNTS_LABEL,
-	["showCommunityFeastInfo"] = L.ENTRYTOOLTIP_DF_COMMUNITY_FEAST_LABEL,
+	-- ["showCommunityFeastInfo"] = L.ENTRYTOOLTIP_DF_COMMUNITY_FEAST_LABEL,
 	["showDragonbaneKeepInfo"] = L.ENTRYTOOLTIP_DF_DRAGONBANE_KEEP_LABEL,
 	["showElementalStormsInfo"] = L.ENTRYTOOLTIP_DF_ELEMENTAL_STORMS_LABEL,
 	["showFyrakkAssaultsInfo"] = L.ENTRYTOOLTIP_DF_FYRAKK_ASSAULTS_LABEL,
