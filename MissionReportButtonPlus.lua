@@ -1756,6 +1756,9 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 							local reputationLevelText = format("%d/%d", factionData.renownReputationEarned, factionData.renownLevelThreshold);
 							local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID);
 							local lineText = format("%s: %s - %s", util.strip_DE_hyphen(factionData.name), renownLevelText, reputationLevelText);
+							if hasMaxRenown then
+								lineText = format("%s: %s", util.strip_DE_hyphen(factionData.name), renownLevelText);
+							end
 							util.GameTooltip_AddObjectiveLine(tooltip, lineText, hasMaxRenown, wrapLine, leftOffset, factionAtlasName);
 						end
 					end
@@ -1767,12 +1770,68 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					local collectedAmountString = WHITE_FONT_COLOR:WrapTextInColorCode(format("%d/%d", numGlyphsCollected, numGlyphsTotal));
 					local isCompleted = numGlyphsCollected == numGlyphsTotal;
 					util.GameTooltip_AddObjectiveLine(tooltip, ns.label.showDragonGlyphs..": "..collectedAmountString, isCompleted, wrapLine, leftOffset, treeCurrencyInfo.texture);
+					-- Dragonriding Race
+					if ns.settings.showDragonridingRaceInfo then
+						local raceAreaPoiInfo = util.poi.GetDragonridingRaceInfo();
+						if raceAreaPoiInfo then
+							local timeLeft = raceAreaPoiInfo.timeString or "...";
+							GameTooltip_AddNormalLine(tooltip, raceAreaPoiInfo.name..": "..timeLeft, wrapLine, leftOffset);
+							util.GameTooltip_AddAtlas(tooltip, raceAreaPoiInfo.atlasName);
+						end
+					end
+					-- Camp Aylaag
+					if ns.settings.showCampAylaagInfo then
+						local campAreaPoiInfo = util.poi.GetCampAylaagInfo();
+						if campAreaPoiInfo then
+							local timeLeft = campAreaPoiInfo.timeString or "...";
+							local locationName = campAreaPoiInfo.closetFlightPoint and campAreaPoiInfo.closetFlightPoint or campAreaPoiInfo.mapInfo.name;
+							local lineText = format("%s @ %s", campAreaPoiInfo.name, locationName);
+							GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
+							util.GameTooltip_AddAtlas(tooltip, campAreaPoiInfo.atlasName);
+						end
+					end
+					-- Grand Hunts
+					if ns.settings.showGrandHuntsInfo then
+						local huntsAreaPoiInfo = util.poi.GetGrandHuntsInfo();
+						if huntsAreaPoiInfo then
+							local timeLeft = huntsAreaPoiInfo.timeString or "...";
+							local lineText = format("%s @ %s", huntsAreaPoiInfo.name, huntsAreaPoiInfo.mapInfo.name);
+							GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
+							util.GameTooltip_AddAtlas(tooltip, huntsAreaPoiInfo.atlasName);
+						end
+					end
+					-- Siege on Dragonbane Keep
+					if ns.settings.showDragonbaneKeepInfo then
+						local siegeAreaPoiInfo = util.poi.GetDragonbaneKeepInfo();
+						if siegeAreaPoiInfo then
+							local timeLeft = siegeAreaPoiInfo.timeString or "...";
+							-- local lineText = format("%s @ %s", siegeAreaPoiInfo.name, siegeAreaPoiInfo.mapInfo.name);
+							-- GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
+							GameTooltip_AddNormalLine(tooltip, siegeAreaPoiInfo.name..": "..timeLeft, wrapLine, leftOffset);
+							util.GameTooltip_AddAtlas(tooltip, siegeAreaPoiInfo.atlasName);
+						end
+					end
+					-- Elemental Storms
+					if ns.settings.showElementalStormsInfo then
+						local stormsAreaPoiInfos = util.poi.GetElementalStormsInfo();
+						if TableHasAnyEntries(stormsAreaPoiInfos) then
+							for _, stormPoi in ipairs(stormsAreaPoiInfos) do
+								-- tooltipText = TooltipText_AddIconLine(tooltipText, stormPoi.mapInfo.name, stormPoi.atlasName);
+								-- tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, stormPoi.timeString);
+								local timeLeft = stormPoi.timeString or "...";
+								local lineText = format("%s @ %s", stormPoi.name, stormPoi.mapInfo.name);
+								GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
+								util.GameTooltip_AddAtlas(tooltip, stormPoi.atlasName);
+							end
+						end
+					end
 					-- Fyrakk Assaults
 					if ns.settings.showFyrakkAssaultsInfo then
 						local dfFyrakkAssaultsAreaPoiInfo = util.poi.GetFyrakkAssaultsInfo();
 						if dfFyrakkAssaultsAreaPoiInfo then
 							local timeLeft = dfFyrakkAssaultsAreaPoiInfo.timeString or "...";
-							GameTooltip_AddNormalLine(tooltip, dfFyrakkAssaultsAreaPoiInfo.name..": "..timeLeft, wrapLine, leftOffset);
+							local lineText = format("%s @ %s", dfFyrakkAssaultsAreaPoiInfo.name, dfFyrakkAssaultsAreaPoiInfo.mapInfo.name);
+							GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
 							util.GameTooltip_AddAtlas(tooltip, dfFyrakkAssaultsAreaPoiInfo.atlasName);
 						end
 					end

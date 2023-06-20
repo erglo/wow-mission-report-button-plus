@@ -1782,12 +1782,16 @@ if _log.DEVMODE then
 		"7239",  -- Elemental Storm (Fire)
 		"7245",  -- Elemental Storm (Air)
 		"7246",  -- Elemental Storm (Earth)
+		"7247",  -- Elemental Storm (Fire) - Thaldraszus
+		"7254",  -- Elemental Storm (Earth) - Waking Shores
 		-- "7257",  -- Elemental Storm (???) - Waking Shores
 		"7258",  -- Elemental Storm (Earth)
 		"7259",  -- Elemental Storm (Fire)
 		"7260",  -- Elemental Storm (Water) - Waking Shores
 		"7459",  -- pre-Researchers Under Fire - Zaralek Cavern
-		"7461",  -- mid-Researchers Under Fire - Zaralek Cavern (expedition running)
+		"7460",  -- pre-Researchers Under Fire - Zaralek Cavern
+		"7461",  -- mid-Researchers Under Fire - Zaralek Cavern
+		"7462",  -- mid-Researchers Under Fire - Zaralek Cavern
 		-- Shadowlands
 		-- Battle for Azeroth
 		"5896",  -- Faction Assaults (Horde attacking Tiragardesound)
@@ -1928,7 +1932,7 @@ end
 --> REF.: <FrameXML/Blizzard_APIDocumentationGenerated/TaxiMapDocumentation.lua>  
 --> REF.: <FrameXML/MathUtil.lua>
 --
-function LocalMapUtil.GetClosestFlightPoint(mapID, posX, posY)
+function LocalMapUtil.GetClosestFlightPoint(mapID, posX, posY, distance)
 	-- local prev_loglvl = _log.level
 	-- _log.level = _log.DEBUG
 
@@ -1944,16 +1948,16 @@ function LocalMapUtil.GetClosestFlightPoint(mapID, posX, posY)
 	end
 	local mapInfo = LocalMapUtil.GetMapInfo(mapID);
 
-	_log:info("Searching for closest flight point to...")
-	_log:info("-->", mapInfo.mapID, mapInfo.name);
-
 	local mapTaxiNodes = C_TaxiMap.GetTaxiNodesForMap(mapInfo.mapID);
-	-- local allowedTaxiNodes = ;
 	local allowedFlightPathFactions = {
 		Enum.FlightPathFaction[UnitFactionGroup("player")],
 		Enum.FlightPathFaction["Neutral"],
 	};
-	local closest = 0.01;  --> distance threshold
+	local closest = distance or 0.01;  --> distance threshold
+
+	_log:info("Searching for closest flight point to...")
+	_log:info("-->", mapInfo.mapID, mapInfo.name, "@", closest);
+	_log:info("-->", mapInfo.mapID, posX, posY);
 
 	-- Calculate closest flight master
 	for slotIndex, taxiNodeData in pairs(mapTaxiNodes) do
@@ -1964,7 +1968,7 @@ function LocalMapUtil.GetClosestFlightPoint(mapID, posX, posY)
 			-- _log:debug("distance:", distance, "isInCloseRange:", isInCloseRange);
 			if isInCloseRange then
 				_log:info("Found", taxiNodeData.nodeID, YELLOW_FONT_COLOR:WrapTextInColorCode(taxiNodeData.name));
-				_log:info("--> as closest at:", distance);
+				_log:info("--> at distance:", distance);
 				taxiNodeData.cleanNodeName, taxiNodeData.cleanZoneName = trimTaxiNodeName(taxiNodeData);
 				-- _log.level = prev_loglvl;
 				return taxiNodeData;
@@ -1973,6 +1977,12 @@ function LocalMapUtil.GetClosestFlightPoint(mapID, posX, posY)
 		end
 	end
 	-- _log.level = prev_loglvl;
+
+	-- Try again in longer, but not too long range
+	if (closest <= 0.1) then
+		local new_distance = closest + 0.01;  --> new threshold
+		return LocalMapUtil.GetClosestFlightPoint(mapInfo.mapID, posX, posY, new_distance);
+	end
 end
 Test_GetClosestFlightPoint = LocalMapUtil.GetClosestFlightPoint;
 -- Test_GetClosestFlightPoint(2023, 0.713, 0.313)
