@@ -1784,7 +1784,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						local campAreaPoiInfo = util.poi.GetCampAylaagInfo();
 						if campAreaPoiInfo then
 							local timeLeft = campAreaPoiInfo.timeString or "...";
-							local locationName = campAreaPoiInfo.closetFlightPoint and campAreaPoiInfo.closetFlightPoint or campAreaPoiInfo.mapInfo.name;
+							local locationName = campAreaPoiInfo.closetFlightPoint and campAreaPoiInfo.closetFlightPoint.cleanNodeName or campAreaPoiInfo.mapInfo.name;
 							local lineText = format("%s @ %s", campAreaPoiInfo.name, locationName);
 							GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
 							util.GameTooltip_AddAtlas(tooltip, campAreaPoiInfo.atlasName);

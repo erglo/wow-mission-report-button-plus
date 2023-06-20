@@ -7,6 +7,7 @@
 
 ### Added
 
+- New line for translators in the about this addon section in the settings.
 - New locale `zhTW`, thanks to [EKE00372](https://github.com/EKE00372).
 - The Addon Compartment entry is now optional and can be de-/activated in the settings.
 - Dragonflight: added details for the events `Dragonriding Race`, `Camp Aylaag`, `Grand Hunts`, `Siege on Dragonbane Keep` and `Elemental Storms` to the Addon Compartment.

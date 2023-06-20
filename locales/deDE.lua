@@ -4,7 +4,7 @@ end
 
 local ns = select(2, ...);
 
--- Fully translated
+-- Fully translated (by erglo)
 
 ns.L = {
 	--[[ TOC file notes ]]--
@@ -51,6 +51,8 @@ ns.L = {
 	CFG_ADDONINFOS_EMAIL = "E-Mail",
 	CFG_ADDONINFOS_HOMEPAGE = "Homepage",
 	CFG_ADDONINFOS_LICENSE = "Lizenz",
+	CFG_ADDONINFOS_L10N_S = "Translation (%s)",  -- Muss nicht übersetzt werden; wird in der deutschen Version weggelassen.
+	CFG_ADDONINFOS_L10N_CONTACT = "erglo",  --> @Translators: add your name and/or email address
 	CFG_CHAT_NOTIFY_TEXT = "Chatbenachrichtigungen ein/aus",
 	CFG_CHAT_NOTIFY_TOOLTIP = "Deaktivieren, um keine Benachrichtigungen im Chat zu erhalten.",
 	CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TEXT = "Addonkürzel im Button-Tooltip",

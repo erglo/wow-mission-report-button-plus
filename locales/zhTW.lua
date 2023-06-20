@@ -4,7 +4,8 @@ end
 
 local ns = select(2, ...);
 
--- default / fallback locale
+-- Translated by EKE00372 <https://github.com/EKE00372>
+--> @Translators: replace the line above with your name and/or email address or homepage
 
 ns.L = {
 	--[[ TOC file notes ]]--
@@ -51,6 +52,8 @@ ns.L = {
 	CFG_ADDONINFOS_EMAIL = "Email",
 	CFG_ADDONINFOS_HOMEPAGE = "項目主頁",
 	CFG_ADDONINFOS_LICENSE = "授權",
+	CFG_ADDONINFOS_L10N_S = "Translation (%s)",
+	CFG_ADDONINFOS_L10N_CONTACT = "EK (EKE00372)",  --> @Translators: add your name and/or email address
 	CFG_CHAT_NOTIFY_TEXT = "切換聊天通知",
 	CFG_CHAT_NOTIFY_TOOLTIP = "取消勾選會停用聊天通知。",
 	CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TEXT = "顯示插件名字縮寫",
@@ -59,6 +62,8 @@ ns.L = {
 	CFG_MINIMAPBUTTON_SHOWBUTTON_TOOLTIP = "在你達到可以開啟當前版本資料片內容的等級之前，小地圖的資料片按鈕都是隱藏的。|n|n啟用此選項後，只要你解鎖了任意資料片，就可以強制顯示按鈕。",
 	CFG_TRACK_ACHIEVEMENTS_TEXT = "追蹤成就",
 	CFG_TRACK_ACHIEVEMENTS_TOOLTIP = "Events linked to the achievements below will be displayed in a gray colored text and marked with a yellow check mark symbol.",
+	CFG_SHOW_ADDON_COMPARTMENT_TEXT = "Addon Compartment",
+	CFG_SHOW_ADDON_COMPARTMENT_TOOLTIP = "Show or hide this addon in the Addon Compartment.",
 	CFG_DDMENU_SEPARATOR_HEADING = "下拉選單",
 	CFG_DDMENU_NAMING_TEXT = "顯示資料片名稱",
 	CFG_DDMENU_NAMING_TOOLTIP = "啟用以資料片名稱顯示不同版本，禁用則顯示各版本任務桌的名字。",
@@ -90,7 +95,6 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_COVENANT_RENOWN_TOOLTIP = "為暗影之境誓盟的名望等級顯示進度。",
 	CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_RENOWN_TOOLTIP = "為巨龍群島的陣營聲望顯示進度。",
 	CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_UNLOCK_TOOLTIP = "顯示解鎖陣營聲望的提示。",
-
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP = "在滑鼠提示中，為「%s」顯示摘要。",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_LEGION_INVASION = "破碎群島的軍團入侵點",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DEMON_INVASION = "破碎海岸的惡魔入侵點",
@@ -116,6 +120,8 @@ ns.L = {
 	CFG_DDMENU_STYLESELECTION_VALUE1_TOOLTIP = "The look of this style is that of a common tooltip bubble.",
 	CFG_DDMENU_STYLESELECTION_VALUE2_TEXT = "下拉選單",
 	CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP = "This style represents the look of a common dialog (pre-Dragonflight).",
+	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT = "Hide Alert Icon",
+	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP = "Hide the Invasion Alert icon on top of the Draenor Garrison Landing Page frame, even if an invasion is available.",
 	CFG_ABOUT_ADDON_LABEL = "關於本插件",
 	CFG_ABOUT_SLASHCMD_LABEL = "聊天指令",
 	--[[ Testing ]]--

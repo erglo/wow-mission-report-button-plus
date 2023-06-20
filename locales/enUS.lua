@@ -1,6 +1,8 @@
 local ns = select(2, ...);
 
 -- default / fallback locale
+-- Translated by erglo <erglo.l10n+MRBP@gmail.com>
+--> @Translators: replace the line above with your name and/or email address or homepage
 
 ns.L = {
 	--[[ TOC file notes ]]--
@@ -47,6 +49,8 @@ ns.L = {
 	CFG_ADDONINFOS_EMAIL = "Email",
 	CFG_ADDONINFOS_HOMEPAGE = "Homepage",
 	CFG_ADDONINFOS_LICENSE = "License",
+	CFG_ADDONINFOS_L10N_S = "Translation (%s)",
+	CFG_ADDONINFOS_L10N_CONTACT = "erglo <erglo.l10n+MRBP@gmail.com>",  --> @Translators: add your name and/or email address
 	CFG_CHAT_NOTIFY_TEXT = "Toggle Chat Notifications",
 	CFG_CHAT_NOTIFY_TOOLTIP = "Disable to turn chat notifications off.",
 	CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TEXT = "Show Add-on Abbreviation",
