@@ -63,6 +63,7 @@ It is still possible to access mission reports from previous expansions but the 
 🗹 get an overview of all expansions with a landing page  
 🗹 see a summary of all expansions at once  
 🗹 in case you're hiding your minimap (button) you won't lose track of your mission progress and other expansion details  
+🗹 it is completely optional and can be de-/activated in the settings  
   
 ### Common  
   
@@ -109,6 +110,11 @@ It is still possible to access mission reports from previous expansions but the 
 *Contributors are most welcome!*  
 [Report a problem](https://github.com/erglo/mission-report-button-plus/issues) or send a feature request on the repository's issues page.  
 [Help translating](https://www.curseforge.com/wow/addons/mission-report-button-plus/localization) here on CurseForge if you're missing your language or simply want to help with localization.  
+  
+### Thank you! 🎉  
+  
++ Thanks goes to [SpareSimian](https://github.com/SpareSimian) and [others](https://github.com/erglo/mission-report-button-plus/issues?q=is%3Aissue+is%3Aclosed) for their awesome bug reports.  
++ Thanks goes to [EKE00372](https://github.com/EKE00372) for the `zhTW` localization.  
   
 ### Known Issues  
   
