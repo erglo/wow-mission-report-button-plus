@@ -4,7 +4,19 @@ end
 
 local ns = select(2, ...);
 
--- Fully translated (by erglo)
+-- Translated by erglo <erglo.l10n+MRBP@gmail.com>
+
+local L;
+-- @localization(locale="deDE", format="lua_table", handle-unlocalized="english")@
+if L then
+	ns.L = L;
+end
+
+--@do-not-package@
+--------------------------------------------------------------------------------
+--> Note: This section is used for local testing and will not be packaged in the
+--  released version. The release version of this localization is hosted at 
+--  CurseForge and will be automatically integrated during release workflow.
 
 ns.L = {
 	--[[ TOC file notes ]]--
@@ -94,7 +106,6 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_COVENANT_RENOWN_TOOLTIP = "Zeigt den Fortschritt eurer Ruhmstufe eures Paktes in den Schattenlanden an.",
 	CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_RENOWN_TOOLTIP = "Zeigt den Fortschritt eures Ruhms bei den Hauptfraktionen der Dracheninseln an.",
 	CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_UNLOCK_TOOLTIP = "Zeigt einen Hinweis an, wie die jeweilige Hauptfraktion freigeschaltet werden kann.",
-
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP = "Zeigt kompakte Details zur Verfügbarkeit %s im Tooltip an.",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_LEGION_INVASION = "der Angriffe der Legion auf die Verheerten Inseln",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DEMON_INVASION = "der Dämoneninvasionen auf die Verheerte Küste",
@@ -128,3 +139,5 @@ ns.L = {
 	WORK_IS_EXPERIMENTAL = "(Experimentell)",
 	WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION = "(Diese Funktion befindet sich in einer experimentellen Entwicklungsphase und kann unvollständige Informationen liefern oder nicht ordnungsgemäß funktionieren.)",
 };
+--------------------------------------------------------------------------------
+--@end-do-not-package@

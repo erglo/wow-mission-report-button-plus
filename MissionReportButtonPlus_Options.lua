@@ -987,7 +987,8 @@ function MRBP_Settings_Register()
 		{"[4]", "X-Project-Homepage-WOWInterface"},
 		{L.CFG_ADDONINFOS_LICENSE, "X-License"},
 	};
-	if (ns.currentLocale == "deDE") then
+	local contributions = {"zhTW", "enUS"};
+	if tContains(contributions, ns.currentLocale) then
 		tinsert(addonInfos, {L.CFG_ADDONINFOS_L10N_S:format(ns.currentLocale), nil, HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(L.CFG_ADDONINFOS_L10N_CONTACT)});
 	end
 	local parentFrame = mainSubText;

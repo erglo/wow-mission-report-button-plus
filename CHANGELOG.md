@@ -10,14 +10,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
-- New line for translators in the about this addon section in the.
-- New locale `zhTW`, thanks to [EKE00372](https://github.com/EKE00372).
+- New line for contributed translations in the about this addon section in the settings.
+- New locale `zhTW`, thanks to [EK (EKE00372)](https://github.com/EKE00372).
 - The Addon Compartment entry is now optional and can be de-/activated in the settings.
-- Dragonflight: added details for the events `Dragonriding Race`, `Camp Aylaag`, `Grand Hunts`, `Siege on Dragonbane Keep` and `Elemental Storms` to the Addon Compartment (AC).
+- Dragonflight: added details for the events `Dragonriding Race`, `Camp Aylaag`, `Grand Hunts`, `Siege on Dragonbane Keep` and `Elemental Storms` to the Addon Compartment.
 - Warlords of Draenor: the `Garrison Invasion alert icon` on top of the Garrison Landing Page (Mission) Report frame can now be hidden permanently, even if your Garrison is being invaded.
 
 ### Changed
 
+- Updated locale files, localizations will now be automatically integrated from CurseForge during GitHub workflow.
 - Updated readme files and added a _Thank You!_ section for the contributors.
 - Dragonflight: the `Aylaag Camp` entry now additionally shows the name of the closest flight point for easier camp location identification.
 

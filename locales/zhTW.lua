@@ -4,8 +4,20 @@ end
 
 local ns = select(2, ...);
 
--- Translated by EKE00372 <https://github.com/EKE00372>
+-- Translated by EK (EKE00372)
 --> @Translators: replace the line above with your name and/or email address or homepage
+
+local L;
+-- @localization(locale="zhTW", format="lua_table", handle-unlocalized="english")@
+if L then
+	ns.L = L;
+end
+
+--@do-not-package@
+--------------------------------------------------------------------------------
+--> Note: This section is used for local testing and will not be packaged in the
+--  released version. The release version of this localization is hosted at 
+--  CurseForge and will be automatically integrated during release workflow.
 
 ns.L = {
 	--[[ TOC file notes ]]--
@@ -128,3 +140,5 @@ ns.L = {
 	WORK_IS_EXPERIMENTAL = "（實驗性功能）",
 	WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION = "（實驗性功能尚未開發完成，功能可能不完整，甚至可能無法正常運作。）",
 };
+--------------------------------------------------------------------------------
+--@end-do-not-package@
