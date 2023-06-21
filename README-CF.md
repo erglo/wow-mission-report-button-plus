@@ -114,7 +114,7 @@ It is still possible to access mission reports from previous expansions but the 
 ### Thank you! 🎉  
   
 + Thanks goes to [SpareSimian](https://github.com/SpareSimian) and [others](https://github.com/erglo/mission-report-button-plus/issues?q=is%3Aissue+is%3Aclosed) for their awesome bug reports.  
-+ Thanks goes to [EKE00372](https://github.com/EKE00372) for the `zhTW` localization.  
++ Thanks goes to [EK (EKE00372)](https://github.com/EKE00372) for the `zhTW` localization.  
   
 ### Known Issues  
   
