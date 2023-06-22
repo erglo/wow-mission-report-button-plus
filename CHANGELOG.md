@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [0.16.1+100100] - 2023-06-22
+
+### Fixed
+
+- [Issue #9] Due to character encoding differences an error occurred for the `zhTW` locale users due to the recent changes in displaying additionally the closest flight point for `Camp Aylaag`.
+
 ## [0.16.0+100100] - 2023-06-21
 
 ### Added
