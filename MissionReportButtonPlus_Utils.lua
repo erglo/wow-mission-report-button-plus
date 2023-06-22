@@ -1909,9 +1909,15 @@ end
 
 --------------------------------------------------------------------------------
 
-local FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR = ",";
+-- Use 8-bit separator as default, but use 16-bit for Chinese locales
+local SEPARATOR_8BIT = ",";
+local SEPARATOR_16BIT = "，";
+local FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR = SEPARATOR_8BIT;
+if tContains({"zhCN", "zhTW"}, ns.currentLocale) then
+	FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR = SEPARATOR_16BIT;
+end
 
--- Separate the zone name from the taxi node name and return both.
+-- Separate the zone name from the taxi node name and return both strings.
 ---@param taxiNodeData MapTaxiNodeInfo
 ---@param sep string
 ---@return string
@@ -1920,7 +1926,9 @@ local FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR = ",";
 local function trimTaxiNodeName(taxiNodeData, sep)
 	sep = sep or FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR;
 	local nodeNameMatch, zoneNameMatch = strsplit(FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR, taxiNodeData.name);
-	return strtrim(nodeNameMatch), strtrim(zoneNameMatch);
+	local cleanNodeName = nodeNameMatch and strtrim(nodeNameMatch) or taxiNodeData.name;
+	local cleanZoneName = zoneNameMatch and strtrim(zoneNameMatch) or '';
+	return cleanNodeName, cleanZoneName;
 end
 
 -- Calculate the distance from given position to the closest flight point.
