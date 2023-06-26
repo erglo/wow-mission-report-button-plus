@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [0.16.2+100100] - 2023-06-26
+
+### Fixed
+
+- [Issue #10] Mission Complete messages appeared in chat even though the chat notifications have been disabled in the settings.
+
 ## [0.16.1+100100] - 2023-06-22
 
 ### Fixed
