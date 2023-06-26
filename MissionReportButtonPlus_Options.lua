@@ -44,7 +44,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showChatNotifications"] = true,
 	["showMinimapButton"] = true,
 	["showAddonNameInTooltip"] = true,
-	-- ["hideInAddonCompartment"] = false,
+	["showInAddonCompartment"] = true,
 	["showAchievementTracking"] = true,
 	-- Dropdown menu
 	["showEntryTooltip"] = true,
@@ -70,7 +70,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showDragonridingRaceInfo"] = true,
 	["showGrandHuntsInfo"] = true,
 	["showCampAylaagInfo"] = true,
-	["showCommunityFeastInfo"] = true,
+	-- ["showCommunityFeastInfo"] = true,
 	["showDragonbaneKeepInfo"] = true,
 	["showElementalStormsInfo"] = true,
 	["showFyrakkAssaultsInfo"] = true,
@@ -102,6 +102,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	-- Warlords of Draenor
 	["showWoDMissionInfo"] = true,
 	["showWoDGarrisonInvasionAlert"] = true,
+	["hideWoDGarrisonInvasionAlertIcon"] = false,
 	["showWoDWorldMapEvents"] = true,
 	["showWoDTimewalkingVendor"] = true,
 	-- Tests
@@ -211,21 +212,20 @@ local function CheckBox_OnValueChanged(owner, setting, value)
 	end
 	if (setting.variable == "showMinimapButton") then
 		-- Manually set by user
-		local shouldShowMinimapButton = value;
-		if shouldShowMinimapButton then
+		if value then
 			ns:ShowMinimapButton_User()
 		else
 			ns:HideMinimapButton();
 		end
 	end
-	-- if (setting.variable == "hideInAddonCompartment") then
-	-- 	-- Toggle Addon Compartment entry
-	-- 	if value then
-	-- 		util.AddonCompartment.RemoveAddon();
-	-- 	else
-	-- 		util.AddonCompartment.ReregisterAddon();
-	-- 	end
-	-- end
+	if (setting.variable == "showInAddonCompartment") then
+		-- Toggle Addon Compartment entry
+		if value then
+			util.AddonCompartment.RegisterAddon();
+		else
+			util.AddonCompartment.UnregisterAddon();
+		end
+	end
 	-- Handle "activeMenuEntries"
 	local varName, indexString = strsplit('#', setting.variable);
 	if indexString then
@@ -407,22 +407,24 @@ function MRBP_Settings_Register()
 			tooltip = L.CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TOOLTIP,
 			parentVariable = "showMinimapButton",
 		},
-		-- {
-		-- 	variable = "hideInAddonCompartment",
-		-- 	name = "Vom Addon Compartment entfernen",  -- "Hide in Addon Compartment",
-		-- 	tooltip = "Do not show this addon in the Addon Compartment.",
-		-- 	-- parentVariable = "showMinimapButton",
-		-- 	tag = Settings.Default.True,
-		-- },
+		util.AddonCompartment.IsAddonCompartmentAvailable() and {
+			variable = "showInAddonCompartment",
+			name = L.CFG_SHOW_ADDON_COMPARTMENT_TEXT,
+			tooltip = L.CFG_SHOW_ADDON_COMPARTMENT_TOOLTIP,
+			tag = Settings.Default.True,
+		},
 		{
 			variable = "showAchievementTracking",
 			name = L.CFG_TRACK_ACHIEVEMENTS_TEXT,
 			tooltip = L.CFG_TRACK_ACHIEVEMENTS_TOOLTIP.."|n|n- "..strjoin("|n- ", SafeUnpack(ns.label.GetTrackedAchievementTitles())),
-			tag = Settings.Default.True,
 		},
 	};
 
 	CheckBox_CreateFromList(category, checkBoxList_CommonSettings);
+
+	if (ns.settings.showInAddonCompartment and not util.AddonCompartment.IsAddonRegistered()) then
+		util.AddonCompartment.RegisterAddon();
+	end
 
 	------- Dropdown menu settings ---------------------------------------------
 
@@ -593,12 +595,6 @@ function MRBP_Settings_Register()
 
 	-- local checkBoxList_EntryTooltipSettings = {
 	-- 	-- {
-	-- 	-- 	variable = "showMissionCountInTooltip",
-	-- 	-- 	name = L.CFG_DDMENU_ENTRYTOOLTIP_INPROGRESS_TEXT,
-	-- 	-- 	tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_INPROGRESS_TOOLTIP,
-	-- 	-- 	modifyPredicate = ShouldShowEntryTooltip,
-	-- 	-- },
-	-- 	-- {
 	-- 	-- 	variable = "showBountyRequirements",
 	-- 	-- 	name = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTYREQUIREMENTS_TEXT,
 	-- 	-- 	tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTYREQUIREMENTS_TOOLTIP,
@@ -637,6 +633,14 @@ function MRBP_Settings_Register()
 			name = ns.label.showWoDGarrisonInvasionAlert,
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_GARRISON_INVASION_ALERT_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "hideWoDGarrisonInvasionAlertIcon",
+			name = L.CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT,
+			tooltip = L.CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP,
+			parentVariable = "showWoDGarrisonInvasionAlert",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
 		},
 		{
 			variable = "showWoDWorldMapEvents",
@@ -876,13 +880,13 @@ function MRBP_Settings_Register()
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
-		{
-			variable = "showCommunityFeastInfo",
-			name = ns.label.showCommunityFeastInfo,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ISKAARA_FEAST),
-			parentVariable = "showDragonflightWorldMapEvents",
-			modifyPredicate = ShouldShowEntryTooltip,
-		},
+		-- {
+		-- 	variable = "showCommunityFeastInfo",
+		-- 	name = ns.label.showCommunityFeastInfo,
+		-- 	tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ISKAARA_FEAST),
+		-- 	parentVariable = "showDragonflightWorldMapEvents",
+		-- 	modifyPredicate = ShouldShowEntryTooltip,
+		-- },
 		{
 			variable = "showDragonbaneKeepInfo",
 			name = ns.label.showDragonbaneKeepInfo,
@@ -918,7 +922,6 @@ function MRBP_Settings_Register()
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS,
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
-			-- tag = Settings.Default.True,
 		},
 	};
 
@@ -984,6 +987,10 @@ function MRBP_Settings_Register()
 		{"[4]", "X-Project-Homepage-WOWInterface"},
 		{L.CFG_ADDONINFOS_LICENSE, "X-License"},
 	};
+	local contributions = {"zhTW", "enUS"};
+	if tContains(contributions, ns.currentLocale) then
+		tinsert(addonInfos, {L.CFG_ADDONINFOS_L10N_S:format(ns.currentLocale), nil, HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(L.CFG_ADDONINFOS_L10N_CONTACT)});
+	end
 	local parentFrame = mainSubText;
 	local labelText, infoLabel;
 

@@ -4,7 +4,19 @@ end
 
 local ns = select(2, ...);
 
--- Fully translated
+-- Translated by erglo <erglo.l10n+MRBP@gmail.com>
+
+local L;
+-- @localization(locale="deDE", format="lua_table", handle-unlocalized="english")@
+if L then
+	ns.L = L;
+end
+
+--@do-not-package@
+--------------------------------------------------------------------------------
+--> Note: This section is used for local testing and will not be packaged in the
+--  released version. The release version of this localization is hosted at 
+--  CurseForge and will be automatically integrated during release workflow.
 
 ns.L = {
 	--[[ TOC file notes ]]--
@@ -51,6 +63,8 @@ ns.L = {
 	CFG_ADDONINFOS_EMAIL = "E-Mail",
 	CFG_ADDONINFOS_HOMEPAGE = "Homepage",
 	CFG_ADDONINFOS_LICENSE = "Lizenz",
+	CFG_ADDONINFOS_L10N_S = "Translation (%s)",  -- Muss nicht übersetzt werden; wird in der deutschen Version weggelassen.
+	CFG_ADDONINFOS_L10N_CONTACT = "erglo",  --> @Translators: add your name and/or email address
 	CFG_CHAT_NOTIFY_TEXT = "Chatbenachrichtigungen ein/aus",
 	CFG_CHAT_NOTIFY_TOOLTIP = "Deaktivieren, um keine Benachrichtigungen im Chat zu erhalten.",
 	CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TEXT = "Addonkürzel im Button-Tooltip",
@@ -59,6 +73,8 @@ ns.L = {
 	CFG_MINIMAPBUTTON_SHOWBUTTON_TOOLTIP = "Bis man die Höchststufe der aktuellen Erweiterung nicht erreicht hat, wird der Missionsbericht-Button der Minikarte von WoW standardmäßig ausgeblendet und erst wieder eingeblendet, wenn ihr den jeweiligen Befehlstisch freischaltet.|n|nDurch Aktivieren dieser Option, wird der Button an der Minikarte wieder angezeigt und bietet zusätzlich Zugriff auf euren bisherigen Befehlstische.",
 	CFG_TRACK_ACHIEVEMENTS_TEXT = "Erfolge im Auge behalten",
 	CFG_TRACK_ACHIEVEMENTS_TOOLTIP = "Ereignisse die mit den unten aufgelisteten Erfolgen in Verbindung stehen, werden in grauem Text dargestellt und mit einem gelben Symbol abgehakt.",
+	CFG_SHOW_ADDON_COMPARTMENT_TEXT = "Addon Compartment",
+	CFG_SHOW_ADDON_COMPARTMENT_TOOLTIP = "Dieses Addon im Addon Compartment ein-/ausblenden.",
 	CFG_DDMENU_SEPARATOR_HEADING = "Dropdownmenü",
 	CFG_DDMENU_NAMING_TEXT = "Namen der Erweiterungen bevorzugen",
 	CFG_DDMENU_NAMING_TOOLTIP = "Die Einträge des Dropdownmenüs sind standardmäßig die Namen der jeweiligen Erweiterung.|n|nWenn deaktiviert, werden stattdessen die Namen der Missionsberichte angezeigt.",
@@ -90,7 +106,6 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_COVENANT_RENOWN_TOOLTIP = "Zeigt den Fortschritt eurer Ruhmstufe eures Paktes in den Schattenlanden an.",
 	CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_RENOWN_TOOLTIP = "Zeigt den Fortschritt eures Ruhms bei den Hauptfraktionen der Dracheninseln an.",
 	CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_UNLOCK_TOOLTIP = "Zeigt einen Hinweis an, wie die jeweilige Hauptfraktion freigeschaltet werden kann.",
-
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP = "Zeigt kompakte Details zur Verfügbarkeit %s im Tooltip an.",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_LEGION_INVASION = "der Angriffe der Legion auf die Verheerten Inseln",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DEMON_INVASION = "der Dämoneninvasionen auf die Verheerte Küste",
@@ -116,9 +131,13 @@ ns.L = {
 	CFG_DDMENU_STYLESELECTION_VALUE1_TOOLTIP = "Dieser Stil entspricht dem Aussehen der normalen Tooltip-Blase.",
 	CFG_DDMENU_STYLESELECTION_VALUE2_TEXT = "Dropdownmenü",
 	CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP = "Dieser Stil entspricht dem Aussehen der Dialoge vor der Dragonflight-Erweiterung.",
+	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT = "Alarm-Symbol ausblenden",
+	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP = "Das Invasionsalarm-Symbol am oberen Rand des Missionsberichtsfensters eurer Draenor-Garnison ausblenden, selbst wenn Invasionen verfügbar sind.",
 	CFG_ABOUT_ADDON_LABEL = "Über dieses Addon",
 	CFG_ABOUT_SLASHCMD_LABEL = "Slash-Befehle",
 	--[[ Testing ]]--
 	WORK_IS_EXPERIMENTAL = "(Experimentell)",
 	WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION = "(Diese Funktion befindet sich in einer experimentellen Entwicklungsphase und kann unvollständige Informationen liefern oder nicht ordnungsgemäß funktionieren.)",
 };
+--------------------------------------------------------------------------------
+--@end-do-not-package@

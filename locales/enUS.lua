@@ -1,6 +1,8 @@
 local ns = select(2, ...);
 
 -- default / fallback locale
+-- Translated by erglo <erglo.l10n+MRBP@gmail.com>
+--> @Translators: replace the line above with your name and/or email address or homepage
 
 ns.L = {
 	--[[ TOC file notes ]]--
@@ -47,6 +49,8 @@ ns.L = {
 	CFG_ADDONINFOS_EMAIL = "Email",
 	CFG_ADDONINFOS_HOMEPAGE = "Homepage",
 	CFG_ADDONINFOS_LICENSE = "License",
+	CFG_ADDONINFOS_L10N_S = "Translation (%s)",
+	CFG_ADDONINFOS_L10N_CONTACT = "erglo <erglo.l10n+MRBP@gmail.com>",  --> @Translators: add your name and/or email address
 	CFG_CHAT_NOTIFY_TEXT = "Toggle Chat Notifications",
 	CFG_CHAT_NOTIFY_TOOLTIP = "Disable to turn chat notifications off.",
 	CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TEXT = "Show Add-on Abbreviation",
@@ -55,6 +59,8 @@ ns.L = {
 	CFG_MINIMAPBUTTON_SHOWBUTTON_TOOLTIP = "As long as you haven't reached the highest level available for an extension by WoW default the minimap button for the expansion/garrison landing page remains hidden.|n|nIf enabled, this option shows you the button again with access to your last command table along with additional informations.",
 	CFG_TRACK_ACHIEVEMENTS_TEXT = "Track Achievements",
 	CFG_TRACK_ACHIEVEMENTS_TOOLTIP = "Events linked to the achievements below will be displayed in a gray colored text and marked with a yellow check mark symbol.",
+	CFG_SHOW_ADDON_COMPARTMENT_TEXT = "Addon Compartment",
+	CFG_SHOW_ADDON_COMPARTMENT_TOOLTIP = "Show or hide this addon in the Addon Compartment.",
 	CFG_DDMENU_SEPARATOR_HEADING = "Dropdown Menu",
 	CFG_DDMENU_NAMING_TEXT = "Prefer Expansion Names",
 	CFG_DDMENU_NAMING_TOOLTIP = "The dropdown menu items are by default the names of each expansion.|n|nIf disabled, the name of each mission report will be displayed instead.",
@@ -86,7 +92,6 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_COVENANT_RENOWN_TOOLTIP = "Shows the progress of your Renown level with your Covenant in Shadowlands.",
 	CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_RENOWN_TOOLTIP = "Shows the progress of your reputation with the major factions on the Dragon Isles.",
 	CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_UNLOCK_TOOLTIP = "Displays a hint on how to unlock a major faction.",
-
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP = "Displays brief availability details about %s in the tooltip.",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_LEGION_INVASION = "the Legion Invasions on the Broken Isles",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DEMON_INVASION = "the Demon Invasions on the Broken Shores",
@@ -112,6 +117,8 @@ ns.L = {
 	CFG_DDMENU_STYLESELECTION_VALUE1_TOOLTIP = "The look of this style is that of a common tooltip bubble.",
 	CFG_DDMENU_STYLESELECTION_VALUE2_TEXT = "Dropdown Menu Style",
 	CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP = "This style represents the look of a common dialog (pre-Dragonflight).",
+	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT = "Hide Alert Icon",
+	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP = "Hide the Invasion Alert icon on top of the Draenor Garrison Landing Page frame, even if an invasion is available.",
 	CFG_ABOUT_ADDON_LABEL = "About this Add-on",
 	CFG_ABOUT_SLASHCMD_LABEL = "Slash Commands",
 	--[[ Testing ]]--

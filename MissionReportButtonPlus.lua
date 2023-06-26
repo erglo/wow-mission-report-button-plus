@@ -250,7 +250,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			local renownInfo = util.covenant.GetRenownData(covenantInfo.ID);
 			if renownInfo.hasMaximumRenown then
 				local covenantName = covenantInfo.color:WrapTextInColorCode(covenantInfo.name);
-				print(COVENANT_SANCTUM_RENOWN_REWARD_DESC_COMPLETE:format(covenantName));
+				ns.cprint(COVENANT_SANCTUM_RENOWN_REWARD_DESC_COMPLETE:format(covenantName));
 			end
 
 		elseif (event == "COVENANT_CALLINGS_UPDATED") then
@@ -1170,6 +1170,9 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				if campAreaPoiInfo then
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, campAreaPoiInfo.name);  -- ns.label.showCampAylaagInfo
 					tooltipText = TooltipText_AddIconLine(tooltipText, campAreaPoiInfo.mapInfo.name, campAreaPoiInfo.atlasName);
+					if campAreaPoiInfo.closetFlightPoint then
+						tooltipText = TooltipText_AddObjectiveLine(tooltipText, campAreaPoiInfo.closetFlightPoint.cleanNodeName);
+					end
 					if campAreaPoiInfo.timeString then
 						tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, campAreaPoiInfo.timeString);
 					else
@@ -1188,18 +1191,18 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, huntsAreaPoiInfo.timeString);
 				end
 			end
-			-- Iskaara Community Feast
-			if ns.settings.showCommunityFeastInfo then
-				local feastAreaPoiInfo = util.poi.GetCommunityFeastInfo();
-				if feastAreaPoiInfo then
-					tooltipText = TooltipText_AddHeaderLine(tooltipText, feastAreaPoiInfo.name);  -- ns.label.showCommunityFeastInfo
-					tooltipText = TooltipText_AddIconLine(tooltipText, feastAreaPoiInfo.mapInfo.name, feastAreaPoiInfo.atlasName);
-					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, feastAreaPoiInfo.timeString);
-					if not ns.settings.hideEventDescriptions then
-						tooltipText = TooltipText_AddObjectiveLine(tooltipText, feastAreaPoiInfo.description);
-					end
-				end
-			end
+			-- -- Iskaara Community Feast
+			-- if ns.settings.showCommunityFeastInfo then
+			-- 	local feastAreaPoiInfo = util.poi.GetCommunityFeastInfo();
+			-- 	if feastAreaPoiInfo then
+			-- 		tooltipText = TooltipText_AddHeaderLine(tooltipText, feastAreaPoiInfo.name);  -- ns.label.showCommunityFeastInfo
+			-- 		tooltipText = TooltipText_AddIconLine(tooltipText, feastAreaPoiInfo.mapInfo.name, feastAreaPoiInfo.atlasName);
+			-- 		tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, feastAreaPoiInfo.timeString);
+			-- 		if not ns.settings.hideEventDescriptions then
+			-- 			tooltipText = TooltipText_AddObjectiveLine(tooltipText, feastAreaPoiInfo.description);
+			-- 		end
+			-- 	end
+			-- end
 			-- Siege on Dragonbane Keep
 			if ns.settings.showDragonbaneKeepInfo then
 				local siegeAreaPoiInfo = util.poi.GetDragonbaneKeepInfo();
@@ -1531,18 +1534,19 @@ end
 function MRBP_ShowGarrisonLandingPage(garrTypeID)
 	_log:debug("Opening report for garrTypeID:", garrTypeID, MRBP_GARRISON_TYPE_INFOS[garrTypeID].title)
 
-	if (GarrisonLandingPageReport ~= nil) then
-		if (garrTypeID ~= util.expansion.data.Shadowlands.garrisonTypeID) then
-			-- Quick fix: the covenant missions don't hide some frame parts properly
-			GarrisonLandingPageReport.Sections:Hide()
-			GarrisonLandingPage.FollowerTab.CovenantFollowerPortraitFrame:Hide()
-		else
-			GarrisonLandingPageReport.Sections:Show()
-		end
-	end
-	-- Quick fix for the invasion alert badge from WoD garrison on the upper
-	-- side of the mission report frame only shows it for garrison missions.
-	if ( garrTypeID ~= util.expansion.data.WarlordsOfDraenor.garrisonTypeID and GarrisonLandingPage.InvasionBadge:IsShown() ) then
+	-- if (GarrisonLandingPageReport ~= nil) then
+	-- 	if (garrTypeID ~= util.expansion.data.Shadowlands.garrisonTypeID) then
+	-- 		-- Quick fix: the covenant missions don't hide some frame parts properly
+	-- 		GarrisonLandingPageReport.Sections:Hide()
+	-- 		GarrisonLandingPage.FollowerTab.CovenantFollowerPortraitFrame:Hide()
+	-- 	else
+	-- 		GarrisonLandingPageReport.Sections:Show()
+	-- 	end
+	-- end
+	-- Quick fix for the invasion alert badge from the WoD garrison reports
+	-- frame on top of the mission report frame now only shows for garrison
+	-- missions. Without this it shows on top of every ExpansionLandingPage.
+	if  (garrTypeID ~= util.expansion.data.WarlordsOfDraenor.garrisonTypeID or ns.settings.hideWoDGarrisonInvasionAlertIcon) and GarrisonLandingPage.InvasionBadge:IsShown() then
 		GarrisonLandingPage.InvasionBadge:Hide()
 	end
 end
@@ -1690,13 +1694,16 @@ function MRBP:RegisterSlashCommands()
 	end
 end
 
+--------------------------------------------------------------------------------
 ----- Addon Compartment --------------------------------------------------------
+--------------------------------------------------------------------------------
 --
 -- REF.: <https://wowpedia.fandom.com/wiki/Addon_compartment>
 -- REF.: <FrameXML/GameTooltip.lua>
 -- REF.: <FrameXML/SharedTooltipTemplates.lua>
 
-function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
+-- function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
+function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 	local addonTitle = button.value;
 	-- local addonIcon = button.icon;
 	local leftOffset = 8;
@@ -1749,6 +1756,9 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 							local reputationLevelText = format("%d/%d", factionData.renownReputationEarned, factionData.renownLevelThreshold);
 							local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID);
 							local lineText = format("%s: %s - %s", util.strip_DE_hyphen(factionData.name), renownLevelText, reputationLevelText);
+							if hasMaxRenown then
+								lineText = format("%s: %s", util.strip_DE_hyphen(factionData.name), renownLevelText);
+							end
 							util.GameTooltip_AddObjectiveLine(tooltip, lineText, hasMaxRenown, wrapLine, leftOffset, factionAtlasName);
 						end
 					end
@@ -1760,12 +1770,68 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 					local collectedAmountString = WHITE_FONT_COLOR:WrapTextInColorCode(format("%d/%d", numGlyphsCollected, numGlyphsTotal));
 					local isCompleted = numGlyphsCollected == numGlyphsTotal;
 					util.GameTooltip_AddObjectiveLine(tooltip, ns.label.showDragonGlyphs..": "..collectedAmountString, isCompleted, wrapLine, leftOffset, treeCurrencyInfo.texture);
+					-- Dragonriding Race
+					if ns.settings.showDragonridingRaceInfo then
+						local raceAreaPoiInfo = util.poi.GetDragonridingRaceInfo();
+						if raceAreaPoiInfo then
+							local timeLeft = raceAreaPoiInfo.timeString or "...";
+							GameTooltip_AddNormalLine(tooltip, raceAreaPoiInfo.name..": "..timeLeft, wrapLine, leftOffset);
+							util.GameTooltip_AddAtlas(tooltip, raceAreaPoiInfo.atlasName);
+						end
+					end
+					-- Camp Aylaag
+					if ns.settings.showCampAylaagInfo then
+						local campAreaPoiInfo = util.poi.GetCampAylaagInfo();
+						if campAreaPoiInfo then
+							local timeLeft = campAreaPoiInfo.timeString or "...";
+							local locationName = campAreaPoiInfo.closetFlightPoint and campAreaPoiInfo.closetFlightPoint.cleanNodeName or campAreaPoiInfo.mapInfo.name;
+							local lineText = format("%s @ %s", campAreaPoiInfo.name, locationName);
+							GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
+							util.GameTooltip_AddAtlas(tooltip, campAreaPoiInfo.atlasName);
+						end
+					end
+					-- Grand Hunts
+					if ns.settings.showGrandHuntsInfo then
+						local huntsAreaPoiInfo = util.poi.GetGrandHuntsInfo();
+						if huntsAreaPoiInfo then
+							local timeLeft = huntsAreaPoiInfo.timeString or "...";
+							local lineText = format("%s @ %s", huntsAreaPoiInfo.name, huntsAreaPoiInfo.mapInfo.name);
+							GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
+							util.GameTooltip_AddAtlas(tooltip, huntsAreaPoiInfo.atlasName);
+						end
+					end
+					-- Siege on Dragonbane Keep
+					if ns.settings.showDragonbaneKeepInfo then
+						local siegeAreaPoiInfo = util.poi.GetDragonbaneKeepInfo();
+						if siegeAreaPoiInfo then
+							local timeLeft = siegeAreaPoiInfo.timeString or "...";
+							-- local lineText = format("%s @ %s", siegeAreaPoiInfo.name, siegeAreaPoiInfo.mapInfo.name);
+							-- GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
+							GameTooltip_AddNormalLine(tooltip, siegeAreaPoiInfo.name..": "..timeLeft, wrapLine, leftOffset);
+							util.GameTooltip_AddAtlas(tooltip, siegeAreaPoiInfo.atlasName);
+						end
+					end
+					-- Elemental Storms
+					if ns.settings.showElementalStormsInfo then
+						local stormsAreaPoiInfos = util.poi.GetElementalStormsInfo();
+						if TableHasAnyEntries(stormsAreaPoiInfos) then
+							for _, stormPoi in ipairs(stormsAreaPoiInfos) do
+								-- tooltipText = TooltipText_AddIconLine(tooltipText, stormPoi.mapInfo.name, stormPoi.atlasName);
+								-- tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, stormPoi.timeString);
+								local timeLeft = stormPoi.timeString or "...";
+								local lineText = format("%s @ %s", stormPoi.name, stormPoi.mapInfo.name);
+								GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
+								util.GameTooltip_AddAtlas(tooltip, stormPoi.atlasName);
+							end
+						end
+					end
 					-- Fyrakk Assaults
 					if ns.settings.showFyrakkAssaultsInfo then
 						local dfFyrakkAssaultsAreaPoiInfo = util.poi.GetFyrakkAssaultsInfo();
 						if dfFyrakkAssaultsAreaPoiInfo then
 							local timeLeft = dfFyrakkAssaultsAreaPoiInfo.timeString or "...";
-							GameTooltip_AddNormalLine(tooltip, dfFyrakkAssaultsAreaPoiInfo.name..": "..timeLeft, wrapLine, leftOffset);
+							local lineText = format("%s @ %s", dfFyrakkAssaultsAreaPoiInfo.name, dfFyrakkAssaultsAreaPoiInfo.mapInfo.name);
+							GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
 							util.GameTooltip_AddAtlas(tooltip, dfFyrakkAssaultsAreaPoiInfo.atlasName);
 						end
 					end
@@ -1857,9 +1923,10 @@ function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 
 	tooltip:Show();
 end
-MissionReportButtonPlus_OnAddonCompartmentLeave = GameTooltip_Hide;
+ns.MissionReportButtonPlus_OnAddonCompartmentLeave = GameTooltip_Hide;
 
-function MissionReportButtonPlus_OnAddonCompartmentClick(addonName, mouseButton, button)
+-- function nMissionReportButtonPlus_OnAddonCompartmentClick(addonName, mouseButton, button)
+function ns.MissionReportButtonPlus_OnAddonCompartmentClick(button, _, _, _, mouseButton)
 	if (mouseButton == "LeftButton") then
 		local result =  MRBP_IsAnyGarrisonRequirementMet();
 		if result then
@@ -1867,7 +1934,7 @@ function MissionReportButtonPlus_OnAddonCompartmentClick(addonName, mouseButton,
 		end
 	end
 	if (mouseButton == "RightButton") then
-		MRBP_Settings_OpenToCategory(addonName);
+		MRBP_Settings_OpenToCategory(AddonID);
 	end
 	if (mouseButton == "MiddleButton" and MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight)) then
 		DragonridingPanelSkillsButtonMixin:OnClick();

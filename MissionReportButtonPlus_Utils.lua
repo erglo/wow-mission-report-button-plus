@@ -1080,15 +1080,18 @@ end
 ---@return table factionColor  A color class (see <FrameXML/GlobalColors.lua>); defaults to NORMAL_FONT_COLOR
 --
 function LocalThreatUtil.GetExpansionThreatColor(expansionID, subCategoryID, fallbackColor)
-	local colorTypeID = tostring(expansionID);
-	local threatColor;
-	if subCategoryID then
-		local colorSubtypeID = tostring(subCategoryID);
-		threatColor = LocalThreatUtil.TYPE_COLORS[colorTypeID][colorSubtypeID];
-	else
-		threatColor = LocalThreatUtil.TYPE_COLORS[colorTypeID];
+	if expansionID > 0 then
+		local colorTypeID = tostring(expansionID);
+		local threatColor;
+		if subCategoryID then
+			local colorSubtypeID = tostring(subCategoryID);
+			threatColor = LocalThreatUtil.TYPE_COLORS[colorTypeID][colorSubtypeID];
+		else
+			threatColor = LocalThreatUtil.TYPE_COLORS[colorTypeID];
+		end
+		return threatColor or fallbackColor or NORMAL_FONT_COLOR;
 	end
-	return threatColor or fallbackColor or NORMAL_FONT_COLOR;
+	return fallbackColor or NORMAL_FONT_COLOR;
 end
 
 -- Find active threats in the world, if active for current player; eg. the
@@ -1254,7 +1257,7 @@ LocalPoiUtil.SingleArea = {};
 ---@return table|nil areaPoiInfo
 --
 function LocalPoiUtil.SingleArea.GetAreaPoiInfo(eventData)
-	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeMapInfoAtPosition);
+	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeMapInfoAtPosition, eventData.includeClosestFlightPoint);
 	if (activeAreaPOIs and #activeAreaPOIs > 0) then
 		for _, poiInfo in ipairs(activeAreaPOIs) do
 			if eventData.CompareFunction(eventData, poiInfo) then
@@ -1347,6 +1350,7 @@ CampAylaagData.mapID = 2023;  --> Ohn'ahra
 CampAylaagData.mapInfo = LocalMapUtil.GetMapInfo(CampAylaagData.mapID);
 CampAylaagData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
 CampAylaagData.includeMapInfoAtPosition = true;
+CampAylaagData.includeClosestFlightPoint = true;
 
 function util.poi.GetCampAylaagInfo()
 	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(CampAylaagData);
@@ -1354,16 +1358,16 @@ end
 
 ----- Iskaara Community Feast -----
 
-local CommunityFeastData = {};
-CommunityFeastData.areaPoiIDs = {7218, 7219, 7220};  --, 7393};
-CommunityFeastData.mapID = 2024;  --> Azure Span
-CommunityFeastData.mapInfo = LocalMapUtil.GetMapInfo(CommunityFeastData.mapID);
-CommunityFeastData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
+-- local CommunityFeastData = {};
+-- CommunityFeastData.areaPoiIDs = {7218, 7219, 7220, 7393};
+-- CommunityFeastData.mapID = 2024;  --> Azure Span
+-- CommunityFeastData.mapInfo = LocalMapUtil.GetMapInfo(CommunityFeastData.mapID);
+-- CommunityFeastData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
 
-function util.poi.GetCommunityFeastInfo()
-	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(CommunityFeastData);
-end
--- Test_GetCommunityFeastInfo = util.poi.GetCommunityFeastInfo;
+-- function util.poi.GetCommunityFeastInfo()
+-- 	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(CommunityFeastData);
+-- end
+-- -- Test_GetCommunityFeastInfo = util.poi.GetCommunityFeastInfo;
 
 ----- Siege on Dragonbane Keep event -----
 
@@ -1611,7 +1615,7 @@ PoiFilter.ignoredZoneAtlasNamePatterns = {
 	"map[-]icon[-].*classhall",
 	"^Zidormi.*",
 	"^poi[-]torghast",
-	"^fishing[-]hole",
+	-- "^fishing[-]hole",
 };
 
 -- Check if given atlas name should be ignored.
@@ -1646,6 +1650,9 @@ PoiFilter.ignoredAreaPoiIDs = {
 	"7414",  -- Zskera Vaults
 	"7408",  -- Primal Storm at Froststone Vault - Forbidden Reach
 	"7489",  -- Loamm
+	"7086",  -- Fishing Hole, Waken Shore
+	"7272",  -- Fishing Hole, Waken Shore
+	"7412",  -- Fishing Hole, Forbidden Isle
 	-- Shadowlands
 	-- "6640",  -- Torghast, The Maw
 	"6991",  -- Kyrian Assault, The Maw (covered as threat)
@@ -1690,10 +1697,11 @@ end
 -- Main POI retrieval function; Gets all POIs of given map info.
 ---@param mapInfo table|UiMapDetails
 ---@param includeMapInfoAtPosition boolean
+---@param includeClosestFlightPoint boolean
 ---@return AreaPOIInfo[]|nil activeAreaPOIs
 ---@class AreaPOIInfo
 --
-function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition)
+function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition, includeClosestFlightPoint)
 	local areaPOIs = LocalMapUtil.GetAreaPOIForMap(mapInfo.mapID);
 	if (areaPOIs and #areaPOIs > 0) then
 		local activeAreaPOIs = {};
@@ -1720,6 +1728,9 @@ function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition)
 					-- Needs more accurate zone infos
 					mapInfo = C_Map.GetMapInfoAtPosition(mapInfo.mapID, poiInfo.position:GetXY());
 				end
+				if includeClosestFlightPoint then
+					poiInfo.closetFlightPoint = LocalMapUtil.GetClosestFlightPoint(mapInfo.mapID, poiInfo.position:GetXY());
+				end
 				poiInfo.mapInfo = mapInfo;
 				tinsert(activeAreaPOIs, poiInfo);
 			end
@@ -1738,40 +1749,49 @@ if _log.DEVMODE then
 	TestPoiUtil.separatedAreaPoiIDs = {
 		-- Dragonflight
 		"7096",  -- Grand Hunts - Azure Span
-		"7261",  -- Dragonriding Race - Thaldraszus
-		"7262",  -- Dragonriding Race - Ohn'ahran Plains
-		"7263",  -- Dragonriding Race - Azure Span
-		"7264",  -- Dragonriding Race - Thaldraszus
-		"7267",  -- pre-Siege of Dragonbane Keep
-		"7104",  -- Siege of Dragonbane Keep
-		"7413",  -- post-Siege of Dragonbane Keep
-		-- "7218",  -- pre-Community Feast
-		-- "7219",  -- pre-Community Feast
-		-- "7220",  -- post-Community Feast
 		"7342",  -- Grand Hunts - Ohn'ahra
 		"7343",  -- Grand Hunts - Waking Shores
 		"7344",  -- Grand Hunts - Thaldraszus
 		"7345",  -- Grand Hunts - Azure Span
-		"7432",  -- Fyrakk Assaults - Azure Span
-		"7433",  -- Fyrakk Assaults - Azure Span
 		"7101",  -- Camp Aylaag (east)
 		"7102",  -- Camp Aylaag (north)
 		"7103",  -- Camp Aylaag (west)
-		"7221",  -- Elemental Storm (Air)
-		"7231",  -- Elemental Storm (Fire)
-		"7232",  -- Elemental Storm (Water)
-		"7235",  -- Elemental Storm (Fire)
-		"7237",  -- Elemental Storm (Air)
-		"7245",  -- Elemental Storm (Air)
-		"7246",  -- Elemental Storm (Earth)
-		-- "7257",  -- Elemental Storm (???) - Waking Shores
-		"7258",  -- Elemental Storm (Earth)
-		"7260",  -- Elemental Storm (Water) - Waking Shores
+		"7261",  -- Dragonriding Race - Thaldraszus
+		"7262",  -- Dragonriding Race - Ohn'ahran Plains
+		"7263",  -- Dragonriding Race - Azure Span
+		"7264",  -- Dragonriding Race - Thaldraszus
+		"7104",  -- Siege of Dragonbane Keep
+		"7267",  -- pre-Siege of Dragonbane Keep
+		"7413",  -- post-Siege of Dragonbane Keep
+		-- "7218",  -- pre-Community Feast
+		-- "7219",  -- pre-Community Feast
+		-- "7220",  -- post-Community Feast
 		"7429",  -- Fyrakk Assaults - Ohn'ahra (continent view)
-		"7459",  -- pre-Researchers Under Fire - Zaralek Cavern
-		"7461",  -- mid-Researchers Under Fire - Zaralek Cavern (expedition running)
+		"7432",  -- Fyrakk Assaults - Azure Span
+		"7433",  -- Fyrakk Assaults - Azure Span
 		"7471",  -- Fyrakk Assaults - Ohn'ahra
 		"7486",  -- Fyrakk Assaults - Ohn'ahra
+		"7221",  -- Elemental Storm (Air)
+		"7224",  -- Elemental Storm (Water)
+		"7231",  -- Elemental Storm (Fire)
+		"7232",  -- Elemental Storm (Water)
+		"7233",  -- Elemental Storm (Air)
+		"7235",  -- Elemental Storm (Fire)
+		"7236",  -- Elemental Storm (Water)
+		"7237",  -- Elemental Storm (Air)
+		"7239",  -- Elemental Storm (Fire)
+		"7245",  -- Elemental Storm (Air)
+		"7246",  -- Elemental Storm (Earth)
+		"7247",  -- Elemental Storm (Fire) - Thaldraszus
+		"7254",  -- Elemental Storm (Earth) - Waking Shores
+		-- "7257",  -- Elemental Storm (???) - Waking Shores
+		"7258",  -- Elemental Storm (Earth)
+		"7259",  -- Elemental Storm (Fire)
+		"7260",  -- Elemental Storm (Water) - Waking Shores
+		"7459",  -- pre-Researchers Under Fire - Zaralek Cavern
+		"7460",  -- pre-Researchers Under Fire - Zaralek Cavern
+		"7461",  -- mid-Researchers Under Fire - Zaralek Cavern
+		"7462",  -- mid-Researchers Under Fire - Zaralek Cavern
 		-- Shadowlands
 		-- Battle for Azeroth
 		"5896",  -- Faction Assaults (Horde attacking Tiragardesound)
@@ -1888,6 +1908,96 @@ if _log.DEVMODE then
 end
 
 --------------------------------------------------------------------------------
+
+-- Use 8-bit separator as default, but use 16-bit for Chinese locales
+local SEPARATOR_8BIT = ",";
+local SEPARATOR_16BIT = "，";
+local FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR = SEPARATOR_8BIT;
+if tContains({"zhCN", "zhTW"}, ns.currentLocale) then
+	FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR = SEPARATOR_16BIT;
+end
+
+-- Separate the zone name from the taxi node name and return both strings.
+---@param taxiNodeData MapTaxiNodeInfo
+---@param sep string
+---@return string
+---@return string
+--
+local function trimTaxiNodeName(taxiNodeData, sep)
+	sep = sep or FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR;
+	local nodeNameMatch, zoneNameMatch = strsplit(FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR, taxiNodeData.name);
+	local cleanNodeName = nodeNameMatch and strtrim(nodeNameMatch) or taxiNodeData.name;
+	local cleanZoneName = zoneNameMatch and strtrim(zoneNameMatch) or '';
+	return cleanNodeName, cleanZoneName;
+end
+
+-- Calculate the distance from given position to the closest flight point.
+---@param mapID number|nil
+---@param posX number|nil
+---@param posY number|nil
+---@return MapTaxiNodeInfo|nil taxiNodeData
+--
+--> REF.: <FrameXML/Blizzard_APIDocumentationGenerated/TaxiMapDocumentation.lua>  
+--> REF.: <FrameXML/MathUtil.lua>
+--
+function LocalMapUtil.GetClosestFlightPoint(mapID, posX, posY, distance)
+	-- local prev_loglvl = _log.level
+	-- _log.level = _log.DEBUG
+
+	-- If no mapID given, defaults to the player's position
+	if not mapID then
+		mapID = C_Map.GetBestMapForUnit("player");
+		local playerPosition = C_Map.GetPlayerMapPosition(mapID, "player");
+		if playerPosition then
+			posX, posY = playerPosition:GetXY();
+		else
+			posX, posY = 0, 0;
+		end
+	end
+	local mapInfo = LocalMapUtil.GetMapInfo(mapID);
+
+	local mapTaxiNodes = C_TaxiMap.GetTaxiNodesForMap(mapInfo.mapID);
+	local allowedFlightPathFactions = {
+		Enum.FlightPathFaction[UnitFactionGroup("player")],
+		Enum.FlightPathFaction["Neutral"],
+	};
+	local closest = distance or 0.01;  --> distance threshold
+
+	_log:info("Searching for closest flight point to...")
+	_log:info("-->", mapInfo.mapID, mapInfo.name, "@", closest);
+	_log:info("-->", mapInfo.mapID, posX, posY);
+
+	-- Calculate closest flight master
+	for slotIndex, taxiNodeData in pairs(mapTaxiNodes) do
+		if tContains(allowedFlightPathFactions, taxiNodeData.faction) then
+			-- REF.: CalculateDistanceSq(x1, y1, x2, y2)
+			local distance = CalculateDistanceSq(posX, posY, taxiNodeData.position:GetXY());
+			local isInCloseRange = distance and distance < closest or false;
+			-- _log:debug("distance:", distance, "isInCloseRange:", isInCloseRange);
+			if isInCloseRange then
+				_log:info("Found", taxiNodeData.nodeID, YELLOW_FONT_COLOR:WrapTextInColorCode(taxiNodeData.name));
+				_log:info("--> at distance:", distance);
+				taxiNodeData.cleanNodeName, taxiNodeData.cleanZoneName = trimTaxiNodeName(taxiNodeData);
+				-- _log.level = prev_loglvl;
+				return taxiNodeData;
+			end
+			_log:debug("Skipping", distance, taxiNodeData.nodeID);  --, taxiNodeData.name);
+		end
+	end
+	-- _log.level = prev_loglvl;
+
+	-- Try again in longer, but not too long range
+	if (closest <= 0.1) then
+		local new_distance = closest + 0.01;  --> new threshold
+		return LocalMapUtil.GetClosestFlightPoint(mapInfo.mapID, posX, posY, new_distance);
+	end
+end
+Test_GetClosestFlightPoint = LocalMapUtil.GetClosestFlightPoint;
+-- Test_GetClosestFlightPoint(2023, 0.713, 0.313)
+-- C_Map.GetPlayerMapPosition(C_Map.GetBestMapForUnit("player"), "player")
+-- Test_GetClosestFlightPoint(2022, 0.422, 0.668)
+
+--------------------------------------------------------------------------------
 ----- Labels -------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
@@ -1933,7 +2043,7 @@ ns.label = {
 	--> Unlocked after Abenteuermodus "Es geht voran"
 	["showCampAylaagInfo"] = L.ENTRYTOOLTIP_DF_CAMP_AYLAAG_LABEL,
 	["showGrandHuntsInfo"] = L.ENTRYTOOLTIP_DF_GRAND_HUNTS_LABEL,
-	["showCommunityFeastInfo"] = L.ENTRYTOOLTIP_DF_COMMUNITY_FEAST_LABEL,
+	-- ["showCommunityFeastInfo"] = L.ENTRYTOOLTIP_DF_COMMUNITY_FEAST_LABEL,
 	["showDragonbaneKeepInfo"] = L.ENTRYTOOLTIP_DF_DRAGONBANE_KEEP_LABEL,
 	["showElementalStormsInfo"] = L.ENTRYTOOLTIP_DF_ELEMENTAL_STORMS_LABEL,
 	["showFyrakkAssaultsInfo"] = L.ENTRYTOOLTIP_DF_FYRAKK_ASSAULTS_LABEL,
@@ -2113,35 +2223,60 @@ function util.calendar.IsTodayWorldQuestDayEvent()
 	return false, nil, nil;
 end
 
+--------------------------------------------------------------------------------
+----- Addon Compartment --------------------------------------------------------
+--------------------------------------------------------------------------------
+-- REF.: <FrameXML/AddonCompartment.lua>
+-- REF.: <https://wowpedia.fandom.com/wiki/API_C_AddOns.GetAddOnMetadata>
+
+local LocalAddonCompartmentUtil = {};
+util.AddonCompartment = LocalAddonCompartmentUtil;
+
+function LocalAddonCompartmentUtil.IsAddonCompartmentAvailable()
+	return AddonCompartmentFrame ~= nil;
+end
+
+function LocalAddonCompartmentUtil.IsAddonRegistered()
+	if LocalAddonCompartmentUtil.IsAddonCompartmentAvailable() then
+		return tContains(AddonCompartmentFrame.registeredAddons, LocalAddonCompartmentUtil.info);
+	end
+end
+
+function LocalAddonCompartmentUtil.RegisterAddon()
+	-- if LocalAddonCompartmentUtil.IsAddonCompartmentAvailable() then
+	if not util.AddonCompartment.IsAddonRegistered() then
+		LocalAddonCompartmentUtil.info = {
+			text = C_AddOns.GetAddOnMetadata(AddonID, "Title"),
+			icon = C_AddOns.GetAddOnMetadata(AddonID, "IconTexture") or C_AddOns.GetAddOnMetadata(AddonID, "IconAtlas"),
+			notCheckable = true,
+			registerForAnyClick = true,
+			func = ns.MissionReportButtonPlus_OnAddonCompartmentClick,
+			funcOnEnter = ns.MissionReportButtonPlus_OnAddonCompartmentEnter,
+			funcOnLeave = ns.MissionReportButtonPlus_OnAddonCompartmentLeave,
+		};
+		AddonCompartmentFrame:RegisterAddon(LocalAddonCompartmentUtil.info);
+		_log:info("[AC] Addon registered.");
+	else
+		_log:info("[AC] Addon already registered.");
+	end
+end
+
+function LocalAddonCompartmentUtil.UnregisterAddon()
+	if LocalAddonCompartmentUtil.IsAddonRegistered() then
+		for index, compartmentAddon in ipairs(AddonCompartmentFrame.registeredAddons) do
+			if (compartmentAddon.text == ns.AddonTitle) then
+				tremove(AddonCompartmentFrame.registeredAddons, index);
+				AddonCompartmentFrame:UpdateDisplay();
+				_log:debug("[AC] Found and removed from index:", index);
+				_log:info("[AC] Addon unregistered.");
+				return;
+			end
+		end
+	end
+	_log:info("[AC] Addon wasn't registered.");
+end
+
 --@do-not-package@
------ Addon Compartment -------------------------------------------------------- --> TODO - Useful ???
-
--- local AddonCompartmentUtil = {};
--- util.AddonCompartment = AddonCompartmentUtil;
-
--- function AddonCompartmentUtil.RemoveAddon()
--- 	for index, compartmentAddon in ipairs(AddonCompartmentFrame.registeredAddons) do
--- 		if (compartmentAddon.text == ns.AddonTitle) then
--- 			_log:debug("Found and removing from index:", index);
--- 			-- Backup dropdown button info
--- 			AddonCompartmentUtil.info = AddonCompartmentFrame.registeredAddons[index];
--- 			AddonCompartmentFrame.registeredAddons[index] = nil;
--- 			AddonCompartmentFrame:UpdateDisplay();
--- 			return true;
--- 		end
--- 	end
--- 	return false;
--- end
-
--- function AddonCompartmentUtil.ReregisterAddon()
--- 	if AddonCompartmentUtil.info then
--- 		table.insert(AddonCompartmentFrame.registeredAddons, AddonCompartmentUtil.info);
--- 		AddonCompartmentFrame:UpdateDisplay();
--- 		_log:debug("Addon re-registered.");
--- 	end
--- 	return false;
--- end
-
 ----- more to come -------------------------------------------------------------
 
 --> TODO - More ideas

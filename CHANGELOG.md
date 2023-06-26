@@ -6,6 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [0.16.1+100100] - 2023-06-22
+
+### Fixed
+
+- [Issue #9] Due to character encoding differences an error occurred for the `zhTW` locale users due to the recent changes in displaying additionally the closest flight point for `Camp Aylaag`.
+
+## [0.16.0+100100] - 2023-06-21
+
+### Added
+
+- New line for contributed translations in the about this addon section in the settings.
+- New locale `zhTW`, thanks to [EK (EKE00372)](https://github.com/EKE00372).
+- The Addon Compartment entry is now optional and can be de-/activated in the settings.
+- Dragonflight: added details for the events `Dragonriding Race`, `Camp Aylaag`, `Grand Hunts`, `Siege on Dragonbane Keep` and `Elemental Storms` to the Addon Compartment.
+- Warlords of Draenor: the `Garrison Invasion alert icon` on top of the Garrison Landing Page (Mission) Report frame can now be hidden permanently, even if your Garrison is being invaded.
+
+### Changed
+
+- Updated locale files, localizations will now be automatically integrated from CurseForge during GitHub workflow.
+- Updated readme files and added a _Thank You!_ section for the contributors.
+- Dragonflight: the `Aylaag Camp` entry now additionally shows the name of the closest flight point for easier camp location identification.
+
+### Removed
+
+- Some of the world map icons have been merged in `WoW 10.0.7` which led to the problem that the details about the `Iskaara Community Feast` event on the Dragon Isles can no longer be retrieved by its area POI icon and had to be removed.
+
 ## [0.15.1+100100] - 2023-06-15
 
 ### Added

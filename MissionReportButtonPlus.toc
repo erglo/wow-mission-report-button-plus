@@ -2,7 +2,8 @@
 ## Title: Mission Report Button Plus
 ## Notes: Adds a right-click menu to the mission reports button on the minimap|nwith access to reports from current and previous expansions.
 ## Notes-deDE: Erweitert den Missionsbericht-Button der Minikarte mit einer Auswahl|nvon Berichten früherer Erweiterungen.
-## Version: v0.15.1
+## Notes-zhTW: 替小地圖上的資料片按鈕添加右鍵選單，點擊選單可以查看各個資料片版本的任務桌。
+## Version: v0.16.1
 ## Author: ergloCoder
 ## X-Email: erglo.coder+MRBP@gmail.com
 ## X-Project-Repository: https://github.com/erglo/mission-report-button-plus
@@ -23,9 +24,9 @@
 ## SavedVariablesPerCharacter: MRBP_PerCharSettings
 
 ## IconAtlas: dragonflight-landingbutton-up
-## AddonCompartmentFunc: MissionReportButtonPlus_OnAddonCompartmentClick
-## AddonCompartmentFuncOnEnter: MissionReportButtonPlus_OnAddonCompartmentEnter
-## AddonCompartmentFuncOnLeave: MissionReportButtonPlus_OnAddonCompartmentLeave
+# AddonCompartmentFunc: MissionReportButtonPlus_OnAddonCompartmentClick
+# AddonCompartmentFuncOnEnter: MissionReportButtonPlus_OnAddonCompartmentEnter
+# AddonCompartmentFuncOnLeave: MissionReportButtonPlus_OnAddonCompartmentLeave
 
 locales\includes.xml
 
