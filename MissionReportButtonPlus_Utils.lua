@@ -60,6 +60,23 @@ function _log:debug(...)
 	end
 end
 
+-- -- Debug specific areas or features only
+-- _log.type = {
+-- 	BUILDINGS = false,
+-- 	MINIMAP_BUTTON = false,
+-- 	MISSIONS = true,
+-- };
+
+-- -- Convenience functions for debugging specific areas or features in the code.
+-- function _log:debug_type(logtype, ...)
+-- 	-- if (_log.level == _log.DEBUG and useLogType) then
+-- 	if (_log.DEVMODE and _log.type[logtype]) then
+-- 		local title = ns.AddonColor:WrapTextInColorCode(ns.AddonTitleShort);
+-- 		local prefix = format("DEBUG-%s:", strupper(logtype));
+-- 		print(title, DIM_RED_FONT_COLOR:WrapTextInColorCode(prefix), ...);
+-- 	end
+-- end
+
 function _log:info(...)
 	if (_log.level <= _log.INFO and _log.level > _log.NOTSET) then
 		print(ns.AddonColor:WrapTextInColorCode(ns.AddonTitleShort),
@@ -72,7 +89,8 @@ end
 -- Convenience function for informing the user with a chat message.
 -- (cprint --> chat_print)
 local function cprint(...)
-	if (_log.level == _log.USER) then
+	-- if (_log.level == _log.USER) then
+	if ns.settings.showChatNotifications then
 		print(ns.AddonColor:WrapTextInColorCode(ns.AddonTitleShort..":"), ...);
 	end
 end
@@ -1651,6 +1669,7 @@ PoiFilter.ignoredAreaPoiIDs = {
 	"7408",  -- Primal Storm at Froststone Vault - Forbidden Reach
 	"7489",  -- Loamm
 	"7086",  -- Fishing Hole, Waken Shore
+	"7270",  -- Fishing Hole, Ohn'ahran Plains
 	"7272",  -- Fishing Hole, Waken Shore
 	"7412",  -- Fishing Hole, Forbidden Isle
 	-- Shadowlands
