@@ -7,9 +7,12 @@
 
 ### Fixed
 
-- [Issue #10] Mission Complete messages appeared in chat even though the chat notifications have been disabled in the settings.
+- The calendar day event message which appears in chat after logging-in during bonus events didn't show the correct amount of days left.
 &nbsp;  
 
 ## Previous changes
 
 - For a complete history of changes see the [changelog file on GitHub](https://github.com/erglo/mission-report-button-plus/blob/main/CHANGELOG.md "CHANGELOG.md").
+
+[![WoW](https://img.shields.io/badge/WoW--retail-10.1.0-orange)](https://addons.wago.io/addons/mission-report-button-plus "Supported game version")
+!["tag-latest"](https://img.shields.io/badge/tag-v0.16.3-informational?logo=GitHub&logoColor=lightgray "Test version")
