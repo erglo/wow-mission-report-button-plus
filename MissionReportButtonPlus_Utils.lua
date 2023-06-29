@@ -60,6 +60,25 @@ function _log:debug(...)
 	end
 end
 
+-- Debug specific areas or features only
+_log.type = {
+	BUILDINGS = "buildings",
+	MINIMAP_BUTTON = "minimap_button",
+	MISSIONS = "missions",
+	CALENDAR = "calendar",
+};
+-- _log.type_level = _log.type.CALENDAR;
+
+-- Convenience functions for debugging specific areas or features in the code.
+function _log:debug_type(logType, ...)
+	if (_log.DEVMODE and _log.type_level == logType) then
+		local title = ns.AddonColor:WrapTextInColorCode(ns.AddonTitleShort);
+		-- local prefix = format("DBG-%s:", strupper(logType));
+		-- print(title, DIM_RED_FONT_COLOR:WrapTextInColorCode(prefix), ...);
+		print(title, DIM_RED_FONT_COLOR:WrapTextInColorCode("DEBUG:"), ...);
+	end
+end
+
 function _log:info(...)
 	if (_log.level <= _log.INFO and _log.level > _log.NOTSET) then
 		print(ns.AddonColor:WrapTextInColorCode(ns.AddonTitleShort),
@@ -72,7 +91,8 @@ end
 -- Convenience function for informing the user with a chat message.
 -- (cprint --> chat_print)
 local function cprint(...)
-	if (_log.level == _log.USER) then
+	-- if (_log.level == _log.USER) then
+	if ns.settings.showChatNotifications then
 		print(ns.AddonColor:WrapTextInColorCode(ns.AddonTitleShort..":"), ...);
 	end
 end
@@ -1651,6 +1671,8 @@ PoiFilter.ignoredAreaPoiIDs = {
 	"7408",  -- Primal Storm at Froststone Vault - Forbidden Reach
 	"7489",  -- Loamm
 	"7086",  -- Fishing Hole, Waken Shore
+	"7266",  -- Fishing Hole, Azure Span
+	"7270",  -- Fishing Hole, Ohn'ahran Plains
 	"7272",  -- Fishing Hole, Waken Shore
 	"7412",  -- Fishing Hole, Forbidden Isle
 	-- Shadowlands
@@ -2079,7 +2101,7 @@ util.calendar.TIMEWALKING_EVENT_ID_DRAENOR = 1063;
 util.calendar.TIMEWALKING_EVENT_ID_LEGION = 1265;
 util.calendar.WINTER_HOLIDAY_EVENT_ID = 141;
 util.calendar.WINTER_HOLIDAY_ATLAS_NAME = "Front-Tree-Icon";
--- util.calendar.WORLDQUESTS_EVENT_ID = 613;
+util.calendar.WORLDQUESTS_EVENT_ID = 613;
 
 local LocalCalendarUtil = {};  --> for local use (in this file)
 -- LocalCalendarUtil.WORLDQUESTS_EVENT_TEXTURE_ID = "worldquest-tracker-questmarker";  -- 1467050;
@@ -2110,13 +2132,13 @@ end
 ---@param eventID number
 ---@return CalendarDayEvent|nil dayEvent
 ---@return number|nil comparison
---> REF.: <FrameXML/CalendarUtil.lua> </br>
--- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/DateAndTimeDocumentation.lua> </br>
+--> REF.: <FrameXML/CalendarUtil.lua>  
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/DateAndTimeDocumentation.lua>  
 -- REF.: <<https://wowpedia.fandom.com/wiki/API_C_Calendar.GetDayEvent>>
 --
-local function GetActiveDayEvent(eventID)
+function util.calendar.GetActiveDayEvent(eventID)
 	if LocalCalendarUtil.cache:HasItem(eventID) then
-		-- print("Returning cached item", eventID, "...");
+		_log:debug_type(_log.type.CALENDAR, "Returning cached item", eventID, "...");
 		return LocalCalendarUtil.cache:GetItem(eventID);
 	end
 	-- Not cached; find and return
@@ -2136,92 +2158,89 @@ local function GetActiveDayEvent(eventID)
 				event.holidayInfo = C_Calendar.GetHolidayInfo(monthOffset, currentCalendarTime.monthDay, eventIndex);
 			end
 			LocalCalendarUtil.cache:AddItem(event, eventID);
-			local comparison = C_DateAndTime.CompareCalendarTime(currentCalendarTime, event.endTime);
-			return event, comparison;
+			-- local comparison = C_DateAndTime.CompareCalendarTime(currentCalendarTime, event.endTime);
+			-- print("comparison:", comparison)
+			-- return event, comparison;
+			return event;
 		end
 	end
 end
+-- Test_GetActiveDayEvent = util.calendar.GetActiveDayEvent;
+-- -- Test_GetActiveDayEvent(613)  --> util.calendar.WORLDQUESTS_EVENT_ID
 
 -- Check if given calendar day event ID is currently active.
 ---@param eventID number
 ---@return boolean isActive
 --
 function util.calendar.IsDayEventActive(eventID)
-	return GetActiveDayEvent(eventID) ~= nil;
+	return util.calendar.GetActiveDayEvent(eventID) ~= nil;
 end
 -- Test_IsDayEventActive = util.calendar.IsDayEventActive;
 -- -- Test_IsDayEventActive(1063)  --> util.calendar.TIMEWALKING_EVENT_ID_DRAENOR
 -- -- Test_IsDayEventActive(1265)  --> util.calendar.TIMEWALKING_EVENT_ID_LEGION
+-- -- Test_IsDayEventActive(613)  --> util.calendar.WORLDQUESTS_EVENT_ID
 
--- Check calendar if currently a world quest event is happening.
----@return boolean isTodayDayEvent
----@return CalendarDayEvent|nil dayEvent
----@return string|nil dayEventChatMsg
---> REF.: <FrameXML/CalendarUtil.lua> </br>
---> REF.: <<https://wowpedia.fandom.com/wiki/API_C_Calendar.GetDayEvent>>
+-- Build the chat message for given calendar event.
+---@param event CalendarDayEvent
+---@return string|nil chatMessage
 --
-function util.calendar.IsTodayWorldQuestDayEvent()
-	_log:info("Scanning calendar for day events...");
-	local event;
-	local eventID_WORLDQUESTS = 613;
+function util.calendar.GetDayEventChatMessage(event)
+	if event then
+		_log:debug_type(_log.type.CALENDAR, "Got event:", event.eventID, event.eventType, event.sequenceType, event.title);
 
-	local currentCalendarTime = C_DateAndTime.GetCurrentCalendarTime();  --> today
-	-- Tests:
-	-- currentCalendarTime.monthDay = 4;
-	-- currentCalendarTime.weekday = 3;
-	-- currentCalendarTime.hour = 7;
-	local monthOffset = 0;  --> this month
-	local numDayEvents = C_Calendar.GetNumDayEvents(monthOffset, currentCalendarTime.monthDay);
-	_log:info("numDayEvents:", numDayEvents);
+		local currentCalendarTime = C_DateAndTime.GetCurrentCalendarTime();  --> today
+		local monthOffset = 0;  --> this month
 
-	for eventIndex = 1, numDayEvents do
-		event = C_Calendar.GetDayEvent(monthOffset, currentCalendarTime.monthDay, eventIndex);
-		_log:debug("eventID:", event.eventID, eventID_WORLDQUESTS, event.eventID == eventID_WORLDQUESTS);
-
-		if (event.eventID == eventID_WORLDQUESTS) then
-			_log:debug("Got:", event.title, event.endTime.monthDay - currentCalendarTime.monthDay, "days left");
-
-			if ( event.sequenceType == "END" and currentCalendarTime.hour >= event.endTime.hour ) then
-				-- Don't show anything on last day after event ends
-				break;
-			end
-			if ( event.sequenceType == "START" and currentCalendarTime.hour >= event.endTime.hour ) then
-				-- Show as ongoing on the first day after event starts
-				event.sequenceType = "ONGOING";
-			end
-
-			local timeString, suffixString;
-			local eventLinkText = GetCalendarEventLink(monthOffset, currentCalendarTime.monthDay, eventIndex);
-			local eventLink = LINK_FONT_COLOR:WrapTextInColorCode(COMMUNITIES_CALENDAR_CHAT_EVENT_TITLE_FORMAT:format(eventLinkText));
-
-			if (event.sequenceType == "ONGOING") then
-				-- Show on days between the first and the last day
-				timeString = COMMUNITIES_CALENDAR_ONGOING_EVENT_PREFIX;
-				-- Also show roughly the remaining time for the ongoing event
-				local timeLeft = event.endTime.monthDay - currentCalendarTime.monthDay;
-				suffixString = SPELL_TIME_REMAINING_DAYS:format(timeLeft);
-			else
-				-- Show on first and last day of the event
-				if (event.sequenceType == "START") then
-					timeString = GameTime_GetFormattedTime(event.startTime.hour, event.startTime.minute, true);
-				end
-				if (event.sequenceType == "END") then
-					timeString = GameTime_GetFormattedTime(event.endTime.hour, event.endTime.minute, true);
-
-				end
-				-- Add localized text whether the today's event starts or ends
-				eventLink = _G["CALENDAR_EVENTNAME_FORMAT_"..event.sequenceType]:format(eventLink);
-				timeString = COMMUNITIES_CALENDAR_EVENT_FORMAT:format(COMMUNITIES_CALENDAR_TODAY, timeString);
-			end
-			local chatMsg = YELLOW_FONT_COLOR:WrapTextInColorCode(COMMUNITIES_CALENDAR_CHAT_EVENT_BROADCAST_FORMAT:format(timeString, eventLink, suffixString or ''));
-
-			return true, event, chatMsg;
+		if ( event.sequenceType == "END" and currentCalendarTime.hour >= event.endTime.hour ) then
+			-- Event is over; don't show anything on last day *after* event ends
+			return;
 		end
-	end
 
-	_log:debug("Wanted day event not found.")
-	return false, nil, nil;
+		local timeString, suffixString;
+		local indexInfo = C_Calendar.GetEventIndexInfo(event.eventID);  -- , monthOffset, currentCalendarTime.monthDay);
+		if not indexInfo then
+			indexInfo = { ["eventIndex"] = 1 };
+		end
+		local eventLinkText = GetCalendarEventLink(monthOffset, currentCalendarTime.monthDay, indexInfo.eventIndex);
+		-- local eventLinkText = GetCalendarEventLink(monthOffset, currentCalendarTime.monthDay, event.sequenceIndex);
+		local eventLink = LINK_FONT_COLOR:WrapTextInColorCode(COMMUNITIES_CALENDAR_CHAT_EVENT_TITLE_FORMAT:format(eventLinkText));
+
+		-- _log:debug_type(_log.type.CALENDAR, "-->", event.endTime.monthDay, currentCalendarTime.monthDay, event.endTime.monthDay - currentCalendarTime.monthDay, "days left");
+		_log:debug_type(_log.type.CALENDAR, "--> seq:", event.numSequenceDays, event.sequenceIndex, event.numSequenceDays - event.sequenceIndex, "days left");
+
+		if ( event.sequenceType == "START" and currentCalendarTime.hour >= event.endTime.hour ) then
+			-- Mark event as ongoing on the first day *after* event starts
+			event.sequenceType = "ONGOING";
+		end
+
+		if (event.sequenceType == "ONGOING") then
+			-- Show during days between the first and the last day
+			timeString = COMMUNITIES_CALENDAR_ONGOING_EVENT_PREFIX;
+			-- Also show roughly the remaining time for the ongoing event
+			-- local timeLeft = event.endTime.monthDay - currentCalendarTime.monthDay;
+			local timeLeft = event.numSequenceDays - event.sequenceIndex;
+			suffixString = SPELL_TIME_REMAINING_DAYS:format(timeLeft);
+		else
+			-- Show on first and last day of the event
+			if (event.sequenceType == "START") then
+				timeString = GameTime_GetFormattedTime(event.startTime.hour, event.startTime.minute, true);
+			end
+			if (event.sequenceType == "END") then
+				timeString = GameTime_GetFormattedTime(event.endTime.hour, event.endTime.minute, true);
+
+			end
+			-- Add localized text whether the today's event starts or ends
+			eventLink = _G["CALENDAR_EVENTNAME_FORMAT_"..event.sequenceType]:format(eventLink);
+			timeString = COMMUNITIES_CALENDAR_EVENT_FORMAT:format(COMMUNITIES_CALENDAR_TODAY, timeString);
+		end
+		local chatMsg = YELLOW_FONT_COLOR:WrapTextInColorCode(COMMUNITIES_CALENDAR_CHAT_EVENT_BROADCAST_FORMAT:format(timeString, eventLink, suffixString or ''));
+
+		return chatMsg;
+	end
 end
+-- Test_GetDayEventChatMessage = util.calendar.GetDayEventChatMessage;
+-- -- Test_GetDayEventChatMessage(Test_GetActiveDayEvent(613))
+-- -- run print(Test_GetDayEventChatMessage(Test_GetActiveDayEvent(613)))
 
 --------------------------------------------------------------------------------
 ----- Addon Compartment --------------------------------------------------------

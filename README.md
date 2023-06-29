@@ -83,7 +83,7 @@ It is still possible to access mission reports from previous expansions but the 
 
 ### Download sources
 
-+ [![CurseForge](https://img.shields.io/badge/%F0%9F%94%97-CurseForge-f16436)](https://www.curseforge.com/wow/addons/mission-report-button-plus) [![Wago.io](https://img.shields.io/badge/%F0%9F%94%97-Wago.io-c1272d)](https://addons.wago.io/addons/mission-report-button-plus) [![WoWInterface](https://img.shields.io/badge/%F0%9F%94%97-WoWInterface-da8a00)](https://www.wowinterface.com/downloads/info26583-MissionReportButtonPlus.html) [![GitHub](https://img.shields.io/badge/%F0%9F%94%97-GitHub-6e7681)](https://github.com/erglo/mission-report-button-plus)
+[![CurseForge](https://img.shields.io/badge/%F0%9F%94%97-CurseForge-f16436)](https://www.curseforge.com/wow/addons/mission-report-button-plus) [![Wago.io](https://img.shields.io/badge/%F0%9F%94%97-Wago.io-c1272d)](https://addons.wago.io/addons/mission-report-button-plus) [![WoWInterface](https://img.shields.io/badge/%F0%9F%94%97-WoWInterface-da8a00)](https://www.wowinterface.com/downloads/info26583-MissionReportButtonPlus.html) [![GitHub](https://img.shields.io/badge/%F0%9F%94%97-GitHub-6e7681)](https://github.com/erglo/mission-report-button-plus)
 
 ### Install manually
 

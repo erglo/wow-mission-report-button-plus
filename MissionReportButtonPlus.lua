@@ -172,9 +172,11 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			_log:info("isInitialLogin:", isInitialLogin, "- isReloadingUi:", isReloadingUi)
 
 			local function printDayEvent()
-				local isTodayDayEvent, dayEvent, dayEventMsg = util.calendar.IsTodayWorldQuestDayEvent();
-				if isTodayDayEvent then
-					ns.cprint(dayEventMsg);
+				local dayEventID = util.calendar.WORLDQUESTS_EVENT_ID;
+				if util.calendar.IsDayEventActive(dayEventID) then
+					local dayEvent = util.calendar.GetActiveDayEvent(dayEventID);
+					local dayEventMsg = util.calendar.GetDayEventChatMessage(dayEvent);
+					if dayEventMsg then ns.cprint(dayEventMsg) end;
 				end
 			end
 			if isInitialLogin then
