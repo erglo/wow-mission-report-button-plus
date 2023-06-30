@@ -4,6 +4,8 @@ end
 
 local ns = select(2, ...);
 
+-- Translated by EK (EKE00372)
+
 local L;
 -- @localization(locale="zhCN", format="lua_table", handle-unlocalized="english")@
 if L then
