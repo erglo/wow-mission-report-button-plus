@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [Unreleased]
+
+### Added
+
+- The `Timewalking Vendor` details have been added to the Addon Compartment tooltip.
+- New locale `zhCN`, thanks to [EK (EKE00372)](https://github.com/EKE00372).
+
+### Fixed
+
+- Due to the recent changes in processing calendar day events the `Timewalking Vendor` details didn't show up in the tooltip.
+
 ## [0.16.3+100100] - 2023-06-29
 
 ### Fixed

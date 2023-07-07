@@ -25,7 +25,7 @@ local L = ns.L;
 ns.currentLocale = GetLocale();
 
 -- Backwards compatibility
-ns.GetAddOnMetadata = C_AddOns.GetAddOnMetadata;  --> WoW 10.1.0
+ns.GetAddOnMetadata = C_AddOns.GetAddOnMetadata;
 
 ns.AddonTitle = ns.GetAddOnMetadata(AddonID, "Title");
 ns.AddonTitleShort = 'MRBP';
@@ -173,7 +173,7 @@ end
 --------------------------------------------------------------------------------
 -- REF.: <FrameXML/Blizzard_Deprecated/Deprecated_8_1_0.lua>
 -- REF.: <FrameXML/Blizzard_APIDocumentation/TextureUtilsDocumentation.lua>
---
+
 function util.GetAtlasInfo(atlas)
 	local info = C_Texture.GetAtlasInfo(atlas);
 	if info then
@@ -286,10 +286,11 @@ end
 -- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/DateAndTimeDocumentation.lua>
 --
 function util.GetTimeStringUntilWeeklyReset()
-	local seconds = C_DateAndTime.GetSecondsUntilWeeklyReset();
+	local secondsLeft = C_DateAndTime.GetSecondsUntilWeeklyReset();
+	local color = util.GetTimeRemainingColorForSeconds(secondsLeft, WHITE_FONT_COLOR);
 	local abbreviationType = SecondsFormatter.Abbreviation.Truncate;
-	local timeString = WorldQuestsSecondsFormatter:Format(seconds, abbreviationType);
-	return timeString;
+	local timeString = WorldQuestsSecondsFormatter:Format(secondsLeft, abbreviationType);
+	return color:WrapTextInColorCode(timeString);
 end
 
 --------------------------------------------------------------------------------
@@ -1588,7 +1589,7 @@ end
 
 ----- Timewalking Vendor -----
 
--- local function GetTimewalkingInfo()											--> TODO - Show separately ???
+-- local function GetTimewalkingInfo()											--> TODO - Add other expansions
 -- 	local TIMEWALKING_SPELL_IDs = {
 -- 		335152,  -- Sign of Iron (Warlords of Draenor)
 -- 		359082,  -- Sign of the Legion
@@ -2265,8 +2266,8 @@ function LocalAddonCompartmentUtil.RegisterAddon()
 	-- if LocalAddonCompartmentUtil.IsAddonCompartmentAvailable() then
 	if not util.AddonCompartment.IsAddonRegistered() then
 		LocalAddonCompartmentUtil.info = {
-			text = C_AddOns.GetAddOnMetadata(AddonID, "Title"),
-			icon = C_AddOns.GetAddOnMetadata(AddonID, "IconTexture") or C_AddOns.GetAddOnMetadata(AddonID, "IconAtlas"),
+			text = ns.GetAddOnMetadata(AddonID, "Title"),
+			icon = ns.GetAddOnMetadata(AddonID, "IconTexture") or ns.GetAddOnMetadata(AddonID, "IconAtlas"),
 			notCheckable = true,
 			registerForAnyClick = true,
 			func = ns.MissionReportButtonPlus_OnAddonCompartmentClick,

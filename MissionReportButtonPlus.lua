@@ -937,14 +937,14 @@ local function ShouldShowActiveThreatsText(garrisonTypeID)
 end
 
 local function ShouldShowTimewalkingVendorText(garrisonTypeID)
-	local isForLegion = garrisonTypeID == util.expansion.data.Legion.garrisonTypeID;
-	local isForWarlordsOfDraenor = garrisonTypeID == util.expansion.data.WarlordsOfDraenor.garrisonTypeID;
-	local shouldShow = (
-		(isForLegion and ns.settings.showLegionWorldMapEvents and ns.settings.showLegionTimewalkingVendor) or
-		(isForWarlordsOfDraenor and ns.settings.showWoDWorldMapEvents and ns.settings.showWoDTimewalkingVendor)
-	);
-	_log:debug("ShouldShowTimewalkingVendorText:", garrisonTypeID, shouldShow);
-	return shouldShow;
+	if (garrisonTypeID == util.expansion.data.WarlordsOfDraenor.garrisonTypeID) then
+		local isDayEventActive = util.calendar.IsDayEventActive(util.calendar.TIMEWALKING_EVENT_ID_DRAENOR);
+		return ns.settings.showWoDWorldMapEvents and ns.settings.showWoDTimewalkingVendor and isDayEventActive;
+	end
+	if (garrisonTypeID == util.expansion.data.Legion.garrisonTypeID) then
+		local isDayEventActive = util.calendar.IsDayEventActive(util.calendar.TIMEWALKING_EVENT_ID_LEGION);
+		return ns.settings.showLegionWorldMapEvents and ns.settings.showLegionTimewalkingVendor and isDayEventActive;
+	end
 end
 
 -- Build the menu entry's description tooltip containing informations ie. about
@@ -1256,16 +1256,12 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 	end
 
 	----- Timewalking Vendor (currently Draenor + Legion only) -----
-
-	if (util.calendar.IsDayEventActive(util.calendar.TIMEWALKING_EVENT_ID_DRAENOR) or
-		util.calendar.IsDayEventActive(util.calendar.TIMEWALKING_EVENT_ID_LEGION)) then
-		if ShouldShowTimewalkingVendorText(garrTypeID) then
-			local vendorAreaPoiInfo = util.poi.FindTimewalkingVendor(garrInfo);
-			if (vendorAreaPoiInfo and tContains(garrInfo.continents, vendorAreaPoiInfo.mapInfo.parentMapID)) then
-				tooltipText = TooltipText_AddHeaderLine(tooltipText, vendorAreaPoiInfo.name);
-				tooltipText = TooltipText_AddIconLine(tooltipText, vendorAreaPoiInfo.mapInfo.name, vendorAreaPoiInfo.atlasName);
-				tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, vendorAreaPoiInfo.timeString);
-			end
+	if ShouldShowTimewalkingVendorText(garrTypeID) then
+		local vendorAreaPoiInfo = util.poi.FindTimewalkingVendor(garrInfo);
+		if (vendorAreaPoiInfo and tContains(garrInfo.continents, vendorAreaPoiInfo.mapInfo.parentMapID)) then
+			tooltipText = TooltipText_AddHeaderLine(tooltipText, vendorAreaPoiInfo.name);
+			tooltipText = TooltipText_AddIconLine(tooltipText, vendorAreaPoiInfo.mapInfo.name, vendorAreaPoiInfo.atlasName);
+			tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, vendorAreaPoiInfo.timeString);
 		end
 	end
 
@@ -1919,9 +1915,20 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					GameTooltip_AddColoredLine(tooltip, GARRISON_LANDING_INVASION_ALERT, WARNING_FONT_COLOR, nil, leftOffset);
 					util.GameTooltip_AddAtlas(tooltip, "worldquest-tracker-questmarker");
 				end
+				----- Timewalking Vendor (currently Draenor + Legion only) -----
+				if ShouldShowTimewalkingVendorText(expansion.garrisonTypeID) then
+					local vendorAreaPoiInfo = util.poi.FindTimewalkingVendor(garrInfo);
+					if (vendorAreaPoiInfo and tContains(garrInfo.continents, vendorAreaPoiInfo.mapInfo.parentMapID)) then
+						local timeLeft = vendorAreaPoiInfo.timeString or "...";
+						local lineText = format("%s @ %s", vendorAreaPoiInfo.name, vendorAreaPoiInfo.mapInfo.name);
+						GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
+						util.GameTooltip_AddAtlas(tooltip, vendorAreaPoiInfo.atlasName);
+					end
+				end
 			end
 		end
 	end
+	GameTooltip_AddBlankLineToTooltip(tooltip);
 
 	tooltip:Show();
 end
