@@ -719,7 +719,7 @@ end
 local function TooltipText_AddTimeRemainingLine(tooltipText, timeString, lineColor)
 	-- Note: The font color is often handled by timeString, eg. red for soon-to-expire, etc. If you
 	-- use 'lineColor' the timeString color will be overwritten.
-	if timeString then
+	if not util.StringIsEmpty(timeString) then
 		tooltipText = tooltipText.."|n"..TOOLTIP_DASH_ICON_STRING;
 		tooltipText = tooltipText.." "..TOOLTIP_CLOCK_ICON_STRING;
 		if lineColor then
@@ -1240,7 +1240,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					end
 				end
 			end
-			----- Researchers Under Fire
+			-- Researchers Under Fire
 			if ns.settings.showResearchersUnderFireInfo then
 				local dfResearchersUnderFireInfo = util.poi.GetResearchersUnderFireDataInfo();
 				if dfResearchersUnderFireInfo then
@@ -1249,6 +1249,18 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfResearchersUnderFireInfo.timeString);
 					if not ns.settings.hideEventDescriptions then
 						tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfResearchersUnderFireInfo.description);
+					end
+				end
+			end
+			-- Time Rifts 
+			if true then
+				local dfTimeRiftsInfo = util.poi.GetTimeRiftInfo()
+				if dfTimeRiftsInfo then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, dfTimeRiftsInfo.name)
+					tooltipText = TooltipText_AddIconLine(tooltipText, dfTimeRiftsInfo.mapInfo.name, dfTimeRiftsInfo.atlasName)
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfTimeRiftsInfo.timeString)
+					if not (ns.settings.hideEventDescriptions or util.StringIsEmpty(dfTimeRiftsInfo.description)) then
+						tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfTimeRiftsInfo.description)
 					end
 				end
 			end
@@ -1840,6 +1852,16 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 							local timeLeft = dfResearchersUnderFireInfo.timeString or "...";
 							GameTooltip_AddNormalLine(tooltip, dfResearchersUnderFireInfo.name..": "..timeLeft, wrapLine, leftOffset);
 							util.GameTooltip_AddAtlas(tooltip, dfResearchersUnderFireInfo.atlasName);
+						end
+					end
+					-- Time Rifts 
+					if true then
+						local dfTimeRiftsInfo = util.poi.GetTimeRiftInfo();
+						if (dfTimeRiftsInfo and dfTimeRiftsInfo.isTimed) then
+							local timeLeft = dfTimeRiftsInfo.timeString or "...";
+							local lineText = format("%s @ %s", dfTimeRiftsInfo.name, dfTimeRiftsInfo.mapInfo.name);
+							GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
+							util.GameTooltip_AddAtlas(tooltip, dfTimeRiftsInfo.atlasName);
 						end
 					end
 				end

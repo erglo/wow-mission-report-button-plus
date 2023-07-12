@@ -7,14 +7,16 @@
 
 ### Added
 
-- The `Timewalking Vendor` details have been added to the Addon Compartment tooltip.
-- New locale `zhCN`, thanks to [EK (EKE00372)](https://github.com/EKE00372).
+- Dragonflight: added `Time Rift` details.
 
-### Fixed
+### Changed
 
-- Due to the recent changes in processing calendar day events the `Timewalking Vendor` details didn't show up in the tooltip.
+- Updated TOC file version to `WoW 10.1.5`.
 &nbsp;  
 
 ## Previous changes
 
 - For a complete history of changes see the [changelog file on GitHub](https://github.com/erglo/mission-report-button-plus/blob/main/CHANGELOG.md "CHANGELOG.md").
+
+[![WoW](https://img.shields.io/badge/WoW--retail-10.1.0-orange)](https://addons.wago.io/addons/mission-report-button-plus "Supported game version")
+!["tag-latest"](https://img.shields.io/badge/tag-v0.17.0-informational?logo=GitHub&logoColor=lightgray "Test version")

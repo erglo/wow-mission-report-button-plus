@@ -164,7 +164,7 @@ end
 ---@param str string
 ---@return boolean isEmpty
 --
-function StringIsEmpty(str)
+function util.StringIsEmpty(str)
 	return str == nil or strlen(str) == 0;
 end
 
@@ -417,6 +417,7 @@ local UNITED_FRONT_ID = 15000;  -- Shadowlands threat in The Maw
 local DEAD_MEN_TELL_SOME_TALES_ID = 15647;  -- Shadowlands Covenant Campaign
 --> Note: The assetIDs returned for this achievement are always 0,
 --  see util.covenant.UpdateData(...) for alternative solution.
+local TEMPORAL_ACQUISITIONS_SPECIALIST_ID = 18554  -- Time Rifts
 
 -- Pattern: {[areaPoi] = assetID, ...}
 local AREA_POI_ASSET_MAP = {
@@ -536,6 +537,15 @@ local LocalMapUtil = {};
 function LocalMapUtil.GetMapInfo(mapID)
 	return C_Map.GetMapInfo(mapID);
 end
+
+-- Return the UiMapDetails of the current zone.
+--
+function LocalMapUtil.GetCurrentZoneMapInfo()
+	local mapID = C_Map.GetBestMapForUnit("player")
+	local mapInfo = LocalMapUtil.GetMapInfo(mapID)
+	return mapInfo
+end
+Test_GetCurrentZoneMapInfo = LocalMapUtil.GetCurrentZoneMapInfo
 
 -- Get the mapInfo of each child zone of given map.
 ---@param mapID number
@@ -1452,11 +1462,32 @@ end
 local function GetResearchersUnderFireLabel()
 	local questID = 74906;
 	local localizedQuestName = QuestUtils_GetQuestName(questID);
-	-- if StringIsEmpty(localizedQuestName) then
-	-- 	C_QuestLog.RequestLoadQuestByID(questID);
-	-- 	localizedQuestName = QuestUtils_GetQuestName(questID);
-	-- end
+	if util.StringIsEmpty(localizedQuestName) then
+		C_QuestLog.RequestLoadQuestByID(questID);
+		localizedQuestName = QuestUtils_GetQuestName(questID);
+	end
 	return localizedQuestName or "Researchers Under Fire";
+end
+
+----- Time Rifts -----
+
+local TimeRiftData = {}
+TimeRiftData.widgetSetID = 845
+TimeRiftData.mapID = 2025  -- Thaldraszus
+-- TimeRiftData.mapID = DRAGON_ISLES_MAP_ID
+-- TimeRiftData.mapInfos = LocalMapUtil.GetMapChildrenInfo(TimeRiftData.mapID, Enum.UIMapType.Zone)
+TimeRiftData.mapInfo = LocalMapUtil.GetMapInfo(TimeRiftData.mapID)
+TimeRiftData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID
+
+function util.poi.GetTimeRiftInfo()
+	-- local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(TimeRiftData)
+	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(TimeRiftData)
+	if poiInfo then
+		if util.StringIsEmpty(ns.label.showTimeRiftInfo) then
+			ns.label.showTimeRiftInfo = poiInfo.name
+		end
+		return poiInfo
+	end
 end
 
 ----- Battle for Azeroth: Faction Assaults -----
@@ -1674,6 +1705,7 @@ PoiFilter.ignoredAreaPoiIDs = {
 	"7086",  -- Fishing Hole, Waken Shore
 	"7266",  -- Fishing Hole, Azure Span
 	"7270",  -- Fishing Hole, Ohn'ahran Plains
+	"7271",  -- Fishing Hole, Thaldraszus
 	"7272",  -- Fishing Hole, Waken Shore
 	"7412",  -- Fishing Hole, Forbidden Isle
 	-- Shadowlands
@@ -1803,10 +1835,12 @@ if _log.DEVMODE then
 		"7236",  -- Elemental Storm (Water)
 		"7237",  -- Elemental Storm (Air)
 		"7239",  -- Elemental Storm (Fire)
+		"7240",  -- Elemental Storm (Water)
 		"7245",  -- Elemental Storm (Air)
 		"7246",  -- Elemental Storm (Earth)
 		"7247",  -- Elemental Storm (Fire) - Thaldraszus
 		"7254",  -- Elemental Storm (Earth) - Waking Shores
+		"7256",  -- Elemental Storm (Water) - Waking Shores
 		-- "7257",  -- Elemental Storm (???) - Waking Shores
 		"7258",  -- Elemental Storm (Earth)
 		"7259",  -- Elemental Storm (Fire)
@@ -1815,6 +1849,7 @@ if _log.DEVMODE then
 		"7460",  -- pre-Researchers Under Fire - Zaralek Cavern
 		"7461",  -- mid-Researchers Under Fire - Zaralek Cavern
 		"7462",  -- mid-Researchers Under Fire - Zaralek Cavern
+		"7492",  -- Time Rift, Thaldraszus
 		-- Shadowlands
 		-- Battle for Azeroth
 		"5896",  -- Faction Assaults (Horde attacking Tiragardesound)
@@ -2071,6 +2106,7 @@ ns.label = {
 	["showElementalStormsInfo"] = L.ENTRYTOOLTIP_DF_ELEMENTAL_STORMS_LABEL,
 	["showFyrakkAssaultsInfo"] = L.ENTRYTOOLTIP_DF_FYRAKK_ASSAULTS_LABEL,
 	["showResearchersUnderFireInfo"] = GetResearchersUnderFireLabel(),
+	["showTimeRiftInfo"] = '',  --> will be set during areaPoi retrieval
 	["hideEventDescriptions"] = L.ENTRYTOOLTIP_DF_HIDE_EVENT_DESCRIPTIONS_LABEL,
 };
 
