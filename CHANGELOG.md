@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [Unreleased]
+
+### Added
+
+- Dragonflight: added `Time Rift` details.
+
+### Changed
+
+- Updated TOC file version to `WoW 10.1.5`.
+- `Timewalking Vendor` details for Warlords of Draenor and Legion don't depend on calendar event data anymore.
+- Calendar data look-up process refurbished.
+
 ## [0.16.4+100100] - 2023-07-07
 
 ### Added

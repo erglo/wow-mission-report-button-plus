@@ -457,9 +457,7 @@ local AREA_POI_ASSET_MAP = {
 -- 		print(i, criteriaAssetID, criteriaID, "isCompleted:", isCompleted, "-->", cName);
 -- 	end
 -- end
--- Test_ListAchievementAssetIDs(13284)
--- GetAchievementInfo(12028)
--- GetAchievementCriteriaInfo(12028, 3)
+-- -- Test_ListAchievementAssetIDs(18554)
 
 -- Check if given areaPoiID has an assetID for an achievement.
 ---@param areaPoiID number
@@ -1300,7 +1298,7 @@ end
 
 function LocalPoiUtil.SingleArea.GetMultipleAreaPoiInfos(eventData, ignoreSorting)
 	local events = {};
-	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo);
+	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeMapInfoAtPosition, eventData.includeClosestFlightPoint);
 	if (activeAreaPOIs and #activeAreaPOIs > 0) then
 		for _, poiInfo in ipairs(activeAreaPOIs) do
 			if eventData.CompareFunction(eventData, poiInfo) then
@@ -1322,7 +1320,7 @@ LocalPoiUtil.MultipleAreas = {};
 --
 function LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(eventData)
 	for _, mapInfo in ipairs(eventData.mapInfos) do
-		local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(mapInfo);
+		local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, eventData.includeMapInfoAtPosition, eventData.includeClosestFlightPoint);
 		if (activeAreaPOIs and #activeAreaPOIs > 0) then
 			for _, poiInfo in ipairs(activeAreaPOIs) do
 				if eventData.CompareFunction(eventData, poiInfo) then
@@ -1620,7 +1618,7 @@ end
 
 ----- Timewalking Vendor -----
 
--- local function GetTimewalkingInfo()											--> TODO - Add other expansions
+-- function Test_GetTimewalkingInfo()											    --> TODO - Add other expansions
 -- 	local TIMEWALKING_SPELL_IDs = {
 -- 		335152,  -- Sign of Iron (Warlords of Draenor)
 -- 		359082,  -- Sign of the Legion
@@ -1634,20 +1632,24 @@ end
 -- 		end
 -- 	end
 -- end
--- -- Test_GetTimewalkingInfo = GetTimewalkingInfo;
 
 local TimewalkingVendorData = {};
 TimewalkingVendorData.atlasName = "TimewalkingVendor-32x32";
--- TimewalkingVendorData.areaPoiIDs = {6985, 7018};  --> Draenor, Legion
-TimewalkingVendorData.mapInfos = {LocalMapUtil.GetMapInfo(588), LocalMapUtil.GetMapInfo(627)};
--- TimewalkingVendorData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
-TimewalkingVendorData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
+TimewalkingVendorData.mapInfos = {LocalMapUtil.GetMapInfo(588), LocalMapUtil.GetMapInfo(627)}  -- , LocalMapUtil.GetMapInfo(85)};
+-- TimewalkingVendorData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
+TimewalkingVendorData.areaPoiIDs = {6985, 7018};  --> Draenor, Legion
+TimewalkingVendorData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
 
-function util.poi.FindTimewalkingVendor()
+function util.poi.FindTimewalkingVendor(expansionInfo)
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(TimewalkingVendorData);
 	if poiInfo then
 		poiInfo.timeString = util.GetTimeStringUntilWeeklyReset();
-		return poiInfo;
+		if (expansionInfo.ID == util.expansion.data.WarlordsOfDraenor.ID and poiInfo.areaPoiID == 6985) then  -- and poiInfo.mapInfo.mapID == 588
+			return poiInfo
+		end
+		if (expansionInfo.ID == util.expansion.data.Legion.ID and poiInfo.areaPoiID == 7018) then  -- and poiInfo.mapInfo.mapID == 627
+			return poiInfo
+		end
 	end
 end
 
@@ -1834,6 +1836,7 @@ if _log.DEVMODE then
 		"7235",  -- Elemental Storm (Fire)
 		"7236",  -- Elemental Storm (Water)
 		"7237",  -- Elemental Storm (Air)
+		"7238",  -- Elemental Storm (Earth) - Azure Span
 		"7239",  -- Elemental Storm (Fire)
 		"7240",  -- Elemental Storm (Water)
 		"7245",  -- Elemental Storm (Air)
@@ -1849,7 +1852,7 @@ if _log.DEVMODE then
 		"7460",  -- pre-Researchers Under Fire - Zaralek Cavern
 		"7461",  -- mid-Researchers Under Fire - Zaralek Cavern
 		"7462",  -- mid-Researchers Under Fire - Zaralek Cavern
-		"7492",  -- Time Rift, Thaldraszus
+		-- "7492",  -- Time Rift, Thaldraszus
 		-- Shadowlands
 		-- Battle for Azeroth
 		"5896",  -- Faction Assaults (Horde attacking Tiragardesound)
@@ -1906,6 +1909,7 @@ if _log.DEVMODE then
 		"5369",  -- Invasion Point Sangua - Argus, Antoran Wastes
 		"5370",  -- Invasion Point Cen'gar - Argus, Antoran Wastes
 		"5371",  -- Invasion Point Bonich - Argus, Antoran Wastes
+		"5372",  -- Invasion Point Val - Argus, Antoran Wastes
 		"5373",  -- Invasion Point Aurinor - Argus, Antoran Wastes
 		"5374",  -- Invasion Point Naigtal - Argus, Antoran Wastes
 		"5375",  -- Invasion Point Boss Alluradel - Argus, Antoran Wastes
@@ -2134,8 +2138,9 @@ end
 
 -- A collection of utility functions related to calendar events.
 util.calendar = {};  --> for global use (project-wide)
-util.calendar.TIMEWALKING_EVENT_ID_DRAENOR = 1063;
-util.calendar.TIMEWALKING_EVENT_ID_LEGION = 1265;
+-- util.calendar.TIMEWALKING_EVENT_ID_DRAENOR = 1063;
+-- util.calendar.TIMEWALKING_EVENT_ID_DRAENOR2 = 1056;
+-- util.calendar.TIMEWALKING_EVENT_ID_LEGION = 1265;
 util.calendar.WINTER_HOLIDAY_EVENT_ID = 141;
 util.calendar.WINTER_HOLIDAY_ATLAS_NAME = "Front-Tree-Icon";
 util.calendar.WORLDQUESTS_EVENT_ID = 613;
@@ -2147,8 +2152,10 @@ local LocalCalendarUtil = {};  --> for local use (in this file)
 
 LocalCalendarUtil.cache = {};
 LocalCalendarUtil.cache.data = {};
+LocalCalendarUtil.cache.lastUpdatedTime = 0  -- Unix timestamp
 
 function LocalCalendarUtil.cache:AddItem(item, itemID)
+	_log:debug_type(_log.type.CALENDAR, "Adding item to cache:", itemID)
 	local itemIDstr = tostring(itemID);
 	-- Add or update item
 	self.data[itemIDstr] = item;
@@ -2160,10 +2167,9 @@ function LocalCalendarUtil.cache:GetItem(itemID)
 end
 
 function LocalCalendarUtil.cache:HasItem(itemID)
+	_log:debug_type(_log.type.CALENDAR, "Has item in cache:", itemID, self:GetItem(itemID) ~= nil)
 	return self:GetItem(itemID) ~= nil;
 end
-																				--> TODO - Add expiration ???
---  C_DateAndTime.CompareCalendarTime(lhsCalendarTime, rhsCalendarTime)
 
 -- Find and return the currently active calendar day event by given ID.
 ---@param eventID number
@@ -2174,110 +2180,92 @@ end
 -- REF.: <<https://wowpedia.fandom.com/wiki/API_C_Calendar.GetDayEvent>>
 --
 function util.calendar.GetActiveDayEvent(eventID)
+	_log:debug_type(_log.type.CALENDAR, "Looking for event:", eventID, "...");
+
+	-- Update cache at start and every hour
+	local timePassedSeconds = (GetServerTime() - LocalCalendarUtil.cache.lastUpdatedTime)
+	-- print("timePassedSeconds:", timePassedSeconds, "lastUpdatedTime:", LocalCalendarUtil.cache.lastUpdatedTime)
+	if (timePassedSeconds >= 3600 or LocalCalendarUtil.cache.lastUpdatedTime == 0) then
+		_log:debug_type(_log.type.CALENDAR, "Updating day event cache...")
+		local currentCalendarTime = C_DateAndTime.GetCurrentCalendarTime();  --> today
+		local monthOffset = 0;  --> offset from this month
+		-- -- Tests
+		-- currentCalendarTime.monthDay = 9
+		-- currentCalendarTime.hour = 7
+		-- monthOffset = 1
+		local numDayEvents = C_Calendar.GetNumDayEvents(monthOffset, currentCalendarTime.monthDay);
+		-- print("numDayEvents:", numDayEvents, monthOffset, currentCalendarTime.monthDay)
+		for eventIndex = 1, numDayEvents do
+			local event = C_Calendar.GetDayEvent(monthOffset, currentCalendarTime.monthDay, eventIndex);
+			-- print(eventIndex, event.eventID, event.eventID == eventID, event.eventType, event.calendarType, event.title);
+			LocalCalendarUtil.cache:AddItem(event, event.eventID)
+		end
+		LocalCalendarUtil.cache.lastUpdatedTime = GetServerTime()  -- Unix timestamp
+	end
+
 	if LocalCalendarUtil.cache:HasItem(eventID) then
 		_log:debug_type(_log.type.CALENDAR, "Returning cached item", eventID, "...");
 		return LocalCalendarUtil.cache:GetItem(eventID);
 	end
-	-- Not cached; find and return
-	local currentCalendarTime = C_DateAndTime.GetCurrentCalendarTime();  --> today
-	local monthOffset = 0;  --> offset from this month
-	-- Tests:
-	-- currentCalendarTime.monthDay = 4;
-	-- currentCalendarTime.weekday = 3;
-	-- currentCalendarTime.hour = 7;
-	local numDayEvents = C_Calendar.GetNumDayEvents(monthOffset, currentCalendarTime.monthDay);
-	for eventIndex = 1, numDayEvents do
-		local event = C_Calendar.GetDayEvent(monthOffset, currentCalendarTime.monthDay, eventIndex);
-		-- 	print(eventIndex, event.eventID, event.eventType, event.calendarType,
-		-- 		util.CreateInlineIcon2(event.iconTexture)..event.title);
-		if (event.eventID == eventID) then
-			if (event.calendarType == "HOLIDAY") then
-				event.holidayInfo = C_Calendar.GetHolidayInfo(monthOffset, currentCalendarTime.monthDay, eventIndex);
-			end
-			LocalCalendarUtil.cache:AddItem(event, eventID);
-			-- local comparison = C_DateAndTime.CompareCalendarTime(currentCalendarTime, event.endTime);
-			-- print("comparison:", comparison)
-			-- return event, comparison;
-			return event;
-		end
-	end
 end
 -- Test_GetActiveDayEvent = util.calendar.GetActiveDayEvent;
 -- -- Test_GetActiveDayEvent(613)  --> util.calendar.WORLDQUESTS_EVENT_ID
-
--- Check if given calendar day event ID is currently active.
----@param eventID number
----@return boolean isActive
---
-function util.calendar.IsDayEventActive(eventID)
-	return util.calendar.GetActiveDayEvent(eventID) ~= nil;
-end
--- Test_IsDayEventActive = util.calendar.IsDayEventActive;
--- -- Test_IsDayEventActive(1063)  --> util.calendar.TIMEWALKING_EVENT_ID_DRAENOR
--- -- Test_IsDayEventActive(1265)  --> util.calendar.TIMEWALKING_EVENT_ID_LEGION
--- -- Test_IsDayEventActive(613)  --> util.calendar.WORLDQUESTS_EVENT_ID
 
 -- Build the chat message for given calendar event.
 ---@param event CalendarDayEvent
 ---@return string|nil chatMessage
 --
 function util.calendar.GetDayEventChatMessage(event)
-	if event then
-		_log:debug_type(_log.type.CALENDAR, "Got event:", event.eventID, event.eventType, event.sequenceType, event.title);
+	if not event then return end;
+	_log:debug_type(_log.type.CALENDAR, "Got event:", event.eventID, event.eventType, event.sequenceType, event.title);
 
-		local currentCalendarTime = C_DateAndTime.GetCurrentCalendarTime();  --> today
-		local monthOffset = 0;  --> this month
+	local currentCalendarTime = C_DateAndTime.GetCurrentCalendarTime();  --> today
+	local monthOffset = 0;  --> this month
 
-		if ( event.sequenceType == "END" and currentCalendarTime.hour >= event.endTime.hour ) then
-			-- Event is over; don't show anything on last day *after* event ends
-			return;
-		end
-
-		local timeString, suffixString;
-		local indexInfo = C_Calendar.GetEventIndexInfo(event.eventID);  -- , monthOffset, currentCalendarTime.monthDay);
-		if not indexInfo then
-			indexInfo = { ["eventIndex"] = 1 };
-		end
-		local eventLinkText = GetCalendarEventLink(monthOffset, currentCalendarTime.monthDay, indexInfo.eventIndex);
-		-- local eventLinkText = GetCalendarEventLink(monthOffset, currentCalendarTime.monthDay, event.sequenceIndex);
-		local eventLink = LINK_FONT_COLOR:WrapTextInColorCode(COMMUNITIES_CALENDAR_CHAT_EVENT_TITLE_FORMAT:format(eventLinkText));
-
-		-- _log:debug_type(_log.type.CALENDAR, "-->", event.endTime.monthDay, currentCalendarTime.monthDay, event.endTime.monthDay - currentCalendarTime.monthDay, "days left");
-		_log:debug_type(_log.type.CALENDAR, "--> seq:", event.numSequenceDays, event.sequenceIndex, event.numSequenceDays - event.sequenceIndex, "days left");
-
-		if ( event.sequenceType == "START" and currentCalendarTime.hour >= event.endTime.hour ) then
-			-- Mark event as ongoing on the first day *after* event starts
-			event.sequenceType = "ONGOING";
-		end
-
-		if (event.sequenceType == "ONGOING") then
-			-- Show during days between the first and the last day
-			timeString = COMMUNITIES_CALENDAR_ONGOING_EVENT_PREFIX;
-			-- Also show roughly the remaining time for the ongoing event
-			-- local timeLeft = event.endTime.monthDay - currentCalendarTime.monthDay;
-			local timeLeft = event.numSequenceDays - event.sequenceIndex;
-			suffixString = SPELL_TIME_REMAINING_DAYS:format(timeLeft);
-		else
-			-- Show on first and last day of the event
-			if (event.sequenceType == "START") then
-				timeString = GameTime_GetFormattedTime(event.startTime.hour, event.startTime.minute, true);
-			end
-			if (event.sequenceType == "END") then
-				timeString = GameTime_GetFormattedTime(event.endTime.hour, event.endTime.minute, true);
-
-			end
-			-- Add localized text whether the today's event starts or ends
-			eventLink = _G["CALENDAR_EVENTNAME_FORMAT_"..event.sequenceType]:format(eventLink);
-			timeString = COMMUNITIES_CALENDAR_EVENT_FORMAT:format(COMMUNITIES_CALENDAR_TODAY, timeString);
-		end
-		local chatMsg = YELLOW_FONT_COLOR:WrapTextInColorCode(COMMUNITIES_CALENDAR_CHAT_EVENT_BROADCAST_FORMAT:format(timeString, eventLink, suffixString or ''));
-
-		return chatMsg;
+	if ( event.sequenceType == "END" and currentCalendarTime.hour >= event.endTime.hour ) then
+		-- Event is over; don't show anything on last day *after* event ends
+		return;
 	end
+
+	local timeString, suffixString;
+	local indexInfo = C_Calendar.GetEventIndexInfo(event.eventID);  -- , monthOffset, currentCalendarTime.monthDay);
+	if not indexInfo then
+		indexInfo = { ["eventIndex"] = 1 };
+	end
+	local eventLinkText = GetCalendarEventLink(monthOffset, currentCalendarTime.monthDay, indexInfo.eventIndex);
+	local eventLink = LINK_FONT_COLOR:WrapTextInColorCode(COMMUNITIES_CALENDAR_CHAT_EVENT_TITLE_FORMAT:format(eventLinkText));
+
+	_log:debug_type(_log.type.CALENDAR, "--> seq:", event.numSequenceDays, event.sequenceIndex, event.numSequenceDays - event.sequenceIndex, "days left");
+
+	if ( event.sequenceType == "START" and currentCalendarTime.hour >= event.endTime.hour ) then
+		-- Mark event as ongoing on the first day *after* event starts
+		event.sequenceType = "ONGOING";
+	end
+
+	if (event.sequenceType == "ONGOING") then
+		-- Show during days between the first and the last day
+		timeString = COMMUNITIES_CALENDAR_ONGOING_EVENT_PREFIX;
+		-- Also show roughly the remaining time for the ongoing event
+		-- local timeLeft = event.endTime.monthDay - currentCalendarTime.monthDay;
+		local timeLeft = event.numSequenceDays - event.sequenceIndex;
+		suffixString = SPELL_TIME_REMAINING_DAYS:format(timeLeft);
+	else
+		-- Show on first and last day of the event
+		if (event.sequenceType == "START") then
+			timeString = GameTime_GetFormattedTime(event.startTime.hour, event.startTime.minute, true);
+		end
+		if (event.sequenceType == "END") then
+			timeString = GameTime_GetFormattedTime(event.endTime.hour, event.endTime.minute, true);
+
+		end
+		-- Add localized text whether the today's event starts or ends
+		eventLink = _G["CALENDAR_EVENTNAME_FORMAT_"..event.sequenceType]:format(eventLink);
+		timeString = COMMUNITIES_CALENDAR_EVENT_FORMAT:format(COMMUNITIES_CALENDAR_TODAY, timeString);
+	end
+	local chatMsg = YELLOW_FONT_COLOR:WrapTextInColorCode(COMMUNITIES_CALENDAR_CHAT_EVENT_BROADCAST_FORMAT:format(timeString, eventLink, suffixString or ''));
+
+	return chatMsg;
 end
--- Test_GetDayEventChatMessage = util.calendar.GetDayEventChatMessage;
--- -- Test_GetDayEventChatMessage(Test_GetActiveDayEvent(613))
--- -- run print(Test_GetDayEventChatMessage(Test_GetActiveDayEvent(613)))
 
 --------------------------------------------------------------------------------
 ----- Addon Compartment --------------------------------------------------------

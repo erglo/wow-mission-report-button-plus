@@ -172,12 +172,10 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			_log:info("isInitialLogin:", isInitialLogin, "- isReloadingUi:", isReloadingUi)
 
 			local function printDayEvent()
-				local dayEventID = util.calendar.WORLDQUESTS_EVENT_ID;
-				if util.calendar.IsDayEventActive(dayEventID) then
-					local dayEvent = util.calendar.GetActiveDayEvent(dayEventID);
-					local dayEventMsg = util.calendar.GetDayEventChatMessage(dayEvent);
-					if dayEventMsg then ns.cprint(dayEventMsg) end;
-				end
+				_log:debug_type(_log.type.CALENDAR, "Scanning for WORLDQUESTS_EVENT...")
+				local dayEvent = util.calendar.GetActiveDayEvent(util.calendar.WORLDQUESTS_EVENT_ID);
+				local dayEventMsg = util.calendar.GetDayEventChatMessage(dayEvent);
+				if dayEventMsg then ns.cprint(dayEventMsg) end;
 			end
 			if isInitialLogin then
 				local addonName = "Blizzard_Calendar"
@@ -936,15 +934,15 @@ local function ShouldShowActiveThreatsText(garrisonTypeID)
 	);
 end
 
-local function ShouldShowTimewalkingVendorText(garrisonTypeID)
-	if (garrisonTypeID == util.expansion.data.WarlordsOfDraenor.garrisonTypeID) then
-		local isDayEventActive = util.calendar.IsDayEventActive(util.calendar.TIMEWALKING_EVENT_ID_DRAENOR);
-		return ns.settings.showWoDWorldMapEvents and ns.settings.showWoDTimewalkingVendor and isDayEventActive;
+-- Check whether the Timewalking Vendor details should be shown.
+local function ShouldShowTimewalkingVendorText(expansionInfo)
+	if (expansionInfo.ID == util.expansion.data.WarlordsOfDraenor.ID) then
+		return ns.settings.showWoDWorldMapEvents and ns.settings.showWoDTimewalkingVendor
 	end
-	if (garrisonTypeID == util.expansion.data.Legion.garrisonTypeID) then
-		local isDayEventActive = util.calendar.IsDayEventActive(util.calendar.TIMEWALKING_EVENT_ID_LEGION);
-		return ns.settings.showLegionWorldMapEvents and ns.settings.showLegionTimewalkingVendor and isDayEventActive;
+	if (expansionInfo.ID == util.expansion.data.Legion.ID) then
+		return ns.settings.showLegionWorldMapEvents and ns.settings.showLegionTimewalkingVendor
 	end
+	return false
 end
 
 -- Build the menu entry's description tooltip containing informations ie. about
@@ -1122,8 +1120,6 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 		end
 	end
 
-
-
 	----- Shadowlands -----
 
 	if (isForShadowlands and ns.settings.showCovenantRenownLevel) then
@@ -1268,9 +1264,9 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 	end
 
 	----- Timewalking Vendor (currently Draenor + Legion only) -----
-	if ShouldShowTimewalkingVendorText(garrTypeID) then
-		local vendorAreaPoiInfo = util.poi.FindTimewalkingVendor(garrInfo);
-		if (vendorAreaPoiInfo and tContains(garrInfo.continents, vendorAreaPoiInfo.mapInfo.parentMapID)) then
+	if ShouldShowTimewalkingVendorText(garrInfo.expansion) then
+		local vendorAreaPoiInfo = util.poi.FindTimewalkingVendor(garrInfo.expansion);
+		if vendorAreaPoiInfo then
 			tooltipText = TooltipText_AddHeaderLine(tooltipText, vendorAreaPoiInfo.name);
 			tooltipText = TooltipText_AddIconLine(tooltipText, vendorAreaPoiInfo.mapInfo.name, vendorAreaPoiInfo.atlasName);
 			tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, vendorAreaPoiInfo.timeString);
@@ -1506,7 +1502,9 @@ function MRBP_OnEnter(self, button, description_only)
 		local addonAbbreviation = ns.AddonTitleShort..ns.AddonTitleSeparator;
 		tooltipAddonText = GRAY_FONT_COLOR:WrapTextInColorCode(addonAbbreviation).." "..tooltipAddonText;
 	end
-	if util.calendar.IsDayEventActive(util.calendar.WINTER_HOLIDAY_EVENT_ID) then
+	_log:debug_type(_log.type.CALENDAR, "Scanning for WINTER_HOLIDAY_EVENT...")
+	local dayEvent = util.calendar.GetActiveDayEvent(util.calendar.WINTER_HOLIDAY_EVENT_ID);
+	if dayEvent then
 		-- Show an icon after the minimap tooltip text during the winter holiday event
 		local eventIcon = util.calendar.WINTER_HOLIDAY_ATLAS_NAME;
 		tooltipAddonText = tooltipAddonText.." "..util.CreateInlineIcon1(eventIcon);
@@ -1731,7 +1729,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 		GameTooltip_AddNormalLine(tooltip, GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE.." - "..LANDING_DRAGONRIDING_PANEL_SUBTITLE);
 		util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-middlebutton");
 	end
-	GameTooltip_AddBlankLineToTooltip(tooltip);
+	-- GameTooltip_AddBlankLineToTooltip(tooltip);
 
 	-- Display data for each expansion
 	local sortFunc = ns.settings.reverseSortorder and util.expansion.SortAscending or util.expansion.SortDescending;
@@ -1865,8 +1863,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						end
 					end
 				end
-				-- Covenant Renown
 				if (expansion.ID == util.expansion.data.Shadowlands.ID) then
+					-- Covenant Renown
 					local covenantInfo = util.covenant.GetCovenantInfo();
 					local renownInfo = util.covenant.GetRenownData(covenantInfo.ID);
 					if renownInfo then
@@ -1907,8 +1905,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						end
 					end
 				end
-				-- BfA Faction Assaults
 				if (expansion.ID == util.expansion.data.BattleForAzeroth.ID) then
+					-- BfA Faction Assaults
 					local factionAssaultsAreaPoiInfo = util.poi.GetBfAFactionAssaultsInfo();
 					if factionAssaultsAreaPoiInfo then
 						local timeLeft = factionAssaultsAreaPoiInfo.timeString or "...";
@@ -1916,8 +1914,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						util.GameTooltip_AddObjectiveLine(tooltip, lineText, factionAssaultsAreaPoiInfo.isCompleted, wrapLine, leftOffset, factionAssaultsAreaPoiInfo.atlasName, factionAssaultsAreaPoiInfo.color, factionAssaultsAreaPoiInfo.isCompleted);
 					end
 				end
-				-- Legion Assaults
 				if (expansion.ID == util.expansion.data.Legion.ID) then
+					-- Legion Assaults
 					local legionAssaultsAreaPoiInfo = util.poi.GetLegionAssaultsInfo();
 					if legionAssaultsAreaPoiInfo then
 						local timeLeft = legionAssaultsAreaPoiInfo.timeString or "...";
@@ -1937,10 +1935,10 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					GameTooltip_AddColoredLine(tooltip, GARRISON_LANDING_INVASION_ALERT, WARNING_FONT_COLOR, nil, leftOffset);
 					util.GameTooltip_AddAtlas(tooltip, "worldquest-tracker-questmarker");
 				end
-				----- Timewalking Vendor (currently Draenor + Legion only) -----
-				if ShouldShowTimewalkingVendorText(expansion.garrisonTypeID) then
-					local vendorAreaPoiInfo = util.poi.FindTimewalkingVendor(garrInfo);
-					if (vendorAreaPoiInfo and tContains(garrInfo.continents, vendorAreaPoiInfo.mapInfo.parentMapID)) then
+				-- Timewalking Vendor (currently Draenor + Legion only)
+				if ShouldShowTimewalkingVendorText(expansion) then
+					local vendorAreaPoiInfo = util.poi.FindTimewalkingVendor(expansion);
+					if vendorAreaPoiInfo then
 						local timeLeft = vendorAreaPoiInfo.timeString or "...";
 						local lineText = format("%s @ %s", vendorAreaPoiInfo.name, vendorAreaPoiInfo.mapInfo.name);
 						GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
@@ -1950,7 +1948,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 			end
 		end
 	end
-	GameTooltip_AddBlankLineToTooltip(tooltip);
+	-- GameTooltip_AddBlankLineToTooltip(tooltip);
 
 	tooltip:Show();
 end

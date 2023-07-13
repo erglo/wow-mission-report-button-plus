@@ -12,6 +12,8 @@
 ### Changed
 
 - Updated TOC file version to `WoW 10.1.5`.
+- `Timewalking Vendor` details for Warlords of Draenor and Legion don't depend on calendar event data anymore.
+- Calendar data look-up process refurbished.
 &nbsp;  
 
 ## Previous changes
