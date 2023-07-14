@@ -104,6 +104,7 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DRAGONBANE_KEEP = "the Siege on Dragonbane Keep in the Waking Shores",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ELEMENTAL_STORMS = "the Elemental Storms on the Dragon Isles",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_FYRAKK_ASSAULTS = "the Fyrakk Assaults on the Dragon Isles",
+	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TIME_RIFTS = "the Time Rifts in Thaldraszus",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE = "Researchers Under Fire in the Zaralek Cavern",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN = "(Works in Zaralek Cavern only!)",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS = "Hides additional event description texts when enabled.",

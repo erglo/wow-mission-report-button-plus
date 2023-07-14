@@ -75,6 +75,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showElementalStormsInfo"] = true,
 	["showFyrakkAssaultsInfo"] = true,
 	["showResearchersUnderFireInfo"] = true,
+	["showTimeRiftInfo"] = true,
 	["hideEventDescriptions"] = false,
 	-- Shadowlands
 	["showCovenantMissionInfo"] = true,
@@ -411,7 +412,6 @@ function MRBP_Settings_Register()
 			variable = "showInAddonCompartment",
 			name = L.CFG_SHOW_ADDON_COMPARTMENT_TEXT,
 			tooltip = L.CFG_SHOW_ADDON_COMPARTMENT_TOOLTIP,
-			tag = Settings.Default.True,
 		},
 		{
 			variable = "showAchievementTracking",
@@ -640,7 +640,6 @@ function MRBP_Settings_Register()
 			tooltip = L.CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP,
 			parentVariable = "showWoDGarrisonInvasionAlert",
 			modifyPredicate = ShouldShowEntryTooltip,
-			tag = Settings.Default.True,
 		},
 		{
 			variable = "showWoDWorldMapEvents",
@@ -915,6 +914,14 @@ function MRBP_Settings_Register()
 					  "|n|n"..L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN,
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showTimeRiftInfo",
+			name = ns.label.showTimeRiftInfo,
+			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TIME_RIFTS or "???"),
+			parentVariable = "showDragonflightWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
 		},
 		{
 			variable = "hideEventDescriptions",

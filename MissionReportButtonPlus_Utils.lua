@@ -1515,7 +1515,7 @@ function util.poi.GetTimeRiftInfo()
 			end
 		end
 		-- Save name for category and options
-		if util.StringIsEmpty(ns.label.showTimeRiftInfo) then
+		if (ns.label.showTimeRiftInfo ~= poiInfo.name) then
 			ns.label.showTimeRiftInfo = poiInfo.name
 		end
 		return poiInfo
@@ -1762,7 +1762,8 @@ PoiFilter.ignoredAreaPoiIDs = {
 	"4186",  -- Elixir of Shadow Sight
 	"4187",  -- Elixir of Shadow Sight
 	"4188",  -- Elixir of Shadow Sight
-	"4587",  -- Ashran Quartermaster (PvP)
+	"4586",  -- Ashran Quartermaster (PvP, Alliance)
+	"4587",  -- Ashran Quartermaster (PvP, Horde)
 };
 
 function PoiFilter.ShouldIgnoreAreaPOI(poiInfo)
@@ -2083,7 +2084,7 @@ ns.label = {
 	["showElementalStormsInfo"] = L.ENTRYTOOLTIP_DF_ELEMENTAL_STORMS_LABEL,
 	["showFyrakkAssaultsInfo"] = L.ENTRYTOOLTIP_DF_FYRAKK_ASSAULTS_LABEL,
 	["showResearchersUnderFireInfo"] = GetResearchersUnderFireLabel(),
-	["showTimeRiftInfo"] = '',  --> will be set during areaPoi retrieval
+	["showTimeRiftInfo"] = "Time Rifts",  --> will be updated with localized version during areaPoi retrieval
 	["hideEventDescriptions"] = L.ENTRYTOOLTIP_DF_HIDE_EVENT_DESCRIPTIONS_LABEL,
 };
 

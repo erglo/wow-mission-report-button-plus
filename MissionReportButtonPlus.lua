@@ -542,6 +542,7 @@ end
 ---
 function MRBP_IsGarrisonRequirementMet(garrTypeID)
 	local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID]
+	if not garrInfo then return false end
 	_log:info("Checking Garrison Requirement for", garrInfo.expansion.name, "...")
 
 	local hasGarrison = util.garrison.HasGarrison(garrTypeID)
@@ -1253,7 +1254,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				end
 			end
 			-- Time Rifts 
-			if true then
+			if ns.settings.showTimeRiftInfo then
 				local dfTimeRiftsInfo = util.poi.GetTimeRiftInfo()
 				if dfTimeRiftsInfo then
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, dfTimeRiftsInfo.name)
@@ -1849,7 +1850,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						end
 					end
 					-- Time Rifts 
-					if true then
+					if ns.settings.showTimeRiftInfo then
 						local dfTimeRiftsInfo = util.poi.GetTimeRiftInfo();
 						if dfTimeRiftsInfo then
 							local timeLeft = dfTimeRiftsInfo.timeString or "...";

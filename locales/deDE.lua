@@ -118,6 +118,7 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DRAGONBANE_KEEP = "der Belagerung der Drachenfluchfestung in der Küste des Erwachens",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ELEMENTAL_STORMS = "der Elementarstürme auf den Dracheninseln",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_FYRAKK_ASSAULTS = "der Angriffe von Fyrakk auf die Dracheninseln",
+	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TIME_RIFTS = "der Zeitrisse in Thaldraszus",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE = "von Forscher unter Feuer in der Zaralekhöhle",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN = "(Funktioniert nur in der Zaralekhöhle!)",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS = "Wenn aktiviert, werden Texte die weitere Details zu einem Ereignis beschreiben, ausgeblendet.",
@@ -132,7 +133,7 @@ ns.L = {
 	CFG_DDMENU_STYLESELECTION_VALUE2_TEXT = "Dropdownmenü",
 	CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP = "Dieser Stil entspricht dem Aussehen der Dialoge vor der Dragonflight-Erweiterung.",
 	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT = "Alarm-Symbol ausblenden",
-	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP = "Das Invasionsalarm-Symbol am oberen Rand des Missionsberichtsfensters eurer Draenor-Garnison ausblenden, selbst wenn Invasionen verfügbar sind.",
+	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP = "Das Invasionsalarm-Symbol am oberen Rand des Missionsbericht-Fensters eurer Draenor-Garnison ausblenden, selbst wenn Invasionen verfügbar sind.",
 	CFG_ABOUT_ADDON_LABEL = "Über dieses Addon",
 	CFG_ABOUT_SLASHCMD_LABEL = "Slash-Befehle",
 	--[[ Testing ]]--
