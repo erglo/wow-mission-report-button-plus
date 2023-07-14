@@ -341,22 +341,19 @@ function LocalQuestUtil.IsActiveWorldQuest(questID)
 	return C_TaskQuest.IsActive(questID);
 end
 
-function LocalQuestUtil.GetQuestTimeLeftInfo(questID)							--> TODO - Documentation
+function LocalQuestUtil.GetQuestTimeLeftInfo(questID, secondsLeft)				--> TODO - Documentation
 	-- REF.: <FrameXML/WorldMapFrame.lua>
 	-- REF.: <FrameXML/GameTooltip.lua>
 	-- REF.: <FrameXML/TimeUtil.lua>
-	local seconds = C_TaskQuest.GetQuestTimeLeftSeconds(questID);
+	local seconds = secondsLeft or C_TaskQuest.GetQuestTimeLeftSeconds(questID);
 	if (seconds and seconds > 0) then
 		local timeLeftInfo = {};
 		timeLeftInfo.seconds = seconds;
-		-- timeLeftInfo.color = util.quest.GetQuestTimeColor(timeLeftInfo.seconds);
-		-- timeLeftInfo.color = util.quest.GetQuestTimeColorByQuestID(questID, WHITE_FONT_COLOR);
 		timeLeftInfo.color = util.GetTimeRemainingColorForSeconds(seconds, WHITE_FONT_COLOR);
-		-- local abbreviationType = SecondsFormatter.Abbreviation.Truncate;
-		-- timeLeftInfo.timeString = WorldQuestsSecondsFormatter:Format(timeLeftInfo.seconds, abbreviationType);
-		timeLeftInfo.timeString = SecondsToTime(timeLeftInfo.seconds);
+		local abbreviationType = SecondsFormatter.Abbreviation.Truncate;
+		timeLeftInfo.timeString = WorldQuestsSecondsFormatter:Format(timeLeftInfo.seconds, abbreviationType);
+		-- timeLeftInfo.timeString = SecondsToTime(timeLeftInfo.seconds);  --> deprecated
 		timeLeftInfo.timeLeftString = BONUS_OBJECTIVE_TIME_LEFT:format(timeLeftInfo.timeString);
-		-- timeLeftInfo.coloredTimeLeftString = timeLeftInfo.color:WrapTextInColorCode(timeLeftInfo.timeLeftString);
 		timeLeftInfo.coloredTimeLeftString = timeLeftInfo.color:WrapTextInColorCode(timeLeftInfo.timeString);
 		return timeLeftInfo;
 	end
@@ -536,15 +533,6 @@ function LocalMapUtil.GetMapInfo(mapID)
 	return C_Map.GetMapInfo(mapID);
 end
 
--- Return the UiMapDetails of the current zone.
---
-function LocalMapUtil.GetCurrentZoneMapInfo()
-	local mapID = C_Map.GetBestMapForUnit("player")
-	local mapInfo = LocalMapUtil.GetMapInfo(mapID)
-	return mapInfo
-end
-Test_GetCurrentZoneMapInfo = LocalMapUtil.GetCurrentZoneMapInfo
-
 -- Get the mapInfo of each child zone of given map.
 ---@param mapID number
 ---@param mapType number|Enum.UIMapType
@@ -554,6 +542,47 @@ Test_GetCurrentZoneMapInfo = LocalMapUtil.GetCurrentZoneMapInfo
 function LocalMapUtil.GetMapChildrenInfo(mapID, mapType, allDescendants)
 	return C_Map.GetMapChildrenInfo(mapID, mapType, allDescendants);
 end
+
+-- Returns a map area/subzone name.  
+---@param areaID number
+---@return string areaName
+-- [Documentation](https://wowpedia.fandom.com/wiki/API_C_Map.GetAreaInfo),
+-- [AreaTable.db2](https://wow.tools/dbc/?dbc=areatable)
+--
+function LocalMapUtil.GetAreaInfo(areaID)
+	return C_Map.GetAreaInfo(areaID)
+end
+
+-- -- Return the UiMapDetails of the current zone.
+-- function LocalMapUtil.GetCurrentZoneMapInfo()
+-- 	local mapID = C_Map.GetBestMapForUnit("player")
+-- 	local mapInfo = LocalMapUtil.GetMapInfo(mapID)
+-- 	return mapInfo
+-- end
+-- Test_GetCurrentZoneMapInfo = LocalMapUtil.GetCurrentZoneMapInfo
+-- -- C_Map.GetMapLinksForMap(2023)	--> TODO - QH
+
+-- -- C_Map.GetAreaInfo(14463)
+-- -- 14463  --> Eaglewatch Outpost, Ohn'ahra
+-- -- 13747  --> Aylaag Outpost
+-- --> The Ohn'ahran Trail  achievement=16462
+
+-- function Test_MapInfoAtPosition()
+-- 	local mapInfo = LocalMapUtil.GetCurrentZoneMapInfo()
+-- 	local pos = C_Map.GetPlayerMapPosition(mapInfo.mapID, "player")  -- Only works for the player and party members.
+-- 	if pos then
+-- 		-- return C_Map.GetMapInfoAtPosition(mapInfo.mapID, pos:GetXY())
+-- 	-- 	local areaIDs = C_MapExplorationInfo.GetExploredAreaIDsAtPosition(mapInfo.mapID, pos)
+-- 	-- 	if areaIDs then
+-- 	-- 		for i=1, #areaIDs do
+-- 	-- 			local areaID = areaIDs[i]
+-- 	-- 			local areaName = LocalMapUtil.GetAreaInfo(areaID)
+-- 	-- 			print(i, areaID, areaName)
+-- 	-- 		end
+-- 	-- 	end
+-- 		return MapUtil.FindBestAreaNameAtMouse(mapInfo.mapID, pos:GetXY())
+-- 	end
+-- end
 
 --------------------------------------------------------------------------------
 ----- Expansion utilities ------------------------------------------------------
@@ -1286,7 +1315,7 @@ LocalPoiUtil.SingleArea = {};
 ---@return table|nil areaPoiInfo
 --
 function LocalPoiUtil.SingleArea.GetAreaPoiInfo(eventData)
-	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeMapInfoAtPosition, eventData.includeClosestFlightPoint);
+	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeMapInfoAtPosition);
 	if (activeAreaPOIs and #activeAreaPOIs > 0) then
 		for _, poiInfo in ipairs(activeAreaPOIs) do
 			if eventData.CompareFunction(eventData, poiInfo) then
@@ -1298,7 +1327,7 @@ end
 
 function LocalPoiUtil.SingleArea.GetMultipleAreaPoiInfos(eventData, ignoreSorting)
 	local events = {};
-	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeMapInfoAtPosition, eventData.includeClosestFlightPoint);
+	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeMapInfoAtPosition);
 	if (activeAreaPOIs and #activeAreaPOIs > 0) then
 		for _, poiInfo in ipairs(activeAreaPOIs) do
 			if eventData.CompareFunction(eventData, poiInfo) then
@@ -1320,7 +1349,7 @@ LocalPoiUtil.MultipleAreas = {};
 --
 function LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(eventData)
 	for _, mapInfo in ipairs(eventData.mapInfos) do
-		local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, eventData.includeMapInfoAtPosition, eventData.includeClosestFlightPoint);
+		local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, eventData.includeMapInfoAtPosition);
 		if (activeAreaPOIs and #activeAreaPOIs > 0) then
 			for _, poiInfo in ipairs(activeAreaPOIs) do
 				if eventData.CompareFunction(eventData, poiInfo) then
@@ -1379,7 +1408,7 @@ CampAylaagData.mapID = 2023;  --> Ohn'ahra
 CampAylaagData.mapInfo = LocalMapUtil.GetMapInfo(CampAylaagData.mapID);
 CampAylaagData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
 CampAylaagData.includeMapInfoAtPosition = true;
-CampAylaagData.includeClosestFlightPoint = true;
+-- CampAylaagData.includeClosestFlightPoint = true;
 
 function util.poi.GetCampAylaagInfo()
 	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(CampAylaagData);
@@ -1472,15 +1501,28 @@ end
 local TimeRiftData = {}
 TimeRiftData.widgetSetID = 845
 TimeRiftData.mapID = 2025  -- Thaldraszus
--- TimeRiftData.mapID = DRAGON_ISLES_MAP_ID
--- TimeRiftData.mapInfos = LocalMapUtil.GetMapChildrenInfo(TimeRiftData.mapID, Enum.UIMapType.Zone)
 TimeRiftData.mapInfo = LocalMapUtil.GetMapInfo(TimeRiftData.mapID)
 TimeRiftData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID
+TimeRiftData.GetTimeLeft = function()
+		-- The event starts every full hour and lasts for 15 minutes
+		local gameTimeHour, gameTimeMinutes = GetLocalGameTime()
+		local isActive = gameTimeMinutes <= 15
+		local minutesLeft = isActive and (15 - gameTimeMinutes) or (60 - gameTimeMinutes)
+		local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(nil, MinutesToSeconds(minutesLeft));
+		local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString;
+		return timeLeftString, isActive
+end
+-- Test_GetTimeLeft = TimeRiftData.GetTimeLeft
 
 function util.poi.GetTimeRiftInfo()
 	-- local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(TimeRiftData)
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(TimeRiftData)
 	if poiInfo then
+		if not poiInfo.isTimed then
+			local timeLeftString, isActive = TimeRiftData.GetTimeLeft()
+			poiInfo.timeString = not isActive and timeLeftString or timeLeftString.." "..PARENS_TEMPLATE:format(SPEC_ACTIVE)
+			poiInfo.isTimed = true
+		end
 		if util.StringIsEmpty(ns.label.showTimeRiftInfo) then
 			ns.label.showTimeRiftInfo = poiInfo.name
 		end
@@ -1754,11 +1796,10 @@ end
 -- Main POI retrieval function; Gets all POIs of given map info.
 ---@param mapInfo table|UiMapDetails
 ---@param includeMapInfoAtPosition boolean
----@param includeClosestFlightPoint boolean
 ---@return AreaPOIInfo[]|nil activeAreaPOIs
 ---@class AreaPOIInfo
 --
-function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition, includeClosestFlightPoint)
+function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition)
 	local areaPOIs = LocalMapUtil.GetAreaPOIForMap(mapInfo.mapID);
 	if (areaPOIs and #areaPOIs > 0) then
 		local activeAreaPOIs = {};
@@ -1784,9 +1825,8 @@ function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition, in
 				if (includeMapInfoAtPosition or mapInfo.mapType == Enum.UIMapType.Continent) then
 					-- Needs more accurate zone infos
 					mapInfo = C_Map.GetMapInfoAtPosition(mapInfo.mapID, poiInfo.position:GetXY());
-				end
-				if includeClosestFlightPoint then
-					poiInfo.closetFlightPoint = LocalMapUtil.GetClosestFlightPoint(mapInfo.mapID, poiInfo.position:GetXY());
+					-- local areaName = MapUtil.FindBestAreaNameAtMouse(mapInfo.mapID, poiInfo.position:GetXY())
+					-- mapInfo.name = (areaName and includeMapInfoAtPosition) and areaName or mapInfo.name
 				end
 				poiInfo.mapInfo = mapInfo;
 				tinsert(activeAreaPOIs, poiInfo);
@@ -1826,10 +1866,12 @@ if _log.DEVMODE then
 		"7429",  -- Fyrakk Assaults - Ohn'ahra (continent view)
 		"7432",  -- Fyrakk Assaults - Azure Span
 		"7433",  -- Fyrakk Assaults - Azure Span
+		"7435",  -- Fyrakk Assaults - Azure Span
 		"7471",  -- Fyrakk Assaults - Ohn'ahra
 		"7486",  -- Fyrakk Assaults - Ohn'ahra
 		"7221",  -- Elemental Storm (Air)
 		"7224",  -- Elemental Storm (Water)
+		"7229",  -- Elemental Storm (Air) - Ohn'ahran Plains
 		"7231",  -- Elemental Storm (Fire)
 		"7232",  -- Elemental Storm (Water)
 		"7233",  -- Elemental Storm (Air)
@@ -1843,6 +1885,7 @@ if _log.DEVMODE then
 		"7246",  -- Elemental Storm (Earth)
 		"7247",  -- Elemental Storm (Fire) - Thaldraszus
 		"7254",  -- Elemental Storm (Earth) - Waking Shores
+		"7255",  -- Elemental Storm (Fire) - Waking Shores
 		"7256",  -- Elemental Storm (Water) - Waking Shores
 		-- "7257",  -- Elemental Storm (???) - Waking Shores
 		"7258",  -- Elemental Storm (Earth)
@@ -1992,72 +2035,6 @@ local function trimTaxiNodeName(taxiNodeData, sep)
 	local cleanZoneName = zoneNameMatch and strtrim(zoneNameMatch) or '';
 	return cleanNodeName, cleanZoneName;
 end
-
--- Calculate the distance from given position to the closest flight point.
----@param mapID number|nil
----@param posX number|nil
----@param posY number|nil
----@return MapTaxiNodeInfo|nil taxiNodeData
---
---> REF.: <FrameXML/Blizzard_APIDocumentationGenerated/TaxiMapDocumentation.lua>  
---> REF.: <FrameXML/MathUtil.lua>
---
-function LocalMapUtil.GetClosestFlightPoint(mapID, posX, posY, distance)
-	-- local prev_loglvl = _log.level
-	-- _log.level = _log.DEBUG
-
-	-- If no mapID given, defaults to the player's position
-	if not mapID then
-		mapID = C_Map.GetBestMapForUnit("player");
-		local playerPosition = C_Map.GetPlayerMapPosition(mapID, "player");
-		if playerPosition then
-			posX, posY = playerPosition:GetXY();
-		else
-			posX, posY = 0, 0;
-		end
-	end
-	local mapInfo = LocalMapUtil.GetMapInfo(mapID);
-
-	local mapTaxiNodes = C_TaxiMap.GetTaxiNodesForMap(mapInfo.mapID);
-	local allowedFlightPathFactions = {
-		Enum.FlightPathFaction[UnitFactionGroup("player")],
-		Enum.FlightPathFaction["Neutral"],
-	};
-	local closest = distance or 0.01;  --> distance threshold
-
-	_log:info("Searching for closest flight point to...")
-	_log:info("-->", mapInfo.mapID, mapInfo.name, "@", closest);
-	_log:info("-->", mapInfo.mapID, posX, posY);
-
-	-- Calculate closest flight master
-	for slotIndex, taxiNodeData in pairs(mapTaxiNodes) do
-		if tContains(allowedFlightPathFactions, taxiNodeData.faction) then
-			-- REF.: CalculateDistanceSq(x1, y1, x2, y2)
-			local distance = CalculateDistanceSq(posX, posY, taxiNodeData.position:GetXY());
-			local isInCloseRange = distance and distance < closest or false;
-			-- _log:debug("distance:", distance, "isInCloseRange:", isInCloseRange);
-			if isInCloseRange then
-				_log:info("Found", taxiNodeData.nodeID, YELLOW_FONT_COLOR:WrapTextInColorCode(taxiNodeData.name));
-				_log:info("--> at distance:", distance);
-				taxiNodeData.cleanNodeName, taxiNodeData.cleanZoneName = trimTaxiNodeName(taxiNodeData);
-				-- _log.level = prev_loglvl;
-				return taxiNodeData;
-			end
-			_log:debug("Skipping", distance, taxiNodeData.nodeID);  --, taxiNodeData.name);
-		end
-	end
-	-- _log.level = prev_loglvl;
-
-	-- Try again in longer, but not too long range
-	if (closest <= 0.1) then
-		local new_distance = closest + 0.01;  --> new threshold
-		return LocalMapUtil.GetClosestFlightPoint(mapInfo.mapID, posX, posY, new_distance);
-	end
-end
-Test_GetClosestFlightPoint = LocalMapUtil.GetClosestFlightPoint;
--- Test_GetClosestFlightPoint(2023, 0.713, 0.313)
--- C_Map.GetPlayerMapPosition(C_Map.GetBestMapForUnit("player"), "player")
--- Test_GetClosestFlightPoint(2022, 0.422, 0.668)
 
 --------------------------------------------------------------------------------
 ----- Labels -------------------------------------------------------------------
