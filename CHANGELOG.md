@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - Updated TOC file version to `WoW 10.1.5`.
+- Refined `area names` for some POI details.
 - `Timewalking Vendor` details for Warlords of Draenor and Legion don't depend on calendar event data anymore.
 - Calendar data look-up process refurbished.
 

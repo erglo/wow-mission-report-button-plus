@@ -553,37 +553,6 @@ function LocalMapUtil.GetAreaInfo(areaID)
 	return C_Map.GetAreaInfo(areaID)
 end
 
--- -- Return the UiMapDetails of the current zone.
--- function LocalMapUtil.GetCurrentZoneMapInfo()
--- 	local mapID = C_Map.GetBestMapForUnit("player")
--- 	local mapInfo = LocalMapUtil.GetMapInfo(mapID)
--- 	return mapInfo
--- end
--- Test_GetCurrentZoneMapInfo = LocalMapUtil.GetCurrentZoneMapInfo
--- -- C_Map.GetMapLinksForMap(2023)	--> TODO - QH
-
--- -- C_Map.GetAreaInfo(14463)
--- -- 14463  --> Eaglewatch Outpost, Ohn'ahra
--- -- 13747  --> Aylaag Outpost
--- --> The Ohn'ahran Trail  achievement=16462
-
--- function Test_MapInfoAtPosition()
--- 	local mapInfo = LocalMapUtil.GetCurrentZoneMapInfo()
--- 	local pos = C_Map.GetPlayerMapPosition(mapInfo.mapID, "player")  -- Only works for the player and party members.
--- 	if pos then
--- 		-- return C_Map.GetMapInfoAtPosition(mapInfo.mapID, pos:GetXY())
--- 	-- 	local areaIDs = C_MapExplorationInfo.GetExploredAreaIDsAtPosition(mapInfo.mapID, pos)
--- 	-- 	if areaIDs then
--- 	-- 		for i=1, #areaIDs do
--- 	-- 			local areaID = areaIDs[i]
--- 	-- 			local areaName = LocalMapUtil.GetAreaInfo(areaID)
--- 	-- 			print(i, areaID, areaName)
--- 	-- 		end
--- 	-- 	end
--- 		return MapUtil.FindBestAreaNameAtMouse(mapInfo.mapID, pos:GetXY())
--- 	end
--- end
-
 --------------------------------------------------------------------------------
 ----- Expansion utilities ------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -1315,7 +1284,7 @@ LocalPoiUtil.SingleArea = {};
 ---@return table|nil areaPoiInfo
 --
 function LocalPoiUtil.SingleArea.GetAreaPoiInfo(eventData)
-	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeMapInfoAtPosition);
+	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeAreaName);
 	if (activeAreaPOIs and #activeAreaPOIs > 0) then
 		for _, poiInfo in ipairs(activeAreaPOIs) do
 			if eventData.CompareFunction(eventData, poiInfo) then
@@ -1327,7 +1296,7 @@ end
 
 function LocalPoiUtil.SingleArea.GetMultipleAreaPoiInfos(eventData, ignoreSorting)
 	local events = {};
-	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeMapInfoAtPosition);
+	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeAreaName);
 	if (activeAreaPOIs and #activeAreaPOIs > 0) then
 		for _, poiInfo in ipairs(activeAreaPOIs) do
 			if eventData.CompareFunction(eventData, poiInfo) then
@@ -1349,7 +1318,7 @@ LocalPoiUtil.MultipleAreas = {};
 --
 function LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(eventData)
 	for _, mapInfo in ipairs(eventData.mapInfos) do
-		local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, eventData.includeMapInfoAtPosition);
+		local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, eventData.includeAreaName);
 		if (activeAreaPOIs and #activeAreaPOIs > 0) then
 			for _, poiInfo in ipairs(activeAreaPOIs) do
 				if eventData.CompareFunction(eventData, poiInfo) then
@@ -1375,19 +1344,6 @@ function LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(eventData)
 	return events;
 end
 
------ Grand Hunts -----
-
-local GrandHuntsData = {};
-GrandHuntsData.widgetSetID = 712;
-GrandHuntsData.mapID = DRAGON_ISLES_MAP_ID;
-GrandHuntsData.mapInfo = LocalMapUtil.GetMapInfo(GrandHuntsData.mapID);
-GrandHuntsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
-GrandHuntsData.ignorePrimaryMapForPOI = true;
-
-function util.poi.GetGrandHuntsInfo()
-	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(GrandHuntsData);
-end
-
 ----- Dragonriding Race -----
 
 local DragonRidingRaceData = {};
@@ -1395,6 +1351,7 @@ DragonRidingRaceData.atlasName = "racing";
 DragonRidingRaceData.mapID = DRAGON_ISLES_MAP_ID;
 DragonRidingRaceData.mapInfos = LocalMapUtil.GetMapChildrenInfo(DragonRidingRaceData.mapID, Enum.UIMapType.Zone);
 DragonRidingRaceData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
+DragonRidingRaceData.includeAreaName = true;
 
 function util.poi.GetDragonridingRaceInfo()
 	return LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(DragonRidingRaceData);
@@ -1407,11 +1364,34 @@ CampAylaagData.widgetSetIDs = {718, 719, 720};
 CampAylaagData.mapID = 2023;  --> Ohn'ahra
 CampAylaagData.mapInfo = LocalMapUtil.GetMapInfo(CampAylaagData.mapID);
 CampAylaagData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
-CampAylaagData.includeMapInfoAtPosition = true;
--- CampAylaagData.includeClosestFlightPoint = true;
+CampAylaagData.includeAreaName = true;
+CampAylaagData.areaIDsMap = {
+	-- ["7101"] = ,  -- River Camp (east), no areaID found; show 'FindBestAreaNameAtMouse' instead
+	["7102"] = 13747,  -- Aylaag Outpost
+	["7103"] = 14463,  -- Eaglewatch Outpost, Ohn'ahra
+}																				--> TODO - The Ohn'ahran Trail (achievement=16462)
 
 function util.poi.GetCampAylaagInfo()
-	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(CampAylaagData);
+	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(CampAylaagData)
+	if poiInfo then
+		-- print("camp:", poiInfo.areaPoiID, poiInfo.areaName)
+		local areaID = CampAylaagData.areaIDsMap[tostring(poiInfo.areaPoiID)]
+		poiInfo.areaName = areaID and LocalMapUtil.GetAreaInfo(areaID) or poiInfo.areaName
+		return poiInfo
+	end
+end
+
+----- Grand Hunts -----
+
+local GrandHuntsData = {};
+GrandHuntsData.widgetSetID = 712;
+GrandHuntsData.mapID = DRAGON_ISLES_MAP_ID;
+GrandHuntsData.mapInfo = LocalMapUtil.GetMapInfo(GrandHuntsData.mapID);
+GrandHuntsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
+GrandHuntsData.ignorePrimaryMapForPOI = true;
+
+function util.poi.GetGrandHuntsInfo()
+	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(GrandHuntsData);
 end
 
 ----- Iskaara Community Feast -----
@@ -1456,6 +1436,7 @@ ElementalStormData.mapID = DRAGON_ISLES_MAP_ID;
 ElementalStormData.mapInfos = LocalMapUtil.GetMapChildrenInfo(ElementalStormData.mapID, Enum.UIMapType.Zone);
 ElementalStormData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
 ElementalStormData.SortingFunction = LocalPoiUtil.SortMapIDsAscending;
+ElementalStormData.includeAreaName = true;
 
 function util.poi.GetElementalStormsInfo()
 	return LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(ElementalStormData);
@@ -1481,6 +1462,7 @@ ResearchersUnderFireData.mapID = 2133;
 ResearchersUnderFireData.mapInfo = LocalMapUtil.GetMapInfo(ResearchersUnderFireData.mapID);
 ResearchersUnderFireData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
 ResearchersUnderFireData.ignorePrimaryMapForPOI = true;
+ResearchersUnderFireData.includeAreaName = true;
 
 function util.poi.GetResearchersUnderFireDataInfo()
 	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(ResearchersUnderFireData);
@@ -1504,25 +1486,30 @@ TimeRiftData.mapID = 2025  -- Thaldraszus
 TimeRiftData.mapInfo = LocalMapUtil.GetMapInfo(TimeRiftData.mapID)
 TimeRiftData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID
 TimeRiftData.GetTimeLeft = function()
-		-- The event starts every full hour and lasts for 15 minutes
-		local gameTimeHour, gameTimeMinutes = GetLocalGameTime()
-		local isActive = gameTimeMinutes <= 15
-		local minutesLeft = isActive and (15 - gameTimeMinutes) or (60 - gameTimeMinutes)
-		local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(nil, MinutesToSeconds(minutesLeft));
-		local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString;
+	-- The event starts every hour and lasts for 15 minutes
+	local gameTimeHour, gameTimeMinutes = GetLocalGameTime()
+	local isActive = gameTimeMinutes <= 15
+	local minutesLeft = isActive and (15 - gameTimeMinutes) or (60 - gameTimeMinutes)
+	if (minutesLeft >= 0) then
+		local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(nil, MinutesToSeconds(minutesLeft))
+		local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString
 		return timeLeftString, isActive
+	end
 end
--- Test_GetTimeLeft = TimeRiftData.GetTimeLeft
+TimeRiftData.includeAreaName = true
 
 function util.poi.GetTimeRiftInfo()
-	-- local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(TimeRiftData)
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(TimeRiftData)
 	if poiInfo then
 		if not poiInfo.isTimed then
 			local timeLeftString, isActive = TimeRiftData.GetTimeLeft()
-			poiInfo.timeString = not isActive and timeLeftString or timeLeftString.." "..PARENS_TEMPLATE:format(SPEC_ACTIVE)
-			poiInfo.isTimed = true
+			if timeLeftString then
+				local activeTimeLeftString = timeLeftString.." "..GREEN_FONT_COLOR:WrapTextInColorCode(SPEC_ACTIVE)
+				poiInfo.timeString = isActive and activeTimeLeftString or timeLeftString
+				poiInfo.isTimed = true
+			end
 		end
+		-- Save name for category and options
 		if util.StringIsEmpty(ns.label.showTimeRiftInfo) then
 			ns.label.showTimeRiftInfo = poiInfo.name
 		end
@@ -1795,11 +1782,11 @@ end
 
 -- Main POI retrieval function; Gets all POIs of given map info.
 ---@param mapInfo table|UiMapDetails
----@param includeMapInfoAtPosition boolean
+---@param includeAreaName boolean|nil
 ---@return AreaPOIInfo[]|nil activeAreaPOIs
 ---@class AreaPOIInfo
 --
-function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition)
+function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeAreaName)
 	local areaPOIs = LocalMapUtil.GetAreaPOIForMap(mapInfo.mapID);
 	if (areaPOIs and #areaPOIs > 0) then
 		local activeAreaPOIs = {};
@@ -1822,11 +1809,14 @@ function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeMapInfoAtPosition)
 						poiInfo.timeString = color:WrapTextInColorCode(timeString);
 					end
 				end
-				if (includeMapInfoAtPosition or mapInfo.mapType == Enum.UIMapType.Continent) then
+				if (mapInfo.mapType == Enum.UIMapType.Continent) then
 					-- Needs more accurate zone infos
 					mapInfo = C_Map.GetMapInfoAtPosition(mapInfo.mapID, poiInfo.position:GetXY());
-					-- local areaName = MapUtil.FindBestAreaNameAtMouse(mapInfo.mapID, poiInfo.position:GetXY())
-					-- mapInfo.name = (areaName and includeMapInfoAtPosition) and areaName or mapInfo.name
+				end
+				if includeAreaName then
+					-- User map name as fallback
+					local areaName = MapUtil.FindBestAreaNameAtMouse(mapInfo.mapID, poiInfo.position:GetXY())
+					poiInfo.areaName = areaName and areaName or mapInfo.name
 				end
 				poiInfo.mapInfo = mapInfo;
 				tinsert(activeAreaPOIs, poiInfo);
@@ -1895,7 +1885,7 @@ if _log.DEVMODE then
 		"7460",  -- pre-Researchers Under Fire - Zaralek Cavern
 		"7461",  -- mid-Researchers Under Fire - Zaralek Cavern
 		"7462",  -- mid-Researchers Under Fire - Zaralek Cavern
-		-- "7492",  -- Time Rift, Thaldraszus
+		"7492",  -- Time Rift, Thaldraszus
 		-- Shadowlands
 		-- Battle for Azeroth
 		"5896",  -- Faction Assaults (Horde attacking Tiragardesound)
@@ -2309,6 +2299,32 @@ end
 -- <https://www.wowhead.com/de/today-in-wow>
 
 ----- Tests --------------------------------------------------------------------
+
+-- -- Return the UiMapDetails of the current zone.
+-- function LocalMapUtil.GetCurrentZoneMapInfo()
+-- 	local mapID = C_Map.GetBestMapForUnit("player")
+-- 	local mapInfo = LocalMapUtil.GetMapInfo(mapID)
+-- 	return mapInfo
+-- end
+-- Test_GetCurrentZoneMapInfo = LocalMapUtil.GetCurrentZoneMapInfo
+-- -- C_Map.GetMapLinksForMap(2023)	--> TODO - QH
+
+-- function Test_MapInfoAtPosition()
+-- 	local mapInfo = LocalMapUtil.GetCurrentZoneMapInfo()
+-- 	local pos = C_Map.GetPlayerMapPosition(mapInfo.mapID, "player")  -- Only works for the player and party members.
+-- 	if pos then
+-- 		-- return C_Map.GetMapInfoAtPosition(mapInfo.mapID, pos:GetXY())
+-- 	-- 	local areaIDs = C_MapExplorationInfo.GetExploredAreaIDsAtPosition(mapInfo.mapID, pos)
+-- 	-- 	if areaIDs then
+-- 	-- 		for i=1, #areaIDs do
+-- 	-- 			local areaID = areaIDs[i]
+-- 	-- 			local areaName = LocalMapUtil.GetAreaInfo(areaID)
+-- 	-- 			print(i, areaID, areaName)
+-- 	-- 		end
+-- 	-- 	end
+-- 		return MapUtil.FindBestAreaNameAtMouse(mapInfo.mapID, pos:GetXY())
+-- 	end
+-- end
 
 -- MapUtil.ShouldShowTask(mapID, info)
 -- MapUtil.MapHasEmissaries(mapID)

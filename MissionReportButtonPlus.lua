@@ -694,6 +694,8 @@ end
 ---@return string tooltipText
 --
 local function TooltipText_AddObjectiveLine(tooltipText, text, isCompleted, lineColor, appendCompleteIcon, alternativeIcon, isTrackingAchievement)
+	if util.StringIsEmpty(text) then return tooltipText; end
+
 	local isIconString = alternativeIcon == nil;
 	local checkMarkIconString = isTrackingAchievement and TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING or TOOLTIP_CHECK_MARK_ICON_STRING;
 	if not isCompleted then
@@ -713,20 +715,22 @@ end
 ---@param timeString string
 ---@param lineColor table|nil  A color class (see <FrameXML/GlobalColors.lua>)
 ---@return string tooltipText
+-- **Note:**  
+-- The 'timeString' is usually already colored, eg. red for soon-to-expire, etc.
+-- If you use 'lineColor' the time string color will be overwritten.
 --
 local function TooltipText_AddTimeRemainingLine(tooltipText, timeString, lineColor)
-	-- Note: The font color is often handled by timeString, eg. red for soon-to-expire, etc. If you
-	-- use 'lineColor' the timeString color will be overwritten.
-	if not util.StringIsEmpty(timeString) then
-		tooltipText = tooltipText.."|n"..TOOLTIP_DASH_ICON_STRING;
-		tooltipText = tooltipText.." "..TOOLTIP_CLOCK_ICON_STRING;
-		if lineColor then
-			tooltipText = tooltipText.." "..lineColor:WrapTextInColorCode(timeString);
-		else
-			tooltipText = tooltipText.." "..timeString;
-		end
+	if util.StringIsEmpty(timeString) then return tooltipText; end
+
+	tooltipText = tooltipText.."|n"..TOOLTIP_DASH_ICON_STRING
+	tooltipText = tooltipText.." "..TOOLTIP_CLOCK_ICON_STRING
+	if lineColor then
+		tooltipText = tooltipText.." "..lineColor:WrapTextInColorCode(timeString)
+	else
+		tooltipText = tooltipText.." "..timeString
 	end
-	return tooltipText;
+
+	return tooltipText
 end
 
 -- Add details about the garrison mission progress.
@@ -1040,9 +1044,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, threatInfo.questName, threatInfo.isCompleted, fontColor, appendCompleteIcon, threatInfo.atlasName, threatInfo.isCompleted);
 					--> TODO - Add major-minor assault type icon for N'Zoth Assaults
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, threatInfo.mapInfo.name);
-					if (threatInfo.timeLeftString) then  -- and ns.settings.showThreatsTimeRemaining) then
-						tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, threatInfo.timeLeftString);
-					end
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, threatInfo.timeLeftString);
 				end
 			end
 		end
@@ -1159,6 +1161,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				if raceAreaPoiInfo then
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showDragonridingRaceInfo);
 					tooltipText = TooltipText_AddIconLine(tooltipText, raceAreaPoiInfo.name, raceAreaPoiInfo.atlasName);
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, raceAreaPoiInfo.areaName);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, raceAreaPoiInfo.timeString);
 				end
 			end
@@ -1168,9 +1171,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				if campAreaPoiInfo then
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, campAreaPoiInfo.name);  -- ns.label.showCampAylaagInfo
 					tooltipText = TooltipText_AddIconLine(tooltipText, campAreaPoiInfo.mapInfo.name, campAreaPoiInfo.atlasName);
-					if campAreaPoiInfo.closetFlightPoint then
-						tooltipText = TooltipText_AddObjectiveLine(tooltipText, campAreaPoiInfo.closetFlightPoint.cleanNodeName);
-					end
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, campAreaPoiInfo.areaName);
 					if campAreaPoiInfo.timeString then
 						tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, campAreaPoiInfo.timeString);
 					else
@@ -1186,6 +1187,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				if huntsAreaPoiInfo then
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, huntsAreaPoiInfo.name);  -- ns.label.showGrandHuntsInfo
 					tooltipText = TooltipText_AddIconLine(tooltipText, huntsAreaPoiInfo.mapInfo.name, huntsAreaPoiInfo.atlasName);
+					-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, huntsAreaPoiInfo.areaName);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, huntsAreaPoiInfo.timeString);
 				end
 			end
@@ -1220,6 +1222,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showElementalStormsInfo);  -- stormsAreaPoiInfos[1].name);
 					for _, stormPoi in ipairs(stormsAreaPoiInfos) do
 						tooltipText = TooltipText_AddIconLine(tooltipText, stormPoi.mapInfo.name, stormPoi.atlasName);
+						tooltipText = TooltipText_AddObjectiveLine(tooltipText, stormPoi.areaName);
 						tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, stormPoi.timeString);
 					end
 				end
@@ -1242,6 +1245,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				if dfResearchersUnderFireInfo then
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, dfResearchersUnderFireInfo.name);
 					tooltipText = TooltipText_AddIconLine(tooltipText, dfResearchersUnderFireInfo.mapInfo.name, dfResearchersUnderFireInfo.atlasName);
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfResearchersUnderFireInfo.areaName);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfResearchersUnderFireInfo.timeString);
 					if not ns.settings.hideEventDescriptions then
 						tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfResearchersUnderFireInfo.description);
@@ -1254,8 +1258,9 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				if dfTimeRiftsInfo then
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, dfTimeRiftsInfo.name)
 					tooltipText = TooltipText_AddIconLine(tooltipText, dfTimeRiftsInfo.mapInfo.name, dfTimeRiftsInfo.atlasName)
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfTimeRiftsInfo.areaName)
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfTimeRiftsInfo.timeString)
-					if not (ns.settings.hideEventDescriptions or util.StringIsEmpty(dfTimeRiftsInfo.description)) then
+					if not ns.settings.hideEventDescriptions then
 						tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfTimeRiftsInfo.description)
 					end
 				end
@@ -1824,8 +1829,6 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						local stormsAreaPoiInfos = util.poi.GetElementalStormsInfo();
 						if TableHasAnyEntries(stormsAreaPoiInfos) then
 							for _, stormPoi in ipairs(stormsAreaPoiInfos) do
-								-- tooltipText = TooltipText_AddIconLine(tooltipText, stormPoi.mapInfo.name, stormPoi.atlasName);
-								-- tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, stormPoi.timeString);
 								local timeLeft = stormPoi.timeString or "...";
 								local lineText = format("%s @ %s", stormPoi.name, stormPoi.mapInfo.name);
 								GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
