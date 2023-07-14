@@ -1718,13 +1718,12 @@ end
 -- function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 	local addonTitle = button.value;
-	-- local addonIcon = button.icon;
-	local leftOffset = 8;
+	local leftOffset = 1;
+	local wrapLine = false;
 	local tooltip = GameTooltip;
 
 	tooltip:SetOwner(button, "ANCHOR_LEFT");
 	GameTooltip_SetTitle(tooltip, addonTitle);
-	local wrapLine = false;
 	GameTooltip_AddNormalLine(tooltip, MRBP_OnEnter(ExpansionLandingPageMinimapButton, nil, true), wrapLine);
 	--> The above line doesn't show up if the ExpansionLandingPageButton doesn't exist
 	util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-leftbutton");
@@ -1788,8 +1787,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						local raceAreaPoiInfo = util.poi.GetDragonridingRaceInfo();
 						if raceAreaPoiInfo then
 							local timeLeft = raceAreaPoiInfo.timeString or "...";
-							GameTooltip_AddNormalLine(tooltip, raceAreaPoiInfo.name..": "..timeLeft, wrapLine, leftOffset);
-							util.GameTooltip_AddAtlas(tooltip, raceAreaPoiInfo.atlasName);
+							local lineText = raceAreaPoiInfo.name..": "..timeLeft
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, raceAreaPoiInfo.atlasName)
 						end
 					end
 					-- Camp Aylaag
@@ -1798,9 +1797,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						if campAreaPoiInfo then
 							local timeLeft = campAreaPoiInfo.timeString or "...";
 							local locationName = campAreaPoiInfo.closetFlightPoint and campAreaPoiInfo.closetFlightPoint.cleanNodeName or campAreaPoiInfo.mapInfo.name;
-							local lineText = format("%s @ %s", campAreaPoiInfo.name, locationName);
-							GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
-							util.GameTooltip_AddAtlas(tooltip, campAreaPoiInfo.atlasName);
+							local lineText = format("%s @ %s", campAreaPoiInfo.name, locationName)..": "..timeLeft
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, campAreaPoiInfo.atlasName)
 						end
 					end
 					-- Grand Hunts
@@ -1808,9 +1806,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						local huntsAreaPoiInfo = util.poi.GetGrandHuntsInfo();
 						if huntsAreaPoiInfo then
 							local timeLeft = huntsAreaPoiInfo.timeString or "...";
-							local lineText = format("%s @ %s", huntsAreaPoiInfo.name, huntsAreaPoiInfo.mapInfo.name);
-							GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
-							util.GameTooltip_AddAtlas(tooltip, huntsAreaPoiInfo.atlasName);
+							local lineText = format("%s @ %s", huntsAreaPoiInfo.name, huntsAreaPoiInfo.mapInfo.name)..": "..timeLeft
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, huntsAreaPoiInfo.atlasName)
 						end
 					end
 					-- Siege on Dragonbane Keep
@@ -1818,10 +1815,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						local siegeAreaPoiInfo = util.poi.GetDragonbaneKeepInfo();
 						if siegeAreaPoiInfo then
 							local timeLeft = siegeAreaPoiInfo.timeString or "...";
-							-- local lineText = format("%s @ %s", siegeAreaPoiInfo.name, siegeAreaPoiInfo.mapInfo.name);
-							-- GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
-							GameTooltip_AddNormalLine(tooltip, siegeAreaPoiInfo.name..": "..timeLeft, wrapLine, leftOffset);
-							util.GameTooltip_AddAtlas(tooltip, siegeAreaPoiInfo.atlasName);
+							local lineText = siegeAreaPoiInfo.name..": "..timeLeft
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, siegeAreaPoiInfo.atlasName)
 						end
 					end
 					-- Elemental Storms
@@ -1830,9 +1825,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						if TableHasAnyEntries(stormsAreaPoiInfos) then
 							for _, stormPoi in ipairs(stormsAreaPoiInfos) do
 								local timeLeft = stormPoi.timeString or "...";
-								local lineText = format("%s @ %s", stormPoi.name, stormPoi.mapInfo.name);
-								GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
-								util.GameTooltip_AddAtlas(tooltip, stormPoi.atlasName);
+								local lineText = format("%s @ %s", stormPoi.name, stormPoi.mapInfo.name)..": "..timeLeft
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, stormPoi.atlasName)
 							end
 						end
 					end
@@ -1841,9 +1835,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						local dfFyrakkAssaultsAreaPoiInfo = util.poi.GetFyrakkAssaultsInfo();
 						if dfFyrakkAssaultsAreaPoiInfo then
 							local timeLeft = dfFyrakkAssaultsAreaPoiInfo.timeString or "...";
-							local lineText = format("%s @ %s", dfFyrakkAssaultsAreaPoiInfo.name, dfFyrakkAssaultsAreaPoiInfo.mapInfo.name);
-							GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
-							util.GameTooltip_AddAtlas(tooltip, dfFyrakkAssaultsAreaPoiInfo.atlasName);
+							local lineText = format("%s @ %s", dfFyrakkAssaultsAreaPoiInfo.name, dfFyrakkAssaultsAreaPoiInfo.mapInfo.name)..": "..timeLeft
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfFyrakkAssaultsAreaPoiInfo.atlasName)
 						end
 					end
 					-- Researchers Under Fire
@@ -1851,18 +1844,17 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						local dfResearchersUnderFireInfo = util.poi.GetResearchersUnderFireDataInfo();
 						if dfResearchersUnderFireInfo then
 							local timeLeft = dfResearchersUnderFireInfo.timeString or "...";
-							GameTooltip_AddNormalLine(tooltip, dfResearchersUnderFireInfo.name..": "..timeLeft, wrapLine, leftOffset);
-							util.GameTooltip_AddAtlas(tooltip, dfResearchersUnderFireInfo.atlasName);
+							local lineText = dfResearchersUnderFireInfo.name..": "..timeLeft
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfResearchersUnderFireInfo.atlasName)
 						end
 					end
 					-- Time Rifts 
 					if true then
 						local dfTimeRiftsInfo = util.poi.GetTimeRiftInfo();
-						if (dfTimeRiftsInfo and dfTimeRiftsInfo.isTimed) then
+						if dfTimeRiftsInfo then
 							local timeLeft = dfTimeRiftsInfo.timeString or "...";
-							local lineText = format("%s @ %s", dfTimeRiftsInfo.name, dfTimeRiftsInfo.mapInfo.name);
-							GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
-							util.GameTooltip_AddAtlas(tooltip, dfTimeRiftsInfo.atlasName);
+							local lineText = format("%s @ %s", dfTimeRiftsInfo.name, dfTimeRiftsInfo.mapInfo.name)..": "..timeLeft
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfTimeRiftsInfo.atlasName)
 						end
 					end
 				end
@@ -1902,8 +1894,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						else
 							for _, assaultInfo in ipairs(expansionThreats) do
 								local timeLeft = assaultInfo.timeLeftString and assaultInfo.timeLeftString or "...";
-								GameTooltip_AddColoredLine(tooltip, assaultInfo.mapInfo.name..": "..timeLeft, assaultInfo.color, wrapLine, leftOffset);
-								util.GameTooltip_AddAtlas(tooltip, assaultInfo.atlasName);
+								local lineText = assaultInfo.mapInfo.name..": "..timeLeft
+								util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, assaultInfo.atlasName, assaultInfo.color)
 							end
 						end
 					end
@@ -1935,17 +1927,16 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 				end
 				-- Garrison Invasion
 				if (expansion.ID == util.expansion.data.WarlordsOfDraenor.ID and util.garrison.IsDraenorInvasionAvailable()) then
-					GameTooltip_AddColoredLine(tooltip, GARRISON_LANDING_INVASION_ALERT, WARNING_FONT_COLOR, nil, leftOffset);
-					util.GameTooltip_AddAtlas(tooltip, "worldquest-tracker-questmarker");
+					local lineText = GARRISON_LANDING_INVASION_ALERT
+					util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, "worldquest-tracker-questmarker", WARNING_FONT_COLOR)
 				end
 				-- Timewalking Vendor (currently Draenor + Legion only)
 				if ShouldShowTimewalkingVendorText(expansion) then
 					local vendorAreaPoiInfo = util.poi.FindTimewalkingVendor(expansion);
 					if vendorAreaPoiInfo then
 						local timeLeft = vendorAreaPoiInfo.timeString or "...";
-						local lineText = format("%s @ %s", vendorAreaPoiInfo.name, vendorAreaPoiInfo.mapInfo.name);
-						GameTooltip_AddNormalLine(tooltip, lineText..": "..timeLeft, wrapLine, leftOffset);
-						util.GameTooltip_AddAtlas(tooltip, vendorAreaPoiInfo.atlasName);
+						local lineText = format("%s @ %s", vendorAreaPoiInfo.name, vendorAreaPoiInfo.mapInfo.name)..": "..timeLeft
+						util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, vendorAreaPoiInfo.atlasName);
 					end
 				end
 			end

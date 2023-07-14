@@ -209,27 +209,32 @@ end
 
 -- Add given text as an objective line with a prepending icon
 function util.GameTooltip_AddObjectiveLine(tooltip, text, isCompleted, wrap, leftOffset, altDashIcon, altColor, isTrackingAchievement)
-	local defaultLeftOffset = 8;
-	if not isCompleted then
-		-- GameTooltip_AddNormalLine(tooltip, text, wrap, leftOffset or defaultLeftOffset);
-		GameTooltip_AddColoredLine(tooltip, text, altColor or NORMAL_FONT_COLOR, wrap, leftOffset or defaultLeftOffset);
-		if (altDashIcon and type(tonumber(altDashIcon)) ~= "number") then
-			util.GameTooltip_AddAtlas(tooltip, altDashIcon);
-			return;
-		end
-		GameTooltip:AddTexture(altDashIcon or 3083385, {margin={left=2, right=3, top=0, bottom=0}});  --> dash icon
-	else
-		GameTooltip_AddDisabledLine(tooltip, text, wrap, leftOffset or defaultLeftOffset);
-		-- GameTooltip:AddTexture(628564, {margin={left=2, right=3, top=0, bottom=0}});
-		local checkMarkIcon = isTrackingAchievement and "common-icon-checkmark-yellow" or "common-icon-checkmark";
-		util.GameTooltip_AddAtlas(tooltip, checkMarkIcon);
+	if util.StringIsEmpty(text) then return end
+
+	local defaultLeftOffset = leftOffset or 1
+	if isCompleted then
+		local checkMarkIcon = isTrackingAchievement and "common-icon-checkmark-yellow" or "common-icon-checkmark"
+		local lineText = util.CreateInlineIcon(checkMarkIcon).." "..text  -- ITEM_NAME_DESCRIPTION_DELIMITER
+		GameTooltip_AddDisabledLine(tooltip, lineText, wrap, defaultLeftOffset)
+		return
 	end
+	local lineText = util.CreateInlineIcon(altDashIcon or 3083385).." "..text
+	GameTooltip_AddColoredLine(tooltip, lineText, altColor or NORMAL_FONT_COLOR, wrap, defaultLeftOffset)
 end
 
--- REF.: <FrameXML/TextureUtil.lua>
+
+-- Insert a texture ID or atlas name into a font string.
+---@param atlasNameOrTexID string|number
+---@param sizeX number
+---@param sizeY number
+---@param xOffset number
+---@param yOffset number
+---@return string iconString
+--
+-- REF.: <FrameXML/TextureUtil.lua>  
 -- REF.: <https://wowpedia.fandom.com/wiki/UI_escape_sequences#Textures>
 --
-function util.CreateInlineIcon(atlasNameOrTexID, sizeX, sizeY, xOffset, yOffset)  --> Returns: string
+function util.CreateInlineIcon(atlasNameOrTexID, sizeX, sizeY, xOffset, yOffset)
 	sizeX = sizeX or 16;
 	sizeY = sizeY or sizeX;
 	xOffset = xOffset or 0;
@@ -1814,9 +1819,10 @@ function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeAreaName)
 					mapInfo = C_Map.GetMapInfoAtPosition(mapInfo.mapID, poiInfo.position:GetXY());
 				end
 				if includeAreaName then
-					-- User map name as fallback
-					local areaName = MapUtil.FindBestAreaNameAtMouse(mapInfo.mapID, poiInfo.position:GetXY())
-					poiInfo.areaName = areaName and areaName or mapInfo.name
+					-- -- User map name as fallback
+					-- local areaName = MapUtil.FindBestAreaNameAtMouse(mapInfo.mapID, poiInfo.position:GetXY())
+					-- poiInfo.areaName = areaName and areaName or mapInfo.name
+					poiInfo.areaName = MapUtil.FindBestAreaNameAtMouse(mapInfo.mapID, poiInfo.position:GetXY())
 				end
 				poiInfo.mapInfo = mapInfo;
 				tinsert(activeAreaPOIs, poiInfo);
