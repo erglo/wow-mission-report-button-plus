@@ -1350,9 +1350,9 @@ CampAylaagData.widgetSetIDs = {718, 719, 720};
 CampAylaagData.mapID = 2023;  --> Ohn'ahra
 CampAylaagData.mapInfo = LocalMapUtil.GetMapInfo(CampAylaagData.mapID);
 CampAylaagData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
-CampAylaagData.includeAreaName = true;
+-- CampAylaagData.includeAreaName = true;
 CampAylaagData.areaIDsMap = {
-	-- ["7101"] = ,  -- River Camp (east), no areaID found; show 'FindBestAreaNameAtMouse' instead
+	["7101"] = nil,    -- River Camp (east), no areaID found
 	["7102"] = 13747,  -- Aylaag Outpost
 	["7103"] = 14463,  -- Eaglewatch Outpost, Ohn'ahra
 }																				--> TODO - The Ohn'ahran Trail (achievement=16462)
@@ -1362,7 +1362,11 @@ function util.poi.GetCampAylaagInfo()
 	if poiInfo then
 		data:SaveLabel("showCampAylaagInfo", poiInfo.name)
 		local areaID = CampAylaagData.areaIDsMap[tostring(poiInfo.areaPoiID)]
-		poiInfo.areaName = areaID and LocalMapUtil.GetAreaInfo(areaID) or poiInfo.areaName
+		if (poiInfo.areaPoiID == 7101) then
+			poiInfo.areaName = L.ENTRYTOOLTIP_DF_CAMP_AYLAAG_AREA_NAME
+		else
+			poiInfo.areaName = areaID and LocalMapUtil.GetAreaInfo(areaID) or poiInfo.areaName
+		end
 		return poiInfo
 	end
 end
