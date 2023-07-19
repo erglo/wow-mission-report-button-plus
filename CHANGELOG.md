@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Dragonflight: added `Time Rift` details.
+- Data: Dynamic category names retrieval; English default names will be replaced in non-English locales as soon an event is active.
 
 ### Changed
 

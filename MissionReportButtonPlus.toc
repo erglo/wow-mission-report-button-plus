@@ -29,8 +29,11 @@
 # AddonCompartmentFuncOnEnter: MissionReportButtonPlus_OnAddonCompartmentEnter
 # AddonCompartmentFuncOnLeave: MissionReportButtonPlus_OnAddonCompartmentLeave
 
+# Data files
 locales\includes.xml
+data\includes.xml
 
+# Core files
 MissionReportButtonPlus_Utils.lua
 MissionReportButtonPlus_Options.lua
 MissionReportButtonPlus.lua

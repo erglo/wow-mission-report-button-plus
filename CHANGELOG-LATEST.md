@@ -8,6 +8,7 @@
 ### Added
 
 - Dragonflight: added `Time Rift` details.
+- Data: Dynamic category names retrieval; English default names will be replaced in non-English locales as soon an event is active.
 
 ### Changed
 

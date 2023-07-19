@@ -18,6 +18,7 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see http://www.gnu.org/licenses.
 --
+--------------------------------------------------------------------------------
 --
 -- Files used for reference:
 -- REF.: <FrameXML/Blizzard_APIDocumentation/GarrisonConstantsDocumentation.lua>
@@ -54,6 +55,7 @@ local MRBP = CreateFrame("Frame", AddonID.."EventListenerFrame")
 FrameUtil.RegisterFrameForEvents(MRBP, {
 	"ADDON_LOADED",
 	"PLAYER_ENTERING_WORLD",
+	"PLAYER_LEAVING_WORLD",
 	"GARRISON_SHOW_LANDING_PAGE",
 	"GARRISON_HIDE_LANDING_PAGE",
 	"GARRISON_BUILDING_ACTIVATABLE",
@@ -81,6 +83,10 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 				self:OnLoad()
 				self:UnregisterEvent("ADDON_LOADED")
 			end
+
+		elseif (event == "PLAYER_LEAVING_WORLD") then
+			-- Do some variables clean-up
+			ns.data:CleanUpLabels()
 
 		elseif (event == "GARRISON_BUILDING_ACTIVATABLE") then
 			-- REF. <FrameXML/Blizzard_GarrisonUI/Blizzard_GarrisonLandingPage.lua>
@@ -282,6 +288,9 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 -- Load this add-on's functions when the MR minimap button is ready.
 function MRBP:OnLoad()
 	_log:info(string.format("Loading %s...", ns.AddonColor:WrapTextInColorCode(ns.AddonTitle)))
+
+	-- Load data
+	ns.data:LoadInGameLabels()
 
 	-- Load settings and interface options
 	MRBP_Settings_Register()
@@ -695,7 +704,7 @@ end
 ---@return string tooltipText
 --
 local function TooltipText_AddObjectiveLine(tooltipText, text, isCompleted, lineColor, appendCompleteIcon, alternativeIcon, isTrackingAchievement)
-	if util.StringIsEmpty(text) then return tooltipText; end
+	if L:StringIsEmpty(text) then return tooltipText; end
 
 	local isIconString = alternativeIcon == nil;
 	local checkMarkIconString = isTrackingAchievement and TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING or TOOLTIP_CHECK_MARK_ICON_STRING;
@@ -721,7 +730,7 @@ end
 -- If you use 'lineColor' the time string color will be overwritten.
 --
 local function TooltipText_AddTimeRemainingLine(tooltipText, timeString, lineColor)
-	if util.StringIsEmpty(timeString) then return tooltipText; end
+	if L:StringIsEmpty(timeString) then return tooltipText; end
 
 	tooltipText = tooltipText.."|n"..TOOLTIP_DASH_ICON_STRING
 	tooltipText = tooltipText.." "..TOOLTIP_CLOCK_ICON_STRING
@@ -1030,9 +1039,9 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				local isBfAThreat = threatExpansionLevel == util.expansion.data.BattleForAzeroth.ID;
 				local isShadowlandsThreat = threatExpansionLevel == util.expansion.data.Shadowlands.ID;
 				if isBfAThreat then
-					tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showNzothThreats);
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showNzothThreats"])
 				elseif isShadowlandsThreat then
-					tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showMawThreats);
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showMawThreats"]);
 				else
 					local zoneName = threatData[1].mapInfo.name;
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, zoneName);
@@ -1055,7 +1064,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 
 	-- Garrison Invasion
 	if (isForWarlordsOfDraenor and ns.settings.showWoDGarrisonInvasionAlert and util.garrison.IsDraenorInvasionAvailable()) then
-		tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showWoDGarrisonInvasionAlert);
+		tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showWoDGarrisonInvasionAlert"]);
 		tooltipText = TooltipText_AddIconLine(tooltipText, GARRISON_LANDING_INVASION_ALERT, "worldquest-tracker-questmarker", WARNING_FONT_COLOR);
 		tooltipText = TooltipText_AddTextLine(tooltipText, GARRISON_LANDING_INVASION_TOOLTIP);
 	end
@@ -1067,7 +1076,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 		if ns.settings.showLegionAssaultsInfo then
 			local legionAssaultsAreaPoiInfo = util.poi.GetLegionAssaultsInfo();
 			if legionAssaultsAreaPoiInfo then
-				tooltipText = TooltipText_AddHeaderLine(tooltipText, legionAssaultsAreaPoiInfo.name);  -- ns.label.showLegionAssaultsInfo
+				tooltipText = TooltipText_AddHeaderLine(tooltipText, legionAssaultsAreaPoiInfo.name)
 				tooltipText = TooltipText_AddIconLine(tooltipText, legionAssaultsAreaPoiInfo.parentMapInfo.name, legionAssaultsAreaPoiInfo.atlasName, legionAssaultsAreaPoiInfo.color);
 				tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, legionAssaultsAreaPoiInfo.timeString);
 				tooltipText = TooltipText_AddObjectiveLine(tooltipText, legionAssaultsAreaPoiInfo.description, legionAssaultsAreaPoiInfo.isCompleted, nil, nil, nil, legionAssaultsAreaPoiInfo.isCompleted);
@@ -1077,7 +1086,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 		if ns.settings.showBrokenShoreInvasionInfo then
 			local demonAreaPoiInfos = util.poi.GetBrokenShoreInvasionInfo();
 			if TableHasAnyEntries(demonAreaPoiInfos) then
-				tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBrokenShoreInvasionInfo);
+				tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showBrokenShoreInvasionInfo"]);
 				for _, demonPoi in ipairs(demonAreaPoiInfos) do
 					tooltipText = TooltipText_AddIconLine(tooltipText, demonPoi.name, demonPoi.atlasName, demonPoi.color);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, demonPoi.timeString);
@@ -1088,7 +1097,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 		if ns.settings.showArgusInvasionInfo then
 			local riftAreaPoiInfos = util.poi.GetArgusInvasionPointsInfo();
 			if TableHasAnyEntries(riftAreaPoiInfos) then
-				tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showArgusInvasionInfo);
+				tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showArgusInvasionInfo"]);
 				for _, riftPoi in ipairs(riftAreaPoiInfos) do
 					local appendCompleteIcon = true;
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, riftPoi.description, riftPoi.isCompleted, riftPoi.color, appendCompleteIcon, riftPoi.atlasName, riftPoi.isCompleted);
@@ -1107,7 +1116,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			local factionAssaultsAreaPoiInfo = util.poi.GetBfAFactionAssaultsInfo();
 			if factionAssaultsAreaPoiInfo then
 				local fontColor = ns.settings.applyBfAFactionColors and factionAssaultsAreaPoiInfo.color or nil;
-				tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAFactionAssaultsInfo);
+				tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showBfAFactionAssaultsInfo"]);
 				tooltipText = TooltipText_AddIconLine(tooltipText, factionAssaultsAreaPoiInfo.parentMapInfo.name, factionAssaultsAreaPoiInfo.atlasName, fontColor);
 				tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, factionAssaultsAreaPoiInfo.timeString);
 				tooltipText = TooltipText_AddObjectiveLine(tooltipText, factionAssaultsAreaPoiInfo.description, factionAssaultsAreaPoiInfo.isCompleted, nil, nil, nil, factionAssaultsAreaPoiInfo.isCompleted);
@@ -1115,7 +1124,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 		end
 		if ns.settings.showBfAIslandExpeditionsInfo then
 			local islandExpeditionInfo = util.poi.GetBfAIslandExpeditionInfo();
-			tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showBfAIslandExpeditionsInfo);
+			tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showBfAIslandExpeditionsInfo"]);
 			tooltipText = TooltipText_AddIconLine(tooltipText, islandExpeditionInfo.name, islandExpeditionInfo.atlasName);
 			tooltipText = TooltipText_AddObjectiveLine(tooltipText, islandExpeditionInfo.progressText, islandExpeditionInfo.isFinished);
 			local appendedTextColor = islandExpeditionInfo.isFinished and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR;
@@ -1128,7 +1137,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 	if (isForShadowlands and ns.settings.showCovenantRenownLevel) then
 		local covenantInfo = util.covenant.GetCovenantInfo();
 		if TableHasAnyEntries(covenantInfo) then
-			tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showCovenantRenownLevel);
+			tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showCovenantRenownLevel"]);
 			tooltipText = AddTooltipCovenantRenownText(tooltipText, covenantInfo);
 		end
 	end
@@ -1138,12 +1147,12 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 	if isForDragonflight then
 		-- Major Factions renown level and progress
 		if ns.settings.showMajorFactionRenownLevel then
-			tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showMajorFactionRenownLevel);
+			tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showMajorFactionRenownLevel"]);
 			tooltipText = AddTooltipDragonFlightFactionsRenownText(tooltipText);
 		end
 		-- Dragon Glyphs
 		if ns.settings.showDragonGlyphs then
-			tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showDragonGlyphs);
+			tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showDragonGlyphs"]);
 			if util.garrison.IsDragonridingUnlocked() then
 				tooltipText = AddTooltipDragonGlyphsText(tooltipText);
 			else
@@ -1155,12 +1164,11 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 		end
 		----- World Map Events -----
 		if ns.settings.showDragonflightWorldMapEvents then
-			-- tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showDragonflightWorldMapEvents);
 			-- Dragonriding Race
 			if ns.settings.showDragonridingRaceInfo then
 				local raceAreaPoiInfo = util.poi.GetDragonridingRaceInfo();
 				if raceAreaPoiInfo then
-					tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showDragonridingRaceInfo);
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showDragonridingRaceInfo"]);
 					tooltipText = TooltipText_AddIconLine(tooltipText, raceAreaPoiInfo.name, raceAreaPoiInfo.atlasName);
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, raceAreaPoiInfo.areaName);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, raceAreaPoiInfo.timeString);
@@ -1170,7 +1178,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			if ns.settings.showCampAylaagInfo then
 				local campAreaPoiInfo = util.poi.GetCampAylaagInfo();
 				if campAreaPoiInfo then
-					tooltipText = TooltipText_AddHeaderLine(tooltipText, campAreaPoiInfo.name);  -- ns.label.showCampAylaagInfo
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, campAreaPoiInfo.name);  -- L["showCampAylaagInfo"]
 					tooltipText = TooltipText_AddIconLine(tooltipText, campAreaPoiInfo.mapInfo.name, campAreaPoiInfo.atlasName);
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, campAreaPoiInfo.areaName);
 					if campAreaPoiInfo.timeString then
@@ -1186,7 +1194,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			if ns.settings.showGrandHuntsInfo then
 				local huntsAreaPoiInfo = util.poi.GetGrandHuntsInfo();
 				if huntsAreaPoiInfo then
-					tooltipText = TooltipText_AddHeaderLine(tooltipText, huntsAreaPoiInfo.name);  -- ns.label.showGrandHuntsInfo
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, huntsAreaPoiInfo.name);  -- L["showGrandHuntsInfo"]
 					tooltipText = TooltipText_AddIconLine(tooltipText, huntsAreaPoiInfo.mapInfo.name, huntsAreaPoiInfo.atlasName);
 					-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, huntsAreaPoiInfo.areaName);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, huntsAreaPoiInfo.timeString);
@@ -1196,7 +1204,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			-- if ns.settings.showCommunityFeastInfo then
 			-- 	local feastAreaPoiInfo = util.poi.GetCommunityFeastInfo();
 			-- 	if feastAreaPoiInfo then
-			-- 		tooltipText = TooltipText_AddHeaderLine(tooltipText, feastAreaPoiInfo.name);  -- ns.label.showCommunityFeastInfo
+			-- 		tooltipText = TooltipText_AddHeaderLine(tooltipText, feastAreaPoiInfo.name);  -- L["showCommunityFeastInfo"]
 			-- 		tooltipText = TooltipText_AddIconLine(tooltipText, feastAreaPoiInfo.mapInfo.name, feastAreaPoiInfo.atlasName);
 			-- 		tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, feastAreaPoiInfo.timeString);
 			-- 		if not ns.settings.hideEventDescriptions then
@@ -1208,7 +1216,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			if ns.settings.showDragonbaneKeepInfo then
 				local siegeAreaPoiInfo = util.poi.GetDragonbaneKeepInfo();
 				if siegeAreaPoiInfo then
-					tooltipText = TooltipText_AddHeaderLine(tooltipText, siegeAreaPoiInfo.name);  -- ns.label.showDragonbaneKeepInfo
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, siegeAreaPoiInfo.name);  -- L["showDragonbaneKeepInfo"]
 					tooltipText = TooltipText_AddIconLine(tooltipText, siegeAreaPoiInfo.mapInfo.name, siegeAreaPoiInfo.atlasName);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, siegeAreaPoiInfo.timeString);
 					if not ns.settings.hideEventDescriptions then
@@ -1220,7 +1228,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			if ns.settings.showElementalStormsInfo then
 				local stormsAreaPoiInfos = util.poi.GetElementalStormsInfo();
 				if TableHasAnyEntries(stormsAreaPoiInfos) then
-					tooltipText = TooltipText_AddHeaderLine(tooltipText, ns.label.showElementalStormsInfo);  -- stormsAreaPoiInfos[1].name);
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showElementalStormsInfo"]);  -- stormsAreaPoiInfos[1].name);
 					for _, stormPoi in ipairs(stormsAreaPoiInfos) do
 						tooltipText = TooltipText_AddIconLine(tooltipText, stormPoi.mapInfo.name, stormPoi.atlasName);
 						tooltipText = TooltipText_AddObjectiveLine(tooltipText, stormPoi.areaName);
@@ -1782,7 +1790,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = util.garrison.GetDragonGlyphsCount();
 					local collectedAmountString = WHITE_FONT_COLOR:WrapTextInColorCode(format("%d/%d", numGlyphsCollected, numGlyphsTotal));
 					local isCompleted = numGlyphsCollected == numGlyphsTotal;
-					util.GameTooltip_AddObjectiveLine(tooltip, ns.label.showDragonGlyphs..": "..collectedAmountString, isCompleted, wrapLine, leftOffset, treeCurrencyInfo.texture);
+					util.GameTooltip_AddObjectiveLine(tooltip, L["showDragonGlyphs"]..": "..collectedAmountString, isCompleted, wrapLine, leftOffset, treeCurrencyInfo.texture);
 					-- Dragonriding Race
 					if ns.settings.showDragonridingRaceInfo then
 						local raceAreaPoiInfo = util.poi.GetDragonridingRaceInfo();

@@ -18,6 +18,8 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see http://www.gnu.org/licenses.
 --
+--------------------------------------------------------------------------------
+--
 -- Files used for reference:
 -- REF.: <FrameXML/InterfaceOptionsFrame.lua>	--> deprecated since WoW 10.x
 -- REF.: <FrameXML/InterfaceOptionsPanels.lua>	--> deprecated since WoW 10.x
@@ -31,10 +33,10 @@
 --
 --------------------------------------------------------------------------------
 
-local AddonID, ns = ...;
-local L = ns.L;
-local _log = ns.dbg_logger;
-local util = ns.utilities;
+local AddonID, ns = ...
+local L = ns.L
+local _log = ns.dbg_logger
+local util = ns.utilities
 
 ----- User settings ------------------------------------------------------------
 
@@ -154,11 +156,11 @@ local function LoadSettings(verbose)
 		end
 	end
 
-	-- Prepare account-wide (global) settings
-	if (MRBP_GlobalSettings == nil) then
-		_log:debug(".. initializing account-wide (global) settings");
-		MRBP_GlobalSettings = {};
-	end
+	-- -- Prepare account-wide (global) settings
+	-- if (MRBP_GlobalSettings == nil) then
+	-- 	_log:debug(".. initializing account-wide (global) settings");
+	-- 	MRBP_GlobalSettings = {};
+	-- end
 
 	_log:info("Settings are up-to-date.");
 
@@ -378,6 +380,16 @@ function MRBP_Settings_Register()
 	LoadSettings();
 	--> TODO - Check need for 'ns.settings'; is maybe .GetVariableValue() better?
 
+	local NEEDS_RELOAD = format("|n|n- %s (%s)", HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(REQUIRES_RELOAD), SLASH_RELOAD1)
+
+	local function FormatTooltipTemplate(categoryName, tooltipText, additionalText)
+		local needsUIReload = (not L:IsEnglishLocale(L.currentLocale) and L.defaultLabels[categoryName] == L[categoryName])
+		local formattedText = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(tooltipText)
+		formattedText = additionalText and formattedText..additionalText or formattedText
+		formattedText = needsUIReload and formattedText..NEEDS_RELOAD or formattedText
+		return formattedText
+	end
+
 	------- General settings ---------------------------------------------------
 
 	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(GENERAL_SUBHEADER));  --> WoW global string
@@ -416,7 +428,7 @@ function MRBP_Settings_Register()
 		{
 			variable = "showAchievementTracking",
 			name = L.CFG_TRACK_ACHIEVEMENTS_TEXT,
-			tooltip = L.CFG_TRACK_ACHIEVEMENTS_TOOLTIP.."|n|n- "..strjoin("|n- ", SafeUnpack(ns.label.GetTrackedAchievementTitles())),
+			tooltip = L.CFG_TRACK_ACHIEVEMENTS_TOOLTIP.."|n|n- "..strjoin("|n- ", SafeUnpack(ns.GetTrackedAchievementTitles())),
 		},
 	};
 
@@ -624,13 +636,13 @@ function MRBP_Settings_Register()
 	local checkBoxList_WoDEntryTooltipSettings = {
 		{
 			variable = "showWoDMissionInfo",
-			name = ns.label.showWoDMissionInfo,
+			name = L["showWoDMissionInfo"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showWoDGarrisonInvasionAlert",
-			name = ns.label.showWoDGarrisonInvasionAlert,
+			name = L["showWoDGarrisonInvasionAlert"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_GARRISON_INVASION_ALERT_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
@@ -643,13 +655,13 @@ function MRBP_Settings_Register()
 		},
 		{
 			variable = "showWoDWorldMapEvents",
-			name = ns.label.showWoDWorldMapEvents,
+			name = L["showWoDWorldMapEvents"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showWoDTimewalkingVendor",
-			name = ns.label.showWoDTimewalkingVendor,
+			name = L["showWoDTimewalkingVendor"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_TIMEWALKING_VENDOR_TOOLTIP,
 			parentVariable = "showWoDWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
@@ -666,53 +678,53 @@ function MRBP_Settings_Register()
 	local checkBoxList_LegionEntryTooltipSettings = {
 		{
 			variable = "showLegionMissionInfo",
-			name = ns.label.showLegionMissionInfo,
+			name = L["showLegionMissionInfo"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showLegionBounties",
-			name = ns.label.showLegionBounties,
+			name = L["showLegionBounties"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_LEGION_BOUNTIES_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showLegionWorldMapEvents",
-			name = ns.label.showLegionWorldMapEvents,
+			name = L["showLegionWorldMapEvents"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showLegionAssaultsInfo",
-			name = ns.label.showLegionAssaultsInfo,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_LEGION_INVASION),
+			name = L["showLegionAssaultsInfo"],
+			tooltip = FormatTooltipTemplate("showLegionAssaultsInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_LEGION_INVASION),
 			parentVariable = "showLegionWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showBrokenShoreInvasionInfo",
-			name = ns.label.showBrokenShoreInvasionInfo,
+			name = L["showBrokenShoreInvasionInfo"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DEMON_INVASION),
 			parentVariable = "showLegionWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showArgusInvasionInfo",
-			name = ns.label.showArgusInvasionInfo,
+			name = L["showArgusInvasionInfo"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ARGUS_INVASION),
 			parentVariable = "showLegionWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "applyInvasionColors",
-			name = ns.label.applyInvasionColors,
+			name = L["applyInvasionColors"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_LEGION_INVASION_COLORS_TOOLTIP,
 			parentVariable = "showLegionWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showLegionTimewalkingVendor",
-			name = ns.label.showLegionTimewalkingVendor,
+			name = L["showLegionTimewalkingVendor"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_TIMEWALKING_VENDOR_TOOLTIP,
 			parentVariable = "showLegionWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
@@ -729,44 +741,44 @@ function MRBP_Settings_Register()
 	local checkBoxList_BfAEntryTooltipSettings = {
 		{
 			variable = "showBfAMissionInfo",
-			name = ns.label.showBfAMissionInfo,
+			name = L["showBfAMissionInfo"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showBfABounties",
-			name = ns.label.showBfABounties,
+			name = L["showBfABounties"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BFA_BOUNTIES_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showNzothThreats",
-			name = ns.label.showNzothThreats,
+			name = L["showNzothThreats"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_NZOTH_THREATS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showBfAWorldMapEvents",
-			name = ns.label.showBfAWorldMapEvents,
+			name = L["showBfAWorldMapEvents"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showBfAFactionAssaultsInfo",
-			name = ns.label.showBfAFactionAssaultsInfo,
+			name = L["showBfAFactionAssaultsInfo"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_BFA_FACTION_ASSAULTS),
 			parentVariable = "showBfAWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "applyBfAFactionColors",
-			name = ns.label.applyBfAFactionColors,
+			name = L["applyBfAFactionColors"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showBfAIslandExpeditionsInfo",
-			name = ns.label.showBfAIslandExpeditionsInfo,
+			name = L["showBfAIslandExpeditionsInfo"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BFA_ISLAND_EXPEDITIONS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
@@ -782,30 +794,30 @@ function MRBP_Settings_Register()
 	local checkBoxList_SLEntryTooltipSettings = {
 		{
 			variable = "showCovenantMissionInfo",
-			name = ns.label.showCovenantMissionInfo,
+			name = L["showCovenantMissionInfo"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showCovenantBounties",
-			name = ns.label.showCovenantBounties,
+			name = L["showCovenantBounties"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_COVENANT_BOUNTIES_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showMawThreats",
-			name = ns.label.showMawThreats,
+			name = L["showMawThreats"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAW_THREATS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showCovenantRenownLevel",
-			name = ns.label.showCovenantRenownLevel,
+			name = L["showCovenantRenownLevel"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_COVENANT_RENOWN_TOOLTIP,
 		},
 		{
 			variable = "applyCovenantColors",
-			name = ns.label.applyCovenantColors,
+			name = L["applyCovenantColors"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
@@ -821,111 +833,110 @@ function MRBP_Settings_Register()
 	local checkBoxList_dfEntryTooltipSettings = {
 		{
 			variable = "showMajorFactionRenownLevel",
-			name = ns.label.showMajorFactionRenownLevel,
+			name = L["showMajorFactionRenownLevel"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_RENOWN_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "applyMajorFactionColors",
-			name = ns.label.applyMajorFactionColors,
+			name = L["applyMajorFactionColors"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
 			parentVariable = "showMajorFactionRenownLevel",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "hideMajorFactionUnlockDescription",
-			name = ns.label.hideMajorFactionUnlockDescription,
+			name = L["hideMajorFactionUnlockDescription"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_UNLOCK_TOOLTIP,
 			parentVariable = "showMajorFactionRenownLevel",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showDragonGlyphs",
-			name = ns.label.showDragonGlyphs,
+			name = L["showDragonGlyphs"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_DRAGON_GLYPHS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "autoHideCompletedDragonGlyphZones",
-			name = ns.label.autoHideCompletedDragonGlyphZones,
+			name = L["autoHideCompletedDragonGlyphZones"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_HIDE_DRAGON_GLYPHS_TOOLTIP,
 			parentVariable = "showDragonGlyphs",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showDragonflightWorldMapEvents",
-			name = ns.label.showDragonflightWorldMapEvents,
+			name = L["showDragonflightWorldMapEvents"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showDragonridingRaceInfo",
-			name = ns.label.showDragonridingRaceInfo,
+			name = L["showDragonridingRaceInfo"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DRAGONRIDING_RACE),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showCampAylaagInfo",
-			name = ns.label.showCampAylaagInfo,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_CAMP_AYLAAG),
+			name = L["showCampAylaagInfo"],
+			tooltip = FormatTooltipTemplate("showCampAylaagInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_CAMP_AYLAAG),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showGrandHuntsInfo",
-			name = ns.label.showGrandHuntsInfo,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_GRAND_HUNTS),
+			name = L["showGrandHuntsInfo"],
+			tooltip = FormatTooltipTemplate("showGrandHuntsInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_GRAND_HUNTS),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		-- {
 		-- 	variable = "showCommunityFeastInfo",
-		-- 	name = ns.label.showCommunityFeastInfo,
+		-- 	name = L["showCommunityFeastInfo"],
 		-- 	tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ISKAARA_FEAST),
 		-- 	parentVariable = "showDragonflightWorldMapEvents",
 		-- 	modifyPredicate = ShouldShowEntryTooltip,
 		-- },
 		{
 			variable = "showDragonbaneKeepInfo",
-			name = ns.label.showDragonbaneKeepInfo,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DRAGONBANE_KEEP),
+			name = L["showDragonbaneKeepInfo"],
+			tooltip = FormatTooltipTemplate("showDragonbaneKeepInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DRAGONBANE_KEEP),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showElementalStormsInfo",
-			name = ns.label.showElementalStormsInfo,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ELEMENTAL_STORMS),
+			name = L["showElementalStormsInfo"],
+			tooltip = FormatTooltipTemplate("showElementalStormsInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ELEMENTAL_STORMS),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showFyrakkAssaultsInfo",
-			name = ns.label.showFyrakkAssaultsInfo,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_FYRAKK_ASSAULTS),
+			name = L["showFyrakkAssaultsInfo"],
+			tooltip = FormatTooltipTemplate("showFyrakkAssaultsInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_FYRAKK_ASSAULTS),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showResearchersUnderFireInfo",
-			name = ns.label.showResearchersUnderFireInfo,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE)..
-					  "|n|n"..L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN,
+			name = L["showResearchersUnderFireInfo"],
+			tooltip = FormatTooltipTemplate("showResearchersUnderFireInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE, "|n|n"..L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
 			variable = "showTimeRiftInfo",
-			name = ns.label.showTimeRiftInfo,
-			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TIME_RIFTS or "???"),
+			name = L["showTimeRiftInfo"],
+			tooltip = FormatTooltipTemplate("showTimeRiftInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TIME_RIFTS),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 			tag = Settings.Default.True,
 		},
 		{
 			variable = "hideEventDescriptions",
-			name = ns.label.hideEventDescriptions,
+			name = L["hideEventDescriptions"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS,
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
@@ -995,8 +1006,8 @@ function MRBP_Settings_Register()
 		{L.CFG_ADDONINFOS_LICENSE, "X-License"},
 	};
 	local contributions = {"zhTW", "enUS"};
-	if tContains(contributions, ns.currentLocale) then
-		tinsert(addonInfos, {L.CFG_ADDONINFOS_L10N_S:format(ns.currentLocale), nil, HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(L.CFG_ADDONINFOS_L10N_CONTACT)});
+	if tContains(contributions, L.currentLocale) then
+		tinsert(addonInfos, {L.CFG_ADDONINFOS_L10N_S:format(L.currentLocale), nil, HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(L.CFG_ADDONINFOS_L10N_CONTACT)});
 	end
 	local parentFrame = mainSubText;
 	local labelText, infoLabel;

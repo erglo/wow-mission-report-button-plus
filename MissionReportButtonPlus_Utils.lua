@@ -22,7 +22,7 @@
 
 local AddonID, ns = ...;
 local L = ns.L;
-ns.currentLocale = GetLocale();
+local data = ns.data
 
 -- Backwards compatibility
 ns.GetAddOnMetadata = C_AddOns.GetAddOnMetadata;
@@ -43,7 +43,7 @@ _log.DEBUG = 10;
 _log.NOTSET = 0;
 _log.USER = -10;
 
-_log.DEVMODE = false;
+_log.DEVMODE = true;
 
 -- _log.level = _log.INFO;
 -- _log.level = _log.DEBUG;
@@ -114,7 +114,7 @@ function util.printVersion(shortVersionOnly)
 			local title = ns.GetAddOnMetadata(AddonID, "Title");
 			local author = ns.GetAddOnMetadata(AddonID, "Author");
 			local notes_enUS = ns.GetAddOnMetadata(AddonID, "Notes");
-			local notes_local = ns.GetAddOnMetadata(AddonID, "Notes-"..ns.currentLocale);
+			local notes_local = ns.GetAddOnMetadata(AddonID, "Notes-"..L.currentLocale);
 			local notes = notes_local or notes_enUS;
 			local output = title..'|n'..version..' by '..author..'|n'..notes;
 			print(ns.AddonColor:WrapTextInColorCode(output));
@@ -150,7 +150,7 @@ end
 ---@return string
 --
 function util.strip_DE_hyphen(text)
-	if (ns.currentLocale == "deDE") then
+	if L:IsGermanLocale(L.currentLocale) then
 		local prefix, postfix = strsplit('-', text);
 		if postfix then
 			-- Only when text contained a hyphen is postfix non-empty
@@ -158,14 +158,6 @@ function util.strip_DE_hyphen(text)
 		end
 	end
 	return text;
-end
-
--- Check if given string is nil or empty.
----@param str string
----@return boolean isEmpty
---
-function util.StringIsEmpty(str)
-	return str == nil or strlen(str) == 0;
 end
 
 --------------------------------------------------------------------------------
@@ -209,7 +201,7 @@ end
 
 -- Add given text as an objective line with a prepending icon
 function util.GameTooltip_AddObjectiveLine(tooltip, text, isCompleted, wrap, leftOffset, altDashIcon, altColor, isTrackingAchievement)
-	if util.StringIsEmpty(text) then return end
+	if L:StringIsEmpty(text) then return end
 
 	local defaultLeftOffset = leftOffset or 1
 	if isCompleted then
@@ -975,13 +967,6 @@ function util.garrison.HasMaximumMajorFactionRenown(currentFactionID)
 	return C_MajorFactions.HasMaximumRenown(currentFactionID);
 end
 
--- Build and return the label referring to the major faction renown.
----@return string
---
-local function GetMajorFactionRenownLabel()
-	return MAJOR_FACTION_LIST_TITLE.." "..PARENS_TEMPLATE:format(LANDING_PAGE_RENOWN_LABEL);
-end
-
 ----- Shadowlands - Covenant utilities -----
 --
 -- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/CovenantsDocumentation.lua>
@@ -1058,10 +1043,6 @@ function util.covenant.GetRenownData(covenantID)
 		};
 		return renownData;
 	end
-end
-
-local function GetCovenantRenownLabel()
-	return COVENANT_PROGRESS.." "..PARENS_TEMPLATE:format(RENOWN_LEVEL_LABEL);
 end
 
 --------------------------------------------------------------------------------
@@ -1379,7 +1360,7 @@ CampAylaagData.areaIDsMap = {
 function util.poi.GetCampAylaagInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(CampAylaagData)
 	if poiInfo then
-		-- print("camp:", poiInfo.areaPoiID, poiInfo.areaName)
+		data:SaveLabel("showCampAylaagInfo", poiInfo.name)
 		local areaID = CampAylaagData.areaIDsMap[tostring(poiInfo.areaPoiID)]
 		poiInfo.areaName = areaID and LocalMapUtil.GetAreaInfo(areaID) or poiInfo.areaName
 		return poiInfo
@@ -1396,7 +1377,11 @@ GrandHuntsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
 GrandHuntsData.ignorePrimaryMapForPOI = true;
 
 function util.poi.GetGrandHuntsInfo()
-	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(GrandHuntsData);
+	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(GrandHuntsData)
+	if poiInfo then
+		data:SaveLabel("showGrandHuntsInfo", poiInfo.name)
+		return poiInfo
+	end
 end
 
 ----- Iskaara Community Feast -----
@@ -1421,7 +1406,11 @@ DragonbaneKeepData.mapInfo = LocalMapUtil.GetMapInfo(DragonbaneKeepData.mapID);
 DragonbaneKeepData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
 
 function util.poi.GetDragonbaneKeepInfo()
-	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(DragonbaneKeepData);
+	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(DragonbaneKeepData)
+	if poiInfo then
+		data:SaveLabel("showDragonbaneKeepInfo", poiInfo.name)
+		return poiInfo
+	end
 end
 
 ----- Elemental Storms event -----
@@ -1444,7 +1433,11 @@ ElementalStormData.SortingFunction = LocalPoiUtil.SortMapIDsAscending;
 ElementalStormData.includeAreaName = true;
 
 function util.poi.GetElementalStormsInfo()
-	return LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(ElementalStormData);
+	local poiInfos = LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(ElementalStormData)
+	if poiInfos and poiInfos[1] then
+		data:SaveLabel("showElementalStormsInfo", poiInfos[1].name)
+	end
+	return poiInfos
 end
 
 ----- Fyrakk Assaults -----
@@ -1456,7 +1449,11 @@ FyrakkAssaultsData.mapInfos = LocalMapUtil.GetMapChildrenInfo(FyrakkAssaultsData
 FyrakkAssaultsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
 
 function util.poi.GetFyrakkAssaultsInfo()
-	return LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(FyrakkAssaultsData);
+	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(FyrakkAssaultsData)
+	if poiInfo then
+		data:SaveLabel("showFyrakkAssaultsInfo", poiInfo.name)
+		return poiInfo
+	end
 end
 
 ----- Researchers Under Fire -----
@@ -1470,17 +1467,11 @@ ResearchersUnderFireData.ignorePrimaryMapForPOI = true;
 ResearchersUnderFireData.includeAreaName = true;
 
 function util.poi.GetResearchersUnderFireDataInfo()
-	return LocalPoiUtil.SingleArea.GetAreaPoiInfo(ResearchersUnderFireData);
-end
-
-local function GetResearchersUnderFireLabel()
-	local questID = 74906;
-	local localizedQuestName = QuestUtils_GetQuestName(questID);
-	if util.StringIsEmpty(localizedQuestName) then
-		C_QuestLog.RequestLoadQuestByID(questID);
-		localizedQuestName = QuestUtils_GetQuestName(questID);
+	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(ResearchersUnderFireData)
+	if poiInfo then
+		data:SaveLabel("showResearchersUnderFireInfo", poiInfo.name)
+		return poiInfo
 	end
-	return localizedQuestName or "Researchers Under Fire";
 end
 
 ----- Time Rifts -----
@@ -1506,6 +1497,7 @@ TimeRiftData.includeAreaName = true
 function util.poi.GetTimeRiftInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(TimeRiftData)
 	if poiInfo then
+		data:SaveLabel("showTimeRiftInfo", poiInfo.name)
 		if not poiInfo.isTimed then
 			local timeLeftString, isActive = TimeRiftData.GetTimeLeft()
 			if timeLeftString then
@@ -1513,10 +1505,6 @@ function util.poi.GetTimeRiftInfo()
 				poiInfo.timeString = isActive and activeTimeLeftString or timeLeftString
 				poiInfo.isTimed = true
 			end
-		end
-		-- Save name for category and options
-		if (ns.label.showTimeRiftInfo ~= poiInfo.name) then
-			ns.label.showTimeRiftInfo = poiInfo.name
 		end
 		return poiInfo
 	end
@@ -1577,6 +1565,7 @@ LegionAssaultsData.achievementID = DEFENDER_OF_THE_BROKEN_ISLES_ID;
 function util.poi.GetLegionAssaultsInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(LegionAssaultsData);
 	if poiInfo then
+		data:SaveLabel("showLegionAssaultsInfo", poiInfo.name)
 		poiInfo.parentMapInfo = LocalMapUtil.GetMapInfo(poiInfo.mapInfo.parentMapID);
 		poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
 		LocalAchievementUtil.AddAchievementData(LegionAssaultsData.achievementID, poiInfo);
@@ -1595,16 +1584,13 @@ BrokenShoreInvasionData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasNa
 BrokenShoreInvasionData.SortingFunction = LocalPoiUtil.SortPoiIDsAscending;
 
 function util.poi.GetBrokenShoreInvasionInfo()
-	local poiInfo = LocalPoiUtil.SingleArea.GetMultipleAreaPoiInfos(BrokenShoreInvasionData);
+	local poiInfo = LocalPoiUtil.SingleArea.GetMultipleAreaPoiInfos(BrokenShoreInvasionData)
 	if poiInfo then
-		poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
-		return poiInfo;
+		poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)]
+		local areaName = BrokenShoreInvasionData.mapInfo.name
+		data:SaveLabel("showBrokenShoreInvasionInfo", areaName..HEADER_COLON.." "..SPLASH_LEGION_PREPATCH_FEATURE1_TITLE)
+		return poiInfo
 	end
-end
-
-local function GetBrokenShoreInvasionLabel()
-	local areaName = BrokenShoreInvasionData.mapInfo.name;
-	return areaName..HEADER_COLON.." "..SPLASH_LEGION_PREPATCH_FEATURE1_TITLE;
 end
 
 ----- Legion: Argus Invasion (Invasion Points) -----
@@ -1625,13 +1611,10 @@ function util.poi.GetArgusInvasionPointsInfo()
 			poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
 			LocalAchievementUtil.AddAchievementData(ArgusInvasionData.achievementID, poiInfo);
 		end
+		local areaName = ArgusInvasionData.continentMapInfo.name
+		data:SaveLabel("showArgusInvasionInfo",  areaName..HEADER_COLON.." "..poiInfoTable[1].name)
+		return poiInfoTable
 	end
-	return poiInfoTable;
-end
-
-local function GetArgusInvasionPointsLabel()
-	local areaName = ArgusInvasionData.continentMapInfo.name;
-	return areaName..HEADER_COLON.." "..L.ENTRYTOOLTIP_LEGION_ARGUS_INVASION_LABEL;
 end
 
 local GreaterInvasionPointData = {};
@@ -1881,6 +1864,7 @@ if _log.DEVMODE then
 		"7245",  -- Elemental Storm (Air)
 		"7246",  -- Elemental Storm (Earth)
 		"7247",  -- Elemental Storm (Fire) - Thaldraszus
+		"7253",  -- Elemental Storm (Air) - Waking Shores
 		"7254",  -- Elemental Storm (Earth) - Waking Shores
 		"7255",  -- Elemental Storm (Fire) - Waking Shores
 		"7256",  -- Elemental Storm (Water) - Waking Shores
@@ -2011,84 +1995,31 @@ end
 
 --------------------------------------------------------------------------------
 
--- Use 8-bit separator as default, but use 16-bit for Chinese locales
-local SEPARATOR_8BIT = ",";
-local SEPARATOR_16BIT = "，";
-local FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR = SEPARATOR_8BIT;
-if tContains({"zhCN", "zhTW"}, ns.currentLocale) then
-	FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR = SEPARATOR_16BIT;
-end
+-- -- Use 8-bit separator as default, but use 16-bit for Chinese locales
+-- local SEPARATOR_8BIT = ",";
+-- local SEPARATOR_16BIT = "，";
+-- local FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR = SEPARATOR_8BIT;
+-- if tContains({"zhCN", "zhTW"}, L.currentLocale) then
+-- 	FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR = SEPARATOR_16BIT;
+-- end
 
--- Separate the zone name from the taxi node name and return both strings.
----@param taxiNodeData MapTaxiNodeInfo
----@param sep string
----@return string
----@return string
---
-local function trimTaxiNodeName(taxiNodeData, sep)
-	sep = sep or FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR;
-	local nodeNameMatch, zoneNameMatch = strsplit(FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR, taxiNodeData.name);
-	local cleanNodeName = nodeNameMatch and strtrim(nodeNameMatch) or taxiNodeData.name;
-	local cleanZoneName = zoneNameMatch and strtrim(zoneNameMatch) or '';
-	return cleanNodeName, cleanZoneName;
-end
+-- -- Separate the zone name from the taxi node name and return both strings.
+-- ---@param taxiNodeData MapTaxiNodeInfo
+-- ---@param sep string
+-- ---@return string
+-- ---@return string
+-- --
+-- local function trimTaxiNodeName(taxiNodeData, sep)
+-- 	sep = sep or FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR;
+-- 	local nodeNameMatch, zoneNameMatch = strsplit(FMP_ZONE_SUBZONE_NOSPACE_SEPARATOR, taxiNodeData.name);
+-- 	local cleanNodeName = nodeNameMatch and strtrim(nodeNameMatch) or taxiNodeData.name;
+-- 	local cleanZoneName = zoneNameMatch and strtrim(zoneNameMatch) or '';
+-- 	return cleanNodeName, cleanZoneName;
+-- end
 
 --------------------------------------------------------------------------------
------ Labels -------------------------------------------------------------------
---------------------------------------------------------------------------------
 
--- A collection of labels category groups in the menu entry tooltip as well as the settings.
---> Note: The label are sorted by the settings variables.
-ns.label = {
-	-- Warlords of Draenor
-	["showWoDMissionInfo"] = GARRISON_MISSIONS_TITLE,
-	["showWoDGarrisonInvasionAlert"] = GARRISON_LANDING_INVASION,
-	["showWoDWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL,
-	["showWoDTimewalkingVendor"] = L.ENTRYTOOLTIP_TIMEWALKING_VENDOR_LABEL,
-	-- Legion
-	["showLegionMissionInfo"] = GARRISON_MISSIONS,
-	["showLegionBounties"] = BOUNTY_BOARD_LOCKED_TITLE,
-	["showLegionWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL,
-	["showLegionAssaultsInfo"] = L.ENTRYTOOLTIP_LEGION_ASSAULTS_LABEL,  		--> achievementID = 11201
-	["showBrokenShoreInvasionInfo"] = GetBrokenShoreInvasionLabel(),
-	["showArgusInvasionInfo"] = GetArgusInvasionPointsLabel(),
-	["applyInvasionColors"] = L.ENTRYTOOLTIP_LEGION_APPLY_INVASION_COLORS_LABEL,
-	["showLegionTimewalkingVendor"] = L.ENTRYTOOLTIP_TIMEWALKING_VENDOR_LABEL,
-	-- Battle for Azeroth
-	["showBfAMissionInfo"] = GARRISON_MISSIONS,
-	["showBfABounties"] = BOUNTY_BOARD_LOCKED_TITLE,
-	["showNzothThreats"] = WORLD_MAP_THREATS,
-	["showBfAWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL,
-	["showBfAFactionAssaultsInfo"] = L.ENTRYTOOLTIP_BFA_FACTION_ASSAULTS_LABEL, --> achievementID = 13284
-	["applyBfAFactionColors"] = L.ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL,
-	["showBfAIslandExpeditionsInfo"] = ISLANDS_HEADER,
-	-- Shadowlands
-	["showCovenantMissionInfo"] = COVENANT_MISSIONS_TITLE,
-	["showCovenantBounties"] = CALLINGS_QUESTS,
-	["showMawThreats"] = L.ENTRYTOOLTIP_SL_MAW_THREATS_LABEL,
-	["showCovenantRenownLevel"] = GetCovenantRenownLabel(),
-	["applyCovenantColors"] = L.ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL,
-	-- Dragonflight
-	["showMajorFactionRenownLevel"] = GetMajorFactionRenownLabel(),
-	["applyMajorFactionColors"] = L.ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL,
-	["hideMajorFactionUnlockDescription"] = L.ENTRYTOOLTIP_DF_HIDE_MF_UNLOCK_DESCRIPTION_LABEL,
-	["showDragonGlyphs"] = L.ENTRYTOOLTIP_DF_DRAGON_GLYPHS_LABEL,
-	["autoHideCompletedDragonGlyphZones"] = L.ENTRYTOOLTIP_DF_HIDE_DRAGON_GLYPHS_LABEL,
-	["showDragonflightWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL,
-	["showDragonridingRaceInfo"] = L.ENTRYTOOLTIP_DF_DRAGONRIDING_RACE_LABEL,   --> GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE
-	--> Unlocked after Abenteuermodus "Es geht voran"
-	["showCampAylaagInfo"] = L.ENTRYTOOLTIP_DF_CAMP_AYLAAG_LABEL,
-	["showGrandHuntsInfo"] = L.ENTRYTOOLTIP_DF_GRAND_HUNTS_LABEL,
-	-- ["showCommunityFeastInfo"] = L.ENTRYTOOLTIP_DF_COMMUNITY_FEAST_LABEL,
-	["showDragonbaneKeepInfo"] = L.ENTRYTOOLTIP_DF_DRAGONBANE_KEEP_LABEL,
-	["showElementalStormsInfo"] = L.ENTRYTOOLTIP_DF_ELEMENTAL_STORMS_LABEL,
-	["showFyrakkAssaultsInfo"] = L.ENTRYTOOLTIP_DF_FYRAKK_ASSAULTS_LABEL,
-	["showResearchersUnderFireInfo"] = GetResearchersUnderFireLabel(),
-	["showTimeRiftInfo"] = "Time Rifts",  --> will be updated with localized version during areaPoi retrieval
-	["hideEventDescriptions"] = L.ENTRYTOOLTIP_DF_HIDE_EVENT_DESCRIPTIONS_LABEL,
-};
-
-function ns.label.GetTrackedAchievementTitles(textColor)
+function ns.GetTrackedAchievementTitles(textColor)
 	local fontColor = textColor or HIGHLIGHT_FONT_COLOR;
 	local trackedAchievements = {
 		LegionAssaultsData.achievementID,
