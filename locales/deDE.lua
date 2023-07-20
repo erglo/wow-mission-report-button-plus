@@ -48,7 +48,7 @@ ns.L = {
 	ENTRYTOOLTIP_DF_DRAGON_GLYPHS_LABEL = "Drachenglyphen",
 	ENTRYTOOLTIP_DF_HIDE_DRAGON_GLYPHS_LABEL = "Fertige Zonen ausblenden",
 	ENTRYTOOLTIP_DF_DRAGONRIDING_RACE_LABEL = "Mehrspieler-Drachenrennen",
-	ENTRYTOOLTIP_DF_CAMP_AYLAAG_AREA_NAME = "Lager am Fluss",
+	ENTRYTOOLTIP_DF_CAMP_AYLAAG_AREA_NAME = "Flusslager",
 	-- ENTRYTOOLTIP_DF_COMMUNITY_FEAST_LABEL = "Gemeinschaftliches Festmahl",
 	ENTRYTOOLTIP_DF_HIDE_EVENT_DESCRIPTIONS_LABEL = "Ereigniszusatztexte ausblenden",
 	--[[ UI options ]]--

@@ -448,10 +448,11 @@ local AREA_POI_ASSET_MAP = {
 -- 	for i=1, numCriteria do
 -- 		local criteriaInfo = SafePack(GetAchievementCriteriaInfo(achievementID, i));
 -- 		local cName, cType, isCompleted, criteriaAssetID, criteriaID = criteriaInfo[1], criteriaInfo[2], criteriaInfo[3], criteriaInfo[8], criteriaInfo[10];
--- 		print(i, criteriaAssetID, criteriaID, "isCompleted:", isCompleted, "-->", cName);
+-- 		print(i, criteriaAssetID, cType, criteriaID, "isCompleted:", isCompleted, "-->", cName);
 -- 	end
 -- end
--- -- Test_ListAchievementAssetIDs(18554)
+-- --> REF.: <https://wow.tools/dbc/?dbc=criteria>
+-- -- Test_ListAchievementAssetIDs(16462)
 
 -- Check if given areaPoiID has an assetID for an achievement.
 ---@param areaPoiID number

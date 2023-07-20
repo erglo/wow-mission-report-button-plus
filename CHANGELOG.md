@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [Unreleased]
+
+### Fixed
+
+- Corrected a translated string in `deDE` locale.
+
 ## [0.17.1+100105] - 2023-07-20
 
 ### Changed
