@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [0.17.1+100105] - 2023-07-20
+
+### Changed
+
+- Debug mode was partially still active. It's turned it off now.
+
 ## [0.17.0+100105] - 2023-07-20
 
 ### Added
