@@ -9,7 +9,8 @@
 
 ### Changed
 
-- Debug mode was partially still active. It's turned it off now.
+- Debug mode was partially still active. It's turned off now.
+&nbsp;  
 
 ## [0.17.0+100105] - 2023-07-20
 
@@ -24,7 +25,6 @@
 - Refined `area names` for some POI details.
 - `Timewalking Vendor` details for Warlords of Draenor and Legion don't depend on calendar event data anymore.
 - Calendar data look-up process refurbished.
-
 &nbsp;  
 
 ## Previous changes
