@@ -7,7 +7,8 @@
 
 ### Fixed
 
-- Corrected a translated string in `deDE` locale.
+- English default strings haven't been merged with the global localization table correctly.
+- [Issue #13] An error occurred in `labels.lua` in the clean-up function. Said function was called as soon as the player leaves the world but the event fired presumably before the global variable was initialized. Now it is only called once when the player quits the game.
 &nbsp;  
 
 ## Previous changes

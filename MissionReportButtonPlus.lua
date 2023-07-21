@@ -55,7 +55,7 @@ local MRBP = CreateFrame("Frame", AddonID.."EventListenerFrame")
 FrameUtil.RegisterFrameForEvents(MRBP, {
 	"ADDON_LOADED",
 	"PLAYER_ENTERING_WORLD",
-	"PLAYER_LEAVING_WORLD",
+	"PLAYER_QUITING",
 	"GARRISON_SHOW_LANDING_PAGE",
 	"GARRISON_HIDE_LANDING_PAGE",
 	"GARRISON_BUILDING_ACTIVATABLE",
@@ -84,7 +84,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 				self:UnregisterEvent("ADDON_LOADED")
 			end
 
-		elseif (event == "PLAYER_LEAVING_WORLD") then
+		elseif (event == "PLAYER_QUITING") then
 			-- Do some variables clean-up
 			ns.data:CleanUpLabels()
 
