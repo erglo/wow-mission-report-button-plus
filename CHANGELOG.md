@@ -6,10 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
-## [Unreleased]
+## [0.17.2+100105] - 2023-07-21
 
 ### Fixed
 
+- [Issue #13] An error occurred in `labels.lua` in the clean-up function. Said function was called as soon as the player leaves the world but the event fired presumably before the global variable was initialized. Now it is only called once when the player quits the game.
+- English default strings haven't been merged with the global localization table correctly.
 - Corrected a translated string in `deDE` locale.
 
 ## [0.17.1+100105] - 2023-07-20
