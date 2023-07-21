@@ -74,12 +74,10 @@ L["showDragonridingRaceInfo"] = L.ENTRYTOOLTIP_DF_DRAGONRIDING_RACE_LABEL       
 L["hideEventDescriptions"] = L.ENTRYTOOLTIP_DF_HIDE_EVENT_DESCRIPTIONS_LABEL
 
 L.defaultLabels = {  -- English defaults
-    -- Legion
-    ["showLegionAssaultsInfo"] = "Legion Assault",
+    ["showLegionAssaultsInfo"] = "Legion Assault",                              -- Legion
     ["showBrokenShoreInvasionInfo"] = "Broken Shore: Demon Invasions",
     ["showArgusInvasionInfo"] = "Argus: Invasion Point",
-    -- Dragonflight
-    ["showCampAylaagInfo"] = "Aylaag Camp",
+    ["showCampAylaagInfo"] = "Aylaag Camp",                                     -- Dragonflight
     ["showGrandHuntsInfo"] = "Grand Hunts",
     ["showDragonbaneKeepInfo"] = "Siege on Dragonbane Keep",
     ["showElementalStormsInfo"] = "Elemental Storm",
@@ -189,12 +187,12 @@ local savedLabels = {
     },
 }
 
--- Merge saved localized strings with the localized strings table
--- Note: English is the default locale and doesn't need to be merged.
-if (not L:IsEnglishLocale(L.currentLocale) and savedLabels[L.currentLocale]) then
-    -- print("Merging", L.currentLocale, "table...")
-    MergeTable(L, savedLabels[L.currentLocale])
+-- Merge saved localized strings with the global localized strings table
+if L:IsEnglishLocale(L.currentLocale) then
+    savedLabels[L.currentLocale] = L.defaultLabels
 end
+-- print("Merging", L.currentLocale, "labels...")
+MergeTable(L, savedLabels[L.currentLocale])
 
 -----|--------------------------------------------------------------------------
 
@@ -221,14 +219,11 @@ end
 function ns.data:IsEmptyLabel(categoryName)
     local isEmptyVariable = L:StringIsEmpty(MRBP_GlobalSettings.labels[L.currentLocale][categoryName])
     local isEmptyLocally = L:StringIsEmpty(savedLabels[L.currentLocale][categoryName])
-    if L:IsEnglishLocale(L.currentLocale) then
-        isEmptyLocally = L:StringIsEmpty(L.defaultLabels[categoryName])
-    end
-    -- print("LABELS: isEmpty", isEmptyVariable, isEmptyLocally)
+    -- print("isEmpty", isEmptyVariable, isEmptyLocally, "-->", categoryName)
     return isEmptyVariable and isEmptyLocally
 end
 
--- function ns.data:IsSameLabel(categoryName, label)
+-- function ns.data:IsSameLabel(categoryName, label)                            --> TODO - Check if needed
 --     if L:StringIsEmpty(label) then return false end
 --     if (categoryName == "showResearchersUnderFireInfo") then return true end
 --     local savedLabel = self:GetLabel(categoryName)
@@ -244,7 +239,7 @@ function ns.data:SaveLabel(categoryName, label)
     if self:IsEmptyLabel(categoryName) then
         MRBP_GlobalSettings.labels[L.currentLocale][categoryName] = label
         L[categoryName] = label
-        -- print("LABELS:", format("Saved '%s' in '%s'", label, categoryName))
+        -- print("format("Saved '%s' in '%s'", label, categoryName))
         return
     end
     -- Clean-up variable
@@ -255,7 +250,7 @@ function ns.data:SaveLabel(categoryName, label)
 end
 
 function ns.data:GetLabel(categoryName)
-    local fallbackLabel = L.defaultLabels[categoryName]
+    local fallbackLabel = L.defaultLabels[categoryName]  -- only needed for non-English locales
     local variableLabel = MRBP_GlobalSettings.labels[L.currentLocale][categoryName]
     local label = L[categoryName] or variableLabel or fallbackLabel or ''
     -- print(">", categoryName, label)
@@ -265,11 +260,13 @@ end
 -- Clean up variable strings already saved in this file
 --> (See "PLAYER_LEAVING_WORLD" event in main file)
 function ns.data:CleanUpLabels()
-    if TableIsEmpty(MRBP_GlobalSettings.labels[L.currentLocale]) then
-        MRBP_GlobalSettings.labels[L.currentLocale] = nil
-    end
-    if TableIsEmpty(MRBP_GlobalSettings.labels) then
-        MRBP_GlobalSettings.labels = nil
+    if MRBP_GlobalSettings.labels then
+        if (MRBP_GlobalSettings.labels[L.currentLocale] and TableIsEmpty(MRBP_GlobalSettings.labels[L.currentLocale])) then
+            MRBP_GlobalSettings.labels[L.currentLocale] = nil
+        end
+        if TableIsEmpty(MRBP_GlobalSettings.labels) then
+            MRBP_GlobalSettings.labels = nil
+        end
     end
     if TableIsEmpty(MRBP_GlobalSettings) then
         MRBP_GlobalSettings = nil
