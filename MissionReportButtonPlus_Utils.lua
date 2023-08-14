@@ -2140,9 +2140,9 @@ function util.calendar.GetDayEventChatMessage(event)
 	local timeString, suffixString;
 	local indexInfo = C_Calendar.GetEventIndexInfo(event.eventID);  -- , monthOffset, currentCalendarTime.monthDay);
 	if not indexInfo then
-		indexInfo = { ["eventIndex"] = 1 };
+		indexInfo = {offsetMonths = monthOffset, monthDay = currentCalendarTime.monthDay, eventIndex = 1};
 	end
-	local eventLinkText = GetCalendarEventLink(monthOffset, currentCalendarTime.monthDay, indexInfo.eventIndex);
+	local eventLinkText = GetCalendarEventLink(indexInfo.offsetMonths, indexInfo.monthDay, indexInfo.eventIndex);
 	local eventLink = LINK_FONT_COLOR:WrapTextInColorCode(COMMUNITIES_CALENDAR_CHAT_EVENT_TITLE_FORMAT:format(eventLinkText));
 
 	_log:debug_type(_log.type.CALENDAR, "--> seq:", event.numSequenceDays, event.sequenceIndex, event.numSequenceDays - event.sequenceIndex, "days left");

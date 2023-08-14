@@ -7,11 +7,14 @@
 
 ### Fixed
 
-- [Issue #13] An error occurred in `labels.lua` in the clean-up function. Said function was called as soon as the player leaves the world but the event fired presumably before the global variable was initialized. Now it is only called once when the player quits the game.
-- English default strings haven't been merged with the global localization table correctly.
-- Corrected a translated string in `deDE` locale.
+- Fixed bonus event message for world quests; `GetCalendarEventLink` couldn't get needed informations properly.
 &nbsp;  
 
 ## Previous changes
 
 - For a complete history of changes see the [changelog file on GitHub](https://github.com/erglo/mission-report-button-plus/blob/main/CHANGELOG.md "CHANGELOG.md").
+
+&nbsp;  
+**Note:** _This is an unreleased version and still in development._  
+[![WoW](https://img.shields.io/badge/WoW--retail-10.1.5-orange)](https://addons.wago.io/addons/mission-report-button-plus "Supported game version")
+!["tag-latest"](https://img.shields.io/badge/tag-v0.17.3-informational?logo=GitHub&logoColor=lightgray "Test version")
