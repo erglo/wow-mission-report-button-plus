@@ -160,6 +160,20 @@ function util.strip_DE_hyphen(text)
 	return text;
 end
 
+
+-- Check if given table exists and if it has any entries.  
+-- **Note:** This is an extended version of Blizzard's `TableHasAnyEntries` utility function.
+---@param tbl table
+---@return boolean
+--
+-- REF.: <https://www.townlong-yak.com/framexml/live/TableUtil.lua>
+--
+function util.TableHasAnyEntries(tbl)
+	if not tbl then return false end
+
+	return next(tbl) ~= nil
+end
+
 --------------------------------------------------------------------------------
 ----- Atlas + Textures ---------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -1323,7 +1337,7 @@ function LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(eventData)
 		-- Set map info for each child zone
 		eventData.mapInfo = mapInfo;
 		local childEvents = LocalPoiUtil.SingleArea.GetMultipleAreaPoiInfos(eventData, ignoreSorting);
-		if TableHasAnyEntries(childEvents) then
+		if util.TableHasAnyEntries(childEvents) then
 			tAppendAll(events, childEvents);
 		end
 	end
@@ -1611,7 +1625,7 @@ ArgusInvasionData.achievementID = INVASION_OBLITERATION_ID;  -- Invasion Point G
 
 function util.poi.GetArgusInvasionPointsInfo()
 	local poiInfoTable = LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(ArgusInvasionData);
-	if TableHasAnyEntries(poiInfoTable) then
+	if util.TableHasAnyEntries(poiInfoTable) then
 		for _, poiInfo in ipairs(poiInfoTable) do
 			poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
 			LocalAchievementUtil.AddAchievementData(ArgusInvasionData.achievementID, poiInfo);

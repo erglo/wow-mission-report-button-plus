@@ -862,7 +862,7 @@ end
 
 --> Note: Don't delete! Used for testing.
 local function AddMultiPOITestText(poiInfos, tooltipText, addSeparator)
-	if TableHasAnyEntries(poiInfos) then
+	if util.TableHasAnyEntries(poiInfos) then
 		for _, poi in ipairs(poiInfos) do
 			if addSeparator then
 				-- Add space between this an previous details
@@ -1031,7 +1031,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 
 	----- World map threats (Battle for Azeroth + Shadowlands) -----
 
-	if (activeThreats and TableHasAnyEntries(activeThreats) and ShouldShowActiveThreatsText(garrTypeID)) then
+	if (util.TableHasAnyEntries(activeThreats) and ShouldShowActiveThreatsText(garrTypeID)) then
 		for threatExpansionLevel, threatData in pairs(activeThreats) do
 			-- Add the infos only to the corresponding expansion
 			if (threatExpansionLevel == garrInfo.expansion.ID) then
@@ -1085,7 +1085,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 		-- Demon Invasions (Broken Shores)
 		if ns.settings.showBrokenShoreInvasionInfo then
 			local demonAreaPoiInfos = util.poi.GetBrokenShoreInvasionInfo();
-			if TableHasAnyEntries(demonAreaPoiInfos) then
+			if util.TableHasAnyEntries(demonAreaPoiInfos) then
 				tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showBrokenShoreInvasionInfo"]);
 				for _, demonPoi in ipairs(demonAreaPoiInfos) do
 					tooltipText = TooltipText_AddIconLine(tooltipText, demonPoi.name, demonPoi.atlasName, demonPoi.color);
@@ -1096,7 +1096,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 		-- Invasion Points (Argus)
 		if ns.settings.showArgusInvasionInfo then
 			local riftAreaPoiInfos = util.poi.GetArgusInvasionPointsInfo();
-			if TableHasAnyEntries(riftAreaPoiInfos) then
+			if util.TableHasAnyEntries(riftAreaPoiInfos) then
 				tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showArgusInvasionInfo"]);
 				for _, riftPoi in ipairs(riftAreaPoiInfos) do
 					local appendCompleteIcon = true;
@@ -1136,7 +1136,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 
 	if (isForShadowlands and ns.settings.showCovenantRenownLevel) then
 		local covenantInfo = util.covenant.GetCovenantInfo();
-		if TableHasAnyEntries(covenantInfo) then
+		if util.TableHasAnyEntries(covenantInfo) then
 			tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showCovenantRenownLevel"]);
 			tooltipText = AddTooltipCovenantRenownText(tooltipText, covenantInfo);
 		end
@@ -1227,7 +1227,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			-- Elemental Storms
 			if ns.settings.showElementalStormsInfo then
 				local stormsAreaPoiInfos = util.poi.GetElementalStormsInfo();
-				if TableHasAnyEntries(stormsAreaPoiInfos) then
+				if util.TableHasAnyEntries(stormsAreaPoiInfos) then
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showElementalStormsInfo"]);  -- stormsAreaPoiInfos[1].name);
 					for _, stormPoi in ipairs(stormsAreaPoiInfos) do
 						tooltipText = TooltipText_AddIconLine(tooltipText, stormPoi.mapInfo.name, stormPoi.atlasName);
@@ -1768,7 +1768,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 				util.GameTooltip_AddAtlas(tooltip, garrInfo.minimapIcon, 36, 36, Enum.TooltipTextureAnchor.RightCenter);
 				-- Major Factions
 				local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansion.ID);
-				if TableHasAnyEntries(majorFactionData) then
+				if util.TableHasAnyEntries(majorFactionData) then
 					for _, factionData in ipairs(majorFactionData) do
 						if factionData.isUnlocked then
 							local factionAtlasName = "MajorFactions_MapIcons_"..factionData.textureKit.."64";
@@ -1831,7 +1831,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					-- Elemental Storms
 					if ns.settings.showElementalStormsInfo then
 						local stormsAreaPoiInfos = util.poi.GetElementalStormsInfo();
-						if TableHasAnyEntries(stormsAreaPoiInfos) then
+						if util.TableHasAnyEntries(stormsAreaPoiInfos) then
 							for _, stormPoi in ipairs(stormsAreaPoiInfos) do
 								local timeLeft = stormPoi.timeString or "...";
 								local lineText = format("%s @ %s", stormPoi.name, stormPoi.mapInfo.name)..": "..timeLeft

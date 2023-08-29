@@ -7,6 +7,7 @@
 
 ### Fixed
 
+- [Issue #15] The Legion status was not working after unlocking the command table.
 - Fixed bonus event message for world quests; `GetCalendarEventLink` couldn't get needed informations properly.
 &nbsp;  
 

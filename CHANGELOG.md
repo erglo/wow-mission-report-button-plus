@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [Unreleased]
+
+### Fixed
+
+- [Issue #15] The Legion status was not working after unlocking the command table.
+- Fixed bonus event message for world quests; `GetCalendarEventLink` couldn't get needed informations properly.
+
 ## [0.17.2+100105] - 2023-07-21
 
 ### Fixed
