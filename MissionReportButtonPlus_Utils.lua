@@ -945,7 +945,7 @@ function util.garrison.GetAllMajorFactionDataForExpansion(expansionID)
 	for _, factionID in ipairs(majorFactionIDs) do
 		tinsert(majorFactionData, util.garrison.GetMajorFactionData(factionID));
 	end
-	local sortFunc = function(a, b) return a.unlockOrder < b.unlockOrder end;  --> 0-9
+	local sortFunc = function(a, b) return a.uiPriority < b.uiPriority end;  --> 0-9
 	table.sort(majorFactionData, sortFunc);
 
 	return majorFactionData;
