@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [0.18.0+100107] - 2023-09-06
+
+### Changed
+
+- Updated TOC file version to `WoW 10.1.7`.
+
+### Fixed
+
+- [Issue #15] Changes in `C_MajorFactions` with `WoW 10.1.7` caused an error with sorting the DF major faction data. (Thanks to [justinkb](https://github.com/justinkb) for this quick fix.)
+
 ## [0.17.3+100105] - 2023-09-01
 
 ### Fixed
