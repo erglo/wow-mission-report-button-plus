@@ -936,7 +936,7 @@ function util.garrison.GetMajorFactionData(factionID)
 end
 
 -- Retrieve and sort the data for all major factions of given expansion.
--->REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua> <br/>
+-->REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>  
 -- REF.: <FrameXML/Blizzard_MajorFactions/Blizzard_MajorFactionRenown.lua>
 --
 function util.garrison.GetAllMajorFactionDataForExpansion(expansionID)
@@ -945,7 +945,7 @@ function util.garrison.GetAllMajorFactionDataForExpansion(expansionID)
 	for _, factionID in ipairs(majorFactionIDs) do
 		tinsert(majorFactionData, util.garrison.GetMajorFactionData(factionID));
 	end
-	local sortFunc = function(a, b) return a.unlockOrder < b.unlockOrder end;  --> 0-9
+	local sortFunc = function(a, b) return a.uiPriority < b.uiPriority end;  --> 0-9 (Fixed thanks to @justinkb.)
 	table.sort(majorFactionData, sortFunc);
 
 	return majorFactionData;
