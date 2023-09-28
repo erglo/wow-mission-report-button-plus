@@ -1529,6 +1529,41 @@ function util.poi.GetTimeRiftInfo()
 	end
 end
 
+----- Dreamsurge -----
+
+local DreamsurgeData = {}
+DreamsurgeData.atlasName = "dreamsurge_hub-icon"  -- "dreamsurge_fire-portal-icon"   "dreamsurge-world-quest-icon"
+DreamsurgeData.mapID = DRAGON_ISLES_MAP_ID
+DreamsurgeData.mapInfos = LocalMapUtil.GetMapChildrenInfo(DreamsurgeData.mapID, Enum.UIMapType.Zone)
+DreamsurgeData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName
+DreamsurgeData.includeAreaName = true
+DreamsurgeData.GetTimeTillNextSurge = function()
+	-- A Waking Dream portal opens every 30 minutes with each surge
+	local gameTimeHour, gameTimeMinutes = GetLocalGameTime()
+	local minutesLeft = gameTimeMinutes <= 30 and (30 - gameTimeMinutes) or (60 - gameTimeMinutes)
+	if (minutesLeft >= 0) then
+		local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(nil, MinutesToSeconds(minutesLeft))
+		local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString
+		return timeLeftString
+	end
+end
+
+-- Appears each week in one of the four original zones in the Dragon Isles.  
+-- Every 30 minutes, a major Waking Dream portal will open in the affected zone as a group event.
+--> REF.: <https://worldofwarcraft.blizzard.com/en-us/news/23988136/unite-and-face-the-onslaught-of-the-dreamsurge>
+--
+function util.poi.GetDreamsurgeInfo()
+	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(DreamsurgeData)
+	if poiInfo then
+		data:SaveLabel("showDreamsurgeInfo", poiInfo.name)
+		-- By default poiInfo.timeString holds the time until the weekly reset,
+		-- instead we are going to show the time until the next Dreamsurge
+		-- poiInfo.timeString = DreamsurgeData:GetTimeTillNextSurge()
+		poiInfo.nextSurgeTimeString = DreamsurgeData:GetTimeTillNextSurge()
+		return poiInfo
+	end
+end
+
 ----- Battle for Azeroth: Faction Assaults -----
 
 local BfAFactionAssaultsData = {};
@@ -1844,6 +1879,8 @@ if _log.DEVMODE then
 	--> Don't show this in the tooltip's test section!
 	TestPoiUtil.separatedAreaPoiIDs = {
 		-- Dragonflight
+		"7094",  -- Grand Hunts - Azure Span (west)
+		"7095",  -- Grand Hunts - Azure Span (east)
 		"7096",  -- Grand Hunts - Azure Span
 		"7342",  -- Grand Hunts - Ohn'ahra
 		"7343",  -- Grand Hunts - Waking Shores
@@ -1871,9 +1908,11 @@ if _log.DEVMODE then
 		"7221",  -- Elemental Storm (Air)
 		"7224",  -- Elemental Storm (Water)
 		"7229",  -- Elemental Storm (Air) - Ohn'ahran Plains
+		"7230",  -- Elemental Storm (Earth) - Azure Span
 		"7231",  -- Elemental Storm (Fire)
 		"7232",  -- Elemental Storm (Water)
 		"7233",  -- Elemental Storm (Air)
+		"7234",  -- Elemental Storm (Earth) - Ohn'ahran Plains
 		"7235",  -- Elemental Storm (Fire)
 		"7236",  -- Elemental Storm (Water)
 		"7237",  -- Elemental Storm (Air)
@@ -1887,7 +1926,7 @@ if _log.DEVMODE then
 		"7254",  -- Elemental Storm (Earth) - Waking Shores
 		"7255",  -- Elemental Storm (Fire) - Waking Shores
 		"7256",  -- Elemental Storm (Water) - Waking Shores
-		-- "7257",  -- Elemental Storm (???) - Waking Shores
+		"7257",  -- Elemental Storm (Air) - Waking Shores
 		"7258",  -- Elemental Storm (Earth)
 		"7259",  -- Elemental Storm (Fire)
 		"7260",  -- Elemental Storm (Water) - Waking Shores
@@ -1896,6 +1935,8 @@ if _log.DEVMODE then
 		"7461",  -- mid-Researchers Under Fire - Zaralek Cavern
 		"7462",  -- mid-Researchers Under Fire - Zaralek Cavern
 		"7492",  -- Time Rift, Thaldraszus
+		"7588",  -- Dreamsurge, Thaldraszus
+		"7602",  -- Dreamsurge, Thaldraszus
 		-- Shadowlands
 		-- Battle for Azeroth
 		"5896",  -- Faction Assaults (Horde attacking Tiragardesound)

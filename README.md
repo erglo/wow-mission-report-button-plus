@@ -9,12 +9,12 @@ Adds a right-click menu to the mission report button on the minimap (aka. `Garri
 
 ## Status
 
-![GitHub release (with filter)](https://img.shields.io/github/v/release/erglo/wow-mission-report-button-plus?logo=github&label=latest "GitHub Version")
-![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/erglo/wow-mission-report-button-plus?logo=github "GitHub Release Date")
-![GitHub all releases](https://img.shields.io/github/downloads/erglo/wow-mission-report-button-plus/total?logo=github "GitHub Downloads")
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/erglo/wow-mission-report-button-plus/main?logo=github "GitHub Last Commit (main)")
+![GitHub release (with filter)](https://img.shields.io/github/v/release/erglo/wow-mission-report-button-plus?logo=github&label=latest&color=blue "GitHub Version")
+![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/erglo/wow-mission-report-button-plus?logo=github&color=blue "GitHub Release Date")
+![GitHub all releases](https://img.shields.io/github/downloads/erglo/wow-mission-report-button-plus/total?logo=github&color=blue "GitHub Downloads")
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/erglo/wow-mission-report-button-plus/main?logo=github&color=blue "GitHub Last Commit (main)")
 
-![CurseForge Version](https://img.shields.io/curseforge/v/461804?logo=curseforge&label=latest "CurseForge Version")
+![CurseForge Version](https://img.shields.io/curseforge/v/461804?logo=curseforge&label=latest&color=%23F16436 "CurseForge Version")
 ![CurseForge Game Versions](https://img.shields.io/curseforge/game-versions/461804?logo=curseforge&label=WoW-retail&color=%23F16436 "Game Versions")
 ![CurseForge Downloads](https://img.shields.io/curseforge/dt/461804?logo=curseforge&color=%23F16436 "CurseForge Downloads")
 

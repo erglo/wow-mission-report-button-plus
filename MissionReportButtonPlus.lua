@@ -648,7 +648,7 @@ local function TooltipText_AddHeaderLine(tooltipText, text, skipSeparatorLine)
 	if not skipSeparatorLine then
 		tooltipText = tooltipText.."|n";
 	end
-	if (text ~= '') then
+	if not L:StringIsEmpty(text) then
 		tooltipText = tooltipText.."|n"..text;
 	end
 	return tooltipText;
@@ -1274,6 +1274,17 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					end
 				end
 			end
+			-- Dreamsurge
+			if ns.settings.showDreamsurgeInfo then
+				local dfDreamsurgeInfo = util.poi.GetDreamsurgeInfo()
+				if dfDreamsurgeInfo then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showDreamsurgeInfo"])
+					tooltipText = TooltipText_AddIconLine(tooltipText, dfDreamsurgeInfo.mapInfo.name, dfDreamsurgeInfo.atlasName)
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfDreamsurgeInfo.areaName)
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfDreamsurgeInfo.timeString)
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfDreamsurgeInfo.nextSurgeTimeString)
+				end
+			end
 		end
 	end
 
@@ -1864,6 +1875,15 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 							local timeLeft = dfTimeRiftsInfo.timeString or "...";
 							local lineText = format("%s @ %s", dfTimeRiftsInfo.name, dfTimeRiftsInfo.mapInfo.name)..": "..timeLeft
 							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfTimeRiftsInfo.atlasName)
+						end
+					end
+					-- Dreamsurge
+					if ns.settings.showDreamsurgeInfo then
+						local dfDreamsurgeInfo = util.poi.GetDreamsurgeInfo()
+						if dfDreamsurgeInfo then
+							local timeLeft = dfDreamsurgeInfo.nextSurgeTimeString or dfDreamsurgeInfo.timeString or "...";
+							local lineText = format("%s @ %s", L["showDreamsurgeInfo"], dfDreamsurgeInfo.mapInfo.name)..": "..timeLeft
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfDreamsurgeInfo.atlasName)
 						end
 					end
 				end

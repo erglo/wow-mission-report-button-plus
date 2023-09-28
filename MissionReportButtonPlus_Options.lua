@@ -78,6 +78,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showFyrakkAssaultsInfo"] = true,
 	["showResearchersUnderFireInfo"] = true,
 	["showTimeRiftInfo"] = true,
+	["showDreamsurgeInfo"] = true,
 	["hideEventDescriptions"] = false,
 	-- Shadowlands
 	["showCovenantMissionInfo"] = true,
@@ -930,6 +931,13 @@ function MRBP_Settings_Register()
 			variable = "showTimeRiftInfo",
 			name = L["showTimeRiftInfo"],
 			tooltip = FormatTooltipTemplate("showTimeRiftInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TIME_RIFTS),
+			parentVariable = "showDragonflightWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showDreamsurgeInfo",
+			name = L["showDreamsurgeInfo"],
+			tooltip = FormatTooltipTemplate("showDreamsurgeInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DREAMSURGE),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 			tag = Settings.Default.True,
