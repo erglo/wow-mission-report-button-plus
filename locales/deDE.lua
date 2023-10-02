@@ -114,7 +114,6 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_FYRAKK_ASSAULTS = "der Angriffe von Fyrakk auf die Dracheninseln",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TIME_RIFTS = "der Zeitrisse in Thaldraszus",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DREAMSURGE = "des Traumsprungs auf den Dracheninseln",
-	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DREAMSURGE_SUFFIX = "Die aktive Zone wechselt wöchentlich und alle 30 Minuten öffnet sich ein großes Wachtraum Portal.",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE = "von Forscher unter Feuer in der Zaralekhöhle",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN = "(Funktioniert nur in der Zaralekhöhle!)",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS = "Wenn aktiviert, werden Texte die weitere Details zu einem Ereignis beschreiben, ausgeblendet.",

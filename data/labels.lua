@@ -84,6 +84,7 @@ L.defaultLabels = {  -- English defaults
     ["showFyrakkAssaultsInfo"] = "Fyrakk Assault",                              --> TODO - Add "Dragon Glyphs"
     ["showResearchersUnderFireInfo"] = "Researchers Under Fire",                --> TODO - Add BfA "Faction Assaults"
     ["showTimeRiftInfo"] = "Time Rift",                                         --> TODO - Redo "Dragonriding Races"
+    ["showDreamsurgeInfo"] = "Dreamsurge",
 }                                                                               --> TODO - Add Shadowlands "Covenant Assaults"
 
 -- These strings have been saved using the global variable; once they have been
@@ -100,6 +101,7 @@ local savedLabels = {
         ["showFyrakkAssaultsInfo"] = "Angriff von Fyrakk",
         ["showResearchersUnderFireInfo"] = "Forscher unter Feuer",
         ["showTimeRiftInfo"] = "Zeitriss",
+        ["showDreamsurgeInfo"] = "Traumsprung",
     },
     ["esES"] = {
         -- ["showLegionAssaultsInfo"] = ,                                       -- Legion
@@ -112,6 +114,7 @@ local savedLabels = {
         ["showFyrakkAssaultsInfo"] = "Asalto de Fyrakk",
         ["showResearchersUnderFireInfo"] = "Investigadores bajo el fuego: Bloqueo de los titanes",
         ["showTimeRiftInfo"] = "Falla temporal",
+        ["showDreamsurgeInfo"] = "Pico Onírico",
     },
     ["frFR"] = {
         ["showLegionAssaultsInfo"] = "Assaut de la Légion",                     -- Legion
@@ -124,6 +127,7 @@ local savedLabels = {
         ["showFyrakkAssaultsInfo"] = "Assaut de Fyrakka",
         ["showResearchersUnderFireInfo"] = "Des chercheurs sous le feu",
         ["showTimeRiftInfo"] = "Faille temporelle",
+        ["showDreamsurgeInfo"] = "Poussée onirique",
     },
     ["itIT"] = {
         -- ["showLegionAssaultsInfo"] = ,                                       -- Legion
@@ -136,6 +140,7 @@ local savedLabels = {
         ["showFyrakkAssaultsInfo"] = "Assalto di Fyrakk",
         ["showResearchersUnderFireInfo"] = "Ricercatori sotto attacco",
         ["showTimeRiftInfo"] = "Fenditura del Tempo",
+        ["showDreamsurgeInfo"] = "Sovronirico",
     },
     ["ptBR"] = {
         -- ["showLegionAssaultsInfo"] = ,                                       -- Legion
@@ -148,6 +153,7 @@ local savedLabels = {
         ["showFyrakkAssaultsInfo"] = "Ofensiva de Fyrakk",
         ["showResearchersUnderFireInfo"] = "Pesquisadores sob fogo",
         ["showTimeRiftInfo"] = "Fenda Temporal",
+        ["showDreamsurgeInfo"] = "Surto Onírico",
     },
     ["ruRU"] = {
         -- ["showLegionAssaultsInfo"] = ,                                       -- Legion
@@ -160,6 +166,7 @@ local savedLabels = {
         ["showFyrakkAssaultsInfo"] = "Налет Фиракка",
         -- ["showResearchersUnderFireInfo"] = ,
         ["showTimeRiftInfo"] = "Портал времени",
+        ["showDreamsurgeInfo"] = "Прилив Снов",
     },
     ["zhCN"] = {
         ["showLegionAssaultsInfo"] = "军团入侵",                                 -- Legion
@@ -172,6 +179,7 @@ local savedLabels = {
         ["showFyrakkAssaultsInfo"] = "菲莱克突袭",
         -- ["showResearchersUnderFireInfo"] = ,
         ["showTimeRiftInfo"] = "时光裂隙",
+        ["showDreamsurgeInfo"] = "梦涌",
     },
     ["zhTW"] = {
         ["showLegionAssaultsInfo"] = "軍團入侵",                                 -- Legion
@@ -184,6 +192,7 @@ local savedLabels = {
         ["showFyrakkAssaultsInfo"] = "菲拉卡襲擊",
         -- ["showResearchersUnderFireInfo"] = ,
         ["showTimeRiftInfo"] = "時間裂隙",
+        -- ["showDreamsurgeInfo"] = "",
     },
 }
 
@@ -291,4 +300,5 @@ ns.data.LoadInGameLabels = function(self)
     L["showFyrakkAssaultsInfo"] = ns.data:GetLabel("showFyrakkAssaultsInfo")
     L["showResearchersUnderFireInfo"] = ns.data:GetLabel("showResearchersUnderFireInfo")
     L["showTimeRiftInfo"] = ns.data:GetLabel("showTimeRiftInfo")
+    L["showDreamsurgeInfo"] = ns.data:GetLabel("showDreamsurgeInfo")
 end
