@@ -1200,18 +1200,16 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, huntsAreaPoiInfo.timeString);
 				end
 			end
-			-- -- Iskaara Community Feast
-			-- if ns.settings.showCommunityFeastInfo then
-			-- 	local feastAreaPoiInfo = util.poi.GetCommunityFeastInfo();
-			-- 	if feastAreaPoiInfo then
-			-- 		tooltipText = TooltipText_AddHeaderLine(tooltipText, feastAreaPoiInfo.name);  -- L["showCommunityFeastInfo"]
-			-- 		tooltipText = TooltipText_AddIconLine(tooltipText, feastAreaPoiInfo.mapInfo.name, feastAreaPoiInfo.atlasName);
-			-- 		tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, feastAreaPoiInfo.timeString);
-			-- 		if not ns.settings.hideEventDescriptions then
-			-- 			tooltipText = TooltipText_AddObjectiveLine(tooltipText, feastAreaPoiInfo.description);
-			-- 		end
-			-- 	end
-			-- end
+			-- Iskaara Community Feast
+			if ns.settings.showCommunityFeastInfo then
+				local feastAreaPoiInfo = util.poi.GetCommunityFeastInfo()
+				if feastAreaPoiInfo then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showCommunityFeastInfo"])
+					tooltipText = TooltipText_AddIconLine(tooltipText, feastAreaPoiInfo.mapInfo.name, feastAreaPoiInfo.atlasName)
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, feastAreaPoiInfo.name)
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, feastAreaPoiInfo.timeString)
+				end
+			end
 			-- Siege on Dragonbane Keep
 			if ns.settings.showDragonbaneKeepInfo then
 				local siegeAreaPoiInfo = util.poi.GetDragonbaneKeepInfo();
@@ -1828,6 +1826,15 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 							local timeLeft = huntsAreaPoiInfo.timeString or "...";
 							local lineText = format("%s @ %s", huntsAreaPoiInfo.name, huntsAreaPoiInfo.mapInfo.name)..": "..timeLeft
 							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, huntsAreaPoiInfo.atlasName)
+						end
+					end
+					-- Iskaara Community Feast
+					if ns.settings.showCommunityFeastInfo then
+						local feastAreaPoiInfo = util.poi.GetCommunityFeastInfo()
+						if feastAreaPoiInfo then
+							local timeLeft = feastAreaPoiInfo.timeString or "..."
+							local lineText = format("%s @ %s", L["showCommunityFeastInfo"], feastAreaPoiInfo.name)..": "..timeLeft
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, feastAreaPoiInfo.atlasName)
 						end
 					end
 					-- Siege on Dragonbane Keep

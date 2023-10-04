@@ -295,6 +295,7 @@ ns.data.LoadInGameLabels = function(self)
     -- Dragonflight
     L["showCampAylaagInfo"] = ns.data:GetLabel("showCampAylaagInfo")
     L["showGrandHuntsInfo"] = ns.data:GetLabel("showGrandHuntsInfo")
+    L["showCommunityFeastInfo"] = QuestUtils_GetQuestName(70893) or "Community Feast"  -- L.ENTRYTOOLTIP_DF_COMMUNITY_FEAST_LABEL
     L["showDragonbaneKeepInfo"] = ns.data:GetLabel("showDragonbaneKeepInfo")
     L["showElementalStormsInfo"] = ns.data:GetLabel("showElementalStormsInfo")
     L["showFyrakkAssaultsInfo"] = ns.data:GetLabel("showFyrakkAssaultsInfo")
