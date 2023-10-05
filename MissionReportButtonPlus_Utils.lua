@@ -1365,7 +1365,6 @@ CampAylaagData.widgetSetIDs = {718, 719, 720};
 CampAylaagData.mapID = 2023;  --> Ohn'ahra
 CampAylaagData.mapInfo = LocalMapUtil.GetMapInfo(CampAylaagData.mapID);
 CampAylaagData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
--- CampAylaagData.includeAreaName = true;
 CampAylaagData.areaIDsMap = {
 	["7101"] = nil,    -- River Camp (east), no areaID found
 	["7102"] = 13747,  -- Aylaag Outpost
@@ -1375,11 +1374,11 @@ CampAylaagData.areaIDsMap = {
 function util.poi.GetCampAylaagInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(CampAylaagData)
 	if poiInfo then
-		data:SaveLabel("showCampAylaagInfo", poiInfo.name)
-		local areaID = CampAylaagData.areaIDsMap[tostring(poiInfo.areaPoiID)]
+		data:SaveLabel("showCampAylaagInfo", poiInfo.name)  -- Needed as settings label
 		if (poiInfo.areaPoiID == 7101) then
 			poiInfo.areaName = L.ENTRYTOOLTIP_DF_CAMP_AYLAAG_AREA_NAME
 		else
+			local areaID = CampAylaagData.areaIDsMap[tostring(poiInfo.areaPoiID)]
 			poiInfo.areaName = areaID and LocalMapUtil.GetAreaInfo(areaID) or poiInfo.areaName
 		end
 		return poiInfo

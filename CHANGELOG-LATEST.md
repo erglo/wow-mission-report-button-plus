@@ -13,6 +13,7 @@
 
 ### Changed
 
+* Updated the Addon Compartment entry for `Camp Aylaag`; it shows the area name now.
 * Updated README files.
 &nbsp;  
 

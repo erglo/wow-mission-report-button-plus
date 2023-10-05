@@ -1811,11 +1811,10 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					end
 					-- Camp Aylaag
 					if ns.settings.showCampAylaagInfo then
-						local campAreaPoiInfo = util.poi.GetCampAylaagInfo();
+						local campAreaPoiInfo = util.poi.GetCampAylaagInfo()
 						if campAreaPoiInfo then
-							local timeLeft = campAreaPoiInfo.timeString or "...";
-							local locationName = campAreaPoiInfo.closetFlightPoint and campAreaPoiInfo.closetFlightPoint.cleanNodeName or campAreaPoiInfo.mapInfo.name;
-							local lineText = format("%s @ %s", campAreaPoiInfo.name, locationName)..": "..timeLeft
+							local timeLeft = campAreaPoiInfo.timeString or "..."
+							local lineText = format("%s @ %s", campAreaPoiInfo.name, campAreaPoiInfo.areaName)..": "..timeLeft
 							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, campAreaPoiInfo.atlasName)
 						end
 					end
