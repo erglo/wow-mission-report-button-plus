@@ -1415,7 +1415,7 @@ CommunityFeastData.mapInfo = LocalMapUtil.GetMapInfo(CommunityFeastData.mapID)
 CommunityFeastData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID
 CommunityFeastData.GetNextEventTime = function(self)
 	-- The Community Feast event occurs every 90 minutes.
-	local now = time()
+	local now = GetServerTime()
 	-- local feastTime = now + C_DateAndTime.GetSecondsUntilWeeklyReset()
 	local feastTime = now + C_DateAndTime.GetSecondsUntilDailyReset()
 	while feastTime > (now + 5400) do
