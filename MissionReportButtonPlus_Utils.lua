@@ -1432,6 +1432,8 @@ CommunityFeastData.GetTimeLeft = function(self)
 	local secondsLeft = self:GetNextEventTime()
 	local isActive = secondsLeft <= 5400 and secondsLeft >= 4500
 	local isSoupReady = secondsLeft < 4500 and secondsLeft > 900
+	-- print("secondsLeft:", secondsLeft)
+	-- print("isActive:", isActive, "- isSoupReady:", isSoupReady)
 	if (secondsLeft >= 0) then
 		local timeLeftInfo = {}
 		if isActive then
@@ -1458,7 +1460,7 @@ function util.poi.GetCommunityFeastInfo()
 			if timeLeftString then
 				local activeTimeLeftString = timeLeftString.." "..GREEN_FONT_COLOR:WrapTextInColorCode(SPEC_ACTIVE)
 				poiInfo.timeString = isActive and activeTimeLeftString or timeLeftString
-				poiInfo.timeString = isSoupReady and timeLeftString..util.CreateInlineIcon(4659336, nil, nil, 3) or timeLeftString
+				poiInfo.timeString = isSoupReady and timeLeftString..util.CreateInlineIcon(4659336, nil, nil, 3) or poiInfo.timeString
 			end
 		end
 		return poiInfo
@@ -1638,7 +1640,7 @@ function util.poi.GetDreamsurgeInfo()
 	if poiInfo then
 		data:SaveLabel("showDreamsurgeInfo", poiInfo.name)
 		-- By default poiInfo.timeString holds the time until the weekly reset,
-		-- instead we are going to show the time until the next Dreamsurge
+		-- additionally we are going to show the time until the next Dreamsurge
 		-- poiInfo.timeString = DreamsurgeData:GetTimeTillNextSurge()
 		poiInfo.nextSurgeTimeString = DreamsurgeData:GetTimeTillNextSurge()
 		return poiInfo
