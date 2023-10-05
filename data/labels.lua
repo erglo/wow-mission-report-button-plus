@@ -66,26 +66,28 @@ L["applyCovenantColors"] = L.ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL
 L["showMajorFactionRenownLevel"] = MAJOR_FACTION_LIST_TITLE.." "..PARENS_TEMPLATE:format(LANDING_PAGE_RENOWN_LABEL)
 L["applyMajorFactionColors"] = L.ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL
 L["hideMajorFactionUnlockDescription"] = L.ENTRYTOOLTIP_DF_HIDE_MF_UNLOCK_DESCRIPTION_LABEL
-L["showDragonGlyphs"] = L.ENTRYTOOLTIP_DF_DRAGON_GLYPHS_LABEL
 L["autoHideCompletedDragonGlyphZones"] = L.ENTRYTOOLTIP_DF_HIDE_DRAGON_GLYPHS_LABEL
 L["showDragonflightWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL
-L["showDragonridingRaceInfo"] = L.ENTRYTOOLTIP_DF_DRAGONRIDING_RACE_LABEL       --> Unlocked after Abenteuermodus "Es geht voran"
--- ["showCommunityFeastInfo"] = L.ENTRYTOOLTIP_DF_COMMUNITY_FEAST_LABEL
 L["hideEventDescriptions"] = L.ENTRYTOOLTIP_DF_HIDE_EVENT_DESCRIPTIONS_LABEL
 
 L.defaultLabels = {  -- English defaults
     ["showLegionAssaultsInfo"] = "Legion Assault",                              -- Legion
     ["showBrokenShoreInvasionInfo"] = "Broken Shore: Demon Invasions",
     ["showArgusInvasionInfo"] = "Argus: Invasion Point",
-    ["showCampAylaagInfo"] = "Aylaag Camp",                                     -- Dragonflight
+    ["showDragonridingRaceInfo"] = "Dragon Racing",                             -- Dragonflight
+    ["showDragonGlyphs"] = "Dragon Glyphs",
+    ["showCampAylaagInfo"] = "Aylaag Camp",
     ["showGrandHuntsInfo"] = "Grand Hunts",
+    ["showCommunityFeastInfo"] = "Community Feast",
     ["showDragonbaneKeepInfo"] = "Siege on Dragonbane Keep",
     ["showElementalStormsInfo"] = "Elemental Storm",
-    ["showFyrakkAssaultsInfo"] = "Fyrakk Assault",                              --> TODO - Add "Dragon Glyphs"
-    ["showResearchersUnderFireInfo"] = "Researchers Under Fire",                --> TODO - Add BfA "Faction Assaults"
-    ["showTimeRiftInfo"] = "Time Rift",                                         --> TODO - Redo "Dragonriding Races"
+    ["showFyrakkAssaultsInfo"] = "Fyrakk Assault",
+    ["showResearchersUnderFireInfo"] = "Researchers Under Fire",
+    ["showTimeRiftInfo"] = "Time Rift",
     ["showDreamsurgeInfo"] = "Dreamsurge",
-}                                                                               --> TODO - Add Shadowlands "Covenant Assaults"
+}
+--> TODO - Add Shadowlands "Covenant Assaults"
+--> TODO - Add BfA "Faction Assaults"
 
 -- These strings have been saved using the global variable; once they have been
 -- copied to this table they will be removed automatically from the global variable
@@ -94,8 +96,11 @@ local savedLabels = {
         ["showLegionAssaultsInfo"] = "Angriff der Legion",                      -- Legion
         ["showBrokenShoreInvasionInfo"] = "Verheerte Küste: Dämoneninvasionen",
         ["showArgusInvasionInfo"] = "Argus: Invasionspunkt",
-        ["showCampAylaagInfo"] = "Lager der Aylaag",                            -- Dragonflight
+        ["showDragonridingRaceInfo"] = "Drachenrennen",                         -- Dragonflight
+        ["showDragonGlyphs"] = "Drachenglyphen",
+        ["showCampAylaagInfo"] = "Lager der Aylaag",
         ["showGrandHuntsInfo"] = "Große Jagden",
+        ["showCommunityFeastInfo"] = "Gemeinschaftliches Festmahl",
         ["showDragonbaneKeepInfo"] = "Belagerung der Drachenfluchfestung",
         ["showElementalStormsInfo"] = "Elementarsturm",
         ["showFyrakkAssaultsInfo"] = "Angriff von Fyrakk",
@@ -104,15 +109,18 @@ local savedLabels = {
         ["showDreamsurgeInfo"] = "Traumsprung",
     },
     ["esES"] = {
-        -- ["showLegionAssaultsInfo"] = ,                                       -- Legion
+        ["showLegionAssaultsInfo"] = "Asalto de la Legión",                     -- Legion
         ["showBrokenShoreInvasionInfo"] = "Costa Abrupta: Invasiones demoníacas",
         ["showArgusInvasionInfo"] = "Argus: Punto de invasión",
-        ["showCampAylaagInfo"] = "Campamento Aylaag",                           -- Dragonflight
+        ["showDragonridingRaceInfo"] = "Carreras de dragones",                  -- Dragonflight
+        ["showDragonGlyphs"] = "Glifos dracónicos",
+        ["showCampAylaagInfo"] = "Campamento Aylaag",
         ["showGrandHuntsInfo"] = "Grandes cacerías",
+        ["showCommunityFeastInfo"] = "Festín comunitario",
         ["showDragonbaneKeepInfo"] = "Asedio en la Fortaleza de Ruinadragón",
         ["showElementalStormsInfo"] = "Tormenta elemental",
         ["showFyrakkAssaultsInfo"] = "Asalto de Fyrakk",
-        ["showResearchersUnderFireInfo"] = "Investigadores bajo el fuego: Bloqueo de los titanes",
+        ["showResearchersUnderFireInfo"] = "Investigadores bajo el fuego",
         ["showTimeRiftInfo"] = "Falla temporal",
         ["showDreamsurgeInfo"] = "Pico Onírico",
     },
@@ -120,21 +128,27 @@ local savedLabels = {
         ["showLegionAssaultsInfo"] = "Assaut de la Légion",                     -- Legion
         ["showBrokenShoreInvasionInfo"] = "Rivage Brisé : Invasions démoniaques",
         ["showArgusInvasionInfo"] = "Argus : Site d’invasion",
-        ["showCampAylaagInfo"] = "Camp Aylaag",                                 -- Dragonflight
+        ["showDragonridingRaceInfo"] = "Course de Dragons",                     -- Dragonflight
+        ["showDragonGlyphs"] = "Dracoglyphes",
+        ["showCampAylaagInfo"] = "Camp Aylaag",
         ["showGrandHuntsInfo"] = "Grandes chasses",
+        ["showCommunityFeastInfo"] = "Festin tribal",
         ["showDragonbaneKeepInfo"] = "Siège du donjon du Fléau-des-Dragons",
         ["showElementalStormsInfo"] = "Tempête élémentaire",
         ["showFyrakkAssaultsInfo"] = "Assaut de Fyrakka",
-        ["showResearchersUnderFireInfo"] = "Des chercheurs sous le feu",
+        ["showResearchersUnderFireInfo"] = "Chercheurs sous le feu",
         ["showTimeRiftInfo"] = "Faille temporelle",
         ["showDreamsurgeInfo"] = "Poussée onirique",
     },
     ["itIT"] = {
-        -- ["showLegionAssaultsInfo"] = ,                                       -- Legion
+        ["showLegionAssaultsInfo"] = "Assalto della Legione ",                  -- Legion
         ["showBrokenShoreInvasionInfo"] = "Riva Dispersa: Invasioni demoniache",
         ["showArgusInvasionInfo"] = "Argus: Punto di Invasione",
-        ["showCampAylaagInfo"] = "Campo Aylaag",                                -- Dragonflight
+        ["showDragonridingRaceInfo"] = "Corsa dei Draghi",                      -- Dragonflight
+        ["showDragonGlyphs"] = "Glifi del Drago",
+        ["showCampAylaagInfo"] = "Campo Aylaag",
         ["showGrandHuntsInfo"] = "Grandi Cacce",
+        ["showCommunityFeastInfo"] = "Banchetto della Comunità",
         ["showDragonbaneKeepInfo"] = "Assedio al Forte del Flagello dei Draghi",
         ["showElementalStormsInfo"] = "Tempesta Elementale",
         ["showFyrakkAssaultsInfo"] = "Assalto di Fyrakk",
@@ -143,11 +157,14 @@ local savedLabels = {
         ["showDreamsurgeInfo"] = "Sovronirico",
     },
     ["ptBR"] = {
-        -- ["showLegionAssaultsInfo"] = ,                                       -- Legion
+        ["showLegionAssaultsInfo"] = "Ataque da Legião",                        -- Legion
         ["showBrokenShoreInvasionInfo"] = "Costa Partida: Invasões de Demônios",
         ["showArgusInvasionInfo"] = "Argus: Ponto de Invasão",
-        ["showCampAylaagInfo"] = "Acampamento Aylaag",                          -- Dragonflight
+        ["showDragonridingRaceInfo"] = "Corrida de Dragões",                    -- Dragonflight
+        ["showDragonGlyphs"] = "Glifos do Dragão",
+        ["showCampAylaagInfo"] = "Acampamento Aylaag",
         ["showGrandHuntsInfo"] = "Grandes Caçadas",
+        ["showCommunityFeastInfo"] = "Banquete da comunidade",
         ["showDragonbaneKeepInfo"] = "Cerco à Bastilha de Ruína Dragônica",
         ["showElementalStormsInfo"] = "Tempestade Elemental",
         ["showFyrakkAssaultsInfo"] = "Ofensiva de Fyrakk",
@@ -156,15 +173,18 @@ local savedLabels = {
         ["showDreamsurgeInfo"] = "Surto Onírico",
     },
     ["ruRU"] = {
-        -- ["showLegionAssaultsInfo"] = ,                                       -- Legion
+        ["showLegionAssaultsInfo"] = "Атака Легиона",                           -- Legion
         ["showBrokenShoreInvasionInfo"] = "Расколотый берег: Вторжение демонов",
         ["showArgusInvasionInfo"] = "Аргус: Точка вторжения",
-        ["showCampAylaagInfo"] = "Айлаагский лагерь",                           -- Dragonflight
+        ["showDragonridingRaceInfo"] = "Гонки драконов",                        -- Dragonflight
+        ["showDragonGlyphs"] = "Драконьи символы",
+        ["showCampAylaagInfo"] = "Айлаагский лагерь",
         ["showGrandHuntsInfo"] = "Великая охота",
-        -- ["showDragonbaneKeepInfo"] = ,
-        -- ["showElementalStormsInfo"] = ,
+        ["showCommunityFeastInfo"] = "Большое пиршество",
+        ["showDragonbaneKeepInfo"] = "Осада Драконьей Погибели",
+        ["showElementalStormsInfo"] = "Буря стихий",
         ["showFyrakkAssaultsInfo"] = "Налет Фиракка",
-        -- ["showResearchersUnderFireInfo"] = ,
+        ["showResearchersUnderFireInfo"] = "Исследователи под огнем",
         ["showTimeRiftInfo"] = "Портал времени",
         ["showDreamsurgeInfo"] = "Прилив Снов",
     },
@@ -172,12 +192,15 @@ local savedLabels = {
         ["showLegionAssaultsInfo"] = "军团入侵",                                 -- Legion
         ["showBrokenShoreInvasionInfo"] = "破碎海滩： 恶魔入侵",
         ["showArgusInvasionInfo"] = "阿古斯： 侵入点",
-        ["showCampAylaagInfo"] = "艾拉格营地",                                   -- Dragonflight
+        ["showDragonridingRaceInfo"] = "驭龙竞速",                               -- Dragonflight
+        ["showDragonGlyphs"] = "巨龙雕纹",
+        ["showCampAylaagInfo"] = "艾拉格营地",
         ["showGrandHuntsInfo"] = "洪荒狩猎",
+        ["showCommunityFeastInfo"] = "社区盛宴",
         ["showDragonbaneKeepInfo"] = "围攻灭龙要塞",
         ["showElementalStormsInfo"] = "元素风暴",
         ["showFyrakkAssaultsInfo"] = "菲莱克突袭",
-        -- ["showResearchersUnderFireInfo"] = ,
+        ["showResearchersUnderFireInfo"] = "研究员遇袭",
         ["showTimeRiftInfo"] = "时光裂隙",
         ["showDreamsurgeInfo"] = "梦涌",
     },
@@ -185,12 +208,15 @@ local savedLabels = {
         ["showLegionAssaultsInfo"] = "軍團入侵",                                 -- Legion
         ["showBrokenShoreInvasionInfo"] = "破碎海岸： 惡魔入侵",
         ["showArgusInvasionInfo"] = "阿古斯： 入侵點",
-        ["showCampAylaagInfo"] = "艾拉格營地",                                   -- Dragonflight
+        ["showDragonridingRaceInfo"] = "飛龍競速",                               -- Dragonflight
+        ["showDragonGlyphs"] = "飛龍雕紋",
+        ["showCampAylaagInfo"] = "艾拉格營地",
         ["showGrandHuntsInfo"] = "大狩獵",
+        ["showCommunityFeastInfo"] = "集體盛宴",
         ["showDragonbaneKeepInfo"] = "攻打龍禍要塞",
         ["showElementalStormsInfo"] = "元素風暴",
         ["showFyrakkAssaultsInfo"] = "菲拉卡襲擊",
-        -- ["showResearchersUnderFireInfo"] = ,
+        -- ["showResearchersUnderFireInfo"] = "",
         ["showTimeRiftInfo"] = "時間裂隙",
         -- ["showDreamsurgeInfo"] = "",
     },
@@ -200,8 +226,15 @@ local savedLabels = {
 if L:IsEnglishLocale(L.currentLocale) then
     savedLabels[L.currentLocale] = L.defaultLabels
 end
+
 -- print("Merging", L.currentLocale, "labels...")
-MergeTable(L, savedLabels[L.currentLocale])
+if savedLabels[L.currentLocale] then
+    MergeTable(L, savedLabels[L.currentLocale])
+elseif (L.currentLocale == "esMX") then
+    MergeTable(L, savedLabels["esES"])
+elseif (L.currentLocale == "ptPT") then
+    MergeTable(L, savedLabels["ptBR"])
+end
 
 -----|--------------------------------------------------------------------------
 
@@ -232,19 +265,9 @@ function ns.data:IsEmptyLabel(categoryName)
     return isEmptyVariable and isEmptyLocally
 end
 
--- function ns.data:IsSameLabel(categoryName, label)                            --> TODO - Check if needed
---     if L:StringIsEmpty(label) then return false end
---     if (categoryName == "showResearchersUnderFireInfo") then return true end
---     local savedLabel = self:GetLabel(categoryName)
---     local isSame = strcmputf8i(label, savedLabel) == 0 and true or false
---     -- print("LABELS: isSame", isSame, strcmputf8i(label, savedLabel), label, savedLabel)
---     return isSame
--- end
-
 function ns.data:SaveLabel(categoryName, label)
     if L:StringIsEmpty(label) then return end
     -- Add or update name in global variable
-    -- if self:IsEmptyLabel(categoryName) or not self:IsSameLabel(categoryName, label) then
     if self:IsEmptyLabel(categoryName) then
         MRBP_GlobalSettings.labels[L.currentLocale][categoryName] = label
         L[categoryName] = label
@@ -293,9 +316,11 @@ ns.data.LoadInGameLabels = function(self)
     L["showBrokenShoreInvasionInfo"] = ns.data:GetLabel("showBrokenShoreInvasionInfo")
     L["showArgusInvasionInfo"] = ns.data:GetLabel("showArgusInvasionInfo")
     -- Dragonflight
+    L["showDragonridingRaceInfo"] = ns.data:GetLabel("showDragonridingRaceInfo")
+    L["showDragonGlyphs"] = ns.data:GetLabel("showDragonGlyphs")
     L["showCampAylaagInfo"] = ns.data:GetLabel("showCampAylaagInfo")
     L["showGrandHuntsInfo"] = ns.data:GetLabel("showGrandHuntsInfo")
-    L["showCommunityFeastInfo"] = QuestUtils_GetQuestName(70893) or "Community Feast"  -- L.ENTRYTOOLTIP_DF_COMMUNITY_FEAST_LABEL
+    L["showCommunityFeastInfo"] = ns.data:GetLabel("showCommunityFeastInfo")
     L["showDragonbaneKeepInfo"] = ns.data:GetLabel("showDragonbaneKeepInfo")
     L["showElementalStormsInfo"] = ns.data:GetLabel("showElementalStormsInfo")
     L["showFyrakkAssaultsInfo"] = ns.data:GetLabel("showFyrakkAssaultsInfo")
