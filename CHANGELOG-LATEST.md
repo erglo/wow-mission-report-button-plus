@@ -7,6 +7,7 @@
 
 ### Added
 
+* World Event: added `Eastern Kingdoms Cup` details.
 * Dragonflight: added `Dreamsurge` event details.
 * Dragonflight: re-added `Iskaara Community Feast` event details, with manual timer.
 * Dragonflight: added a manual timer to `Researchers Under Fire` for the other zones in Dragonflight outside of Zaralek Cavern.

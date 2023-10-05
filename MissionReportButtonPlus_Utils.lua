@@ -32,6 +32,11 @@ ns.AddonTitleShort = 'MRBP';
 ns.AddonColor = CreateColor(0.6, 0.6, 0.6);	--> light gray
 ns.AddonTitleSeparator = HEADER_COLON; --> WoW global string
 
+local util = {}
+ns.utilities = util  --> for global use (project-wide)
+
+util.calendar = {}  -- A collection of utility functions related to calendar events.
+
 ----- Logging ------------------------------------------------------------------
 
 local _log = {};
@@ -99,9 +104,6 @@ end
 ns.cprint = cprint;
 
 ----- Printing to chat -----
-
-local util = {};
-ns.utilities = util;
 
 -- Print the current add-on's version infos to chat.
 --
@@ -1353,9 +1355,24 @@ DragonRidingRaceData.mapID = DRAGON_ISLES_MAP_ID;
 DragonRidingRaceData.mapInfos = LocalMapUtil.GetMapChildrenInfo(DragonRidingRaceData.mapID, Enum.UIMapType.Zone);
 DragonRidingRaceData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
 DragonRidingRaceData.includeAreaName = true;
+DragonRidingRaceData.AddWorldEventInfo = function()
+	local eventInfo = util.calendar.GetHolidayInfoForEvent(util.calendar.EASTERN_KINGDOMS_CUP_EVENT_ID)
+	if eventInfo then
+		if (eventInfo.timeLeftSeconds > 0) then
+			local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(nil, eventInfo.timeLeftSeconds)
+			local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString
+			eventInfo.timeString = timeLeftString
+		end
+		return eventInfo
+	end
+end
 
 function util.poi.GetDragonridingRaceInfo()
-	return LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(DragonRidingRaceData);
+	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(DragonRidingRaceData)
+	if poiInfo then
+		poiInfo.eventInfo = DragonRidingRaceData:AddWorldEventInfo()
+		return poiInfo
+	end
 end
 
 ----- Camp Aylaag -----
@@ -2184,14 +2201,13 @@ end
 ----- Specials -----------------------------------------------------------------
 --------------------------------------------------------------------------------
 
--- A collection of utility functions related to calendar events.
-util.calendar = {};  --> for global use (project-wide)
 -- util.calendar.TIMEWALKING_EVENT_ID_DRAENOR = 1063;
 -- util.calendar.TIMEWALKING_EVENT_ID_DRAENOR2 = 1056;
 -- util.calendar.TIMEWALKING_EVENT_ID_LEGION = 1265;
 util.calendar.WINTER_HOLIDAY_EVENT_ID = 141;
 util.calendar.WINTER_HOLIDAY_ATLAS_NAME = "Front-Tree-Icon";
 util.calendar.WORLDQUESTS_EVENT_ID = 613;
+util.calendar.EASTERN_KINGDOMS_CUP_EVENT_ID = 1400
 
 local LocalCalendarUtil = {};  --> for local use (in this file)
 -- LocalCalendarUtil.WORLDQUESTS_EVENT_TEXTURE_ID = "worldquest-tracker-questmarker";  -- 1467050;
@@ -2246,6 +2262,12 @@ function util.calendar.GetActiveDayEvent(eventID)
 		for eventIndex = 1, numDayEvents do
 			local event = C_Calendar.GetDayEvent(monthOffset, currentCalendarTime.monthDay, eventIndex);
 			-- print(eventIndex, event.eventID, event.eventID == eventID, event.eventType, event.calendarType, event.title);
+			-- Add month meta for later use, eg.util.calendar.GetHolidayInfoForEvent()
+			event.meta = {
+				monthOffset = monthOffset,
+				monthDay = currentCalendarTime.monthDay,
+				index = eventIndex,
+			}
 			LocalCalendarUtil.cache:AddItem(event, event.eventID)
 		end
 		LocalCalendarUtil.cache.lastUpdatedTime = GetServerTime()  -- Unix timestamp
@@ -2256,7 +2278,7 @@ function util.calendar.GetActiveDayEvent(eventID)
 		return LocalCalendarUtil.cache:GetItem(eventID);
 	end
 end
--- Test_GetActiveDayEvent = util.calendar.GetActiveDayEvent;
+-- Test_GetActiveDayEvent = util.calendar.GetActiveDayEvent
 -- -- Test_GetActiveDayEvent(613)  --> util.calendar.WORLDQUESTS_EVENT_ID
 
 -- Build the chat message for given calendar event.
@@ -2314,6 +2336,26 @@ function util.calendar.GetDayEventChatMessage(event)
 
 	return chatMsg;
 end
+
+function util.calendar.GetHolidayInfoForEvent(eventID)
+	local dayEvent = util.calendar.GetActiveDayEvent(eventID)
+	if dayEvent then
+		local eventInfo = C_Calendar.GetHolidayInfo(dayEvent.meta.monthOffset, dayEvent.meta.monthDay, dayEvent.meta.index)
+		local endTimeSeconds = time({
+			year = eventInfo.endTime.year,
+			month = eventInfo.endTime.month,
+			day = eventInfo.endTime.monthDay,
+			hour = eventInfo.endTime.hour,
+			min = eventInfo.endTime.minute,
+			sec = 59,
+		})
+		eventInfo.eventID = eventID
+		eventInfo.timeLeftSeconds = endTimeSeconds - time()
+
+		return eventInfo
+	end
+end
+-- Test_GetHolidayInfoForEvent = util.calendar.GetHolidayInfoForEvent
 
 --------------------------------------------------------------------------------
 ----- Addon Compartment --------------------------------------------------------

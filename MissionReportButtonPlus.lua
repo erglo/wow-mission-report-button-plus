@@ -177,9 +177,13 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			local isInitialLogin, isReloadingUi = ...
 			_log:info("isInitialLogin:", isInitialLogin, "- isReloadingUi:", isReloadingUi)
 
+			-- The calendar and its data is not available until it has been opened at least once.
+			ToggleCalendar()
+			HideUIPanel(CalendarFrame)
+
 			local function printDayEvent()
 				_log:debug_type(_log.type.CALENDAR, "Scanning for WORLDQUESTS_EVENT...")
-				local dayEvent = util.calendar.GetActiveDayEvent(util.calendar.WORLDQUESTS_EVENT_ID);
+				local dayEvent = util.calendar.GetActiveDayEvent(util.calendar.WORLDQUESTS_EVENT_ID) or util.calendar.GetActiveDayEvent(util.calendar.EASTERN_KINGDOMS_CUP_EVENT_ID)
 				local dayEventMsg = util.calendar.GetDayEventChatMessage(dayEvent);
 				if dayEventMsg then ns.cprint(dayEventMsg) end;
 			end
@@ -1172,6 +1176,11 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddIconLine(tooltipText, raceAreaPoiInfo.name, raceAreaPoiInfo.atlasName);
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, raceAreaPoiInfo.areaName);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, raceAreaPoiInfo.timeString);
+					if raceAreaPoiInfo.eventInfo then
+						local iconString = util.CreateInlineIcon(raceAreaPoiInfo.eventInfo.texture, 16, 16, 3, -1)
+						tooltipText = TooltipText_AddIconLine(tooltipText, raceAreaPoiInfo.eventInfo.name, iconString, nil, true)
+						tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, raceAreaPoiInfo.eventInfo.timeString)
+					end
 				end
 			end
 			-- Camp Aylaag
@@ -1807,6 +1816,10 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 							local timeLeft = raceAreaPoiInfo.timeString or "...";
 							local lineText = raceAreaPoiInfo.name..": "..timeLeft
 							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, raceAreaPoiInfo.atlasName)
+							if raceAreaPoiInfo.eventInfo then
+								local lineTextEvent = raceAreaPoiInfo.eventInfo.name..": "..raceAreaPoiInfo.eventInfo.timeString
+								util.GameTooltip_AddObjectiveLine(tooltip, lineTextEvent, nil, wrapLine, leftOffset, raceAreaPoiInfo.atlasName)
+							end
 						end
 					end
 					-- Camp Aylaag
