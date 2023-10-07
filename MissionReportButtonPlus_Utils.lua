@@ -1349,13 +1349,13 @@ end
 
 ----- Dragonriding Race -----
 
-local DragonRidingRaceData = {};
-DragonRidingRaceData.atlasName = "racing";
-DragonRidingRaceData.mapID = DRAGON_ISLES_MAP_ID;
-DragonRidingRaceData.mapInfos = LocalMapUtil.GetMapChildrenInfo(DragonRidingRaceData.mapID, Enum.UIMapType.Zone);
-DragonRidingRaceData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
-DragonRidingRaceData.includeAreaName = true;
-DragonRidingRaceData.AddWorldEventInfo = function()
+local DragonRaceData = {};
+DragonRaceData.atlasName = "racing";
+DragonRaceData.mapID = DRAGON_ISLES_MAP_ID;
+DragonRaceData.mapInfos = LocalMapUtil.GetMapChildrenInfo(DragonRaceData.mapID, Enum.UIMapType.Zone);
+DragonRaceData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
+DragonRaceData.includeAreaName = true;
+DragonRaceData.AddWorldEventInfo = function()
 	local eventInfo = util.calendar.GetHolidayInfoForEvent(util.calendar.EASTERN_KINGDOMS_CUP_EVENT_ID)
 	if eventInfo then
 		if (eventInfo.timeLeftSeconds > 0) then
@@ -1367,10 +1367,10 @@ DragonRidingRaceData.AddWorldEventInfo = function()
 	end
 end
 
-function util.poi.GetDragonridingRaceInfo()
-	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(DragonRidingRaceData)
+function util.poi.GetDragonRaceInfo()
+	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(DragonRaceData)
 	if poiInfo then
-		poiInfo.eventInfo = DragonRidingRaceData:AddWorldEventInfo()
+		poiInfo.eventInfo = DragonRaceData:AddWorldEventInfo()
 		return poiInfo
 	end
 end
@@ -1870,7 +1870,7 @@ PoiFilter.ignoredAreaPoiIDs = {
 	"7365",  -- Dragonscale Basecamp
 	"7391",  -- The Seat of the Aspects
 	"7392",  -- Maruukai
-	-- "7393",  -- Iskaara
+	-- "7393",  -- Iskaara  (needed for Community Feast)
 	"7394",  -- Obsidian Citadel + Dragonbane Keep
 	"7414",  -- Zskera Vaults
 	"7408",  -- Primal Storm at Froststone Vault - Forbidden Reach
@@ -1999,6 +1999,7 @@ if _log.DEVMODE then
 		-- "7218",  -- pre-Community Feast
 		-- "7219",  -- pre-Community Feast
 		-- "7220",  -- post-Community Feast
+		"7393",  -- Iskaara (Community Feast)
 		"7429",  -- Fyrakk Assaults - Ohn'ahra (continent view)
 		"7432",  -- Fyrakk Assaults - Azure Span
 		"7433",  -- Fyrakk Assaults - Azure Span
@@ -2035,6 +2036,8 @@ if _log.DEVMODE then
 		"7461",  -- mid-Researchers Under Fire - Zaralek Cavern
 		"7462",  -- mid-Researchers Under Fire - Zaralek Cavern
 		"7492",  -- Time Rift, Thaldraszus
+		"7556",  -- Dreamsurge, Waking Shores
+		"7587",  -- Dreamsurge, Waking Shores
 		"7588",  -- Dreamsurge, Thaldraszus
 		"7602",  -- Dreamsurge, Thaldraszus
 		-- Shadowlands

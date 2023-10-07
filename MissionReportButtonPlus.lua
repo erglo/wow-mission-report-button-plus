@@ -1169,13 +1169,13 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 		----- World Map Events -----
 		if ns.settings.showDragonflightWorldMapEvents then
 			-- Dragonriding Race
-			if ns.settings.showDragonridingRaceInfo then
-				local raceAreaPoiInfo = util.poi.GetDragonridingRaceInfo();
+			if ns.settings.showDragonRaceInfo then
+				local raceAreaPoiInfo = util.poi.GetDragonRaceInfo()
 				if raceAreaPoiInfo then
-					tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showDragonridingRaceInfo"]);
-					tooltipText = TooltipText_AddIconLine(tooltipText, raceAreaPoiInfo.name, raceAreaPoiInfo.atlasName);
-					tooltipText = TooltipText_AddObjectiveLine(tooltipText, raceAreaPoiInfo.areaName);
-					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, raceAreaPoiInfo.timeString);
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showDragonRaceInfo"])
+					tooltipText = TooltipText_AddIconLine(tooltipText, raceAreaPoiInfo.name, raceAreaPoiInfo.atlasName)
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, raceAreaPoiInfo.areaName)
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, raceAreaPoiInfo.timeString)
 					if raceAreaPoiInfo.eventInfo then
 						local iconString = util.CreateInlineIcon(raceAreaPoiInfo.eventInfo.texture, 16, 16, 3, -1)
 						tooltipText = TooltipText_AddIconLine(tooltipText, raceAreaPoiInfo.eventInfo.name, iconString, nil, true)
@@ -1810,8 +1810,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					local isCompleted = numGlyphsCollected == numGlyphsTotal;
 					util.GameTooltip_AddObjectiveLine(tooltip, L["showDragonGlyphs"]..": "..collectedAmountString, isCompleted, wrapLine, leftOffset, treeCurrencyInfo.texture);
 					-- Dragonriding Race
-					if ns.settings.showDragonridingRaceInfo then
-						local raceAreaPoiInfo = util.poi.GetDragonridingRaceInfo();
+					if ns.settings.showDragonRaceInfo then
+						local raceAreaPoiInfo = util.poi.GetDragonRaceInfo()
 						if raceAreaPoiInfo then
 							local timeLeft = raceAreaPoiInfo.timeString or "...";
 							local lineText = raceAreaPoiInfo.name..": "..timeLeft
