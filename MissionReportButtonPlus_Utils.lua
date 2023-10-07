@@ -427,7 +427,8 @@ local UNITED_FRONT_ID = 15000;  -- Shadowlands threat in The Maw
 local DEAD_MEN_TELL_SOME_TALES_ID = 15647;  -- Shadowlands Covenant Campaign
 --> Note: The assetIDs returned for this achievement are always 0,
 --  see util.covenant.UpdateData(...) for alternative solution.
-local TEMPORAL_ACQUISITIONS_SPECIALIST_ID = 18554  -- Time Rifts
+local TEMPORAL_ACQUISITIONS_SPECIALIST_ID = 18554  -- Time Rifts				--> TODO - add this ???
+local THE_OHN_AHRAN_TRAIL_ID = 16462
 
 -- Pattern: {[areaPoi] = assetID, ...}
 local AREA_POI_ASSET_MAP = {
@@ -455,7 +456,11 @@ local AREA_POI_ASSET_MAP = {
 	["63822"] = 63822,  -- Venthyr Assault
 	["63823"] = 63823,  -- Night Fae Assault
 	["63824"] = 63824,  -- Kyrian Assault
-};
+	-- Dragonflight: The Ohn'ahran Trail
+	["7101"] = 2056,  -- River Camp
+	["7102"] = 2040,  -- Aylaag Outpost
+	["7103"] = 2123,  -- Eaglewatch Outpost
+}
 
 -- function Test_ListAchievementAssetIDs(achievementID)
 -- 	local aID, aName = GetAchievementInfo(achievementID);
@@ -1386,7 +1391,8 @@ CampAylaagData.areaIDsMap = {
 	["7101"] = nil,    -- River Camp (east), no areaID found
 	["7102"] = 13747,  -- Aylaag Outpost
 	["7103"] = 14463,  -- Eaglewatch Outpost, Ohn'ahra
-}																				--> TODO - The Ohn'ahran Trail (achievement=16462)
+}
+CampAylaagData.achievementID = THE_OHN_AHRAN_TRAIL_ID
 
 function util.poi.GetCampAylaagInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(CampAylaagData)
@@ -1398,6 +1404,7 @@ function util.poi.GetCampAylaagInfo()
 			local areaID = CampAylaagData.areaIDsMap[tostring(poiInfo.areaPoiID)]
 			poiInfo.areaName = areaID and LocalMapUtil.GetAreaInfo(areaID) or poiInfo.areaName
 		end
+		LocalAchievementUtil.AddAchievementData(CampAylaagData.achievementID, poiInfo)
 		return poiInfo
 	end
 end
@@ -2190,6 +2197,7 @@ function ns.GetTrackedAchievementTitles(textColor)
 		BfAFactionAssaultsData.achievementIDs[BfAFactionAssaultsData.playerFactionIndex],
 		UNITED_FRONT_ID,  --> Shadowlands, The Maw assault threat
 		DEAD_MEN_TELL_SOME_TALES_ID,  --> Shadowlands Covenant Campaign
+		CampAylaagData.achievementID,
 	};
 	table.sort(trackedAchievements);
 	local titles = {};

@@ -1189,7 +1189,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				if campAreaPoiInfo then
 					tooltipText = TooltipText_AddHeaderLine(tooltipText, campAreaPoiInfo.name);  -- L["showCampAylaagInfo"]
 					tooltipText = TooltipText_AddIconLine(tooltipText, campAreaPoiInfo.mapInfo.name, campAreaPoiInfo.atlasName);
-					tooltipText = TooltipText_AddObjectiveLine(tooltipText, campAreaPoiInfo.areaName);
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, campAreaPoiInfo.areaName, campAreaPoiInfo.isCompleted);
 					if campAreaPoiInfo.timeString then
 						tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, campAreaPoiInfo.timeString);
 					else
@@ -1828,7 +1828,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						if campAreaPoiInfo then
 							local timeLeft = campAreaPoiInfo.timeString or "..."
 							local lineText = format("%s @ %s", campAreaPoiInfo.name, campAreaPoiInfo.areaName)..": "..timeLeft
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, campAreaPoiInfo.atlasName)
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, campAreaPoiInfo.isCompleted, wrapLine, leftOffset, campAreaPoiInfo.atlasName)
 						end
 					end
 					-- Grand Hunts
