@@ -8,10 +8,10 @@
 ### Added
 
 * Dragon Race: added `Eastern Kingdoms Cup` details.
-* Dragonflight: cross-reference for `Camp Aylaag` with the achievement "The Ohn'ahran Trail".
 * Dragonflight: added `Dreamsurge` event details.
 * Dragonflight: re-added `Iskaara Community Feast` event details, with manual timer.
 * Dragonflight: added a manual timer to `Researchers Under Fire` for the other zones in Dragonflight outside of Zaralek Cavern.
+* Dragonflight: cross-reference for `Camp Aylaag` with the achievement "The Ohn'ahran Trail".
 
 ### Changed
 

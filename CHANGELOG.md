@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [v0.19.0+100107] - 2023-10-07
+
+### Added
+
+- Dragon Race: added `Eastern Kingdoms Cup` details.
+- Dragonflight: added `Dreamsurge` event details.
+- Dragonflight: re-added `Iskaara Community Feast` event details, with manual timer.
+- Dragonflight: added a manual timer to `Researchers Under Fire` for the other zones in Dragonflight outside of Zaralek Cavern.
+- Dragonflight: cross-reference for `Camp Aylaag` with the achievement "The Ohn'ahran Trail".
+
+### Changed
+
+- Updated the Addon Compartment entry for `Camp Aylaag`; it shows the area name now.
+- Updated README files.
+
 ## [0.18.0+100107] - 2023-09-06
 
 ### Changed
