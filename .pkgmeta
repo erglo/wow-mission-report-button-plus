@@ -19,8 +19,18 @@ manual-changelog:
     filename: CHANGELOG-LATEST.md
     markup-type: markdown
 
-wowi-convert-changelog: yes
 # Indicates the BigWigsMods packager to convert the changelog from Markdown to
 # BBCode for WoWInterface.
+wowi-convert-changelog: yes
 
 license-output: LICENSE.txt
+
+# If you want to specify that you used a tool that is not a library, but would 
+# like people to know that it was used, and for it to receive points for 
+# CurseForge's Author Rewards Program. 
+tools-used: 
+    - bug-grabber 
+    - bugsack 
+    - idtip 
+    - textureviewer 
+    - wowlua
