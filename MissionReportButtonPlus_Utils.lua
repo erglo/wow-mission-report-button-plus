@@ -230,7 +230,6 @@ function util.GameTooltip_AddObjectiveLine(tooltip, text, isCompleted, wrap, lef
 	GameTooltip_AddColoredLine(tooltip, lineText, altColor or NORMAL_FONT_COLOR, wrap, defaultLeftOffset)
 end
 
-
 -- Insert a texture ID or atlas name into a font string.
 ---@param atlasNameOrTexID string|number
 ---@param sizeX number
@@ -2043,6 +2042,7 @@ if _log.DEVMODE then
 		"7461",  -- mid-Researchers Under Fire - Zaralek Cavern
 		"7462",  -- mid-Researchers Under Fire - Zaralek Cavern
 		"7492",  -- Time Rift, Thaldraszus
+		"7554",  -- Dreamsurge, Azure Span
 		"7556",  -- Dreamsurge, Waking Shores
 		"7587",  -- Dreamsurge, Waking Shores
 		"7588",  -- Dreamsurge, Thaldraszus
