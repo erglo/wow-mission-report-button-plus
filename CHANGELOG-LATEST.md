@@ -7,6 +7,7 @@
 
 ### Changed
 
+* Adapted API changes concerning `C_AddOns`.
 * PKGMETA file: added `tools-used` section.
 &nbsp;  
 

@@ -47,6 +47,10 @@ local MRBP_DRAGONRIDING_QUEST_ID = 68795;  --> "Dragonriding"
 local MRBP_MAJOR_FACTIONS_QUEST_ID_HORDE = 65444;  --> "To the Dragon Isles!"
 local MRBP_MAJOR_FACTIONS_QUEST_ID_ALLIANCE = 67700;  --> "To the Dragon Isles!"
 
+-- Backwards compatibility 
+local IsAddOnLoaded = C_AddOns.IsAddOnLoaded
+local LoadAddOn = C_AddOns.LoadAddOn
+
 ----- Main ---------------------------------------------------------------------
 
 -- Core functions + event listener frame

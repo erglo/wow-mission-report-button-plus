@@ -38,6 +38,9 @@ local L = ns.L
 local _log = ns.dbg_logger
 local util = ns.utilities
 
+-- Backwards compatibility 
+local GetAddOnInfo = C_AddOns.GetAddOnInfo
+
 ----- User settings ------------------------------------------------------------
 
 ns.settings = {};  --> user settings for currently active game session
