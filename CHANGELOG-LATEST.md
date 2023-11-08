@@ -7,6 +7,7 @@
 
 ### Changed
 
+* Updated TOC file version to `WoW 10.2.0`.
 * Adapted API changes concerning `C_AddOns`.
 * PKGMETA file: added `tools-used` section.
 &nbsp;  
