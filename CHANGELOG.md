@@ -29,7 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
-- [Issue #15] Changes in `C_MajorFactions` with `WoW 10.1.7` caused an error with sorting the DF major faction data. (Thanks to [justinkb](https://github.com/justinkb) for this quick fix.)
+- [Issue #17] Changes in `C_MajorFactions` with `WoW 10.1.7` caused an error with sorting the DF major faction data. (Thanks to [justinkb](https://github.com/justinkb) for this quick fix.)
 
 ## [0.17.3+100105] - 2023-09-01
 
@@ -217,7 +217,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
-- Right-click menu interference by _cfxfox_'s [War Plan](https://beta.curseforge.com/wow/addons/war-plan), by auto-updating the minimap button hooks on player login.
+- [Issue #2] Right-click menu interference by _cfxfox_'s [War Plan](https://beta.curseforge.com/wow/addons/war-plan), by auto-updating the minimap button hooks on player login.
 
 ## [0.11.0+100005] - 2023-02-08
 
@@ -343,7 +343,7 @@ v2022.08.12 (beta) 🏷️
 - **Added** tooltip strings for frFR, esES, itIT.
 - **Updated** locale files with current changes.
 - **Fixed** the hint message; it shows now the quest name which is required to unlock the command table.
-- **Fixed** the requirements feature; it now recognizes correctly which garrison type has got an unlocked command table.
+- **Fixed** the requirements feature; it now recognizes correctly which garrison type has got an unlocked command table. [Issue #1]
 
 v2021.11.22 (beta) 🏷️
 -------------------

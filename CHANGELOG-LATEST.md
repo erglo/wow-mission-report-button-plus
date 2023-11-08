@@ -8,8 +8,12 @@
 ### Changed
 
 * Updated TOC file version to `WoW 10.2.0`.
-* Adapted API changes concerning `C_AddOns`.
+* Adapted API changes concerning `C_AddOns` and `Blizzard_SettingControls.lua`.
 * PKGMETA file: added `tools-used` section.
+
+### Fixed
+
+* [Issue #19] Due to additional arguments in `CreateSettingsButtonInitializer(...)` an assertion error occurred. (Thanks to [SpareSimian](https://github.com/SpareSimian) this has been a quick fix.)
 &nbsp;  
 
 ## Previous changes

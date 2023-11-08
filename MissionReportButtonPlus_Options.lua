@@ -327,7 +327,6 @@ local function CheckBox_CreateFromList(category, checkBoxList)
 	for i, cb in ipairs(checkBoxList) do
 		local setting, initializer = CheckBox_Create(category, cb.variable, cb.name, cb.tooltip);
 		if cb.tag then
-			-- initializer:SetNewTagShown(Settings.Default.True);
 			setting:SetNewTagShown(Settings.Default.True);
 		end
 		if cb.parentVariable then
@@ -575,7 +574,7 @@ function MRBP_Settings_Register()
 
 	CheckBox_CreateFromList(category, menuEntries.checkBoxList_MenuEntriesSettings);
 
-	-- Add un-/check all buttons
+	-- Add un-/check all entry buttons
 	local function OnButtonClick(value)
 		-- De-/Select all expansion entries
 		for _, expansion in ipairs(menuEntries.expansionList) do
@@ -594,9 +593,11 @@ function MRBP_Settings_Register()
 	local function OnUncheckAll()
 		OnButtonClick(Settings.Default.False);
 	end
-	local checkAllInitializer = CreateSettingsButtonInitializer('', CHECK_ALL, OnCheckAll);  --> WoW global string
+	-- REF.: CreateSettingsButtonInitializer(name, buttonText, buttonClick, tooltip, addSearchTags)
+	local addSearchTags = Settings.Default.False;
+	local checkAllInitializer = CreateSettingsButtonInitializer('', CHECK_ALL, OnCheckAll, nil, addSearchTags);
 	layout:AddInitializer(checkAllInitializer);
-	local unCheckAllInitializer = CreateSettingsButtonInitializer('', UNCHECK_ALL, OnUncheckAll);  --> WoW global string
+	local unCheckAllInitializer = CreateSettingsButtonInitializer('', UNCHECK_ALL, OnUncheckAll, nil, addSearchTags);
 	layout:AddInitializer(unCheckAllInitializer);
 
 	------- Menu entries tooltip settings --------------------------------------
@@ -943,7 +944,7 @@ function MRBP_Settings_Register()
 			tooltip = FormatTooltipTemplate("showDreamsurgeInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DREAMSURGE),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
-			tag = Settings.Default.True,
+			-- tag = Settings.Default.True,
 		},
 		{
 			variable = "hideEventDescriptions",
