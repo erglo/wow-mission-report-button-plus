@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [v0.20.0+100200] - 2023-11-09
+
+### Added
+
+- Dragonflight: added `Superbloom` event details.
+
+### Changed
+
+- Updated TOC file version to `WoW 10.2.0`.
+- Adapted API changes concerning `C_AddOns` and `Blizzard_SettingControls.lua`.
+- PKGMETA file: added `tools-used` section.
+
+### Fixed
+
+- [Issue #19] Due to additional arguments in `CreateSettingsButtonInitializer(...)` an assertion error occurred. (Thanks to [SpareSimian](https://github.com/SpareSimian) this has been a quick fix.)
+
 ## [v0.19.0+100107] - 2023-10-07
 
 ### Added
