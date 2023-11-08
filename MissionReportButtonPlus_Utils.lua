@@ -1670,6 +1670,47 @@ function util.poi.GetDreamsurgeInfo()
 	end
 end
 
+----- Superbloom -----
+
+local SuperbloomData = {}
+SuperbloomData.areaPoiIDs = {7634, 7635}  --> 7634 == active
+SuperbloomData.mapID = 2200  -- Emerald Dream
+SuperbloomData.mapInfo = LocalMapUtil.GetMapInfo(SuperbloomData.mapID)
+SuperbloomData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID
+SuperbloomData.includeAreaName = true
+SuperbloomData.ignorePrimaryMapForPOI = true
+SuperbloomData.GetNextEventTime = function(self)
+	-- The Superbloom event occurs every full hour.
+	local now = GetServerTime()
+	local waitTimeSeconds = 3600
+	local eventTime = now + C_DateAndTime.GetSecondsUntilDailyReset()
+	while eventTime > (now + waitTimeSeconds) do
+		eventTime = eventTime - waitTimeSeconds
+	end
+	return eventTime - now
+end
+SuperbloomData.GetTimeLeft = function(self)
+	local secondsLeft = self:GetNextEventTime()
+	if (secondsLeft >= 0) then
+		local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(nil, secondsLeft)
+		local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString
+		return timeLeftString
+	end
+end
+
+function util.poi.GetSuperbloomInfo()
+	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(SuperbloomData)
+	if poiInfo then
+		data:SaveLabel("showSuperbloomInfo", poiInfo.name)
+		if L:StringIsEmpty(poiInfo.timeString) then
+			poiInfo.timeString = SuperbloomData:GetTimeLeft()
+		else
+			poiInfo.timeString = poiInfo.timeString.." "..GREEN_FONT_COLOR:WrapTextInColorCode(SPEC_ACTIVE)
+		end
+		return poiInfo
+	end
+end
+
 ----- Battle for Azeroth: Faction Assaults -----
 
 local BfAFactionAssaultsData = {};
@@ -2043,10 +2084,13 @@ if _log.DEVMODE then
 		"7462",  -- mid-Researchers Under Fire - Zaralek Cavern
 		"7492",  -- Time Rift, Thaldraszus
 		"7554",  -- Dreamsurge, Azure Span
+		"7555",  -- Dreamsurge, Ohn'ahran Plains
 		"7556",  -- Dreamsurge, Waking Shores
 		"7587",  -- Dreamsurge, Waking Shores
 		"7588",  -- Dreamsurge, Thaldraszus
 		"7602",  -- Dreamsurge, Thaldraszus
+		"7634",  -- Superbloom, Emerald Dream
+		"7635",  -- Superbloom, Emerald Dream
 		-- Shadowlands
 		-- Battle for Azeroth
 		"5896",  -- Faction Assaults (Horde attacking Tiragardesound)

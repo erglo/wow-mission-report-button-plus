@@ -1296,6 +1296,16 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfDreamsurgeInfo.nextSurgeTimeString)
 				end
 			end
+			-- Superbloom
+			if ns.settings.showSuperbloomInfo then
+				local dfSuperbloomInfo = util.poi.GetSuperbloomInfo()
+				if dfSuperbloomInfo then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showSuperbloomInfo"] or dfSuperbloomInfo.name)
+					tooltipText = TooltipText_AddIconLine(tooltipText, dfSuperbloomInfo.mapInfo.name, dfSuperbloomInfo.atlasName)
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfSuperbloomInfo.areaName)
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfSuperbloomInfo.timeString)
+				end
+			end
 		end
 	end
 
@@ -1907,6 +1917,15 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 							local timeLeft = dfDreamsurgeInfo.nextSurgeTimeString or dfDreamsurgeInfo.timeString or "...";
 							local lineText = format("%s @ %s", L["showDreamsurgeInfo"], dfDreamsurgeInfo.mapInfo.name)..": "..timeLeft
 							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfDreamsurgeInfo.atlasName)
+						end
+					end
+					-- Superbloom
+					if ns.settings.showSuperbloomInfo then
+						local dfSuperbloomInfo = util.poi.GetSuperbloomInfo()
+						if dfSuperbloomInfo then
+							local timeLeft = dfSuperbloomInfo.timeString or "...";
+							local lineText = format("%s @ %s", dfSuperbloomInfo.name, dfSuperbloomInfo.mapInfo.name)..": "..timeLeft
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfSuperbloomInfo.atlasName)
 						end
 					end
 				end

@@ -85,6 +85,7 @@ L.defaultLabels = {  -- English defaults
     ["showResearchersUnderFireInfo"] = "Researchers Under Fire",
     ["showTimeRiftInfo"] = "Time Rift",
     ["showDreamsurgeInfo"] = "Dreamsurge",
+    ["showSuperbloomInfo"] = "Superbloom",
 }
 --> TODO - Add Shadowlands "Covenant Assaults"
 --> TODO - Add BfA "Faction Assaults"
@@ -107,6 +108,7 @@ local savedLabels = {
         ["showResearchersUnderFireInfo"] = "Forscher unter Feuer",
         ["showTimeRiftInfo"] = "Zeitriss",
         ["showDreamsurgeInfo"] = "Traumsprung",
+        ["showSuperbloomInfo"] = "Superblüte",
     },
     ["esES"] = {
         ["showLegionAssaultsInfo"] = "Asalto de la Legión",                     -- Legion
@@ -123,6 +125,7 @@ local savedLabels = {
         ["showResearchersUnderFireInfo"] = "Investigadores bajo el fuego",
         ["showTimeRiftInfo"] = "Falla temporal",
         ["showDreamsurgeInfo"] = "Pico Onírico",
+        ["showSuperbloomInfo"] = "Superfloración",
     },
     ["frFR"] = {
         ["showLegionAssaultsInfo"] = "Assaut de la Légion",                     -- Legion
@@ -139,6 +142,7 @@ local savedLabels = {
         ["showResearchersUnderFireInfo"] = "Chercheurs sous le feu",
         ["showTimeRiftInfo"] = "Faille temporelle",
         ["showDreamsurgeInfo"] = "Poussée onirique",
+        ["showSuperbloomInfo"] = "Superfloraison",
     },
     ["itIT"] = {
         ["showLegionAssaultsInfo"] = "Assalto della Legione ",                  -- Legion
@@ -155,6 +159,7 @@ local savedLabels = {
         ["showResearchersUnderFireInfo"] = "Ricercatori sotto attacco",
         ["showTimeRiftInfo"] = "Fenditura del Tempo",
         ["showDreamsurgeInfo"] = "Sovronirico",
+        ["showSuperbloomInfo"] = "Superfioritura",
     },
     ["ptBR"] = {
         ["showLegionAssaultsInfo"] = "Ataque da Legião",                        -- Legion
@@ -171,6 +176,7 @@ local savedLabels = {
         ["showResearchersUnderFireInfo"] = "Pesquisadores sob fogo",
         ["showTimeRiftInfo"] = "Fenda Temporal",
         ["showDreamsurgeInfo"] = "Surto Onírico",
+        ["showSuperbloomInfo"] = "Superflorada",
     },
     ["ruRU"] = {
         ["showLegionAssaultsInfo"] = "Атака Легиона",                           -- Legion
@@ -187,6 +193,7 @@ local savedLabels = {
         ["showResearchersUnderFireInfo"] = "Исследователи под огнем",
         ["showTimeRiftInfo"] = "Портал времени",
         ["showDreamsurgeInfo"] = "Прилив Снов",
+        ["showSuperbloomInfo"] = "Цветочный бум",
     },
     ["zhCN"] = {
         ["showLegionAssaultsInfo"] = "军团入侵",                                 -- Legion
@@ -203,6 +210,7 @@ local savedLabels = {
         ["showResearchersUnderFireInfo"] = "研究员遇袭",
         ["showTimeRiftInfo"] = "时光裂隙",
         ["showDreamsurgeInfo"] = "梦涌",
+        ["showSuperbloomInfo"] = "超然",
     },
     ["zhTW"] = {
         ["showLegionAssaultsInfo"] = "軍團入侵",                                 -- Legion
@@ -219,6 +227,7 @@ local savedLabels = {
         -- ["showResearchersUnderFireInfo"] = "",
         ["showTimeRiftInfo"] = "時間裂隙",
         -- ["showDreamsurgeInfo"] = "",
+        -- ["showSuperbloomInfo"] = "",
     },
 }
 
@@ -327,4 +336,5 @@ ns.data.LoadInGameLabels = function(self)
     L["showResearchersUnderFireInfo"] = ns.data:GetLabel("showResearchersUnderFireInfo")
     L["showTimeRiftInfo"] = ns.data:GetLabel("showTimeRiftInfo")
     L["showDreamsurgeInfo"] = ns.data:GetLabel("showDreamsurgeInfo")
+    L["showSuperbloomInfo"] = ns.data:GetLabel("showSuperbloomInfo")
 end

@@ -82,6 +82,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showResearchersUnderFireInfo"] = true,
 	["showTimeRiftInfo"] = true,
 	["showDreamsurgeInfo"] = true,
+	["showSuperbloomInfo"] = true,
 	["hideEventDescriptions"] = false,
 	-- Shadowlands
 	["showCovenantMissionInfo"] = true,
@@ -944,7 +945,14 @@ function MRBP_Settings_Register()
 			tooltip = FormatTooltipTemplate("showDreamsurgeInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DREAMSURGE),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
-			-- tag = Settings.Default.True,
+		},
+		{
+			variable = "showSuperbloomInfo",
+			name = L["showSuperbloomInfo"],
+			tooltip = FormatTooltipTemplate("showSuperbloomInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_SUPERBLOOM),
+			parentVariable = "showDragonflightWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
 		},
 		{
 			variable = "hideEventDescriptions",
