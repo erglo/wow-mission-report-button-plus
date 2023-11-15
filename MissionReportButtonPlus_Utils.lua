@@ -909,6 +909,7 @@ function util.garrison.GetDragonGlyphsCount()
 		{mapID = 2025, achievementID = 16578},  -- Thaldraszus Glyph Hunter
 		{mapID = 2151, achievementID = 17411},  -- Forbidden Reach Glyph Hunter
 		{mapID = 2133, achievementID = 18150},  -- Zaralek Cavern Glyph Hunter
+		{mapID = 2200, achievementID = 19306},  -- Emerald Dream Glyph Hunter
 	};
 	local glyphsPerZone = {};  -- Glyph count by map ID
 	local numGlyphsTotal = 0;  -- The total number of glyphs from all zones
@@ -1917,6 +1918,7 @@ PoiFilter.ignoredAreaPoiIDs = {
 	"7365",  -- Dragonscale Basecamp
 	"7391",  -- The Seat of the Aspects
 	"7392",  -- Maruukai
+    "7636",  -- Central Encampment
 	-- "7393",  -- Iskaara  (needed for Community Feast)
 	"7394",  -- Obsidian Citadel + Dragonbane Keep
 	"7414",  -- Zskera Vaults
@@ -2070,6 +2072,7 @@ if _log.DEVMODE then
 		"7245",  -- Elemental Storm (Air)
 		"7246",  -- Elemental Storm (Earth)
 		"7247",  -- Elemental Storm (Fire) - Thaldraszus
+		"7248",  -- Elemental Storm (Water) - Waking Shores
 		"7253",  -- Elemental Storm (Air) - Waking Shores
 		"7254",  -- Elemental Storm (Earth) - Waking Shores
 		"7255",  -- Elemental Storm (Fire) - Waking Shores
