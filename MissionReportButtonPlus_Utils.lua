@@ -1837,36 +1837,19 @@ end
 
 ----- Timewalking Vendor -----
 
--- function Test_GetTimewalkingInfo()											    --> TODO - Add other expansions
--- 	local TIMEWALKING_SPELL_IDs = {
--- 		335152,  -- Sign of Iron (Warlords of Draenor)
--- 		359082,  -- Sign of the Legion
--- 	};
--- 	for _, spellID in ipairs(TIMEWALKING_SPELL_IDs) do
--- 		local auraInfo = C_UnitAuras.GetPlayerAuraBySpellID(spellID);  --> returns only active buffs
--- 		if auraInfo then
--- 			-- Add description; is by default not available in auraInfo
--- 			auraInfo.description = GetSpellDescription(spellID);
--- 			return auraInfo;
--- 		end
--- 	end
--- end
-
 local TimewalkingVendorData = {};
-TimewalkingVendorData.atlasName = "TimewalkingVendor-32x32";
-TimewalkingVendorData.mapInfos = {LocalMapUtil.GetMapInfo(588), LocalMapUtil.GetMapInfo(627)}  -- , LocalMapUtil.GetMapInfo(85)};
--- TimewalkingVendorData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
 TimewalkingVendorData.areaPoiIDs = {6985, 7018};  --> Draenor, Legion
+TimewalkingVendorData.mapInfos = {LocalMapUtil.GetMapInfo(588), LocalMapUtil.GetMapInfo(627)};
 TimewalkingVendorData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
 
 function util.poi.FindTimewalkingVendor(expansionInfo)
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(TimewalkingVendorData);
 	if poiInfo then
 		poiInfo.timeString = util.GetTimeStringUntilWeeklyReset();
-		if (expansionInfo.ID == util.expansion.data.WarlordsOfDraenor.ID and poiInfo.areaPoiID == 6985) then  -- and poiInfo.mapInfo.mapID == 588
+		if (expansionInfo.ID == util.expansion.data.WarlordsOfDraenor.ID and poiInfo.areaPoiID == 6985) then
 			return poiInfo
 		end
-		if (expansionInfo.ID == util.expansion.data.Legion.ID and poiInfo.areaPoiID == 7018) then  -- and poiInfo.mapInfo.mapID == 627
+		if (expansionInfo.ID == util.expansion.data.Legion.ID and poiInfo.areaPoiID == 7018) then
 			return poiInfo
 		end
 	end
@@ -2159,9 +2142,9 @@ if _log.DEVMODE then
 		"5379",  -- Invasion Point Boss Meto - Argus, Antoran Wastes
 		"5380",  -- Invasion Point Boss Sotanathor
 		"5381",  -- Invasion Point Boss Matron Folnuna
-		-- "7018",  -- Timewalking Vendor in Azsuna + Broken Shore (don't filter)
+		"7018",  -- Timewalking Vendor in Legion Dalaran (don't filter)
 		-- Draenor
-		-- "6985",  -- Timewalking Vendor in Ashran (don't filter)
+		"6985",  -- Timewalking Vendor in Ashran (don't filter)
 	};
 
 	function TestPoiUtil.GetAreaPOIInfoForZones(zoneMaps, isContentTypeMapInfo)
