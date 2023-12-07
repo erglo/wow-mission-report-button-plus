@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [v0.20.1+100200] - 2023-12-07
+
+### Changed
+
+* Updated dragon glyphs counter for Emerald Dream.
+
 ## [v0.20.0+100200] - 2023-11-09
 
 ### Added
