@@ -389,7 +389,7 @@ function MRBP_Settings_Register()
 
 	local function FormatTooltipTemplate(categoryName, tooltipText, additionalText)
 		local needsUIReload = (not L:IsEnglishLocale(L.currentLocale) and L.defaultLabels[categoryName] == L[categoryName])
-		local formattedText = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(tooltipText)
+		local formattedText = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(tooltipText or '')
 		formattedText = additionalText and formattedText..additionalText or formattedText
 		formattedText = needsUIReload and formattedText..NEEDS_RELOAD or formattedText
 		return formattedText

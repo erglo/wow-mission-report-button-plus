@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [v0.21.1+100205] - 2024-01-23
+
+### Changed
+
+* Uploaded locale files.
+
 ## [v0.21.0+100205] - 2024-01-23
 
 ### Added
