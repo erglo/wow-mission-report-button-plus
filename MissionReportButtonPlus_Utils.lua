@@ -1712,6 +1712,51 @@ function util.poi.GetSuperbloomInfo()
 	end
 end
 
+----- The Big Dig -----
+
+local TheBigDigData = {}
+-- TheBigDigData.areaPoiID = 7657
+TheBigDigData.widgetSetID = 1018
+TheBigDigData.mapID = DRAGON_ISLES_MAP_ID
+TheBigDigData.mapInfos = LocalMapUtil.GetMapChildrenInfo(TheBigDigData.mapID, Enum.UIMapType.Zone)
+TheBigDigData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID
+TheBigDigData.includeAreaName = true
+TheBigDigData.GetNextEventTime = function(self)
+	-- The event occurs every hour on the half-hour.
+	local now = GetServerTime()
+	local waitTimeSeconds = 3600
+	local eventTime = now + C_DateAndTime.GetSecondsUntilDailyReset() + 1800
+	while eventTime > (now + waitTimeSeconds) do
+		eventTime = eventTime - waitTimeSeconds
+	end
+	return (eventTime - now)
+end
+TheBigDigData.GetTimeLeft = function(self)
+	local secondsLeft = self:GetNextEventTime()
+	if (secondsLeft >= 0) then
+		local isActive = (3600-secondsLeft) <= 600  -- event lasts for 10 minutes
+		local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(nil, isActive and 600-(3600-secondsLeft) or secondsLeft)
+		local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString
+		return timeLeftString, isActive
+	end
+end
+
+function util.poi.GetTheBigDigInfo()
+	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(TheBigDigData)
+	if poiInfo then
+		-- data:SaveLabel("showTheBigDigInfo", poiInfo.name)  --> use "Azerothian Archives" instead
+		if not poiInfo.isTimed then
+			local timeLeftString, isActive = TheBigDigData:GetTimeLeft()
+			if timeLeftString then
+				local activeTimeLeftString = timeLeftString.." "..GREEN_FONT_COLOR:WrapTextInColorCode(SPEC_ACTIVE)
+				poiInfo.timeString = isActive and activeTimeLeftString or timeLeftString
+				poiInfo.isTimed = true
+			end
+		end
+		return poiInfo
+	end
+end
+
 ----- Battle for Azeroth: Faction Assaults -----
 
 local BfAFactionAssaultsData = {};
@@ -2039,6 +2084,7 @@ if _log.DEVMODE then
 		"7471",  -- Fyrakk Assaults - Ohn'ahra
 		"7486",  -- Fyrakk Assaults - Ohn'ahra
 		"7221",  -- Elemental Storm (Air)
+		"7222",  -- Elemental Storm (Earth)
 		"7224",  -- Elemental Storm (Water)
 		"7229",  -- Elemental Storm (Air) - Ohn'ahran Plains
 		"7230",  -- Elemental Storm (Earth) - Azure Span
@@ -2077,6 +2123,7 @@ if _log.DEVMODE then
 		"7602",  -- Dreamsurge, Thaldraszus
 		"7634",  -- Superbloom, Emerald Dream
 		"7635",  -- Superbloom, Emerald Dream
+		"7657",  -- The Big Dig: Traitor's Rest, Azure Span
 		-- Shadowlands
 		-- Battle for Azeroth
 		"5896",  -- Faction Assaults (Horde attacking Tiragardesound)

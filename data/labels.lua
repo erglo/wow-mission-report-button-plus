@@ -86,6 +86,7 @@ L.defaultLabels = {  -- English defaults
     ["showTimeRiftInfo"] = "Time Rift",
     ["showDreamsurgeInfo"] = "Dreamsurge",
     ["showSuperbloomInfo"] = "Superbloom",
+    ["showTheBigDigInfo"] = "Azerothian Archives",
 }
 --> TODO - Add Shadowlands "Covenant Assaults"
 --> TODO - Add BfA "Faction Assaults"
@@ -109,6 +110,7 @@ local savedLabels = {
         ["showTimeRiftInfo"] = "Zeitriss",
         ["showDreamsurgeInfo"] = "Traumsprung",
         ["showSuperbloomInfo"] = "Superblüte",
+        ["showTheBigDigInfo"] = "Archive von Azeroth",
     },
     ["esES"] = {
         ["showLegionAssaultsInfo"] = "Asalto de la Legión",                     -- Legion
@@ -126,6 +128,7 @@ local savedLabels = {
         ["showTimeRiftInfo"] = "Falla temporal",
         ["showDreamsurgeInfo"] = "Pico Onírico",
         ["showSuperbloomInfo"] = "Superfloración",
+        ["showTheBigDigInfo"] = "Archivos de Azeroth",
     },
     ["frFR"] = {
         ["showLegionAssaultsInfo"] = "Assaut de la Légion",                     -- Legion
@@ -143,6 +146,7 @@ local savedLabels = {
         ["showTimeRiftInfo"] = "Faille temporelle",
         ["showDreamsurgeInfo"] = "Poussée onirique",
         ["showSuperbloomInfo"] = "Superfloraison",
+        ["showTheBigDigInfo"] = "Archives d’Azeroth",
     },
     ["itIT"] = {
         ["showLegionAssaultsInfo"] = "Assalto della Legione ",                  -- Legion
@@ -160,6 +164,7 @@ local savedLabels = {
         ["showTimeRiftInfo"] = "Fenditura del Tempo",
         ["showDreamsurgeInfo"] = "Sovronirico",
         ["showSuperbloomInfo"] = "Superfioritura",
+        ["showTheBigDigInfo"] = "Archivi Azerothiani",
     },
     ["ptBR"] = {
         ["showLegionAssaultsInfo"] = "Ataque da Legião",                        -- Legion
@@ -177,6 +182,7 @@ local savedLabels = {
         ["showTimeRiftInfo"] = "Fenda Temporal",
         ["showDreamsurgeInfo"] = "Surto Onírico",
         ["showSuperbloomInfo"] = "Superflorada",
+        ["showTheBigDigInfo"] = "Arquivo Azerothiano",
     },
     ["ruRU"] = {
         ["showLegionAssaultsInfo"] = "Атака Легиона",                           -- Legion
@@ -194,6 +200,7 @@ local savedLabels = {
         ["showTimeRiftInfo"] = "Портал времени",
         ["showDreamsurgeInfo"] = "Прилив Снов",
         ["showSuperbloomInfo"] = "Цветочный бум",
+        ["showTheBigDigInfo"] = "Азеротские Архивы",
     },
     ["zhCN"] = {
         ["showLegionAssaultsInfo"] = "军团入侵",                                 -- Legion
@@ -211,6 +218,7 @@ local savedLabels = {
         ["showTimeRiftInfo"] = "时光裂隙",
         ["showDreamsurgeInfo"] = "梦涌",
         ["showSuperbloomInfo"] = "超然",
+        ["showTheBigDigInfo"] = "艾泽拉斯档案馆",
     },
     ["zhTW"] = {
         ["showLegionAssaultsInfo"] = "軍團入侵",                                 -- Legion
@@ -228,6 +236,7 @@ local savedLabels = {
         ["showTimeRiftInfo"] = "時間裂隙",
         -- ["showDreamsurgeInfo"] = "",
         -- ["showSuperbloomInfo"] = "",
+        -- ["showTheBigDigInfo"] = "",
     },
 }
 
@@ -337,4 +346,5 @@ ns.data.LoadInGameLabels = function(self)
     L["showTimeRiftInfo"] = ns.data:GetLabel("showTimeRiftInfo")
     L["showDreamsurgeInfo"] = ns.data:GetLabel("showDreamsurgeInfo")
     L["showSuperbloomInfo"] = ns.data:GetLabel("showSuperbloomInfo")
+    L["showTheBigDigInfo"] = ns.data:GetLabel("showTheBigDigInfo")
 end

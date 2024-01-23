@@ -83,6 +83,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showTimeRiftInfo"] = true,
 	["showDreamsurgeInfo"] = true,
 	["showSuperbloomInfo"] = true,
+	["showTheBigDigInfo"] = true,
 	["hideEventDescriptions"] = false,
 	-- Shadowlands
 	["showCovenantMissionInfo"] = true,
@@ -950,6 +951,13 @@ function MRBP_Settings_Register()
 			variable = "showSuperbloomInfo",
 			name = L["showSuperbloomInfo"],
 			tooltip = FormatTooltipTemplate("showSuperbloomInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_SUPERBLOOM),
+			parentVariable = "showDragonflightWorldMapEvents",
+			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "showTheBigDigInfo",
+			name = L["showTheBigDigInfo"],
+			tooltip = FormatTooltipTemplate("showTheBigDigInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_THE_BIG_DIG),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
 			tag = Settings.Default.True,

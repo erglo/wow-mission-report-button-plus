@@ -1306,6 +1306,17 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfSuperbloomInfo.timeString)
 				end
 			end
+			-- The Big Dig
+			if ns.settings.showTheBigDigInfo then
+				local dfTheBigDigInfo = util.poi.GetTheBigDigInfo()
+				if dfTheBigDigInfo then
+					tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showTheBigDigInfo"] or dfTheBigDigInfo.name)
+					tooltipText = TooltipText_AddIconLine(tooltipText, dfTheBigDigInfo.name, dfTheBigDigInfo.atlasName)
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfTheBigDigInfo.mapInfo.name)
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfTheBigDigInfo.areaName)
+					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfTheBigDigInfo.timeString)
+				end
+			end
 		end
 	end
 
@@ -1926,6 +1937,15 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 							local timeLeft = dfSuperbloomInfo.timeString or "...";
 							local lineText = format("%s @ %s", dfSuperbloomInfo.name, dfSuperbloomInfo.mapInfo.name)..": "..timeLeft
 							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfSuperbloomInfo.atlasName)
+						end
+					end
+					-- The Big Dig
+					if ns.settings.showTheBigDigInfo then
+						local dfTheBigDigInfo = util.poi.GetTheBigDigInfo()
+						if dfTheBigDigInfo then
+							local timeLeft = dfTheBigDigInfo.timeString or "...";
+							local lineText = format("%s @ %s", dfTheBigDigInfo.name, dfTheBigDigInfo.mapInfo.name)..": "..timeLeft
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfTheBigDigInfo.atlasName)
 						end
 					end
 				end
