@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
+## [Unreleased]
+
+### Changed
+
+* Updated TOC file version to `WoW 10.2.5`.
+
 ## [v0.20.1+100200] - 2023-12-07
 
 ### Changed
