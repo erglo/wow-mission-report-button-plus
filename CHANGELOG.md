@@ -6,7 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ----
 
-## [Unreleased]
+## [v0.21.0+100205] - 2024-01-23
+
+### Added
+
+* Dragonflight: added the Big Dig event details for the `Azerothian Archives`.
 
 ### Changed
 
@@ -22,319 +26,319 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
-- Dragonflight: added `Superbloom` event details.
+* Dragonflight: added `Superbloom` event details.
 
 ### Changed
 
-- Updated TOC file version to `WoW 10.2.0`.
-- Adapted API changes concerning `C_AddOns` and `Blizzard_SettingControls.lua`.
-- PKGMETA file: added `tools-used` section.
+* Updated TOC file version to `WoW 10.2.0`.
+* Adapted API changes concerning `C_AddOns` and `Blizzard_SettingControls.lua`.
+* PKGMETA file: added `tools-used` section.
 
 ### Fixed
 
-- [Issue #19] Due to additional arguments in `CreateSettingsButtonInitializer(...)` an assertion error occurred. (Thanks to [SpareSimian](https://github.com/SpareSimian) this has been a quick fix.)
+* [Issue #19] Due to additional arguments in `CreateSettingsButtonInitializer(...)` an assertion error occurred. (Thanks to [SpareSimian](https://github.com/SpareSimian) this has been a quick fix.)
 
 ## [v0.19.0+100107] - 2023-10-07
 
 ### Added
 
-- Dragon Race: added `Eastern Kingdoms Cup` details.
-- Dragonflight: added `Dreamsurge` event details.
-- Dragonflight: re-added `Iskaara Community Feast` event details, with manual timer.
-- Dragonflight: added a manual timer to `Researchers Under Fire` for the other zones in Dragonflight outside of Zaralek Cavern.
-- Dragonflight: cross-reference for `Camp Aylaag` with the achievement "The Ohn'ahran Trail".
+* Dragon Race: added `Eastern Kingdoms Cup` details.
+* Dragonflight: added `Dreamsurge` event details.
+* Dragonflight: re-added `Iskaara Community Feast` event details, with manual timer.
+* Dragonflight: added a manual timer to `Researchers Under Fire` for the other zones in Dragonflight outside of Zaralek Cavern.
+* Dragonflight: cross-reference for `Camp Aylaag` with the achievement "The Ohn'ahran Trail".
 
 ### Changed
 
-- Updated the Addon Compartment entry for `Camp Aylaag`; it shows the area name now.
-- Updated README files.
+* Updated the Addon Compartment entry for `Camp Aylaag`; it shows the area name now.
+* Updated README files.
 
 ## [0.18.0+100107] - 2023-09-06
 
 ### Changed
 
-- Updated TOC file version to `WoW 10.1.7`.
+* Updated TOC file version to `WoW 10.1.7`.
 
 ### Fixed
 
-- [Issue #17] Changes in `C_MajorFactions` with `WoW 10.1.7` caused an error with sorting the DF major faction data. (Thanks to [justinkb](https://github.com/justinkb) for this quick fix.)
+* [Issue #17] Changes in `C_MajorFactions` with `WoW 10.1.7` caused an error with sorting the DF major faction data. (Thanks to [justinkb](https://github.com/justinkb) for this quick fix.)
 
 ## [0.17.3+100105] - 2023-09-01
 
 ### Fixed
 
-- [Issue #15] The Legion status was not working after unlocking the command table.
-- Fixed bonus event message for world quests; `GetCalendarEventLink` couldn't get needed informations properly.
+* [Issue #15] The Legion status was not working after unlocking the command table.
+* Fixed bonus event message for world quests; `GetCalendarEventLink` couldn't get needed informations properly.
 
 ## [0.17.2+100105] - 2023-07-21
 
 ### Fixed
 
-- [Issue #13] An error occurred in `labels.lua` in the clean-up function. Said function was called as soon as the player leaves the world but the event fired presumably before the global variable was initialized. Now it is only called once when the player quits the game.
-- English default strings haven't been merged with the global localization table correctly.
-- Corrected a translated string in `deDE` locale.
+* [Issue #13] An error occurred in `labels.lua` in the clean-up function. Said function was called as soon as the player leaves the world but the event fired presumably before the global variable was initialized. Now it is only called once when the player quits the game.
+* English default strings haven't been merged with the global localization table correctly.
+* Corrected a translated string in `deDE` locale.
 
 ## [0.17.1+100105] - 2023-07-20
 
 ### Changed
 
-- Debug mode was partially still active. It's turned it off now.
+* Debug mode was partially still active. It's turned it off now.
 
 ## [0.17.0+100105] - 2023-07-20
 
 ### Added
 
-- Data: Dynamic category names retrieval; English default names will be replaced in non-English locales as soon an event is active.
-- Dragonflight: added `Time Rift` details.
+* Data: Dynamic category names retrieval; English default names will be replaced in non-English locales as soon an event is active.
+* Dragonflight: added `Time Rift` details.
 
 ### Changed
 
-- Updated TOC file version to `WoW 10.1.5`.
-- Refined `area names` for some POI details.
-- `Timewalking Vendor` details for Warlords of Draenor and Legion don't depend on calendar event data anymore.
-- Calendar data look-up process refurbished.
+* Updated TOC file version to `WoW 10.1.5`.
+* Refined `area names` for some POI details.
+* `Timewalking Vendor` details for Warlords of Draenor and Legion don't depend on calendar event data anymore.
+* Calendar data look-up process refurbished.
 
 ### Fixed
 
-- Not all `Addon Compartment` icons have been displayed; using now mostly inline icons instead.
+* Not all `Addon Compartment` icons have been displayed; using now mostly inline icons instead.
 
 ## [0.16.4+100100] - 2023-07-07
 
 ### Added
 
-- The `Timewalking Vendor` details have been added to the Addon Compartment tooltip.
-- New locale `zhCN`, thanks to [EK (EKE00372)](https://github.com/EKE00372).
+* The `Timewalking Vendor` details have been added to the Addon Compartment tooltip.
+* New locale `zhCN`, thanks to [EK (EKE00372)](https://github.com/EKE00372).
 
 ### Fixed
 
-- Due to the recent changes in processing calendar day events the `Timewalking Vendor` details didn't show up in the tooltip.
+* Due to the recent changes in processing calendar day events the `Timewalking Vendor` details didn't show up in the tooltip.
 
 ## [0.16.3+100100] - 2023-06-29
 
 ### Fixed
 
-- The calendar day event message which appears in chat after logging-in during bonus events didn't show the correct amount of days left.
+* The calendar day event message which appears in chat after logging-in during bonus events didn't show the correct amount of days left.
 
 ## [0.16.2+100100] - 2023-06-26
 
 ### Fixed
 
-- [Issue #10] Mission Complete messages appeared in chat even though the chat notifications have been disabled in the settings.
+* [Issue #10] Mission Complete messages appeared in chat even though the chat notifications have been disabled in the settings.
 
 ## [0.16.1+100100] - 2023-06-22
 
 ### Fixed
 
-- [Issue #9] Due to character encoding differences an error occurred for the `zhTW` locale users due to the recent changes in displaying additionally the closest flight point for `Camp Aylaag`.
+* [Issue #9] Due to character encoding differences an error occurred for the `zhTW` locale users due to the recent changes in displaying additionally the closest flight point for `Camp Aylaag`.
 
 ## [0.16.0+100100] - 2023-06-21
 
 ### Added
 
-- New line for contributed translations in the about this addon section in the settings.
-- New locale `zhTW`, thanks to [EK (EKE00372)](https://github.com/EKE00372).
-- The Addon Compartment entry is now optional and can be de-/activated in the settings.
-- Dragonflight: added details for the events `Dragonriding Race`, `Camp Aylaag`, `Grand Hunts`, `Siege on Dragonbane Keep` and `Elemental Storms` to the Addon Compartment.
-- Warlords of Draenor: the `Garrison Invasion alert icon` on top of the Garrison Landing Page (Mission) Report frame can now be hidden permanently, even if your Garrison is being invaded.
+* New line for contributed translations in the about this addon section in the settings.
+* New locale `zhTW`, thanks to [EK (EKE00372)](https://github.com/EKE00372).
+* The Addon Compartment entry is now optional and can be de-/activated in the settings.
+* Dragonflight: added details for the events `Dragonriding Race`, `Camp Aylaag`, `Grand Hunts`, `Siege on Dragonbane Keep` and `Elemental Storms` to the Addon Compartment.
+* Warlords of Draenor: the `Garrison Invasion alert icon` on top of the Garrison Landing Page (Mission) Report frame can now be hidden permanently, even if your Garrison is being invaded.
 
 ### Changed
 
-- Updated locale files, localizations will now be automatically integrated from CurseForge during GitHub workflow.
-- Updated readme files and added a _Thank You!_ section for the contributors.
-- Dragonflight: the `Aylaag Camp` entry now additionally shows the name of the closest flight point for easier camp location identification.
+* Updated locale files, localizations will now be automatically integrated from CurseForge during GitHub workflow.
+* Updated readme files and added a _Thank You!_ section for the contributors.
+* Dragonflight: the `Aylaag Camp` entry now additionally shows the name of the closest flight point for easier camp location identification.
 
 ### Removed
 
-- Some of the world map icons have been merged in `WoW 10.0.7` which led to the problem that the details about the `Iskaara Community Feast` event on the Dragon Isles can no longer be retrieved by its area POI icon and had to be removed.
+* Some of the world map icons have been merged in `WoW 10.0.7` which led to the problem that the details about the `Iskaara Community Feast` event on the Dragon Isles can no longer be retrieved by its area POI icon and had to be removed.
 
 ## [0.15.1+100100] - 2023-06-15
 
 ### Added
 
-- Shadowlands: cross-reference for `Covenant Campaigns` with the achievement "Dead Men Tell Some Tales".
+* Shadowlands: cross-reference for `Covenant Campaigns` with the achievement "Dead Men Tell Some Tales".
 
 ### Fixed
 
-- BfA achievement for `Faction Assaults` didn't show the tracking hint properly.
+* BfA achievement for `Faction Assaults` didn't show the tracking hint properly.
 
 ## [0.15.0+100100] - 2023-06-14
 
 ### Added
 
-- New settings option for achievement tracking hints.
-- Shadowlands: cross-reference for `Maw Assault` threats with the achievement "United Front".
-- Battle for Azeroth: cross-reference for `Faction Assaults` with the achievements "Frontline Warrior".
-- Legion: cross-reference for `Legion Assaults` with the achievement "Defender of the Broken Isles".
+* New settings option for achievement tracking hints.
+* Shadowlands: cross-reference for `Maw Assault` threats with the achievement "United Front".
+* Battle for Azeroth: cross-reference for `Faction Assaults` with the achievements "Frontline Warrior".
+* Legion: cross-reference for `Legion Assaults` with the achievement "Defender of the Broken Isles".
 
 ### Changed
 
-- A try-next-day hint message will now be shown when all Bounty Board quest have been completed.
-- Updated readme files + homepages and added some badges.
-- Split the changelog into 2 files for complete and latest changes.
+* A try-next-day hint message will now be shown when all Bounty Board quest have been completed.
+* Updated readme files + homepages and added some badges.
+* Split the changelog into 2 files for complete and latest changes.
 
 ## [0.14.1+100100] - 2023-06-07
 
 ### Fixed
 
-- [Issue #6] An recursion error occurred when retrieving the localized title for the `Researchers Under Fire` event.
-- Clicking the entry in the Addon Compartment without having any Expansion Landing Pages unlocked will now be ignored.
+* [Issue #6] An recursion error occurred when retrieving the localized title for the `Researchers Under Fire` event.
+* Clicking the entry in the Addon Compartment without having any Expansion Landing Pages unlocked will now be ignored.
 
 ## [0.14.0+100100] - 2023-06-05
 
 ### Added
 
-- [Issue #3] Automated packaging and releasing to `GitHub`, `CurseForge`, `Wago` and `WoWInterface`.
-- World Map Event description texts can now be hidden via settings.
-- Dragonflight: added `Researchers Under Fire` details.
-- Dragonflight: added `Fyrakk Assaults` details.
-- Legion: added `Greater Invasion Point` details as well as an icon hint cross-referencing the achievement "Invasion Obliteration".
+* [Issue #3] Automated packaging and releasing to `GitHub`, `CurseForge`, `Wago` and `WoWInterface`.
+* World Map Event description texts can now be hidden via settings.
+* Dragonflight: added `Researchers Under Fire` details.
+* Dragonflight: added `Fyrakk Assaults` details.
+* Legion: added `Greater Invasion Point` details as well as an icon hint cross-referencing the achievement "Invasion Obliteration".
 
 ### Changed
 
-- Updated project meta files.
-- Reworked the World Map Event category name retrieval for better performance and lesser localizing effort.
+* Updated project meta files.
+* Reworked the World Map Event category name retrieval for better performance and lesser localizing effort.
 
 ## [0.13.0+100100] - 2023-05-19
 
 ### Added
 
-- Addon Compartment details.
-- New addon icon; the Addon List now supports displaying addon icons which can be added to the TOC file.
-- Alternative icon for Evoker class in Legion.
+* Addon Compartment details.
+* New addon icon; the Addon List now supports displaying addon icons which can be added to the TOC file.
+* Alternative icon for Evoker class in Legion.
 
 ### Changed
 
-- Updated dragon glyphs counter for Zaralek Cavern.
-- Updated functions which have been renamed or removed in `Deprecated_10_1_0.lua`.
-- Updated TOC file version to `WoW 10.1.0`.
+* Updated dragon glyphs counter for Zaralek Cavern.
+* Updated functions which have been renamed or removed in `Deprecated_10_1_0.lua`.
+* Updated TOC file version to `WoW 10.1.0`.
 
 ### Fixed
 
-- Toggling a garrison type landing page didn't work correctly when the `ExpansionLandingPageMinimapButton` was in garrison mode.
-- Dragonflight unlocking requirement hasn't been recognized correctly; using built-in function introduced in Dragonflight now as well.
-- [Issue #5] "In retail version 10.1, SetNewTagShown is nil". Blizzard devs moved `SetNewTagShown` from the initializer to the setting mixin class.
-- Corrected a misspelled string in the German locale file.
+* Toggling a garrison type landing page didn't work correctly when the `ExpansionLandingPageMinimapButton` was in garrison mode.
+* Dragonflight unlocking requirement hasn't been recognized correctly; using built-in function introduced in Dragonflight now as well.
+* [Issue #5] "In retail version 10.1, SetNewTagShown is nil". Blizzard devs moved `SetNewTagShown` from the initializer to the setting mixin class.
+* Corrected a misspelled string in the German locale file.
 
 ## [0.12.2+100007] - 2023-03-30
 
 ### Changed
 
-- Updated dragon glyphs counter for Forbidden Reach.
+* Updated dragon glyphs counter for Forbidden Reach.
 
 ## [0.12.1+100007] - 2023-03-29
 
 ### Changed
 
-- Updated TOC file to `WoW 10.0.7`.
+* Updated TOC file to `WoW 10.0.7`.
 
 ### Fixed
 
-- Garrison types and follower constants have been renamed in `WoW 10.0.7`.
+* Garrison types and follower constants have been renamed in `WoW 10.0.7`.
 
 ## [0.12.0+100005] - 2023-03-03
 
 ### Added
 
-- Battle for Azeroth: Amount of collected Azerite from `Island Expeditions`.
+* Battle for Azeroth: Amount of collected Azerite from `Island Expeditions`.
 
 ## [0.11.1+100005] - 2023-02-13
 
 ### Added
 
-- New slash command `hook`, for manually re-registering the minimap button hooks; just in case that there are other addons interfering.
+* New slash command `hook`, for manually re-registering the minimap button hooks; just in case that there are other addons interfering.
 
 ### Fixed
 
-- [Issue #2] Right-click menu interference by _cfxfox_'s [War Plan](https://beta.curseforge.com/wow/addons/war-plan), by auto-updating the minimap button hooks on player login.
+* [Issue #2] Right-click menu interference by _cfxfox_'s [War Plan](https://beta.curseforge.com/wow/addons/war-plan), by auto-updating the minimap button hooks on player login.
 
 ## [0.11.0+100005] - 2023-02-08
 
 ### Added
 
-- Shadowlands: Covenant colors.
-- Shadowlands: Covenant Renown level details.
+* Shadowlands: Covenant colors.
+* Shadowlands: Covenant Renown level details.
 
 ### Changed
 
-- Separated threat colors settings for Shadowlands and BfA.
+* Separated threat colors settings for Shadowlands and BfA.
 
 ## [0.10.0+100005] - 2023-02-03
 
 ### Added
 
-- Added `Timewalking Vendor` availability hint for Draenor and Legion.
-- Added faction colors for world map threats and assaults.
-- Dragonflight: added `Elemental Storms` details.
-- Dragonflight: added `Siege on Dragonbane Keep` details.
-- Dragonflight: added `Iskaara Community Feast` details.
-- Dragonflight: added `Clan Aylaag` details.
-- Dragonflight: added `Dragonriding Race` details.
-- Dragonflight: added `Grand Hunts` details.
-- Battle for Azeroth: added `Faction Assaults` details.
-- Legion: added `Invasion Rifts` details from Argus.
-- Legion: added `Demon Invasion` details from Broken Shore.
-- Legion: added `Legion Assaults` details to tooltip and settings.
-- Warlords of Draenor: added `Garrison Invasion alert` to tooltip and settings.
+* Added `Timewalking Vendor` availability hint for Draenor and Legion.
+* Added faction colors for world map threats and assaults.
+* Dragonflight: added `Elemental Storms` details.
+* Dragonflight: added `Siege on Dragonbane Keep` details.
+* Dragonflight: added `Iskaara Community Feast` details.
+* Dragonflight: added `Clan Aylaag` details.
+* Dragonflight: added `Dragonriding Race` details.
+* Dragonflight: added `Grand Hunts` details.
+* Battle for Azeroth: added `Faction Assaults` details.
+* Legion: added `Invasion Rifts` details from Argus.
+* Legion: added `Demon Invasion` details from Broken Shore.
+* Legion: added `Legion Assaults` details to tooltip and settings.
+* Warlords of Draenor: added `Garrison Invasion alert` to tooltip and settings.
 
 ### Changed
 
-- Updated the README file.
-- Updated the TOC file's interface version.
-- Unified labels for tooltip and settings category groups.
-- Separated and regrouped settings for each expansion.
-- The time remaining string in tooltips has been shortened. It shows now a clock icon instead of a preceding text.
-- Extended calendar specials, including a cache.
+* Updated the README file.
+* Updated the TOC file's interface version.
+* Unified labels for tooltip and settings category groups.
+* Separated and regrouped settings for each expansion.
+* The time remaining string in tooltips has been shortened. It shows now a clock icon instead of a preceding text.
+* Extended calendar specials, including a cache.
 
 ### Removed
 
-- Slash command for `version` info is not needed anymore.
+* Slash command for `version` info is not needed anymore.
 
 ## [0.9.0+100002] - 2022-12-27
 
 ### Added
 
-- New settings for timer/colors/glyphs + localization.
-- Time remaining info for world map threats.
-- Major Factions renown status in entry tooltip.
+* New settings for timer/colors/glyphs + localization.
+* Time remaining info for world map threats.
+* Major Factions renown status in entry tooltip.
 
 ### Changed
 
-- Updated details display in menu entry tooltips and restructured its code for better readability.
+* Updated details display in menu entry tooltips and restructured its code for better readability.
 
 ## [0.8.0+100002] - 2022-12-13
 
 ### Added
 
-- Details about collected dragon riding glyphs were added to the Dragonflight menu entry tooltip.
-- Basic Dragonflight support
+* Details about collected dragon riding glyphs were added to the Dragonflight menu entry tooltip.
+* Basic Dragonflight support
 
 ### Fixed
 
-- Covenant calling icons have a transparent border which made them look much smaller. They are now properly displayed.
+* Covenant calling icons have a transparent border which made them look much smaller. They are now properly displayed.
 
 ### Changed
 
-- Extended the utility file's content by separating and adding expansion and garrison handler.
-- The settings' menu entry selection now shows expansions not owned by the player as disabled with a tooltip hint.
-- Removed `.SetCommitFlags` from settings. Usage seems to be reserved for Blizzard only.
-- Updated settings and its 'About this Add-on' section.
+* Extended the utility file's content by separating and adding expansion and garrison handler.
+* The settings' menu entry selection now shows expansions not owned by the player as disabled with a tooltip hint.
+* Removed `.SetCommitFlags` from settings. Usage seems to be reserved for Blizzard only.
+* Updated settings and its 'About this Add-on' section.
 
 ## [0.7.2+100002] - 2022-11-25
 
 ### Added
 
-- Dracthyr Evoker support
+* Dracthyr Evoker support
 
 ### Fixed
 
-- Minimap button appeared for newly created Evoker even though nothing was unlocked yet.
-- Minimap button did not appear with the last available expansion while the most current command table hasn't been unlocked.
+* Minimap button appeared for newly created Evoker even though nothing was unlocked yet.
+* Minimap button did not appear with the last available expansion while the most current command table hasn't been unlocked.
 
 ### Changed
 
-- Updated settings and the about section.
-- Reworked the expansion info handler in the utilities file for easier handling of expansion related data and better backwards compatibility.
-- Switched to [Semantic Versioning](https://semver.org) based on the format on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+* Updated settings and the about section.
+* Reworked the expansion info handler in the utilities file for easier handling of expansion related data and better backwards compatibility.
+* Switched to [Semantic Versioning](https://semver.org) based on the format on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ----
 
