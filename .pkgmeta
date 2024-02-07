@@ -2,28 +2,43 @@ package-as: MissionReportButtonPlus
 
 enable-nolib-creation: no
 
+# Files and directories beginning with a dot (such as .git) are automatically
+# ignored, as is the PGKMETA file itself.
 ignore:
-    - .github
-    - .screenshots
-    - .vscode
-    - .gitignore
     - CHANGELOG.md
+    - libs
+    # GitHub + Wago.io
     - README.md
-    # --> GitHub + Wago.io
+    # CurseForge
     - README-CF.md
-    # --> CurseForge
+    # WoWInterface
     - README-WI.bbcode
-    # --> WoWInterface
+
+# For copying files without processing (after downloading latest externals)
+plain-copy:
+    - libs/LibStub/LibStub.lua
+    - libs/LibQTip-1.0/LibQTip-1.0.lua
+    - libs/LibQTip-1.0/lib.xml
 
 manual-changelog:
     filename: CHANGELOG-LATEST.md
     markup-type: markdown
 
-# Indicates the BigWigsMods packager to convert the changelog from Markdown to
+license-output: LICENSE.txt
+
+# Indicate the BigWigsMods packager to convert the changelog from Markdown to
 # BBCode for WoWInterface.
 wowi-convert-changelog: yes
 
-license-output: LICENSE.txt
+externals:
+    libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
+    libs/LibQTip-1.0: https://repos.curseforge.com/wow/libqtip-1-0
+
+# This will make sure the developers receive points for their addons in
+# CurseForge's Author Rewards Program.
+embedded-libraries:
+    - libstub
+    - libqtip-1-0
 
 # If you want to specify that you used a tool that is not a library, but would 
 # like people to know that it was used, and for it to receive points for 

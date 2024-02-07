@@ -4,7 +4,7 @@
 ## Notes-deDE: Erweitert den Missionsbericht-Button der Minikarte mit einer Auswahl|nvon Berichten früherer Erweiterungen.
 ## Notes-zhTW: 替小地圖上的資料片按鈕添加右鍵選單，點擊選單可以查看各個資料片版本的任務桌。
 ## Notes-zhCN: 替小地图上的资料片按钮添加右键菜单，点击菜单可以查看各个资料片版本的任务桌。
-## Version: v0.21.1
+## Version: v0.22.0-pre.1
 ## Author: ergloCoder
 ## X-Email: erglo.coder+MRBP@gmail.com
 ## X-Project-Repository: https://github.com/erglo/mission-report-button-plus
@@ -28,6 +28,9 @@
 # AddonCompartmentFunc: MissionReportButtonPlus_OnAddonCompartmentClick
 # AddonCompartmentFuncOnEnter: MissionReportButtonPlus_OnAddonCompartmentEnter
 # AddonCompartmentFuncOnLeave: MissionReportButtonPlus_OnAddonCompartmentLeave
+
+# Embedded (external) libraries
+embeds.xml
 
 # Data files
 locales\includes.xml

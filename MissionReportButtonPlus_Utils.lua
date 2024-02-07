@@ -2118,6 +2118,7 @@ if _log.DEVMODE then
 		"7554",  -- Dreamsurge, Azure Span
 		"7555",  -- Dreamsurge, Ohn'ahran Plains
 		"7556",  -- Dreamsurge, Waking Shores
+		"7586",  -- Dreamsurge, Ohn'ahran Plains
 		"7587",  -- Dreamsurge, Waking Shores
 		"7588",  -- Dreamsurge, Thaldraszus
 		"7602",  -- Dreamsurge, Thaldraszus

@@ -3,7 +3,7 @@
 --
 -- by erglo <erglo.coder+MRBP@gmail.com>
 --
--- Copyright (C) 2023  Erwin D. Glockner (aka erglo)
+-- Copyright (C) 2024  Erwin D. Glockner (aka erglo)
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -39,6 +39,8 @@ local AddonID, ns = ...
 local L = ns.L
 local _log = ns.dbg_logger
 local util = ns.utilities
+
+local LibQTip = LibStub('LibQTip-1.0')
 
 local MRBP_GARRISON_TYPE_INFOS = {}
 local MRBP_EventMessagesCounter = {}
