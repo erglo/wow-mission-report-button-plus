@@ -36,11 +36,14 @@
 --------------------------------------------------------------------------------
 
 local AddonID, ns = ...
+local ShortAddonID = "MRBP"
 local L = ns.L
 local _log = ns.dbg_logger
 local util = ns.utilities
 
 local LibQTip = LibStub('LibQTip-1.0')
+local MenuTooltip, ExpansionTooltip
+local LocalLibQTipUtil = ns.utils.libqtip
 
 local MRBP_GARRISON_TYPE_INFOS = {}
 local MRBP_EventMessagesCounter = {}
@@ -52,6 +55,14 @@ local MRBP_MAJOR_FACTIONS_QUEST_ID_ALLIANCE = 67700;  --> "To the Dragon Isles!"
 -- Backwards compatibility 
 local IsAddOnLoaded = C_AddOns.IsAddOnLoaded
 local LoadAddOn = C_AddOns.LoadAddOn
+
+local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR
+local HIGHLIGHT_FONT_COLOR = HIGHLIGHT_FONT_COLOR
+local DISABLED_FONT_COLOR = DISABLED_FONT_COLOR
+local RED_FONT_COLOR = RED_FONT_COLOR
+local DIM_RED_FONT_COLOR = DIM_RED_FONT_COLOR
+
+local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER
 
 ----- Main ---------------------------------------------------------------------
 
@@ -1542,6 +1553,18 @@ function MRBP:RedoButtonHooks(informUser)
 	end
 end
 
+-- Release the given `LibQTip.Tooltip`.
+---@param tooltip LibQTip.Tooltip
+--
+local function ReleaseTooltip(tooltip)
+	if tooltip then
+		-- print("Leaving", tooltip, "-->", tooltip.key)
+		-- tooltip:SetFrameStrata("TOOLTIP")
+		LibQTip:Release(tooltip)
+		tooltip = nil
+	end
+end
+
 -- Handle mouse-over behavior of the minimap button.
 -- Note: 'self' refers to the ExpansionLandingPageMinimapButton, the parent frame.
 --
@@ -1552,6 +1575,7 @@ function MRBP_OnEnter(self, button, description_only)
 		-- Needed for Addon Compartment details
 		return self.description;
 	end
+	ReleaseTooltip(ExpansionTooltip)
 	GameTooltip:SetOwner(self, "ANCHOR_LEFT");
 	GameTooltip:SetText(self.title, 1, 1, 1);
 	GameTooltip:AddLine(self.description, nil, nil, nil, true);
@@ -1573,6 +1597,197 @@ function MRBP_OnEnter(self, button, description_only)
 	GameTooltip:Show();
 end
 
+-----
+
+local function MenuLine_OnClick(...)
+	-- print("Clicked:", ...)
+	local parentLineFrame, lineInfo, buttonName, isUp = ...
+
+	if lineInfo.func then
+		lineInfo.func()
+	end
+end
+
+-- Verify whether the mission-is-completed hint icon should be shown in the menu or not.
+---@param garrisonTypeID number
+---@return boolean
+--
+local function ShouldShowMissionCompletedHint(garrisonTypeID)
+	if not ns.settings.showMissionCompletedHint then
+		return false
+	end
+	local numInProgress, numCompleted = util.garrison.GetInProgressMissionCount(garrisonTypeID)
+	local hasCompletedMissions = numCompleted > 0
+	local hasCompletedAllMissions = hasCompletedMissions and numCompleted == numInProgress
+	if not ns.settings.showMissionCompletedHintOnlyForAll then
+		return hasCompletedMissions
+	end
+	return hasCompletedAllMissions
+end
+
+local function ShowExpansionTooltip()
+	ExpansionTooltip:SetClampedToScreen(true)
+	ExpansionTooltip:Show()
+end
+
+function Tooltip_AddObjectiveLine(tooltipText, text, isCompleted, lineColor, appendCompleteIcon, alternativeIcon, isTrackingAchievement)
+	if L:StringIsEmpty(text) then return tooltipText; end
+
+	local isIconString = alternativeIcon == nil;
+	local checkMarkIconString = isTrackingAchievement and TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING or TOOLTIP_CHECK_MARK_ICON_STRING;
+	if not isCompleted then
+		return TooltipText_AddIconLine(tooltipText, text, alternativeIcon or TOOLTIP_DASH_ICON_STRING, lineColor, isIconString);
+	elseif appendCompleteIcon then
+		-- Append icon at line end
+		tooltipText = TooltipText_AddIconLine(tooltipText, text, alternativeIcon or TOOLTIP_DASH_ICON_STRING, DISABLED_FONT_COLOR, isIconString);
+		return tooltipText.." "..checkMarkIconString;
+	else
+		-- Replace the dash icon with the check mark icon
+		return TooltipText_AddIconLine(tooltipText, text, alternativeIcon or checkMarkIconString, DISABLED_FONT_COLOR, isIconString);
+	end
+end
+
+function LocalLibQTipUtil:AddObjectiveLine(tooltip, text, completed, ...)
+	local TextColor = completed and DISABLED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
+	local lineText = TOOLTIP_DASH_ICON_STRING..text
+    local lineIndex, nextColumnIndex = tooltip:AddLine(lineText, ...)
+    tooltip:SetLineTextColor(lineIndex, TextColor:GetRGBA())
+    return lineIndex, nextColumnIndex
+end
+
+function MenuLine_OnEnter(...)
+	local lineFrame, expansionInfo, _ = ...
+	ReleaseTooltip(ExpansionTooltip)
+	-- Create tooltip
+	ExpansionTooltip = LibQTip:Acquire(ShortAddonID.."LibQTooltipExpansion", 1, "LEFT")
+	ExpansionTooltip:SetPoint("LEFT", lineFrame, "RIGHT", -5, 0)
+	-- ExpansionTooltip:SetPoint("RIGHT", lineFrame, "LEFT", 2, 0)
+	-- ExpansionTooltip:SetPoint("TOPRIGHT", UIParent)
+	ExpansionTooltip.OnRelease = ReleaseTooltip
+	-- Tooltip header
+	local garrisonInfo = MRBP_GARRISON_TYPE_INFOS[expansionInfo.garrisonTypeID]
+	local isSettingsLine = expansionInfo.ID == nil
+	local tooltipTitle = (ns.settings.preferExpansionName and not isSettingsLine) and garrisonInfo.title or expansionInfo.name
+	expansionInfo.description = expansionInfo.description or garrisonInfo.description
+	local lineIndex = ExpansionTooltip:AddHeader(isSettingsLine and expansionInfo.label or tooltipTitle)
+	if expansionInfo.description then
+		-- local LineColor = expansionInfo.disabled and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
+		-- local description = LineColor:WrapTextInColorCode(expansionInfo.description)
+		-- lineIndex = ExpansionTooltip:AddLine('')
+		if expansionInfo.disabled then
+			lineIndex = LocalLibQTipUtil:AddDisabledLine(ExpansionTooltip, '')
+		else
+			lineIndex = LocalLibQTipUtil:AddNormalLine(ExpansionTooltip, '')
+		end
+		-- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
+		ExpansionTooltip:SetCell(lineIndex, 1, expansionInfo.description, nil, nil, nil, nil, nil, nil, 250, 100)
+	end
+	if isSettingsLine then
+		ShowExpansionTooltip()
+		return  --> Stop here, don't process the rest below
+	end
+	-- Tooltip body
+	local maxWidth, minWidth = 260, 100
+	LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
+	-- Show requirement info for unlocking the given expansion type
+	if expansionInfo.disabled then
+		lineIndex = ExpansionTooltip:AddLine('')
+		ExpansionTooltip:SetLineTextColor(lineIndex, DIM_RED_FONT_COLOR:GetRGBA())
+		ExpansionTooltip:SetCell(lineIndex, 1, garrisonInfo.msg.requirementText, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
+		ShowExpansionTooltip()
+		return  --> Stop here, don't process the rest below
+	end
+
+	----- In-progress missions -----
+
+	if ShouldShowMissionsInfoText(expansionInfo.garrisonTypeID) then
+		-- tooltipText = AddTooltipMissionInfoText(tooltipText, garrInfo);
+		local numInProgress, numCompleted = util.garrison.GetInProgressMissionCount(expansionInfo.garrisonTypeID)						--> TODO - redundant call
+		local hasCompletedMissions = numCompleted > 0
+		local hasCompletedAllMissions = hasCompletedMissions and numCompleted == numInProgress
+		LocalLibQTipUtil:AddNormalLine(ExpansionTooltip, garrisonInfo.msg.missionsTitle)
+		-- Mission counter
+		if (numInProgress > 0) then
+			local progressText = string.format(garrisonInfo.msg.missionsReadyCount, numCompleted, numInProgress)
+			LocalLibQTipUtil:AddObjectiveLine(ExpansionTooltip, progressText, hasCompletedAllMissions)
+		else
+			-- tooltipText = TooltipText_AddTextLine(tooltipText, garrInfo.msg.missionsEmptyProgress);
+			lineIndex = LocalLibQTipUtil:AddHighlightLine(ExpansionTooltip, '')
+			ExpansionTooltip:SetCell(lineIndex, 1, garrisonInfo.msg.missionsEmptyProgress, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
+		end
+		-- Return to base info
+		if ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID) then
+			lineIndex = LocalLibQTipUtil:AddHighlightLine(ExpansionTooltip, '')
+			ExpansionTooltip:SetCell(lineIndex, 1, garrisonInfo.msg.missionsComplete, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
+		end
+	end
+
+	ShowExpansionTooltip()
+end
+
+local function AddMenuTooltipLine(info)
+	local name = info.color and info.color:WrapTextInColorCode(info.label) or info.label
+	local lineIndex = MenuTooltip:AddLine(info.icon or '', '', info.minimapIcon or '')
+	-- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
+	MenuTooltip:SetCell(lineIndex, 2, name, nil, nil, nil, nil, nil, nil, nil, 150)
+	if ns.settings.showEntryTooltip then
+		MenuTooltip:SetLineScript(lineIndex, "OnEnter", MenuLine_OnEnter, info)
+		MenuTooltip:SetLineScript(lineIndex, "OnLeave", ReleaseTooltip)
+	end
+	if info.func then
+		MenuTooltip:SetLineScript(lineIndex, "OnMouseUp", MenuLine_OnClick, info)
+	end
+	if info.disabled then
+    	MenuTooltip:SetLineTextColor(lineIndex, DISABLED_FONT_COLOR:GetRGBA())
+	end
+end
+
+local settingsInfo = {
+	label = SETTINGS,
+	description = BASIC_OPTIONS_TOOLTIP,
+	color = NORMAL_FONT_COLOR,
+	-- icon = "|A:Warfronts-BaseMapIcons-Empty-Workshop-Minimap:16:16:0:0|a",
+	icon = util.CreateInlineIcon("Warfronts-BaseMapIcons-Empty-Workshop-Minimap"),
+	func = function() MRBP_Settings_OpenToCategory(AddonID) end
+}
+
+local function ShowMenuTooltip(parent)
+	ReleaseTooltip(MenuTooltip)
+	-- Create dropdown menu from tooltip
+	MenuTooltip = LibQTip:Acquire(ShortAddonID.."LibQTooltipMenu", 3, "CENTER", "LEFT", "CENTER")
+	-- MenuTooltip:SetPoint("TOPRIGHT", parent, "TOPLEFT", 10, 0)
+	MenuTooltip:SetPoint("TOPRIGHT", parent, "BOTTOM", 12, 5)
+	MenuTooltip:SetFrameStrata("MEDIUM")
+	MenuTooltip:SetAutoHideDelay(0.25, parent)
+	MenuTooltip.OnRelease = function(self)
+		ReleaseTooltip(self)
+		ReleaseTooltip(ExpansionTooltip)
+	end
+	-- Expansion list
+	local sortFunc = ns.settings.reverseSortorder and util.expansion.SortAscending or util.expansion.SortDescending
+	local expansionList = util.expansion.GetExpansionsWithLandingPage(sortFunc)
+	for _, expansionInfo in ipairs(expansionList) do
+		local garrisonInfo = MRBP_GARRISON_TYPE_INFOS[expansionInfo.garrisonTypeID]
+		expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or garrisonInfo.title
+		expansionInfo.minimapIcon = ns.settings.showMissionTypeIcons and util.CreateInlineIcon(garrisonInfo.minimapIcon)
+		expansionInfo.disabled = not MRBP_IsGarrisonRequirementMet(expansionInfo.garrisonTypeID)
+		expansionInfo.icon = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID) and util.CreateInlineIcon("QuestNormal") or nil
+		expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID) end
+		local playerOwnsExpansion = util.expansion.DoesPlayerOwnExpansion(expansionInfo.ID)
+		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(expansionInfo.ID))  --> user option
+		if (playerOwnsExpansion and isActiveEntry) then
+			AddMenuTooltipLine(expansionInfo)
+		end
+	end
+	-- Options
+	if tContains(ns.settings.activeMenuEntries, ns.settingsMenuEntry) then
+		MenuTooltip:AddSeparator()
+		AddMenuTooltipLine(settingsInfo)
+	end
+
+	MenuTooltip:Show()
+end
+
 -- Handle click behavior of the minimap button.
 ---@param self table  The 'ExpansionLandingPageMinimapButton' itself
 ---@param button string  Name of the button which has been clicked
@@ -1582,8 +1797,9 @@ function MRBP_OnClick(self, button, isDown)
 	_log:debug(string.format("Got mouse click: %s, isDown: %s", button, tostring(isDown)))
 
 	if (button == "RightButton") then
-		UIDropDownMenu_Refresh(MRBP.dropdown)
-		ToggleDropDownMenu(1, nil, MRBP.dropdown, self, -14, 5)
+		-- UIDropDownMenu_Refresh(MRBP.dropdown)
+		-- ToggleDropDownMenu(1, nil, MRBP.dropdown, self, -14, 5)
+		ShowMenuTooltip(self)
 	else
 		-- Pass-through the button click to the original function on LeftButton
 		-- click, but hide an eventually already opened landing page frame.
@@ -1677,7 +1893,7 @@ function MRBP:RegisterSlashCommands()
 
 	SLASH_MRBP1 = '/mrbp'
 	SLASH_MRBP2 = '/missionreportbuttonplus'
-	SlashCmdList["MRBP"] = function(msg, editbox)
+	SlashCmdList[ShortAddonID] = function(msg, editbox)
 		if (msg ~= '') then
 			_log:debug(string.format("Got slash cmd: '%s'", msg))
 
