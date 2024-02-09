@@ -56,11 +56,12 @@ local MRBP_MAJOR_FACTIONS_QUEST_ID_ALLIANCE = 67700;  --> "To the Dragon Isles!"
 local IsAddOnLoaded = C_AddOns.IsAddOnLoaded
 local LoadAddOn = C_AddOns.LoadAddOn
 
-local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR
-local HIGHLIGHT_FONT_COLOR = HIGHLIGHT_FONT_COLOR
-local DISABLED_FONT_COLOR = DISABLED_FONT_COLOR
-local RED_FONT_COLOR = RED_FONT_COLOR
 local DIM_RED_FONT_COLOR = DIM_RED_FONT_COLOR
+local DISABLED_FONT_COLOR = DISABLED_FONT_COLOR
+local HIGHLIGHT_FONT_COLOR = HIGHLIGHT_FONT_COLOR
+local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR
+local RED_FONT_COLOR = RED_FONT_COLOR
+local WARNING_FONT_COLOR = WARNING_FONT_COLOR
 
 local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER
 
@@ -1647,11 +1648,45 @@ function Tooltip_AddObjectiveLine(tooltipText, text, isCompleted, lineColor, app
 	end
 end
 
-function LocalLibQTipUtil:AddObjectiveLine(tooltip, text, completed, ...)
-	local TextColor = completed and DISABLED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
-	local lineText = TOOLTIP_DASH_ICON_STRING..text
-    local lineIndex, nextColumnIndex = tooltip:AddLine(lineText, ...)
-    tooltip:SetLineTextColor(lineIndex, TextColor:GetRGBA())
+----- LibQTip -----
+
+local maxWidth, minWidth = 260, nil
+
+function ExpansionTooltip_AddHeaderLine(text, TextColor, isTooltipTitle, ...)
+	if isTooltipTitle then
+    	local lineIndex, nextColumnIndex = LocalLibQTipUtil:SetTitle(ExpansionTooltip, text, ...)
+		return lineIndex, nextColumnIndex
+	end
+	LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
+	local FontColor = TextColor or NORMAL_FONT_COLOR
+	local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
+	ExpansionTooltip:SetCell(lineIndex, 1, text, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
+    return lineIndex, nextColumnIndex
+end
+
+function ExpansionTooltip_AddTextLine(text, TextColor, ...)
+	local FontColor = TextColor or HIGHLIGHT_FONT_COLOR
+	local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
+	ExpansionTooltip:SetCell(lineIndex, 1, text, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
+	return lineIndex, nextColumnIndex
+end
+
+function ExpansionTooltip_AddIconLine(text, icon, TextColor, ...)
+	if not icon then
+		return ExpansionTooltip_AddTextLine(text, TextColor, ...)
+	end
+	local iconString = util.CreateInlineIcon(icon, 16)
+	local FontColor = TextColor or HIGHLIGHT_FONT_COLOR
+	local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
+	ExpansionTooltip:SetCell(lineIndex, 1, iconString..text, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)  -- TEXT_DELIMITER
+	return lineIndex, nextColumnIndex
+end
+
+function ExpansionTooltip_AddObjectiveLine(text, completed, ...)
+	local FontColor = completed and DISABLED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
+	local iconString = completed and TOOLTIP_CHECK_MARK_ICON_STRING or TOOLTIP_DASH_ICON_STRING
+    local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
+	ExpansionTooltip:SetCell(lineIndex, 1, iconString..text, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
     return lineIndex, nextColumnIndex
 end
 
@@ -1661,39 +1696,27 @@ function MenuLine_OnEnter(...)
 	-- Create tooltip
 	ExpansionTooltip = LibQTip:Acquire(ShortAddonID.."LibQTooltipExpansion", 1, "LEFT")
 	ExpansionTooltip:SetPoint("LEFT", lineFrame, "RIGHT", -5, 0)
-	-- ExpansionTooltip:SetPoint("RIGHT", lineFrame, "LEFT", 2, 0)
-	-- ExpansionTooltip:SetPoint("TOPRIGHT", UIParent)
 	ExpansionTooltip.OnRelease = ReleaseTooltip
 	-- Tooltip header
 	local garrisonInfo = MRBP_GARRISON_TYPE_INFOS[expansionInfo.garrisonTypeID]
 	local isSettingsLine = expansionInfo.ID == nil
 	local tooltipTitle = (ns.settings.preferExpansionName and not isSettingsLine) and garrisonInfo.title or expansionInfo.name
-	expansionInfo.description = expansionInfo.description or garrisonInfo.description
-	local lineIndex = ExpansionTooltip:AddHeader(isSettingsLine and expansionInfo.label or tooltipTitle)
-	if expansionInfo.description then
-		-- local LineColor = expansionInfo.disabled and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
-		-- local description = LineColor:WrapTextInColorCode(expansionInfo.description)
-		-- lineIndex = ExpansionTooltip:AddLine('')
-		if expansionInfo.disabled then
-			lineIndex = LocalLibQTipUtil:AddDisabledLine(ExpansionTooltip, '')
-		else
-			lineIndex = LocalLibQTipUtil:AddNormalLine(ExpansionTooltip, '')
-		end
-		-- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
-		ExpansionTooltip:SetCell(lineIndex, 1, expansionInfo.description, nil, nil, nil, nil, nil, nil, 250, 100)
+	ExpansionTooltip_AddHeaderLine(isSettingsLine and expansionInfo.label or tooltipTitle, nil, true)
+	local tooltipDescription = expansionInfo.description or garrisonInfo.description
+	if tooltipDescription then
+		local FontColor = expansionInfo.disabled and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
+		ExpansionTooltip_AddTextLine(tooltipDescription, FontColor, ...)
 	end
 	if isSettingsLine then
 		ShowExpansionTooltip()
 		return  --> Stop here, don't process the rest below
 	end
 	-- Tooltip body
-	local maxWidth, minWidth = 260, 100
-	LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
+	--
 	-- Show requirement info for unlocking the given expansion type
 	if expansionInfo.disabled then
-		lineIndex = ExpansionTooltip:AddLine('')
-		ExpansionTooltip:SetLineTextColor(lineIndex, DIM_RED_FONT_COLOR:GetRGBA())
-		ExpansionTooltip:SetCell(lineIndex, 1, garrisonInfo.msg.requirementText, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
+		LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
+		ExpansionTooltip_AddTextLine(garrisonInfo.msg.requirementText, DIM_RED_FONT_COLOR, ...)
 		ShowExpansionTooltip()
 		return  --> Stop here, don't process the rest below
 	end
@@ -1702,24 +1725,32 @@ function MenuLine_OnEnter(...)
 
 	if ShouldShowMissionsInfoText(expansionInfo.garrisonTypeID) then
 		-- tooltipText = AddTooltipMissionInfoText(tooltipText, garrInfo);
-		local numInProgress, numCompleted = util.garrison.GetInProgressMissionCount(expansionInfo.garrisonTypeID)						--> TODO - redundant call
-		local hasCompletedMissions = numCompleted > 0
-		local hasCompletedAllMissions = hasCompletedMissions and numCompleted == numInProgress
-		LocalLibQTipUtil:AddNormalLine(ExpansionTooltip, garrisonInfo.msg.missionsTitle)
+		local numInProgress, numCompleted = util.garrison.GetInProgressMissionCount(expansionInfo.garrisonTypeID)
+		local hasCompletedAllMissions = numCompleted > 0 and numCompleted == numInProgress
+		ExpansionTooltip_AddHeaderLine(garrisonInfo.msg.missionsTitle)
 		-- Mission counter
 		if (numInProgress > 0) then
 			local progressText = string.format(garrisonInfo.msg.missionsReadyCount, numCompleted, numInProgress)
-			LocalLibQTipUtil:AddObjectiveLine(ExpansionTooltip, progressText, hasCompletedAllMissions)
+			ExpansionTooltip_AddObjectiveLine(progressText, hasCompletedAllMissions)
 		else
-			-- tooltipText = TooltipText_AddTextLine(tooltipText, garrInfo.msg.missionsEmptyProgress);
-			lineIndex = LocalLibQTipUtil:AddHighlightLine(ExpansionTooltip, '')
-			ExpansionTooltip:SetCell(lineIndex, 1, garrisonInfo.msg.missionsEmptyProgress, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
+			-- No missions active
+			ExpansionTooltip_AddTextLine(garrisonInfo.msg.missionsEmptyProgress)
 		end
 		-- Return to base info
 		if ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID) then
-			lineIndex = LocalLibQTipUtil:AddHighlightLine(ExpansionTooltip, '')
-			ExpansionTooltip:SetCell(lineIndex, 1, garrisonInfo.msg.missionsComplete, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
+			ExpansionTooltip_AddTextLine(garrisonInfo.msg.missionsComplete)
 		end
+	end
+
+	----- Warlords of Draenor -----
+
+	local isForWarlordsOfDraenor = expansionInfo.garrisonTypeID == util.expansion.data.WarlordsOfDraenor.garrisonTypeID
+
+	-- Garrison Invasion
+	if (isForWarlordsOfDraenor and ns.settings.showWoDGarrisonInvasionAlert and util.garrison.IsDraenorInvasionAvailable()) then
+		ExpansionTooltip_AddHeaderLine( L["showWoDGarrisonInvasionAlert"] )
+		ExpansionTooltip_AddIconLine(GARRISON_LANDING_INVASION_ALERT, "worldquest-tracker-questmarker", WARNING_FONT_COLOR)
+		ExpansionTooltip_AddTextLine(GARRISON_LANDING_INVASION_TOOLTIP)
 	end
 
 	ShowExpansionTooltip()
