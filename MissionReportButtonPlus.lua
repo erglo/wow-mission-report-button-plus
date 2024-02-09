@@ -1626,7 +1626,16 @@ local function ShouldShowMissionCompletedHint(garrisonTypeID)
 	return hasCompletedAllMissions
 end
 
+local uiScale = UIParent:GetEffectiveScale()
+local screenHeight = GetScreenHeight() * uiScale
+
 local function ShowExpansionTooltip()
+	-- Compare tooltip height with screen height
+	local questLineHeight = ExpansionTooltip:GetHeight() * uiScale
+	if (questLineHeight > screenHeight) then
+		ExpansionTooltip:UpdateScrolling()
+		ExpansionTooltip:SetScrollStep(50)
+	end
 	ExpansionTooltip:SetClampedToScreen(true)
 	ExpansionTooltip:Show()
 end
@@ -1652,7 +1661,7 @@ end
 
 local maxWidth, minWidth = 230, nil
 
-function ExpansionTooltip_AddHeaderLine(text, TextColor, isTooltipTitle, ...)
+local function ExpansionTooltip_AddHeaderLine(text, TextColor, isTooltipTitle, ...)
 	if isTooltipTitle then
     	local lineIndex, nextColumnIndex = LocalLibQTipUtil:SetTitle(ExpansionTooltip, text, ...)
 		return lineIndex, nextColumnIndex
@@ -1664,14 +1673,14 @@ function ExpansionTooltip_AddHeaderLine(text, TextColor, isTooltipTitle, ...)
     return lineIndex, nextColumnIndex
 end
 
-function ExpansionTooltip_AddTextLine(text, TextColor, ...)
+local function ExpansionTooltip_AddTextLine(text, TextColor, ...)
 	local FontColor = TextColor or HIGHLIGHT_FONT_COLOR
 	local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
 	ExpansionTooltip:SetCell(lineIndex, 1, text, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
 	return lineIndex, nextColumnIndex
 end
 
-function ExpansionTooltip_AddIconLine(text, icon, TextColor, ...)
+local function ExpansionTooltip_AddIconLine(text, icon, TextColor, ...)
 	if not icon then
 		return ExpansionTooltip_AddTextLine(text, TextColor, ...)
 	end
@@ -1682,7 +1691,7 @@ function ExpansionTooltip_AddIconLine(text, icon, TextColor, ...)
 	return lineIndex, nextColumnIndex
 end
 
-function ExpansionTooltip_AddObjectiveLine(text, completed, ...)
+local function ExpansionTooltip_AddObjectiveLine(text, completed, ...)
 	local FontColor = completed and DISABLED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
 	local iconString = completed and TOOLTIP_CHECK_MARK_ICON_STRING or TOOLTIP_DASH_ICON_STRING
     local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
@@ -1691,7 +1700,7 @@ function ExpansionTooltip_AddObjectiveLine(text, completed, ...)
 end
 
 function ExpansionTooltip_AddTimeRemainingLine(timeString, ...)
-	local text = timeString or "..."
+	local text = timeString or RETRIEVING_DATA
 	local iconStrings = TOOLTIP_DASH_ICON_STRING..TEXT_DELIMITER..TOOLTIP_CLOCK_ICON_STRING
 	ExpansionTooltip_AddTextLine(iconStrings..TEXT_DELIMITER..text, nil, ...)
 end
