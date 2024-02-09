@@ -1650,7 +1650,7 @@ end
 
 ----- LibQTip -----
 
-local maxWidth, minWidth = 260, nil
+local maxWidth, minWidth = 230, nil
 
 function ExpansionTooltip_AddHeaderLine(text, TextColor, isTooltipTitle, ...)
 	if isTooltipTitle then
@@ -1678,7 +1678,7 @@ function ExpansionTooltip_AddIconLine(text, icon, TextColor, ...)
 	local iconString = util.CreateInlineIcon(icon, 16)
 	local FontColor = TextColor or HIGHLIGHT_FONT_COLOR
 	local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
-	ExpansionTooltip:SetCell(lineIndex, 1, iconString..text, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)  -- TEXT_DELIMITER
+	ExpansionTooltip:SetCell(lineIndex, 1, iconString..TEXT_DELIMITER..text, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
 	return lineIndex, nextColumnIndex
 end
 
@@ -1686,8 +1686,14 @@ function ExpansionTooltip_AddObjectiveLine(text, completed, ...)
 	local FontColor = completed and DISABLED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
 	local iconString = completed and TOOLTIP_CHECK_MARK_ICON_STRING or TOOLTIP_DASH_ICON_STRING
     local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
-	ExpansionTooltip:SetCell(lineIndex, 1, iconString..text, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
+	ExpansionTooltip:SetCell(lineIndex, 1, iconString..TEXT_DELIMITER..text, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
     return lineIndex, nextColumnIndex
+end
+
+function ExpansionTooltip_AddTimeRemainingLine(timeString, ...)
+	local text = timeString or "..."
+	local iconStrings = TOOLTIP_DASH_ICON_STRING..TEXT_DELIMITER..TOOLTIP_CLOCK_ICON_STRING
+	ExpansionTooltip_AddTextLine(iconStrings..TEXT_DELIMITER..text, nil, ...)
 end
 
 function MenuLine_OnEnter(...)
@@ -1751,6 +1757,76 @@ function MenuLine_OnEnter(...)
 		ExpansionTooltip_AddHeaderLine( L["showWoDGarrisonInvasionAlert"] )
 		ExpansionTooltip_AddIconLine(GARRISON_LANDING_INVASION_ALERT, "worldquest-tracker-questmarker", WARNING_FONT_COLOR)
 		ExpansionTooltip_AddTextLine(GARRISON_LANDING_INVASION_TOOLTIP)
+	end
+
+	----- Legion -----
+
+	local isForLegion = expansionInfo.garrisonTypeID == util.expansion.data.Legion.garrisonTypeID
+
+	if (isForLegion and ns.settings.showLegionWorldMapEvents) then
+		-- Legion Invasion
+		if ns.settings.showLegionAssaultsInfo then
+			local legionAssaultsAreaPoiInfo = util.poi.GetLegionAssaultsInfo()
+			if legionAssaultsAreaPoiInfo then
+				ExpansionTooltip_AddHeaderLine(legionAssaultsAreaPoiInfo.name)
+				ExpansionTooltip_AddIconLine(legionAssaultsAreaPoiInfo.parentMapInfo.name, legionAssaultsAreaPoiInfo.atlasName, legionAssaultsAreaPoiInfo.color)
+				ExpansionTooltip_AddTimeRemainingLine(legionAssaultsAreaPoiInfo.timeString)
+				ExpansionTooltip_AddObjectiveLine(legionAssaultsAreaPoiInfo.description, legionAssaultsAreaPoiInfo.isCompleted) --, legionAssaultsAreaPoiInfo.isCompleted)
+			end
+		end
+		-- Demon Invasions (Broken Shores)
+		if ns.settings.showBrokenShoreInvasionInfo then
+			local demonAreaPoiInfos = util.poi.GetBrokenShoreInvasionInfo()
+			if util.TableHasAnyEntries(demonAreaPoiInfos) then
+				ExpansionTooltip_AddHeaderLine( L["showBrokenShoreInvasionInfo"] )
+				for _, demonPoi in ipairs(demonAreaPoiInfos) do
+					ExpansionTooltip_AddIconLine(demonPoi.name, demonPoi.atlasName, demonPoi.color)
+					ExpansionTooltip_AddTimeRemainingLine(demonPoi.timeString)
+				end
+			end
+		end
+		-- Invasion Points (Argus)
+		if ns.settings.showArgusInvasionInfo then
+			local riftAreaPoiInfos = util.poi.GetArgusInvasionPointsInfo()
+			if util.TableHasAnyEntries(riftAreaPoiInfos) then
+				ExpansionTooltip_AddHeaderLine( L["showArgusInvasionInfo"] )
+				for _, riftPoi in ipairs(riftAreaPoiInfos) do
+					-- local appendCompleteIcon = true
+					-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, riftPoi.description, riftPoi.isCompleted, riftPoi.color, appendCompleteIcon, riftPoi.atlasName, riftPoi.isCompleted)
+					ExpansionTooltip_AddIconLine(riftPoi.description, riftPoi.atlasName, riftPoi.color)
+					ExpansionTooltip_AddObjectiveLine(riftPoi.mapInfo.name, riftPoi.isCompleted)
+					ExpansionTooltip_AddTimeRemainingLine(riftPoi.timeString)
+				end
+			end
+		end
+	end
+
+	----- Shadowlands -----
+
+	local isForShadowlands = expansionInfo.garrisonTypeID == util.expansion.data.Shadowlands.garrisonTypeID
+
+	if (isForShadowlands and ns.settings.showCovenantRenownLevel) then
+		local covenantInfo = util.covenant.GetCovenantInfo()
+		if util.TableHasAnyEntries(covenantInfo) then
+			ExpansionTooltip_AddHeaderLine( L["showCovenantRenownLevel"] )
+			-- tooltipText = AddTooltipCovenantRenownText(tooltipText, covenantInfo)
+			local renownInfo = util.covenant.GetRenownData(covenantInfo.ID)
+			if renownInfo then
+				local FontColor = ns.settings.applyCovenantColors and covenantInfo.color or nil
+				local lineText = covenantInfo.name
+				local progressText = MAJOR_FACTION_RENOWN_CURRENT_PROGRESS:format(renownInfo.currentRenownLevel, renownInfo.maximumRenownLevel)
+				if renownInfo.hasMaximumRenown then
+					-- Append max. level after covenant name
+					local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(renownInfo.currentRenownLevel)
+					lineText = lineText..TEXT_DELIMITER..HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(PARENS_TEMPLATE:format(renownLevelText))
+					progressText = COVENANT_SANCTUM_RENOWN_REWARD_TITLE_COMPLETE
+				end
+				-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, lineText, covenantInfo.isCompleted, fontColor, true, covenantInfo.atlasName, covenantInfo.isCompleted)
+				-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, progressText, renownInfo.hasMaximumRenown)
+				ExpansionTooltip_AddIconLine(lineText, covenantInfo.atlasName, FontColor)
+				ExpansionTooltip_AddObjectiveLine(progressText, renownInfo.hasMaximumRenown)
+			end
+		end
 	end
 
 	ShowExpansionTooltip()
