@@ -1638,7 +1638,9 @@ local function ShowExpansionTooltip()
 		ExpansionTooltip:SetScrollStep(50)
 	end
 	ExpansionTooltip:SetClampedToScreen(true)
-	ExpansionTooltip:Show()
+	if not ExpansionTooltip:IsShown() then
+		ExpansionTooltip:Show()
+	end
 end
 
 function Tooltip_AddObjectiveLine(tooltipText, text, isCompleted, lineColor, appendCompleteIcon, alternativeIcon, isTrackingAchievement)
@@ -1733,23 +1735,27 @@ function MenuLine_OnEnter(...)
 		ExpansionTooltip_AddTextLine(tooltipDescription, FontColor, ...)
 	end
 	if isSettingsLine then
+		-- Stop here; no content body for the settings line
 		ShowExpansionTooltip()
-		return  --> Stop here, don't process the rest below
+		return
 	end
 	-- Tooltip body
-	--
-	-- Show requirement info for unlocking the given expansion type
+	local isForShadowlands = expansionInfo.garrisonTypeID == util.expansion.data.Shadowlands.garrisonTypeID
+
+	------ Unlocking Requirements -----
+
 	if expansionInfo.disabled then
+		-- Show requirement info for unlocking the given expansion type
 		LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
 		ExpansionTooltip_AddTextLine(garrisonInfo.msg.requirementText, DIM_RED_FONT_COLOR, ...)
+		-- Stop here; no content for locked expansions
 		ShowExpansionTooltip()
-		return  --> Stop here, don't process the rest below
+		return
 	end
 
 	----- In-progress missions -----
 
 	if ShouldShowMissionsInfoText(expansionInfo.garrisonTypeID) then
-		-- tooltipText = AddTooltipMissionInfoText(tooltipText, garrInfo);
 		local numInProgress, numCompleted = util.garrison.GetInProgressMissionCount(expansionInfo.garrisonTypeID)
 		local hasCompletedAllMissions = numCompleted > 0 and numCompleted == numInProgress
 		ExpansionTooltip_AddHeaderLine(garrisonInfo.msg.missionsTitle)
@@ -1767,6 +1773,46 @@ function MenuLine_OnEnter(...)
 		end
 	end
 
+	----- Bounty board infos (Legion + BfA + Shadowlands only) -----
+
+	if ShouldShowBountyBoardText(expansionInfo.garrisonTypeID) then
+		-- Only available since Legion (WoW 7.x); no longer useful in Dragonflight (WoW 10.x)
+		local bountyBoard = garrisonInfo.bountyBoard
+		-- print(bountyBoard.title, "- unlocked:", bountyBoard.areBountiesUnlocked, "- bounties:", #bountyBoard.bounties)
+		if bountyBoard.areBountiesUnlocked then
+			-- _log:debug(garrisonInfo.title, "- bounties:", #bountyBoard.bounties)
+			if (isForShadowlands and #bountyBoard.bounties == 0) then
+				-- System retrieves callings through event listening and on opening the mission frame; try to update (again).
+				CovenantCalling_CheckCallings()
+			end
+			if (#bountyBoard.bounties > 0) then
+				ExpansionTooltip_AddHeaderLine(bountyBoard.title)
+				for _, bountyData in ipairs(bountyBoard.bounties) do
+					if bountyData then
+						local questName = QuestUtils_GetQuestName(bountyData.questID)
+						if isForShadowlands then
+							-- Shadowland bounties have a golden border around their icon; need special treatment.
+							-- REF.: CreateTextureMarkup(file, fileWidth, fileHeight, width, height, left, right, top, bottom, xOffset, yOffset)
+							local iconString = CreateTextureMarkup(bountyData.icon, 256, 256, 16, 16, 0.28, 0.74, 0.26, 0.72, 1, -1);
+							questName = iconString..TEXT_DELIMITER..questName
+						end
+						local bountyIcon = not isForShadowlands and bountyData.icon or nil
+						if bountyData.turninRequirementText then
+							ExpansionTooltip_AddIconLine(questName, bountyIcon, DISABLED_FONT_COLOR)
+							-- if ns.settings.showBountyRequirements then		--> TODO - Re-add option to settings
+							ExpansionTooltip_AddObjectiveLine(bountyData.turninRequirementText, nil, WARNING_FONT_COLOR)
+							-- end
+						else
+							ExpansionTooltip_AddIconLine(questName, bountyIcon)
+						end
+					end
+				end
+			elseif not isForShadowlands then									--> TODO - Check if still needed
+				ExpansionTooltip_AddObjectiveLine(bountyBoard.noBountiesMessage)
+			end
+		end
+	end
+
 	----- Warlords of Draenor -----
 
 	local isForWarlordsOfDraenor = expansionInfo.garrisonTypeID == util.expansion.data.WarlordsOfDraenor.garrisonTypeID
@@ -1776,6 +1822,9 @@ function MenuLine_OnEnter(...)
 		ExpansionTooltip_AddHeaderLine( L["showWoDGarrisonInvasionAlert"] )
 		ExpansionTooltip_AddIconLine(GARRISON_LANDING_INVASION_ALERT, "worldquest-tracker-questmarker", WARNING_FONT_COLOR)
 		ExpansionTooltip_AddTextLine(GARRISON_LANDING_INVASION_TOOLTIP)
+		-- Stop here; end of WoD content
+		ShowExpansionTooltip()
+		return
 	end
 
 	----- Legion -----
@@ -1812,23 +1861,23 @@ function MenuLine_OnEnter(...)
 				for _, riftPoi in ipairs(riftAreaPoiInfos) do
 					-- local appendCompleteIcon = true
 					-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, riftPoi.description, riftPoi.isCompleted, riftPoi.color, appendCompleteIcon, riftPoi.atlasName, riftPoi.isCompleted)
-					ExpansionTooltip_AddIconLine(riftPoi.description, riftPoi.atlasName, riftPoi.color)
-					ExpansionTooltip_AddObjectiveLine(riftPoi.mapInfo.name, riftPoi.isCompleted)
+					ExpansionTooltip_AddAchievementLine(riftPoi.description, riftPoi.atlasName, riftPoi.color, riftPoi.isCompleted)
+					ExpansionTooltip_AddObjectiveLine(riftPoi.mapInfo.name)
 					ExpansionTooltip_AddTimeRemainingLine(riftPoi.timeString)
 				end
 			end
 		end
+		-- Stop here; end of Legion content
+		ShowExpansionTooltip()
+		return
 	end
 
 	----- Shadowlands -----
-
-	local isForShadowlands = expansionInfo.garrisonTypeID == util.expansion.data.Shadowlands.garrisonTypeID
 
 	if (isForShadowlands and ns.settings.showCovenantRenownLevel) then
 		local covenantInfo = util.covenant.GetCovenantInfo()
 		if util.TableHasAnyEntries(covenantInfo) then
 			ExpansionTooltip_AddHeaderLine( L["showCovenantRenownLevel"] )
-			-- tooltipText = AddTooltipCovenantRenownText(tooltipText, covenantInfo)
 			local renownInfo = util.covenant.GetRenownData(covenantInfo.ID)
 			if renownInfo then
 				local FontColor = ns.settings.applyCovenantColors and covenantInfo.color or nil
@@ -1840,12 +1889,13 @@ function MenuLine_OnEnter(...)
 					lineText = lineText..TEXT_DELIMITER..HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(PARENS_TEMPLATE:format(renownLevelText))
 					progressText = COVENANT_SANCTUM_RENOWN_REWARD_TITLE_COMPLETE
 				end
-				-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, lineText, covenantInfo.isCompleted, fontColor, true, covenantInfo.atlasName, covenantInfo.isCompleted)
-				-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, progressText, renownInfo.hasMaximumRenown)
-				ExpansionTooltip_AddIconLine(lineText, covenantInfo.atlasName, FontColor)
+				ExpansionTooltip_AddAchievementLine(lineText, covenantInfo.atlasName, FontColor, covenantInfo.isCompleted)
 				ExpansionTooltip_AddObjectiveLine(progressText, renownInfo.hasMaximumRenown)
 			end
 		end
+		-- Stop here; end of Shadowlands content
+		ShowExpansionTooltip()
+		return
 	end
 
 	ShowExpansionTooltip()
