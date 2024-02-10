@@ -55,6 +55,8 @@ local MRBP_MAJOR_FACTIONS_QUEST_ID_ALLIANCE = 67700;  --> "To the Dragon Isles!"
 -- Backwards compatibility 
 local IsAddOnLoaded = C_AddOns.IsAddOnLoaded
 local LoadAddOn = C_AddOns.LoadAddOn
+local C_CovenantCallings = C_CovenantCallings
+local MapUtil = MapUtil
 
 local DIM_RED_FONT_COLOR = DIM_RED_FONT_COLOR
 local DISABLED_FONT_COLOR = DISABLED_FONT_COLOR
@@ -290,7 +292,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			--> updates on opening the world map in Shadowlands.
 			local callings = ...;
 			_log:debug("Covenant callings received:", #callings);
-			MRBP_GARRISON_TYPE_INFOS[util.expansion.data.Shadowlands.garrisonTypeID].bountyBoard.bounties = callings;
+			MRBP_GARRISON_TYPE_INFOS[util.expansion.data.Shadowlands.garrisonTypeID].bountyBoard["GetBounties"] = function() return callings end;
 
 		elseif (event == "MAJOR_FACTION_UNLOCKED") then
 			-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>
@@ -487,8 +489,8 @@ function MRBP:LoadData()
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
-				["bounties"] = util.quest.GetBountiesForMapID(650),  --> any child zone from "continents" in Legion seems to work
-				["areBountiesUnlocked"] = MapUtil.MapHasUnlockedBounties(650),
+				["GetBounties"] = function() return util.quest.GetBountiesForMapID(650) end,  --> any child zone from "continents" in Legion seems to work
+				["AreBountiesUnlocked"] = function() return MapUtil.MapHasUnlockedBounties(650) end,
 			},
 		},
 		----- Battle for Azeroth -----
@@ -512,8 +514,8 @@ function MRBP:LoadData()
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
-				["bounties"] = util.quest.GetBountiesForMapID(875),  --> or any child zone from "continents" seems to work as well.
-				["areBountiesUnlocked"] = MapUtil.MapHasUnlockedBounties(875),  --> checking only Zandalar should be enough
+				["GetBounties"] = function() return util.quest.GetBountiesForMapID(875) end,  --> or any child zone from "continents" seems to work as well.
+				["AreBountiesUnlocked"] = function() return MapUtil.MapHasUnlockedBounties(875) end,  --> checking only Zandalar should be enough
 			},
 		},
 		----- Shadowlands -----
@@ -536,8 +538,8 @@ function MRBP:LoadData()
 			["bountyBoard"] = {
 				["title"] = CALLINGS_QUESTS,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_CALLINGS_DAYS_1,
-				["bounties"] = {},  --> Shadowlands callings will be added later via the event handler.
-				["areBountiesUnlocked"] = C_CovenantCallings.AreCallingsUnlocked(),
+				["GetBounties"] = function() return {} end,  --> Shadowlands callings will be added later via the event handler.
+				["AreBountiesUnlocked"] = function() return C_CovenantCallings.AreCallingsUnlocked() end,
 			},
 		},
 		----- Dragonflight -----
@@ -1019,16 +1021,17 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 	if ShouldShowBountyBoardText(garrTypeID) then
 		-- Only available since Legion (WoW 7.x); no longer useful in Dragonflight (WoW 10.x)
 		local bountyBoard = garrInfo.bountyBoard;
-		if bountyBoard.areBountiesUnlocked then  -- and #bountyBoard.bounties > 0) then
+		if bountyBoard.AreBountiesUnlocked() then
+			local bounties = bountyBoard.GetBounties()
 			tooltipText = TooltipText_AddHeaderLine(tooltipText, bountyBoard.title);
-			_log:debug(garrInfo.title, "- bounties:", #bountyBoard.bounties)
+			_log:debug(garrInfo.title, "- bounties:", #bounties)
 			if isForShadowlands then
 				-- Retrieves callings through event listening and on opening the mission frame; try to update (again).
 				CovenantCalling_CheckCallings()
 			end
 			local isIconString = true;
-			if (#bountyBoard.bounties > 0) then
-				for _, bountyData in ipairs(bountyBoard.bounties) do
+			if (#bounties > 0) then
+				for _, bountyData in ipairs(bounties) do
 					if bountyData then
 						local questName = QuestUtils_GetQuestName(bountyData.questID)
 						local icon = util.CreateInlineIcon(bountyData.icon);
@@ -1778,16 +1781,15 @@ function MenuLine_OnEnter(...)
 	if ShouldShowBountyBoardText(expansionInfo.garrisonTypeID) then
 		-- Only available since Legion (WoW 7.x); no longer useful in Dragonflight (WoW 10.x)
 		local bountyBoard = garrisonInfo.bountyBoard
-		-- print(bountyBoard.title, "- unlocked:", bountyBoard.areBountiesUnlocked, "- bounties:", #bountyBoard.bounties)
-		if bountyBoard.areBountiesUnlocked then
-			-- _log:debug(garrisonInfo.title, "- bounties:", #bountyBoard.bounties)
-			if (isForShadowlands and #bountyBoard.bounties == 0) then
+		if bountyBoard.AreBountiesUnlocked() then
+			local bounties = bountyBoard.GetBounties()
+			if (isForShadowlands and #bounties == 0) then
 				-- System retrieves callings through event listening and on opening the mission frame; try to update (again).
 				CovenantCalling_CheckCallings()
 			end
-			if (#bountyBoard.bounties > 0) then
+			if (#bounties > 0) then
 				ExpansionTooltip_AddHeaderLine(bountyBoard.title)
-				for _, bountyData in ipairs(bountyBoard.bounties) do
+				for _, bountyData in ipairs(bounties) do
 					if bountyData then
 						local questName = QuestUtils_GetQuestName(bountyData.questID)
 						if isForShadowlands then
@@ -2365,8 +2367,9 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 				if (expansion.ID ~= util.expansion.data.Dragonflight.ID and
 					expansion.ID ~= util.expansion.data.WarlordsOfDraenor.ID) then
 					local bountyBoard = garrInfo.bountyBoard;
-					if bountyBoard.areBountiesUnlocked then
-						util.GameTooltip_AddObjectiveLine(tooltip, format("%s: %d/3", bountyBoard.title, #bountyBoard.bounties), #bountyBoard.bounties == 0);
+					if bountyBoard.AreBountiesUnlocked() then
+						local bounties = bountyBoard.GetBounties()
+						util.GameTooltip_AddObjectiveLine(tooltip, format("%s: %d/3", bountyBoard.title, #bounties), #bounties == 0);
 					end
 				end
 				-- Threats (Maw + N'Zoth)
