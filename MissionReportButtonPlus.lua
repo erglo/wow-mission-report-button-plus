@@ -59,6 +59,7 @@ local LoadAddOn = C_AddOns.LoadAddOn
 local DIM_RED_FONT_COLOR = DIM_RED_FONT_COLOR
 local DISABLED_FONT_COLOR = DISABLED_FONT_COLOR
 local HIGHLIGHT_FONT_COLOR = HIGHLIGHT_FONT_COLOR
+local LIGHTGRAY_FONT_COLOR = LIGHTGRAY_FONT_COLOR
 local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR
 local RED_FONT_COLOR = RED_FONT_COLOR
 local WARNING_FONT_COLOR = WARNING_FONT_COLOR
@@ -1659,17 +1660,18 @@ end
 
 ----- LibQTip -----
 
-local maxWidth, minWidth = 230, nil
+local maxWidth, minWidth = 250, nil
 
 local function ExpansionTooltip_AddHeaderLine(text, TextColor, isTooltipTitle, ...)
 	if isTooltipTitle then
     	local lineIndex, nextColumnIndex = LocalLibQTipUtil:SetTitle(ExpansionTooltip, text, ...)
 		return lineIndex, nextColumnIndex
 	end
-	LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
+	LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)					--> TODO - Add to options ???
 	local FontColor = TextColor or NORMAL_FONT_COLOR
 	local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
-	ExpansionTooltip:SetCell(lineIndex, 1, text, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
+	ExpansionTooltip:SetCell(lineIndex, 1, text, nil, "LEFT", nil, nil, nil, nil, maxWidth, minWidth)
+	lineIndex, nextColumnIndex = ExpansionTooltip:AddSeparator(1, LIGHTGRAY_FONT_COLOR:GetRGBA())
     return lineIndex, nextColumnIndex
 end
 
@@ -1684,35 +1686,43 @@ local function ExpansionTooltip_AddIconLine(text, icon, TextColor, ...)
 	if not icon then
 		return ExpansionTooltip_AddTextLine(text, TextColor, ...)
 	end
-	local iconString = util.CreateInlineIcon(icon, 16)
-	local FontColor = TextColor or HIGHLIGHT_FONT_COLOR
-	local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
-	ExpansionTooltip:SetCell(lineIndex, 1, iconString..TEXT_DELIMITER..text, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
-	return lineIndex, nextColumnIndex
+	local iconString = util.CreateInlineIcon1(icon)  --> with yOffset = -1
+	return ExpansionTooltip_AddTextLine(iconString..TEXT_DELIMITER..text, TextColor, ...)
 end
 
-local function ExpansionTooltip_AddObjectiveLine(text, completed, ...)
-	local FontColor = completed and DISABLED_FONT_COLOR or HIGHLIGHT_FONT_COLOR
+local function ExpansionTooltip_AddObjectiveLine(text, completed, TextColor, ...)
 	local iconString = completed and TOOLTIP_CHECK_MARK_ICON_STRING or TOOLTIP_DASH_ICON_STRING
-    local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
-	ExpansionTooltip:SetCell(lineIndex, 1, iconString..TEXT_DELIMITER..text, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
-    return lineIndex, nextColumnIndex
+	return ExpansionTooltip_AddTextLine(iconString..TEXT_DELIMITER..text, completed and DISABLED_FONT_COLOR or TextColor, ...)
+end
+
+local function ExpansionTooltip_AddAchievementLine(text, icon, TextColor, completed, ...)
+	if not completed then
+		return ExpansionTooltip_AddIconLine(text, icon, TextColor, ...)
+	end
+	local lineText = text..TEXT_DELIMITER..TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING
+	return ExpansionTooltip_AddIconLine(lineText, icon, completed and DISABLED_FONT_COLOR or TextColor, ...)
 end
 
 function ExpansionTooltip_AddTimeRemainingLine(timeString, ...)
 	local text = timeString or RETRIEVING_DATA
 	local iconStrings = TOOLTIP_DASH_ICON_STRING..TEXT_DELIMITER..TOOLTIP_CLOCK_ICON_STRING
-	ExpansionTooltip_AddTextLine(iconStrings..TEXT_DELIMITER..text, nil, ...)
+	ExpansionTooltip_AddTextLine(iconStrings..TEXT_DELIMITER..text, ...)
 end
 
+-- Create expansion summary content tooltip
+function MenuLine_CreateTooltip(parentFrame)
+	ExpansionTooltip = LibQTip:Acquire(ShortAddonID.."LibQTooltipExpansionSummary", 1, "LEFT")
+	ExpansionTooltip:SetPoint("LEFT", parentFrame, "RIGHT", -5, 0)
+	ExpansionTooltip.OnRelease = ReleaseTooltip
+	ExpansionTooltip:SetCellMarginV(0)
+end
+
+-- Expansion summary content
 function MenuLine_OnEnter(...)
 	local lineFrame, expansionInfo, _ = ...
-	ReleaseTooltip(ExpansionTooltip)
-	-- Create tooltip
-	ExpansionTooltip = LibQTip:Acquire(ShortAddonID.."LibQTooltipExpansion", 1, "LEFT")
-	ExpansionTooltip:SetPoint("LEFT", lineFrame, "RIGHT", -5, 0)
-	ExpansionTooltip.OnRelease = ReleaseTooltip
-	-- Tooltip header
+	-- Empty eventual previous content
+	ExpansionTooltip:Clear()
+	-- Tooltip header (title + description)
 	local garrisonInfo = MRBP_GARRISON_TYPE_INFOS[expansionInfo.garrisonTypeID]
 	local isSettingsLine = expansionInfo.ID == nil
 	local tooltipTitle = (ns.settings.preferExpansionName and not isSettingsLine) and garrisonInfo.title or expansionInfo.name
@@ -1843,7 +1853,7 @@ end
 
 local function AddMenuTooltipLine(info)
 	local name = info.color and info.color:WrapTextInColorCode(info.label) or info.label
-	local lineIndex = MenuTooltip:AddLine(info.icon or '', '', info.minimapIcon or '')
+	local lineIndex = MenuTooltip:AddLine(info.iconString or '', '', info.minimapIcon or '')
 	-- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
 	MenuTooltip:SetCell(lineIndex, 2, name, nil, nil, nil, nil, nil, nil, nil, 150)
 	if ns.settings.showEntryTooltip then
@@ -1862,8 +1872,7 @@ local settingsInfo = {
 	label = SETTINGS,
 	description = BASIC_OPTIONS_TOOLTIP,
 	color = NORMAL_FONT_COLOR,
-	-- icon = "|A:Warfronts-BaseMapIcons-Empty-Workshop-Minimap:16:16:0:0|a",
-	icon = util.CreateInlineIcon("Warfronts-BaseMapIcons-Empty-Workshop-Minimap"),
+	iconString = util.CreateInlineIcon1("Warfronts-BaseMapIcons-Empty-Workshop-Minimap"),
 	func = function() MRBP_Settings_OpenToCategory(AddonID) end
 }
 
@@ -1887,7 +1896,7 @@ local function ShowMenuTooltip(parent)
 		expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or garrisonInfo.title
 		expansionInfo.minimapIcon = ns.settings.showMissionTypeIcons and util.CreateInlineIcon(garrisonInfo.minimapIcon)
 		expansionInfo.disabled = not MRBP_IsGarrisonRequirementMet(expansionInfo.garrisonTypeID)
-		expansionInfo.icon = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID) and util.CreateInlineIcon("QuestNormal") or nil
+		expansionInfo.iconString = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID) and util.CreateInlineIcon("QuestNormal") or nil
 		expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID) end
 		local playerOwnsExpansion = util.expansion.DoesPlayerOwnExpansion(expansionInfo.ID)
 		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(expansionInfo.ID))  --> user option
@@ -1900,7 +1909,10 @@ local function ShowMenuTooltip(parent)
 		MenuTooltip:AddSeparator()
 		AddMenuTooltipLine(settingsInfo)
 	end
-
+	-- Content tooltip
+	if ns.settings.showEntryTooltip then
+		MenuLine_CreateTooltip(MenuTooltip)
+	end
 	MenuTooltip:Show()
 end
 
