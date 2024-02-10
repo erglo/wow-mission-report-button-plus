@@ -656,6 +656,7 @@ end
 
 ----- Menu item tooltip -----
 
+local TOOLTIP_DASH_ICON_ID = 3083385;
 local TOOLTIP_DASH_ICON_STRING = util.CreateInlineIcon(3083385);
 local TOOLTIP_CLOCK_ICON_STRING = util.CreateInlineIcon1("auctionhouse-icon-clock");  -- "worldquest-icon-clock");
 local TOOLTIP_CHECK_MARK_ICON_STRING = util.CreateInlineIcon(628564);
@@ -1152,8 +1153,8 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			local islandExpeditionInfo = util.poi.GetBfAIslandExpeditionInfo();
 			tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showBfAIslandExpeditionsInfo"]);
 			tooltipText = TooltipText_AddIconLine(tooltipText, islandExpeditionInfo.name, islandExpeditionInfo.atlasName);
-			tooltipText = TooltipText_AddObjectiveLine(tooltipText, islandExpeditionInfo.progressText, islandExpeditionInfo.isFinished);
-			local appendedTextColor = islandExpeditionInfo.isFinished and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR;
+			tooltipText = TooltipText_AddObjectiveLine(tooltipText, islandExpeditionInfo.progressText, islandExpeditionInfo.isCompleted);
+			local appendedTextColor = islandExpeditionInfo.isCompleted and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR;
 			tooltipText = TooltipText_AppendText(tooltipText, PARENS_TEMPLATE:format(islandExpeditionInfo.fulfilledPercentageString), appendedTextColor);
 		end
 	end
@@ -1665,7 +1666,7 @@ end
 
 ----- LibQTip -----
 
-local maxWidth, minWidth = 250, nil
+local maxWidth, minWidth = 230, nil
 
 local function ExpansionTooltip_AddHeaderLine(text, TextColor, isTooltipTitle, ...)
 	if isTooltipTitle then
@@ -1726,7 +1727,9 @@ end
 function MenuLine_OnEnter(...)
 	local lineFrame, expansionInfo, _ = ...
 	-- Empty eventual previous content
-	ExpansionTooltip:Clear()
+	if ExpansionTooltip then
+		ExpansionTooltip:Clear()
+	end
 	-- Tooltip header (title + description)
 	local garrisonInfo = MRBP_GARRISON_TYPE_INFOS[expansionInfo.garrisonTypeID]
 	local isSettingsLine = expansionInfo.ID == nil
@@ -1743,9 +1746,12 @@ function MenuLine_OnEnter(...)
 		return
 	end
 	-- Tooltip body
+	local isForWarlordsOfDraenor = expansionInfo.garrisonTypeID == util.expansion.data.WarlordsOfDraenor.garrisonTypeID
+	local isForLegion = expansionInfo.garrisonTypeID == util.expansion.data.Legion.garrisonTypeID
+	local isForBattleForAzeroth = expansionInfo.garrisonTypeID == util.expansion.data.BattleForAzeroth.garrisonTypeID
 	local isForShadowlands = expansionInfo.garrisonTypeID == util.expansion.data.Shadowlands.garrisonTypeID
 
-	------ Unlocking Requirements -----
+	------ Unlocking requirements -----
 
 	if expansionInfo.disabled then
 		-- Show requirement info for unlocking the given expansion type
@@ -1776,6 +1782,18 @@ function MenuLine_OnEnter(...)
 		end
 	end
 
+	----- Warlords of Draenor -----
+
+	-- Garrison Invasion
+	if (isForWarlordsOfDraenor and ns.settings.showWoDGarrisonInvasionAlert and util.garrison.IsDraenorInvasionAvailable()) then
+		ExpansionTooltip_AddHeaderLine( L["showWoDGarrisonInvasionAlert"] )
+		ExpansionTooltip_AddIconLine(GARRISON_LANDING_INVASION_ALERT, "worldquest-tracker-questmarker", WARNING_FONT_COLOR)
+		ExpansionTooltip_AddTextLine(GARRISON_LANDING_INVASION_TOOLTIP)
+		-- Stop here; end of WoD content
+		ShowExpansionTooltip()
+		return
+	end
+
 	----- Bounty board infos (Legion + BfA + Shadowlands only) -----
 
 	if ShouldShowBountyBoardText(expansionInfo.garrisonTypeID) then
@@ -1786,6 +1804,7 @@ function MenuLine_OnEnter(...)
 			if (isForShadowlands and #bounties == 0) then
 				-- System retrieves callings through event listening and on opening the mission frame; try to update (again).
 				CovenantCalling_CheckCallings()
+				bounties = bountyBoard.GetBounties()
 			end
 			if (#bounties > 0) then
 				ExpansionTooltip_AddHeaderLine(bountyBoard.title)
@@ -1815,23 +1834,7 @@ function MenuLine_OnEnter(...)
 		end
 	end
 
-	----- Warlords of Draenor -----
-
-	local isForWarlordsOfDraenor = expansionInfo.garrisonTypeID == util.expansion.data.WarlordsOfDraenor.garrisonTypeID
-
-	-- Garrison Invasion
-	if (isForWarlordsOfDraenor and ns.settings.showWoDGarrisonInvasionAlert and util.garrison.IsDraenorInvasionAvailable()) then
-		ExpansionTooltip_AddHeaderLine( L["showWoDGarrisonInvasionAlert"] )
-		ExpansionTooltip_AddIconLine(GARRISON_LANDING_INVASION_ALERT, "worldquest-tracker-questmarker", WARNING_FONT_COLOR)
-		ExpansionTooltip_AddTextLine(GARRISON_LANDING_INVASION_TOOLTIP)
-		-- Stop here; end of WoD content
-		ShowExpansionTooltip()
-		return
-	end
-
 	----- Legion -----
-
-	local isForLegion = expansionInfo.garrisonTypeID == util.expansion.data.Legion.garrisonTypeID
 
 	if (isForLegion and ns.settings.showLegionWorldMapEvents) then
 		-- Legion Invasion
@@ -1874,6 +1877,55 @@ function MenuLine_OnEnter(...)
 		return
 	end
 
+	----- World map threats (BfA + Shadowlands) -----
+
+	if ShouldShowActiveThreatsText(expansionInfo.garrisonTypeID) then
+		local activeThreats = util.threats.GetActiveThreats()
+		local threatData = activeThreats[expansionInfo.ID]
+		if threatData then
+			local headerName = (
+				isForBattleForAzeroth and L["showNzothThreats"] or
+				isForShadowlands and L["showMawThreats"] or
+				threatData[1].mapInfo.name or  --> for future (yet uncovered) expansions
+				UNKNOWN  --> just in case
+			)
+			ExpansionTooltip_AddHeaderLine(headerName)
+			for i, threatInfo in ipairs(threatData) do 							--> TODO - Add major-minor assault type icon for N'Zoth Assaults
+				ExpansionTooltip_AddAchievementLine(threatInfo.questName, threatInfo.atlasName, threatInfo.color, threatInfo.isCompleted)
+				ExpansionTooltip_AddObjectiveLine(threatInfo.mapInfo.name)
+				ExpansionTooltip_AddTimeRemainingLine(threatInfo.timeLeftString)
+			end
+		end
+	end
+
+	----- Battle for Azeroth -----
+
+	if isForBattleForAzeroth then
+		if (ns.settings.showBfAWorldMapEvents and ns.settings.showBfAFactionAssaultsInfo) then
+			local factionAssaultsAreaPoiInfo = util.poi.GetBfAFactionAssaultsInfo()
+			if factionAssaultsAreaPoiInfo then
+				local FontColor = ns.settings.applyBfAFactionColors and factionAssaultsAreaPoiInfo.color or nil
+				ExpansionTooltip_AddHeaderLine( L["showBfAFactionAssaultsInfo"] )
+				ExpansionTooltip_AddIconLine(factionAssaultsAreaPoiInfo.parentMapInfo.name, factionAssaultsAreaPoiInfo.atlasName, FontColor)
+				ExpansionTooltip_AddTimeRemainingLine(factionAssaultsAreaPoiInfo.timeString)
+				ExpansionTooltip_AddAchievementLine(factionAssaultsAreaPoiInfo.description, TOOLTIP_DASH_ICON_ID, nil, factionAssaultsAreaPoiInfo.isCompleted)
+			end
+		end
+		if ns.settings.showBfAIslandExpeditionsInfo then
+			local islandExpeditionInfo = util.poi.GetBfAIslandExpeditionInfo()
+			if islandExpeditionInfo then
+				ExpansionTooltip_AddHeaderLine( L["showBfAIslandExpeditionsInfo"] )
+				ExpansionTooltip_AddIconLine(islandExpeditionInfo.name, islandExpeditionInfo.atlasName)
+				local appendedTextColor = islandExpeditionInfo.isCompleted and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
+				local appendedText = appendedTextColor:WrapTextInColorCode( PARENS_TEMPLATE:format(islandExpeditionInfo.fulfilledPercentageString) )
+				ExpansionTooltip_AddObjectiveLine(islandExpeditionInfo.progressText..TEXT_DELIMITER..appendedText, islandExpeditionInfo.isCompleted)
+			end
+		end
+		-- Stop here; end of BfA content
+		ShowExpansionTooltip()
+		return
+	end
+
 	----- Shadowlands -----
 
 	if (isForShadowlands and ns.settings.showCovenantRenownLevel) then
@@ -1899,6 +1951,10 @@ function MenuLine_OnEnter(...)
 		ShowExpansionTooltip()
 		return
 	end
+
+	----- Dragonflight -----
+
+	--> TODO - Convert rest of Dragonflight content
 
 	ShowExpansionTooltip()
 end

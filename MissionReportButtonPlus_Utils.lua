@@ -1786,12 +1786,12 @@ function util.poi.GetBfAIslandExpeditionInfo()
 	local islandExpeditionsQuestID = C_IslandsQueue.GetIslandsWeeklyQuestID();   --> 53435
 	local numObjectives = C_QuestLog.GetNumQuestObjectives(islandExpeditionsQuestID);  --> 1
 	local displayAsCompleted = false;
-	local text, objectiveType, isFinished, numFulfilled, numRequired = GetQuestObjectiveInfo(islandExpeditionsQuestID, numObjectives, displayAsCompleted);
+	local text, objectiveType, completed, numFulfilled, numRequired = GetQuestObjectiveInfo(islandExpeditionsQuestID, numObjectives, displayAsCompleted);
 	local fulfilledPercentage = (numFulfilled / numRequired) * 100;  --> eg. (30224/36000)*100 = 83,95
 	local data = {
 		name = LocalQuestUtil.GetQuestName(islandExpeditionsQuestID),  --> "Azerit für die Horde"
 		atlasName = "poi-islands-table",
-		isFinished = isFinished,
+		isCompleted = completed,
 		fulfilledPercentageString = PERCENTAGE_STRING:format(fulfilledPercentage),  --> eg. '83 %'
 		progressText = ISLANDS_QUEUE_WEEKLY_QUEST_PROGRESS:format(numFulfilled, numRequired),  --> "%d/%d Azerite";
 	};
