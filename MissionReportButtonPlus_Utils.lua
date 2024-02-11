@@ -1498,6 +1498,7 @@ DragonbaneKeepData.widgetSetID = 713;
 DragonbaneKeepData.mapID = 2022;  --> Waken Shores
 DragonbaneKeepData.mapInfo = LocalMapUtil.GetMapInfo(DragonbaneKeepData.mapID);
 DragonbaneKeepData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
+DragonbaneKeepData.includeAreaName = true;
 
 function util.poi.GetDragonbaneKeepInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(DragonbaneKeepData)
@@ -1541,6 +1542,7 @@ FyrakkAssaultsData.widgetSetIDs = {779, 780};
 FyrakkAssaultsData.mapID = DRAGON_ISLES_MAP_ID;
 FyrakkAssaultsData.mapInfos = LocalMapUtil.GetMapChildrenInfo(FyrakkAssaultsData.mapID, Enum.UIMapType.Zone);
 FyrakkAssaultsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
+FyrakkAssaultsData.includeAreaName = true;
 
 function util.poi.GetFyrakkAssaultsInfo()
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(FyrakkAssaultsData)
@@ -2070,7 +2072,7 @@ if _log.DEVMODE then
 		"7262",  -- Dragonriding Race - Ohn'ahran Plains
 		"7263",  -- Dragonriding Race - Azure Span
 		"7264",  -- Dragonriding Race - Thaldraszus
-		"7104",  -- Siege of Dragonbane Keep
+		"7104",  -- Siege of Dragonbane Keep (active)
 		"7267",  -- pre-Siege of Dragonbane Keep
 		"7413",  -- post-Siege of Dragonbane Keep
 		-- "7218",  -- pre-Community Feast
