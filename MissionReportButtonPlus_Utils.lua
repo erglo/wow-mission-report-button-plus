@@ -37,6 +37,9 @@ ns.utilities = util  --> for global use (project-wide)
 
 util.calendar = {}  -- A collection of utility functions related to calendar events.
 
+local PoiFilter = {}
+local TestPoiUtil = {}
+
 ----- Logging ------------------------------------------------------------------
 
 local _log = {};
@@ -1902,9 +1905,52 @@ function util.poi.FindTimewalkingVendor(expansionInfo)
 	end
 end
 
---------------------------------------------------------------------------------
 
-local PoiFilter = {};
+----- Draenor Treasures -----
+
+local DraenorTreasuresData = {}
+DraenorTreasuresData.areaPoiIDs = {}  --> will be filled in function below
+DraenorTreasuresData.mapID = 572
+DraenorTreasuresData.mapInfos = LocalMapUtil.GetMapChildrenInfo(DraenorTreasuresData.mapID, Enum.UIMapType.Zone)
+DraenorTreasuresData.ignorePrimaryMapForPOI = false
+DraenorTreasuresData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID
+DraenorTreasuresData.SortingFunction = LocalPoiUtil.SortMapIDsAscending
+DraenorTreasuresData.SetDraenorTreasureArePoiIDs = function()
+	for _, mapInfo in ipairs(DraenorTreasuresData.mapInfos) do
+		local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(mapInfo)
+		if (activeAreaPOIs and #activeAreaPOIs > 0) then
+			for _, poiInfo in ipairs(activeAreaPOIs) do
+				tinsert(DraenorTreasuresData.areaPoiIDs, poiInfo.areaPoiID)
+			end
+		end
+	end
+	table.sort(DraenorTreasuresData.areaPoiIDs)
+end
+util.poi.SetDraenorTreasureArePoiIDs = DraenorTreasuresData.SetDraenorTreasureArePoiIDs
+
+function util.poi.FindDraenorTreasures()
+	local poiInfoTable = LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(DraenorTreasuresData)
+	if util.TableHasAnyEntries(poiInfoTable) then
+		local areas = {}
+		for _, poiInfo in ipairs(poiInfoTable) do
+			if _log.DEVMODE then
+				if not tContains(TestPoiUtil.separatedAreaPoiIDs, tostring(poiInfo.areaPoiID)) then
+					tinsert(TestPoiUtil.separatedAreaPoiIDs, tostring(poiInfo.areaPoiID))
+				end
+			end
+			if not areas[poiInfo.mapInfo.name] then
+				areas[poiInfo.mapInfo.name] = {}
+			end
+			if not areas[poiInfo.mapInfo.name][poiInfo.name] then
+				areas[poiInfo.mapInfo.name][poiInfo.name] = 0
+			end
+			areas[poiInfo.mapInfo.name][poiInfo.name] = areas[poiInfo.mapInfo.name][poiInfo.name] + 1
+		end
+		return areas
+	end
+end
+
+--------------------------------------------------------------------------------
 
 -- Name patterns for non-relevant world map POIs; not every POI is an event.
 PoiFilter.ignoredZoneAtlasNamePatterns = {
@@ -2052,8 +2098,6 @@ end
 ----- POI tests -----
 
 if _log.DEVMODE then
-	local TestPoiUtil = {};
-
 	-- Area POI IDs which have been already handled. (This is only used for testing!)
 	--> Don't show this in the tooltip's test section!
 	TestPoiUtil.separatedAreaPoiIDs = {
@@ -2087,13 +2131,14 @@ if _log.DEVMODE then
 		"7486",  -- Fyrakk Assaults - Ohn'ahra
 		"7221",  -- Elemental Storm (Air)
 		"7222",  -- Elemental Storm (Earth)
+		"7223",  -- Elemental Storm (Fire) - Ohn'ahra
 		"7224",  -- Elemental Storm (Water)
-		"7229",  -- Elemental Storm (Air) - Ohn'ahran Plains
+		"7229",  -- Elemental Storm (Air) - Ohn'ahra
 		"7230",  -- Elemental Storm (Earth) - Azure Span
 		"7231",  -- Elemental Storm (Fire)
 		"7232",  -- Elemental Storm (Water)
 		"7233",  -- Elemental Storm (Air)
-		"7234",  -- Elemental Storm (Earth) - Ohn'ahran Plains
+		"7234",  -- Elemental Storm (Earth) - Ohn'ahra
 		"7235",  -- Elemental Storm (Fire)
 		"7236",  -- Elemental Storm (Water)
 		"7237",  -- Elemental Storm (Air)

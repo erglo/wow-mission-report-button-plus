@@ -112,6 +112,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showWoDMissionInfo"] = true,
 	["showWoDGarrisonInvasionAlert"] = true,
 	["hideWoDGarrisonInvasionAlertIcon"] = false,
+	["showDraenorTreasures"] = true,
 	["showWoDWorldMapEvents"] = true,
 	["showWoDTimewalkingVendor"] = true,
 	-- Tests
@@ -661,6 +662,13 @@ function MRBP_Settings_Register()
 			modifyPredicate = ShouldShowEntryTooltip,
 		},
 		{
+			variable = "showDraenorTreasures",
+			name = L["showDraenorTreasures"],
+			tooltip = "Show or hide the Stone Container, Oger Caches, etc. in Draenor.",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
+		},
+		{
 			variable = "showWoDWorldMapEvents",
 			name = L["showWoDWorldMapEvents"],
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
@@ -960,7 +968,6 @@ function MRBP_Settings_Register()
 			tooltip = FormatTooltipTemplate("showTheBigDigInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_THE_BIG_DIG),
 			parentVariable = "showDragonflightWorldMapEvents",
 			modifyPredicate = ShouldShowEntryTooltip,
-			tag = Settings.Default.True,
 		},
 		{
 			variable = "hideEventDescriptions",

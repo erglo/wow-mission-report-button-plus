@@ -467,7 +467,7 @@ function MRBP:LoadData()
 			},
 			["expansion"] = util.expansion.data.WarlordsOfDraenor,
 			["continents"] = {572},  --> Draenor
-			["poiZones"] = {525, 534, 535, 539, 542, 543, 550, 588},
+			-- ["poiZones"] = {525, 534, 535, 539, 542, 543, 550, 588},  -- Frostfire Ridge, Tanaan Jungle, Taladoor, Shadowmoon Valley, Spires of Arak, Gorgrond, Nagrand, Ashran
 			-- No bounties in Draenor; only available since Legion.
 		},
 		----- Legion -----
@@ -486,7 +486,11 @@ function MRBP:LoadData()
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.Legion.garrisonTypeID, playerInfo.className).requirementText,
 			},
 			["expansion"] = util.expansion.data.Legion,
-			["continents"] = {619, 905},  --> Broken Isles + Argus
+			["continents"] = {619, 905},  -- Broken Isles, Argus
+			-- ["poiZones"] = {
+			-- 	630, 634, 641, 646, 650, 680, 790,  -- Azsuna, Stormheim, Val'sharah, Broken Shore, Highmountain, Suramar, Eye of Azshara
+			-- 	830, 882, 885, -- Krokuun, Eredath, Antoran Wastes
+			-- },
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
@@ -510,7 +514,10 @@ function MRBP:LoadData()
 			},
 			["expansion"] = util.expansion.data.BattleForAzeroth,
 			["continents"] = {875, 876},  -- Zandalar, Kul Tiras
-			["poiZones"] = {1355, 62, 14, 81, 1527},  -- Nazjatar, Darkshore, Arathi Highlands, Silithus, Uldum
+			["poiZones"] = {
+				62, 14, 1355, 1462, -- Arathi Highlands, Darkshore, Nazjatar, Mechagon
+				81, 1527,  -- Silithus, Uldum  --> TODO - Pandaria N'Zoth
+			},
 			--> Note: Uldum and Vale of Eternal Blossoms are covered as world map threats.
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
@@ -535,7 +542,11 @@ function MRBP:LoadData()
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.Shadowlands.garrisonTypeID, playerInfo.covenantID).requirementText,
 			},
 			["expansion"] = util.expansion.data.Shadowlands,
-			["continents"] = {1550},  --> Shadowlands
+			["continents"] = {1550},  -- Shadowlands
+			["poiZones"] = {
+				-- 1525, 1533, 1536, 1565, 1543,  -- Revendreth, Bastion, Maldraxxus, Ardenweald, The Maw
+				1970, 1961,  -- Zereth Mortis, Korthia
+			},
 			["bountyBoard"] = {
 				["title"] = CALLINGS_QUESTS,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_CALLINGS_DAYS_1,
@@ -555,7 +566,11 @@ function MRBP:LoadData()
 				["requirementText"] = MRBP_GetGarrisonTypeUnlockQuestInfo(util.expansion.data.Dragonflight.garrisonTypeID, playerInfo.factionGroup).requirementText,
 			},
 		 	["expansion"] = util.expansion.data.Dragonflight,
-			["continents"] = {1978},  --> Dragon Isles
+			["continents"] = {1978},  -- Dragon Isles
+			["poiZones"] = {
+				-- 2022, 2023, 2024, 2025, 2118,  -- Waking Shores, Ohn'ahran Plains, Azure Span, Thaldraszus, The Forbidden Reach
+				2133, 2151, 2200, 2239,  -- Zaralek Cavern, The Forbidden Reach, Emerald Dream, Amirdrassil
+			},
 			--> Note: The bounty board in Dragonflight is only used for filtering world quests and switching to them. It
 			-- doesn't show any bounty details anymore. Instead you get rewards for each new major faction renown level.
 		},
@@ -1345,7 +1360,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 
 	----- Tests -----
 
-	if (_log.DEVMODE) then  -- and not isForLegion) then
+	if (_log.DEVMODE) then
 		tooltipText = tooltipText.."|n|n"..DIM_GREEN_FONT_COLOR:WrapTextInColorCode(EVENTS_LABEL);
 		for _, mapID in ipairs(garrInfo.continents) do
 			local poiInfos = util.map.GetAreaPOIInfoForContinent(mapID);
@@ -1628,13 +1643,26 @@ end
 local uiScale = UIParent:GetEffectiveScale()
 local screenHeight = GetScreenHeight() * uiScale
 
+local function HideExpansionTooltipSlider()
+	ExpansionTooltip.slider:SetValue(0)
+	ExpansionTooltip.slider:Hide()
+	ExpansionTooltip:EnableMouseWheel(false)
+end
+
 local function ShowExpansionTooltip()
 	-- Compare tooltip height with screen height
 	local tooltipHeight = ExpansionTooltip:GetHeight() * uiScale
-	-- print("height:", tooltipHeight, screenHeight)
+	-- print("height:", tooltipHeight, screenHeight, (screenHeight * 0.95))
+	-- print("scroll:", ExpansionTooltip.slider and ExpansionTooltip.slider:IsShown(), ExpansionTooltip.slider and ExpansionTooltip.slider:IsVisible())
 	if (tooltipHeight > screenHeight) then
 		ExpansionTooltip:UpdateScrolling()
+		-- SetTooltipSize(ExpansionTooltip, width, height)
 		-- ExpansionTooltip:SetScrollStep(50)
+	elseif ExpansionTooltip.slider and ExpansionTooltip.slider:IsShown() then
+		HideExpansionTooltipSlider()
+		-- if (tooltipHeight > (screenHeight * 0.9)) then
+		-- 	ExpansionTooltip:UpdateScrolling(screenHeight)
+		-- end
 	end
 	ExpansionTooltip:SetClampedToScreen(true)
 	if not ExpansionTooltip:IsShown() then
@@ -1679,6 +1707,7 @@ local function ExpansionTooltip_AddHeaderLine(text, TextColor, isTooltipTitle, .
 end
 
 local function ExpansionTooltip_AddTextLine(text, TextColor, ...)
+	if L:StringIsEmpty(text) then return end
 	local FontColor = TextColor or HIGHLIGHT_FONT_COLOR
 	local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
 	ExpansionTooltip:SetCell(lineIndex, 1, text, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
@@ -1694,6 +1723,7 @@ local function ExpansionTooltip_AddIconLine(text, icon, TextColor, ...)
 end
 
 local function ExpansionTooltip_AddObjectiveLine(text, completed, TextColor, ...)
+	if L:StringIsEmpty(text) then return end
 	local iconString = completed and TOOLTIP_CHECK_MARK_ICON_STRING or TOOLTIP_DASH_ICON_STRING
 	return ExpansionTooltip_AddTextLine(iconString..TEXT_DELIMITER..text, completed and DISABLED_FONT_COLOR or TextColor, ...)
 end
@@ -1756,9 +1786,9 @@ function MenuLine_OnEnter(...)
 		-- Show requirement info for unlocking the given expansion type
 		LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
 		ExpansionTooltip_AddTextLine(garrisonInfo.msg.requirementText, DIM_RED_FONT_COLOR, ...)
-		-- Stop here; no content for locked expansions
-		ShowExpansionTooltip()
-		return
+		-- -- Stop here; no content for locked expansions
+		-- ShowExpansionTooltip()
+		-- return
 	end
 
 	----- In-progress missions -----
@@ -1805,22 +1835,20 @@ function MenuLine_OnEnter(...)
 			ExpansionTooltip_AddTextLine(GARRISON_LANDING_INVASION_TOOLTIP)
 		end
 		-- Draenor Treasures
-		-- if ns.settings.showArgusInvasionInfo then
-		local draenorTreasuresAreaPoiInfos = util.poi.FindDraenorTreasures()
-		if draenorTreasuresAreaPoiInfos then
-			ExpansionTooltip_AddHeaderLine( "Draenor Treasures" ) 				--> TODO - L10n
-			for mapName, poiCountsPerMap in pairs(draenorTreasuresAreaPoiInfos) do
-				ExpansionTooltip_AddIconLine(mapName, "VignetteLoot")
-				for poiName, poiCount in pairs(poiCountsPerMap) do
-					local lineName = poiName..TEXT_DELIMITER.."x"..tostring(poiCount)
-					ExpansionTooltip_AddObjectiveLine(lineName)
+		if ns.settings.showDraenorTreasures then
+			util.poi.SetDraenorTreasureArePoiIDs()  -- Prepare data
+			local draenorTreasuresAreaPoiInfos = util.poi.FindDraenorTreasures()
+			if draenorTreasuresAreaPoiInfos then
+				ExpansionTooltip_AddHeaderLine( L["showDraenorTreasures"] )
+				for mapName, poiCountsPerMap in pairs(draenorTreasuresAreaPoiInfos) do
+					ExpansionTooltip_AddIconLine(mapName, "VignetteLoot", ORANGE_FONT_COLOR)
+					for poiName, poiCount in pairs(poiCountsPerMap) do
+						local lineName = poiName..TEXT_DELIMITER..NORMAL_FONT_COLOR:WrapTextInColorCode("x"..tostring(poiCount))
+						ExpansionTooltip_AddObjectiveLine(lineName)
+					end
 				end
 			end
 		end
-		-- end
-		-- Stop here; end of WoD content
-		ShowExpansionTooltip()
-		return
 	end
 
 	----- Bounty board infos (Legion + BfA + Shadowlands only) -----
@@ -1901,9 +1929,6 @@ function MenuLine_OnEnter(...)
 				end
 			end
 		end
-		-- -- Stop here; end of Legion content
-		-- ShowExpansionTooltip()
-		-- return
 	end
 
 	----- World map threats (BfA + Shadowlands) -----
@@ -1950,9 +1975,6 @@ function MenuLine_OnEnter(...)
 				ExpansionTooltip_AddObjectiveLine(islandExpeditionInfo.progressText..TEXT_DELIMITER..appendedText, islandExpeditionInfo.isCompleted)
 			end
 		end
-		-- -- Stop here; end of BfA content
-		-- ShowExpansionTooltip()
-		-- return
 	end
 
 	----- Shadowlands -----
@@ -1976,9 +1998,6 @@ function MenuLine_OnEnter(...)
 				ExpansionTooltip_AddObjectiveLine(progressText, renownInfo.hasMaximumRenown)
 			end
 		end
-		-- -- Stop here; end of Shadowlands content
-		-- ShowExpansionTooltip()
-		-- return
 	end
 
 	----- Dragonflight -----
@@ -2167,7 +2186,6 @@ function MenuLine_OnEnter(...)
 	----- Tests -----
 
 	if (_log.DEVMODE) then
-		-- tooltipText = tooltipText.."|n|n"..DIM_GREEN_FONT_COLOR:WrapTextInColorCode(EVENTS_LABEL);
 		LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
 		ExpansionTooltip_AddTextLine(EVENTS_LABEL, DIM_GREEN_FONT_COLOR)
 		local tooltipText = ''
