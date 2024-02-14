@@ -1574,7 +1574,6 @@ end
 --
 local function ReleaseTooltip(tooltip)
 	if tooltip then
-		-- print("Leaving", tooltip, "-->", tooltip.key)
 		-- tooltip:SetFrameStrata("TOOLTIP")
 		LibQTip:Release(tooltip)
 		tooltip = nil
@@ -1780,7 +1779,6 @@ function MenuLine_CreateTooltip(parentFrame)
 	ExpansionTooltip = LibQTip:Acquire(ShortAddonID.."LibQTooltipExpansionSummary", 1, "LEFT")
 	ExpansionTooltip:SetPoint("LEFT", parentFrame, "RIGHT", -5, 0)
 	ExpansionTooltip.OnRelease = ReleaseTooltip
-	ExpansionTooltip:SetCellMarginV(0)
 	ExpansionTooltip:SetScrollStep(50)
 end
 
@@ -1791,6 +1789,7 @@ function MenuLine_OnEnter(...)
 	if (ExpansionTooltip:GetLineCount() > 0) then
 		ExpansionTooltip:Clear()
 	end
+	ExpansionTooltip:SetCellMarginV(0)  --> needs to be set every time, since it has been reset by ":Clear()".
 	-- Tooltip header (title + description)
 	local garrisonInfo = MRBP_GARRISON_TYPE_INFOS[expansionInfo.garrisonTypeID]
 	local isSettingsLine = expansionInfo.ID == nil
@@ -2047,7 +2046,6 @@ function MenuLine_OnEnter(...)
 		if ns.settings.showDragonGlyphs then
 			ExpansionTooltip_AddHeaderLine( L["showDragonGlyphs"] )
 			if util.garrison.IsDragonridingUnlocked() then
-				-- tooltipText = AddTooltipDragonGlyphsText(tooltipText);		--> TODO - Convert this!
 				ExpansionTooltip_AddDragonGlyphLines()
 			else
 				-- Not unlocked, yet :(
@@ -2176,7 +2174,7 @@ function MenuLine_OnEnter(...)
 					ExpansionTooltip_AddTimeRemainingLine(dfTimeRiftsInfo.timeString)
 					if not L:StringIsEmpty(dfTimeRiftsInfo.description) and not ns.settings.hideEventDescriptions then
 						ExpansionTooltip_AddObjectiveLine(dfTimeRiftsInfo.description)
-						print(dfTimeRiftsInfo.name, "-->", dfTimeRiftsInfo.description)
+						if _log.DEVMODE then print(dfTimeRiftsInfo.name, "-->", dfTimeRiftsInfo.description) end
 					end
 				end
 			end
@@ -2262,10 +2260,10 @@ local settingsInfo = {
 }
 
 local function ShowMenuTooltip(parent)
-	ReleaseTooltip(MenuTooltip)
+	-- ReleaseTooltip(MenuTooltip)
+	-- print("MenuTooltip:", MenuTooltip and MenuTooltip:GetLineCount())
 	-- Create dropdown menu from tooltip
 	MenuTooltip = LibQTip:Acquire(ShortAddonID.."LibQTooltipMenu", 3, "CENTER", "LEFT", "CENTER")
-	-- MenuTooltip:SetPoint("TOPRIGHT", parent, "TOPLEFT", 10, 0)
 	MenuTooltip:SetPoint("TOPRIGHT", parent, "BOTTOM", 12, 5)
 	MenuTooltip:SetFrameStrata("MEDIUM")
 	MenuTooltip:SetAutoHideDelay(0.25, parent)
