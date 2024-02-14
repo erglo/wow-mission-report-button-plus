@@ -496,8 +496,10 @@ function MRBP_Settings_Register()
 		local container = Settings.CreateControlTextContainer();
 		local optionText1 = L.CFG_DDMENU_STYLESELECTION_VALUE1_TEXT..GRAY_FONT_COLOR:WrapTextInColorCode(" ("..DEFAULT..")");  --> WoW global string
 		local optionText2 = L.CFG_DDMENU_STYLESELECTION_VALUE2_TEXT;
+		local optionText3 = "New Tooltip"  --> TODO - L10n
 		container:Add("1", optionText1, L.CFG_DDMENU_STYLESELECTION_VALUE1_TOOLTIP);
 		container:Add("2", optionText2, L.CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP);
+		container:Add("3", optionText3, "The new LibQTip. This style is more flexible and highly customizable. (See settings subcategory 'Tooltip')")  --> TODO - L10n
 		return container:GetData();
 	end
 	function styleMenu.OnValueChanged(owner, setting, value)
@@ -518,6 +520,7 @@ function MRBP_Settings_Register()
 	-- REF.: Settings.CreateDropDown(categoryTbl, setting, options, tooltip)
 	local styleMenuSetting = Settings.RegisterAddOnSetting(category, styleMenu.name, styleMenu.variable, Settings.VarType.String, styleMenu.defaultValue);
 	local styleMenuInitializer = Settings.CreateDropDown(category, styleMenuSetting, styleMenu.GetOptions, styleMenu.tooltip);
+	styleMenuSetting:SetNewTagShown(Settings.Default.True)
 	-- styleMenuSetting:SetCommitFlags(Settings.CommitFlag.Apply, Settings.CommitFlag.Revertable);
 	-- Keep track of value changes
 	Settings.SetOnValueChangedCallback(styleMenu.variable, styleMenu.OnValueChanged, styleMenuSetting);

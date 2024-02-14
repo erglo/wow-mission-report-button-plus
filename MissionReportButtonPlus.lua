@@ -905,6 +905,7 @@ end
 --> Note: Don't delete! Used for testing.
 local function AddMultiPOITestText(poiInfos, tooltipText)
 	if util.TableHasAnyEntries(poiInfos) then
+		tooltipText = tooltipText.."|n"
 		for _, poi in ipairs(poiInfos) do
 			-- Event name
 			if poi.atlasName then
@@ -2212,7 +2213,6 @@ function MenuLine_OnEnter(...)
 				end
 			end
 		end
-		--> TODO - Convert rest of content
 	end
 
 	----- Tests -----
@@ -2310,9 +2310,13 @@ function MRBP_OnClick(self, button, isDown)
 	_log:debug(string.format("Got mouse click: %s, isDown: %s", button, tostring(isDown)))
 
 	if (button == "RightButton") then
-		-- UIDropDownMenu_Refresh(MRBP.dropdown)
-		-- ToggleDropDownMenu(1, nil, MRBP.dropdown, self, -14, 5)
-		ShowMenuTooltip(self)
+		if (tonumber(ns.settings.menuStyleID) < 3) then
+			UIDropDownMenu_Refresh(MRBP.dropdown)
+			ToggleDropDownMenu(1, nil, MRBP.dropdown, self, -14, 5)
+		else
+			-- New style (LibQTip.Tooltip)
+			ShowMenuTooltip(self)
+		end
 	else
 		-- Pass-through the button click to the original function on LeftButton
 		-- click, but hide an eventually already opened landing page frame.
