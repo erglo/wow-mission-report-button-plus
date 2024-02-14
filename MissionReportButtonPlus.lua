@@ -1701,8 +1701,8 @@ local function ExpansionTooltip_AddHeaderLine(text, TextColor, isTooltipTitle, .
 	local FontColor = TextColor or NORMAL_FONT_COLOR
 	local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
 	ExpansionTooltip:SetCell(lineIndex, 1, text, nil, "LEFT", nil, nil, nil, nil, maxWidth, minWidth)
-	lineIndex, nextColumnIndex = ExpansionTooltip:AddSeparator(2, LIGHTGRAY_FONT_COLOR:GetRGBA())
-	-- lineIndex, nextColumnIndex = ExpansionTooltip:AddSeparator(2, separatorR, separatorG, separatorB, separatorA)
+	-- lineIndex, nextColumnIndex = ExpansionTooltip:AddSeparator(2, LIGHTGRAY_FONT_COLOR:GetRGBA())
+	lineIndex, nextColumnIndex = ExpansionTooltip:AddSeparator(2, separatorR, separatorG, separatorB, separatorA)
     return lineIndex, nextColumnIndex
 end
 
@@ -1740,6 +1740,38 @@ function ExpansionTooltip_AddTimeRemainingLine(timeString, ...)
 	local text = timeString or RETRIEVING_DATA
 	local iconStrings = TOOLTIP_DASH_ICON_STRING..TEXT_DELIMITER..TOOLTIP_CLOCK_ICON_STRING
 	ExpansionTooltip_AddTextLine(iconStrings..TEXT_DELIMITER..text, ...)
+end
+
+local function ExpansionTooltip_AddDragonGlyphLines()
+	local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = util.garrison.GetDragonGlyphsCount()
+	-- Add counter of collected glyphs per zone
+	for mapName, count in pairs(glyphsPerZone) do
+		local zoneName = mapName..HEADER_COLON
+		local isComplete = count.numComplete == count.numTotal
+		if not (isComplete and ns.settings.autoHideCompletedDragonGlyphZones) then
+			local countedText = GENERIC_FRACTION_STRING:format(count.numComplete, count.numTotal)
+			local lineColor = isComplete and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
+			local resultsText = TooltipText_AppendText('', countedText, lineColor)
+			ExpansionTooltip_AddObjectiveLine(zoneName..resultsText, isComplete)
+		end
+	end
+	-- Add glyph collection summary
+	local treeCurrencyInfo = util.garrison.GetDragonRidingTreeCurrencyInfo()
+	local youCollectedAmountString = TRADESKILL_NAME_RANK:format(YOU_COLLECTED_LABEL, numGlyphsCollected, numGlyphsTotal)
+	local collectedAll = numGlyphsCollected == numGlyphsTotal
+	local lineColor = collectedAll and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
+	local lineSuffix = collectedAll and TEXT_DELIMITER..TOOLTIP_CHECK_MARK_ICON_STRING or ''
+	ExpansionTooltip_AddIconLine(youCollectedAmountString..lineSuffix, treeCurrencyInfo.texture, lineColor)
+	if (treeCurrencyInfo.quantity > 0) then
+		-- Inform user that there are glyphs to spend
+		local currencySymbolString = util.CreateInlineIcon(treeCurrencyInfo.texture, 16, 16, 0, -1)
+		local availableAmountText = PROFESSIONS_CURRENCY_AVAILABLE:format(treeCurrencyInfo.quantity, currencySymbolString)
+		ExpansionTooltip_AddObjectiveLine(availableAmountText)
+	end
+	if (numGlyphsCollected == 0) then
+		-- Inform player on how to get some glyphs
+		ExpansionTooltip_AddIconLine(DRAGON_RIDING_CURRENCY_TUTORIAL, treeCurrencyInfo.texture, DISABLED_FONT_COLOR)
+	end
 end
 
 -- Create expansion summary content tooltip
@@ -2015,7 +2047,7 @@ function MenuLine_OnEnter(...)
 			ExpansionTooltip_AddHeaderLine( L["showDragonGlyphs"] )
 			if util.garrison.IsDragonridingUnlocked() then
 				-- tooltipText = AddTooltipDragonGlyphsText(tooltipText);		--> TODO - Convert this!
-				ExpansionTooltip_AddObjectiveLine("<Coming soon>", true)
+				ExpansionTooltip_AddDragonGlyphLines()
 			else
 				-- Not unlocked, yet :(
 				local dragonIconDisabled = util.CreateInlineIcon("dragonriding-barbershop-icon-category-head", 20, 20, -2)
