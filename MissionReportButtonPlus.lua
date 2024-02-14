@@ -2299,6 +2299,14 @@ local function ShowMenuTooltip(parent)
 	MenuTooltip:Show()
 end
 
+local function ToggleMenuTooltip(parent)
+	if (MenuTooltip and MenuTooltip:IsShown()) then
+		ReleaseTooltip(MenuTooltip)
+	else
+		ShowMenuTooltip(parent)
+	end
+end
+
 -- Handle click behavior of the minimap button.
 ---@param self table  The 'ExpansionLandingPageMinimapButton' itself
 ---@param button string  Name of the button which has been clicked
@@ -2313,7 +2321,7 @@ function MRBP_OnClick(self, button, isDown)
 			ToggleDropDownMenu(1, nil, MRBP.dropdown, self, -14, 5)
 		else
 			-- New style (LibQTip.Tooltip)
-			ShowMenuTooltip(self)
+			ToggleMenuTooltip(self)
 		end
 	else
 		-- Pass-through the button click to the original function on LeftButton
