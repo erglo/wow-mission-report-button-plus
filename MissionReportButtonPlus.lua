@@ -1689,8 +1689,19 @@ end
 
 ----- LibQTip -----
 
-local maxWidth, minWidth = 250, nil
-local separatorR, separatorG, separatorB, separatorA = LIGHTGRAY_FONT_COLOR:GetRGBA()
+-- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
+local MenuLine_GetCellStyle = function()
+	return SafeUnpack({
+		nil,	--> font 
+		"LEFT",	--> justification 
+		nil,	--> colSpan 
+		nil,	--> provider 
+		nil,	--> leftPadding 
+		nil,	--> rightPadding 
+		270,	--> maxWidth 
+		150,	--> minWidth 
+	})
+end
 
 local function ExpansionTooltip_AddHeaderLine(text, TextColor, isTooltipTitle, ...)
 	if isTooltipTitle then
@@ -1700,9 +1711,8 @@ local function ExpansionTooltip_AddHeaderLine(text, TextColor, isTooltipTitle, .
 	LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)					--> TODO - Add to options ???
 	local FontColor = TextColor or NORMAL_FONT_COLOR
 	local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
-	ExpansionTooltip:SetCell(lineIndex, 1, text, nil, "LEFT", nil, nil, nil, nil, maxWidth, minWidth)
-	-- lineIndex, nextColumnIndex = ExpansionTooltip:AddSeparator(2, LIGHTGRAY_FONT_COLOR:GetRGBA())
-	lineIndex, nextColumnIndex = ExpansionTooltip:AddSeparator(2, separatorR, separatorG, separatorB, separatorA)
+	ExpansionTooltip:SetCell(lineIndex, 1, text, MenuLine_GetCellStyle())
+	lineIndex, nextColumnIndex = ExpansionTooltip:AddSeparator(2, LIGHTGRAY_FONT_COLOR:GetRGBA())
     return lineIndex, nextColumnIndex
 end
 
@@ -1710,7 +1720,7 @@ local function ExpansionTooltip_AddTextLine(text, TextColor, ...)
 	if L:StringIsEmpty(text) then return end
 	local FontColor = TextColor or HIGHLIGHT_FONT_COLOR
 	local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
-	ExpansionTooltip:SetCell(lineIndex, 1, text, nil, nil, nil, nil, nil, nil, maxWidth, minWidth)
+	ExpansionTooltip:SetCell(lineIndex, 1, text, MenuLine_GetCellStyle())
 	return lineIndex, nextColumnIndex
 end
 
@@ -1736,7 +1746,7 @@ local function ExpansionTooltip_AddAchievementLine(text, icon, TextColor, comple
 	return ExpansionTooltip_AddIconLine(lineText, icon, completed and DISABLED_FONT_COLOR or TextColor, ...)
 end
 
-function ExpansionTooltip_AddTimeRemainingLine(timeString, ...)
+local function ExpansionTooltip_AddTimeRemainingLine(timeString, ...)
 	local text = timeString or RETRIEVING_DATA
 	local iconStrings = TOOLTIP_DASH_ICON_STRING..TEXT_DELIMITER..TOOLTIP_CLOCK_ICON_STRING
 	ExpansionTooltip_AddTextLine(iconStrings..TEXT_DELIMITER..text, ...)
@@ -1775,8 +1785,8 @@ local function ExpansionTooltip_AddDragonGlyphLines()
 end
 
 -- Create expansion summary content tooltip
-function MenuLine_CreateTooltip(parentFrame)
-	ExpansionTooltip = LibQTip:Acquire(ShortAddonID.."LibQTooltipExpansionSummary", 1, "LEFT")
+function MenuLine_CreateExpansionTooltip(parentFrame)
+	ExpansionTooltip = LibQTip:Acquire(ShortAddonID.."LibQTipExpansionTooltip", 1, "LEFT")
 	ExpansionTooltip:SetPoint("LEFT", parentFrame, "RIGHT", -5, 0)
 	ExpansionTooltip.OnRelease = ReleaseTooltip
 	ExpansionTooltip:SetScrollStep(50)
@@ -2234,11 +2244,24 @@ function MenuLine_OnEnter(...)
 	ShowExpansionTooltip()
 end
 
+-- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
+local MenuTooltip_GetCellStyle = function()
+	return SafeUnpack({
+		nil,	--> font 
+		"LEFT",	--> justification 
+		nil,	--> colSpan 
+		nil,	--> provider 
+		nil,	--> leftPadding 
+		nil,	--> rightPadding 
+		nil,	--> maxWidth 
+		150,	--> minWidth 
+	})
+end
+
 local function AddMenuTooltipLine(info)
 	local name = info.color and info.color:WrapTextInColorCode(info.label) or info.label
 	local lineIndex = MenuTooltip:AddLine(info.iconString or '', '', info.minimapIcon or '')
-	-- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
-	MenuTooltip:SetCell(lineIndex, 2, name, nil, nil, nil, nil, nil, nil, nil, 150)
+	MenuTooltip:SetCell(lineIndex, 2, name, MenuTooltip_GetCellStyle())
 	if ns.settings.showEntryTooltip then
 		MenuTooltip:SetLineScript(lineIndex, "OnEnter", MenuLine_OnEnter, info)
 		MenuTooltip:SetLineScript(lineIndex, "OnLeave", ReleaseTooltip)
@@ -2260,10 +2283,8 @@ local settingsInfo = {
 }
 
 local function ShowMenuTooltip(parent)
-	-- ReleaseTooltip(MenuTooltip)
-	-- print("MenuTooltip:", MenuTooltip and MenuTooltip:GetLineCount())
 	-- Create dropdown menu from tooltip
-	MenuTooltip = LibQTip:Acquire(ShortAddonID.."LibQTooltipMenu", 3, "CENTER", "LEFT", "CENTER")
+	MenuTooltip = LibQTip:Acquire(ShortAddonID.."LibQTipMenuTooltip", 3, "CENTER", "LEFT", "CENTER")
 	MenuTooltip:SetPoint("TOPRIGHT", parent, "BOTTOM", 12, 5)
 	MenuTooltip:SetFrameStrata("MEDIUM")
 	MenuTooltip:SetAutoHideDelay(0.25, parent)
@@ -2294,7 +2315,7 @@ local function ShowMenuTooltip(parent)
 	end
 	-- Content tooltip
 	if ns.settings.showEntryTooltip then
-		MenuLine_CreateTooltip(MenuTooltip)
+		MenuLine_CreateExpansionTooltip(MenuTooltip)
 	end
 	MenuTooltip:Show()
 end
