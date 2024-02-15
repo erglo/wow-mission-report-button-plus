@@ -1590,7 +1590,6 @@ function MRBP_OnEnter(self, button, description_only)
 		-- Needed for Addon Compartment details
 		return self.description;
 	end
-	ReleaseTooltip(ExpansionTooltip)
 	GameTooltip:SetOwner(self, "ANCHOR_LEFT");
 	GameTooltip:SetText(self.title, 1, 1, 1);
 	GameTooltip:AddLine(self.description, nil, nil, nil, true);
@@ -1643,26 +1642,13 @@ end
 local uiScale = UIParent:GetEffectiveScale()
 local screenHeight = GetScreenHeight() * uiScale
 
-local function HideExpansionTooltipSlider()
-	ExpansionTooltip.slider:SetValue(0)
-	ExpansionTooltip.slider:Hide()
-	ExpansionTooltip:EnableMouseWheel(false)
-end
-
 local function ShowExpansionTooltip()
 	-- Compare tooltip height with screen height
 	local tooltipHeight = ExpansionTooltip:GetHeight() * uiScale
-	-- print("height:", tooltipHeight, screenHeight, (screenHeight * 0.95))
-	-- print("scroll:", ExpansionTooltip.slider and ExpansionTooltip.slider:IsShown(), ExpansionTooltip.slider and ExpansionTooltip.slider:IsVisible())
+	-- print("uiScale:", tooltipHeight, screenHeight, (screenHeight * 0.95))
+	-- print("height:", ExpansionTooltip:GetHeight(), GetScreenHeight(), (GetScreenHeight() * 0.95))
 	if (tooltipHeight > screenHeight) then
 		ExpansionTooltip:UpdateScrolling()
-		-- SetTooltipSize(ExpansionTooltip, width, height)
-		-- ExpansionTooltip:SetScrollStep(50)
-	elseif ExpansionTooltip.slider and ExpansionTooltip.slider:IsShown() then
-		HideExpansionTooltipSlider()
-		-- if (tooltipHeight > (screenHeight * 0.9)) then
-		-- 	ExpansionTooltip:UpdateScrolling(screenHeight)
-		-- end
 	end
 	ExpansionTooltip:SetClampedToScreen(true)
 	if not ExpansionTooltip:IsShown() then
@@ -1795,10 +1781,6 @@ end
 -- Expansion summary content
 function MenuLine_OnEnter(...)
 	local lineFrame, expansionInfo, _ = ...
-	-- Empty eventual previous content
-	if (ExpansionTooltip:GetLineCount() > 0) then
-		ExpansionTooltip:Clear()
-	end
 	ExpansionTooltip:SetCellMarginV(0)  --> needs to be set every time, since it has been reset by ":Clear()".
 	-- Tooltip header (title + description)
 	local garrisonInfo = MRBP_GARRISON_TYPE_INFOS[expansionInfo.garrisonTypeID]
@@ -2264,7 +2246,17 @@ local function AddMenuTooltipLine(info)
 	MenuTooltip:SetCell(lineIndex, 2, name, MenuTooltip_GetCellStyle())
 	if ns.settings.showEntryTooltip then
 		MenuTooltip:SetLineScript(lineIndex, "OnEnter", MenuLine_OnEnter, info)
-		MenuTooltip:SetLineScript(lineIndex, "OnLeave", ReleaseTooltip)
+		MenuTooltip:SetLineScript(lineIndex, "OnLeave", function(self)
+			if ( ExpansionTooltip.slider and ExpansionTooltip.slider:IsShown() ) then
+				ReleaseTooltip(ExpansionTooltip)
+				MenuLine_CreateExpansionTooltip(MenuTooltip)
+				return
+			end
+			if (ExpansionTooltip:GetLineCount() > 0) then
+				ExpansionTooltip:Clear()
+				ExpansionTooltip:Hide()
+			end
+		end)
 	end
 	if info.func then
 		MenuTooltip:SetLineScript(lineIndex, "OnMouseUp", MenuLine_OnClick, info)
