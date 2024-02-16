@@ -992,6 +992,57 @@ function util.garrison.HasMaximumMajorFactionRenown(currentFactionID)
 	return C_MajorFactions.HasMaximumRenown(currentFactionID);
 end
 
+----- Paragon info -----
+--
+-- REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_MajorFactions/Blizzard_MajorFactionsLandingTemplates.lua>
+-- REF.: <https://warcraft.wiki.gg/wiki/API_C_Reputation.IsFactionParagon>
+-- REF.: <https://warcraft.wiki.gg/wiki/API_C_Reputation.GetFactionParagonInfo>
+
+-- Check if given faction is/supports paragon reputation.
+---@param factionID number
+---@return boolean isParagon
+--
+function util.garrison.IsFactionParagon(factionID)
+	return C_Reputation.IsFactionParagon(factionID);
+end
+
+-- Return the wrapped paragon info for given faction.
+---@param factionID number
+---@return FactionParagonInfo paragonInfo
+--
+function util.garrison.GetFactionParagonInfo(factionID)
+	local currentValue, threshold, rewardQuestID, hasRewardPending, tooLowLevelForParagon = C_Reputation.GetFactionParagonInfo(factionID);
+	---@class FactionParagonInfo
+	---@field currentValue number
+	---@field threshold number
+	---@field rewardQuestID number
+	---@field hasRewardPending boolean
+	---@field tooLowLevelForParagon boolean
+	return {
+		currentValue = currentValue,
+		threshold = threshold,
+		rewardQuestID = rewardQuestID,
+		hasRewardPending = hasRewardPending,
+		tooLowLevelForParagon = tooLowLevelForParagon,
+	};
+end
+
+-- Build a generic reputation progress string for given faction and return it.
+---@param paragonInfo FactionParagonInfo
+---@return string progressText
+--
+function util.garrison.GetFactionParagonProgressText(paragonInfo)
+	local value = mod(paragonInfo.currentValue, paragonInfo.threshold)
+	-- Show overflow if a reward is pending
+	if paragonInfo.hasRewardPending then
+		value = value + paragonInfo.threshold
+	end
+	-- local progressText = REPUTATION_PROGRESS_FORMAT:format(value, paragonInfo.threshold)
+	local progressText = GENERIC_FRACTION_STRING:format(value, paragonInfo.threshold)
+
+	return progressText
+end
+
 ----- Shadowlands - Covenant utilities -----
 --
 -- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/CovenantsDocumentation.lua>

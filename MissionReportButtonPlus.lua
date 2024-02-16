@@ -1759,6 +1759,13 @@ local function ExpansionTooltip_AddDragonFlightFactionsRenownLines()
 				local renownLevelSuffix = TooltipText_AppendText('', PARENS_TEMPLATE:format(renownLevelText), hasMaxRenown and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR)
 				local lineText = hasMaxRenown and MAJOR_FACTION_MAX_RENOWN_REACHED or progressText
 				ExpansionTooltip_AddObjectiveLine(lineText..renownLevelSuffix, hasMaxRenown)
+				if util.garrison.IsFactionParagon(factionData.factionID) then
+					local paragonInfo = util.garrison.GetFactionParagonInfo(factionData.factionID)
+					local bagIcon = paragonInfo.hasRewardPending and "Levelup-Icon-Bag" or "ParagonReputation_Bag"
+					local bagIconString = util.CreateInlineIcon(bagIcon, 13, 15, 3, 0)
+					local paragonProgressText = util.garrison.GetFactionParagonProgressText(paragonInfo)
+					ExpansionTooltip_AddObjectiveLine(paragonProgressText..bagIconString)
+				end
 			else
 				-- Major Faction is not unlocked, yet :(
 				ExpansionTooltip_AddObjectiveLine(MAJOR_FACTION_BUTTON_FACTION_LOCKED, nil, DISABLED_FONT_COLOR)
