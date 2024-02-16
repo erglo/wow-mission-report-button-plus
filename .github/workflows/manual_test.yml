@@ -1,10 +1,8 @@
-name: Package and release
+name: Manual packaging test
 
 on:
-  push:
-    tags:
-      # Start actions only with version 'v0.20.0'; allow up to 'v0.99.999+'
-      - 'v0.[2-9][0-9].[0-9]+'
+  # Manual trigger
+  workflow_dispatch:
 
 jobs:
   
@@ -13,9 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CF_API_KEY: ${{ secrets.CF_API_KEY }}
-      WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
-      WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+      CF_API_KEY: ${{ secrets.CF_API_KEY }},
+      # Needed for locale files
       GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
       # "GITHUB_TOKEN" is a secret always provided to the workflow
       # for your own token, the name cannot start with "GITHUB_"
@@ -25,7 +22,8 @@ jobs:
       - name: Clone project
         uses: actions/checkout@v3
       
-      - name: Package and release
+      - name: Package w/o release
         uses: BigWigsMods/packager@v2
         with:
-          args: -g retail
+        # Skip upload
+          args: -d -g retail
