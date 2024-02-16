@@ -1957,14 +1957,14 @@ PoiFilter.ignoredZoneAtlasNamePatterns = {
 	"^taxinode.*",
 	"^flightmaster.*",
 	"^vignettekill.*",
-	"^vignetteloot.*",
+	-- "^vignetteloot.*",
 	"^warlockportal.*",
 	"^groupfinder.*",
-	-- "^groupfinder[-]icon[-]class[-].*",
-	"map[-]icon[-].*classhall",
-	"^Zidormi.*",
+	-- -- "^groupfinder[-]icon[-]class[-].*",
+	-- "map[-]icon[-].*classhall",
+	-- "^Zidormi.*",
 	"^poi[-]torghast",
-	-- "^fishing[-]hole",
+	-- -- "^fishing[-]hole",
 };
 
 -- Check if given atlas name should be ignored.
@@ -2018,12 +2018,12 @@ PoiFilter.ignoredAreaPoiIDs = {
 	"5561",  -- Zidormi, Silithus
 	"5989",  -- Zidormi, Arathi Highlands
 	-- Warlords of Draenor
-	"4183",  -- Elixir of Shadow Sight
-	"4184",  -- Elixir of Shadow Sight
-	"4185",  -- Elixir of Shadow Sight
-	"4186",  -- Elixir of Shadow Sight
-	"4187",  -- Elixir of Shadow Sight
-	"4188",  -- Elixir of Shadow Sight
+	-- "4183",  -- Elixir of Shadow Sight
+	-- "4184",  -- Elixir of Shadow Sight
+	-- "4185",  -- Elixir of Shadow Sight
+	-- "4186",  -- Elixir of Shadow Sight
+	-- "4187",  -- Elixir of Shadow Sight
+	-- "4188",  -- Elixir of Shadow Sight
 	"4586",  -- Ashran Quartermaster (PvP, Alliance)
 	"4587",  -- Ashran Quartermaster (PvP, Horde)
 };

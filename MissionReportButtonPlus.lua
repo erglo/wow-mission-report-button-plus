@@ -1643,7 +1643,7 @@ local uiScale = UIParent:GetEffectiveScale()
 local screenHeight = GetScreenHeight() * uiScale
 
 local function ShowExpansionTooltip()
-	-- Compare tooltip height with screen height
+	-- Compare tooltip height with screen height								--> TODO - Increase height of scrollable tip
 	local tooltipHeight = ExpansionTooltip:GetHeight() * uiScale
 	-- print("uiScale:", tooltipHeight, screenHeight, (screenHeight * 0.95))
 	-- print("height:", ExpansionTooltip:GetHeight(), GetScreenHeight(), (GetScreenHeight() * 0.95))
@@ -1684,7 +1684,7 @@ local MenuLine_GetCellStyle = function()
 		nil,	--> provider 
 		nil,	--> leftPadding 
 		nil,	--> rightPadding 
-		270,	--> maxWidth 
+		230,	--> maxWidth 
 		150,	--> minWidth 
 	})
 end
@@ -1736,6 +1736,38 @@ local function ExpansionTooltip_AddTimeRemainingLine(timeString, ...)
 	local text = timeString or RETRIEVING_DATA
 	local iconStrings = TOOLTIP_DASH_ICON_STRING..TEXT_DELIMITER..TOOLTIP_CLOCK_ICON_STRING
 	ExpansionTooltip_AddTextLine(iconStrings..TEXT_DELIMITER..text, ...)
+end
+
+local function GetMajorFactionIcon(majorFactionData)
+	if (majorFactionData.expansionID == util.expansion.data.Dragonflight.ID) then
+		return "MajorFactions_MapIcons_"..majorFactionData.textureKit.."64"
+	end
+end
+
+local function ExpansionTooltip_AddDragonFlightFactionsRenownLines()
+	local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(util.expansion.data.Dragonflight.ID)
+	for _, factionData in ipairs(majorFactionData) do
+		if factionData then
+			local factionIcon = GetMajorFactionIcon(factionData)
+			local FactionColor = ns.settings.applyMajorFactionColors and util.garrison.GetMajorFactionColor(factionData) or WHITE_FONT_COLOR
+			ExpansionTooltip_AddIconLine(factionData.name, factionIcon, FactionColor)
+			if factionData.isUnlocked then
+				-- Show current renown progress
+				local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel)
+				local progressText = GENERIC_FRACTION_STRING:format(factionData.renownReputationEarned, factionData.renownLevelThreshold)
+				local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID)
+				local renownLevelSuffix = TooltipText_AppendText('', PARENS_TEMPLATE:format(renownLevelText), hasMaxRenown and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR)
+				local lineText = hasMaxRenown and MAJOR_FACTION_MAX_RENOWN_REACHED or progressText
+				ExpansionTooltip_AddObjectiveLine(lineText..renownLevelSuffix, hasMaxRenown)
+			else
+				-- Major Faction is not unlocked, yet :(
+				ExpansionTooltip_AddObjectiveLine(MAJOR_FACTION_BUTTON_FACTION_LOCKED, nil, DISABLED_FONT_COLOR)
+				if not ns.settings.hideMajorFactionUnlockDescription then
+					ExpansionTooltip_AddObjectiveLine(factionData.unlockDescription, nil, DISABLED_FONT_COLOR)
+				end
+			end
+		end
+	end
 end
 
 local function ExpansionTooltip_AddDragonGlyphLines()
@@ -2029,10 +2061,8 @@ function MenuLine_OnEnter(...)
 	if isForDragonflight then
 		-- Major Factions renown level and progress
 		if ns.settings.showMajorFactionRenownLevel then
-			-- tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showMajorFactionRenownLevel"]);
-			-- tooltipText = AddTooltipDragonFlightFactionsRenownText(tooltipText);
 			ExpansionTooltip_AddHeaderLine( L["showMajorFactionRenownLevel"] )
-			ExpansionTooltip_AddObjectiveLine("<Coming soon>", true)
+			ExpansionTooltip_AddDragonFlightFactionsRenownLines()
 		end
 		-- Dragon Glyphs
 		if ns.settings.showDragonGlyphs then
