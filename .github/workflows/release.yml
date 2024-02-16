@@ -5,8 +5,6 @@ on:
     tags:
       # Start actions only with version 'v0.20.0'; allow up to 'v0.99.999+'
       - 'v0.[2-9][0-9].[0-9]+'
-  # Manual trigger
-  workflow_dispatch:
 
 jobs:
   
@@ -26,9 +24,6 @@ jobs:
 
       - name: Clone project
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          # gets entire git history, needed for automatic changelogs
       
       - name: Package and release
         uses: BigWigsMods/packager@v2
