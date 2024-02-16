@@ -945,6 +945,17 @@ function util.garrison.GetMajorFactionData(factionID)
 	return C_MajorFactions.GetMajorFactionData(factionID);
 end
 
+-- Sorting function for major faction. <br>
+-- (Gleaned from the file blow. Credits go to its author(s).) <br>
+-- REF.: [Blizzard_MajorFactionsLandingTemplates.lua](https://www.townlong-yak.com/framexml/live/Blizzard_MajorFactions/Blizzard_MajorFactionsLandingTemplates.lua)
+--
+local function MajorFactionSort(faction1, faction2)
+	if faction1.uiPriority ~= faction2.uiPriority then
+		return faction1.uiPriority > faction2.uiPriority;
+	end
+	return strcmputf8i(faction1.name, faction2.name) < 0;
+end
+
 -- Retrieve and sort the data for all major factions of given expansion.
 -->REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>  
 -- REF.: <FrameXML/Blizzard_MajorFactions/Blizzard_MajorFactionRenown.lua>
@@ -955,8 +966,9 @@ function util.garrison.GetAllMajorFactionDataForExpansion(expansionID)
 	for _, factionID in ipairs(majorFactionIDs) do
 		tinsert(majorFactionData, util.garrison.GetMajorFactionData(factionID));
 	end
-	local sortFunc = function(a, b) return a.uiPriority < b.uiPriority end;  --> 0-9 (Fixed thanks to @justinkb.)
-	table.sort(majorFactionData, sortFunc);
+	-- local sortFunc = function(a, b) return a.uiPriority < b.uiPriority end;  --> 0-9 (Fixed thanks to @justinkb.)
+	-- table.sort(majorFactionData, sortFunc);
+	table.sort(majorFactionData, MajorFactionSort);
 
 	return majorFactionData;
 end

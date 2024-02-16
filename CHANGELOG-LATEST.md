@@ -9,11 +9,16 @@
 
 ### Added
 
+* Settings: added options for recent changes.
+* Tooltip: added `Paragon reputation progress` to major factions.
 * Tooltip: added new `tooltip handler` [LibQTip](https://www.curseforge.com/wow/addons/libqtip-1-0) for better organizing and displaying the tooltip content.
 * Warlords of Draenor: added a list of yet uncollected `treasures` in Draenor.
 
 ### Changed
 
+* L10n: Updated locale files.
+* Minimap Button: right-clicking the minimap button now toggles the menu.
+* Tooltip: converted content to the new tooltip format.
 * Legion + BfA: refined bounty data retrieval.
 &nbsp;  
 
