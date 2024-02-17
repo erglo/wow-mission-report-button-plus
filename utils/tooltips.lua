@@ -29,6 +29,10 @@ local LibQTip = LibStub('LibQTip-1.0')
 local LocalLibQTipUtil = ns.utils.libqtip
 -- local MenuTooltip, ExpansionTooltip 
 
+----- Upvalues -----
+
+local format = string.format
+
 ----- Colors -----
 
 local DIM_RED_FONT_COLOR = DIM_RED_FONT_COLOR
@@ -219,6 +223,74 @@ local function Tooltip_AddDragonGlyphLines(tooltip)
 	if (numGlyphsCollected == 0) then
 		-- Inform player on how to get some glyphs
 		Tooltip_AddIconLine(tooltip, DRAGON_RIDING_CURRENCY_TUTORIAL, treeCurrencyInfo.texture, DISABLED_FONT_COLOR)
+	end
+end
+
+----- Missions -----
+
+local function Tooltip_AddGarrisonMissionLines(tooltip, garrisonTypeID, garrisonInfo, shouldShowMissionCompletedMessage)
+    local numInProgress, numCompleted = util.garrison.GetInProgressMissionCount(expansionInfo.garrisonTypeID)
+	local hasCompletedAllMissions = numCompleted > 0 and numCompleted == numInProgress
+	Tooltip_AddHeaderLine(tooltip, garrisonInfo.msg.missionsTitle)
+	-- Mission counter
+	if (numInProgress > 0) then
+		local progressText = format(garrisonInfo.msg.missionsReadyCount, numCompleted, numInProgress)
+		Tooltip_AddObjectiveLine(tooltip, progressText, hasCompletedAllMissions)
+	else
+		-- No missions active
+		Tooltip_AddTextLine(tooltip, garrisonInfo.msg.missionsEmptyProgress)
+	end
+	-- Return to base info
+	if shouldShowMissionCompletedMessage then
+		Tooltip_AddTextLine(tooltip, garrisonInfo.msg.missionsComplete)
+    end
+end
+
+----- Bounty board -----
+
+local QuestUtils_GetQuestName = QuestUtils_GetQuestName
+local CovenantCalling_CheckCallings = CovenantCalling_CheckCallings
+local CreateTextureMarkup = CreateTextureMarkup
+
+local function Tooltip_AddBountyBoardLines(tooltip, expansionInfo, garrisonInfo)
+    local isForLegion = expansionInfo.garrisonTypeID == util.expansion.data.Legion.garrisonTypeID
+	local isForBattleForAzeroth = expansionInfo.garrisonTypeID == util.expansion.data.BattleForAzeroth.garrisonTypeID
+	local isForShadowlands = expansionInfo.garrisonTypeID == util.expansion.data.Shadowlands.garrisonTypeID
+	
+    -- Only available since Legion (WoW 7.x); no longer useful in Dragonflight (WoW 10.x)
+	local bountyBoard = garrisonInfo.bountyBoard
+	if bountyBoard.AreBountiesUnlocked() then
+		local bounties = bountyBoard.GetBounties()
+		if (isForShadowlands and #bounties == 0) then
+			-- System retrieves callings through event listening and on opening the mission frame; try to update (again).
+			CovenantCalling_CheckCallings()
+			bounties = bountyBoard.GetBounties()
+		end
+		if (#bounties > 0) then
+			Tooltip_AddHeaderLine(tooltip, bountyBoard.title)
+			for _, bountyData in ipairs(bounties) do
+				if bountyData then
+					local questName = QuestUtils_GetQuestName(bountyData.questID)
+					if isForShadowlands then
+						-- Shadowland bounties have a golden border around their icon; need special treatment.
+						-- REF.: CreateTextureMarkup(file, fileWidth, fileHeight, width, height, left, right, top, bottom, xOffset, yOffset)
+						local iconString = CreateTextureMarkup(bountyData.icon, 256, 256, 16, 16, 0.28, 0.74, 0.26, 0.72, 1, -1)
+						questName = iconString..TEXT_DELIMITER..questName
+					end
+					local bountyIcon = not isForShadowlands and bountyData.icon or nil
+					if bountyData.turninRequirementText then
+						Tooltip_AddIconLine(tooltip, questName, bountyIcon, DISABLED_FONT_COLOR)
+						-- if ns.settings.showBountyRequirements then		--> TODO - Re-add option to settings
+						Tooltip_AddObjectiveLine(tooltip, bountyData.turninRequirementText, nil, WARNING_FONT_COLOR)
+						-- end
+					else
+						Tooltip_AddIconLine(tooltip, questName, bountyIcon)
+					end
+				end
+			end
+		elseif not isForShadowlands then									    --> TODO - Check if still needed
+			Tooltip_AddObjectiveLine(tooltip, bountyBoard.noBountiesMessage)
+		end
 	end
 end
 
