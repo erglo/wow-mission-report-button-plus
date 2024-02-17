@@ -32,11 +32,11 @@
 # Embedded (external) libraries
 embeds.xml
 
-# Data files
+# Data + utility files
 locales\includes.xml
 data\includes.xml
+utils\includes.xml
 
 # Core files
-MissionReportButtonPlus_Utils.lua
 MissionReportButtonPlus_Options.lua
 MissionReportButtonPlus.lua
