@@ -186,17 +186,18 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 			self:AddIconLine(tooltip, factionData.name, factionIcon, FactionColor)
 			if factionData.isUnlocked then
 				-- Show current renown progress
-				local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel)
+				local levelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel)
 				local progressText = GENERIC_FRACTION_STRING:format(factionData.renownReputationEarned, factionData.renownLevelThreshold)
-				local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID)
-				local renownLevelSuffix = AppendColoredText(PARENS_TEMPLATE:format(renownLevelText), hasMaxRenown and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR)
-				local lineText = hasMaxRenown and MAJOR_FACTION_MAX_RENOWN_REACHED or progressText
-				self:AddObjectiveLine(tooltip, lineText..renownLevelSuffix, hasMaxRenown)
-				if util.garrison.IsFactionParagon(factionData.factionID) then
+				local progressTextParens = AppendColoredText(PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
+				-- local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID)
+				if not util.garrison.IsFactionParagon(factionData.factionID) then
+					self:AddObjectiveLine(tooltip, levelText..TEXT_DELIMITER..progressTextParens) -- , nil, hasMaxRenown and DISABLED_FONT_COLOR)
+				else
 					local paragonInfo = util.garrison.GetFactionParagonInfo(factionData.factionID)
 					local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING
-					local paragonProgressText = util.garrison.GetFactionParagonProgressText(paragonInfo)
-					self:AddObjectiveLine(tooltip, paragonProgressText..TEXT_DELIMITER..bagIconString)
+					progressText = util.garrison.GetFactionParagonProgressText(paragonInfo)
+					progressTextParens = AppendColoredText(PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
+					self:AddObjectiveLine(tooltip, levelText..TEXT_DELIMITER..progressTextParens..TEXT_DELIMITER..bagIconString, nil, DISABLED_FONT_COLOR)
 					if paragonInfo.hasRewardPending then
 						local completionText = util.garrison.GetParagonCompletionText(paragonInfo)
 						self:AddObjectiveLine(tooltip, completionText)
