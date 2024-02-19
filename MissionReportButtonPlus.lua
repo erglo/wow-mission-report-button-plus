@@ -42,7 +42,7 @@ local _log = ns.dbg_logger
 local util = ns.utilities
 
 local LibQTip = LibStub('LibQTip-1.0')
-local MenuTooltip, ExpansionTooltip
+local MenuTooltip, ExpansionTooltip, ReputationTooltip
 local LocalLibQTipUtil = ns.utils.libqtip
 local LocalTooltipUtil = ns.utilities.tooltip
 
@@ -58,6 +58,7 @@ local IsAddOnLoaded = C_AddOns.IsAddOnLoaded
 local LoadAddOn = C_AddOns.LoadAddOn
 local C_CovenantCallings = C_CovenantCallings
 local MapUtil = MapUtil
+local CreateAtlasMarkup = CreateAtlasMarkup
 
 local DIM_RED_FONT_COLOR = DIM_RED_FONT_COLOR
 local DISABLED_FONT_COLOR = DISABLED_FONT_COLOR
@@ -1580,17 +1581,6 @@ function MRBP:RedoButtonHooks(informUser)
 	end
 end
 
--- Release the given `LibQTip.Tooltip`.
----@param tooltip LibQTip.Tooltip
---
-local function ReleaseTooltip(tooltip)
-	if tooltip then
-		-- tooltip:SetFrameStrata("TOOLTIP")
-		LibQTip:Release(tooltip)
-		tooltip = nil
-	end
-end
-
 -- Handle mouse-over behavior of the minimap button.
 -- Note: 'self' refers to the ExpansionLandingPageMinimapButton, the parent frame.
 --
@@ -1650,54 +1640,76 @@ local function ShouldShowMissionCompletedHint(garrisonTypeID)
 	return hasCompletedAllMissions
 end
 
+----- LibQTip -----
+
 local uiScale = UIParent:GetEffectiveScale()
 local screenHeight = GetScreenHeight() * uiScale
 
-local function ShowExpansionTooltip()
-	-- Compare tooltip height with screen height								--> TODO - Increase height of scrollable tip
-	local tooltipHeight = ExpansionTooltip:GetHeight() * uiScale
-	-- print("uiScale:", tooltipHeight, screenHeight, (screenHeight * 0.95))
-	-- print("height:", ExpansionTooltip:GetHeight(), GetScreenHeight(), (GetScreenHeight() * 0.95))
-	if (tooltipHeight > screenHeight) then
-		ExpansionTooltip:UpdateScrolling()
+-- Release the given `LibQTip.Tooltip`.
+---@param tooltip LibQTip.Tooltip
+--
+local function ReleaseTooltip(tooltip)
+	if tooltip then
+		-- tooltip:SetFrameStrata("TOOLTIP")
+		LibQTip:Release(tooltip)
+		tooltip = nil
 	end
-	ExpansionTooltip:SetClampedToScreen(true)
-	if not ExpansionTooltip:IsShown() then
+end
+
+local function MenuLine_ShowTooltips()
+	if (ExpansionTooltip and ExpansionTooltip:GetLineCount() > 0) then
+		-- Compare tooltip height with screen height								--> TODO - Increase height of scrollable tip
+		local tooltipHeight = ExpansionTooltip:GetHeight() * uiScale
+		-- print("uiScale:", tooltipHeight, screenHeight, (screenHeight * 0.95))
+		-- print("height:", ExpansionTooltip:GetHeight(), GetScreenHeight(), (GetScreenHeight() * 0.95))
+		if (tooltipHeight > screenHeight) then
+			ExpansionTooltip:UpdateScrolling()
+		end
+		ExpansionTooltip:SetClampedToScreen(true)
 		ExpansionTooltip:Show()
 	end
-end
-
-function Tooltip_AddObjectiveLine(tooltipText, text, isCompleted, lineColor, appendCompleteIcon, alternativeIcon, isTrackingAchievement)
-	if L:StringIsEmpty(text) then return tooltipText; end
-
-	local isIconString = alternativeIcon == nil;
-	local checkMarkIconString = isTrackingAchievement and TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING or TOOLTIP_CHECK_MARK_ICON_STRING;
-	if not isCompleted then
-		return TooltipText_AddIconLine(tooltipText, text, alternativeIcon or TOOLTIP_DASH_ICON_STRING, lineColor, isIconString);
-	elseif appendCompleteIcon then
-		-- Append icon at line end
-		tooltipText = TooltipText_AddIconLine(tooltipText, text, alternativeIcon or TOOLTIP_DASH_ICON_STRING, DISABLED_FONT_COLOR, isIconString);
-		return tooltipText.." "..checkMarkIconString;
-	else
-		-- Replace the dash icon with the check mark icon
-		return TooltipText_AddIconLine(tooltipText, text, alternativeIcon or checkMarkIconString, DISABLED_FONT_COLOR, isIconString);
+	if (ReputationTooltip and ReputationTooltip:GetLineCount() > 0) then
+		ReputationTooltip:Show()
 	end
 end
 
------ LibQTip -----
-
 -- Create expansion summary content tooltip
-function MenuLine_CreateExpansionTooltip(parentFrame)
+local function MenuLine_CreateExpansionTooltip(parentFrame)
 	ExpansionTooltip = LibQTip:Acquire(ShortAddonID.."LibQTipExpansionTooltip", 1, "LEFT")
 	ExpansionTooltip:SetPoint("LEFT", parentFrame, "RIGHT", -5, 0)
 	ExpansionTooltip.OnRelease = ReleaseTooltip
 	ExpansionTooltip:SetScrollStep(50)
 end
 
+-- Create (major) faction reputation summary content tooltip
+local function MenuLine_CreateReputationTooltip(parentFrame, ...)
+	ReputationTooltip = LibQTip:Acquire(ShortAddonID.."LibQTipReputationTooltip", 1, "LEFT")
+	-- ReputationTooltip:SetPoint("RIGHT", parentFrame, "LEFT", 0, 0)
+	ReputationTooltip:SetPoint("BOTTOMRIGHT", ExpansionTooltip, "BOTTOMLEFT", 1, 0)
+	ReputationTooltip.OnRelease = ReleaseTooltip
+end
+
+local function MenuLine_OnLeave()
+	if ( ExpansionTooltip.slider and ExpansionTooltip.slider:IsShown() ) then
+		ReleaseTooltip(ExpansionTooltip)
+		MenuLine_CreateExpansionTooltip(MenuTooltip)
+		return
+	end
+	if (ExpansionTooltip:GetLineCount() > 0) then
+		ExpansionTooltip:Clear()
+		ExpansionTooltip:Hide()
+	end
+	if (ReputationTooltip:GetLineCount() > 0) then
+		ReputationTooltip:Clear()
+		ReputationTooltip:Hide()
+	end
+end
+
 -- Expansion summary content
-function MenuLine_OnEnter(...)
+local function MenuLine_OnEnter(...)
 	local lineFrame, expansionInfo, _ = ...
 	ExpansionTooltip:SetCellMarginV(0)  --> needs to be set every time, since it has been reset by ":Clear()".
+	ReputationTooltip:SetCellMarginV(0)
 	-- Tooltip header (title + description)
 	local garrisonInfo = MRBP_GARRISON_TYPE_INFOS[expansionInfo.garrisonTypeID]
 	local isSettingsLine = expansionInfo.ID == nil
@@ -1710,7 +1722,7 @@ function MenuLine_OnEnter(...)
 	end
 	if isSettingsLine then
 		-- Stop here; no content body for the settings line
-		ShowExpansionTooltip()
+		MenuLine_ShowTooltips()
 		return
 	end
 	-- Tooltip body
@@ -1727,7 +1739,7 @@ function MenuLine_OnEnter(...)
 		LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
 		LocalTooltipUtil:AddTextLine(ExpansionTooltip, garrisonInfo.msg.requirementText, DIM_RED_FONT_COLOR, ...)
 		-- -- Stop here; no content for locked expansions
-		-- ShowExpansionTooltip()
+		-- MenuLine_ShowTooltips()
 		-- return
 	end
 
@@ -1896,8 +1908,8 @@ function MenuLine_OnEnter(...)
 	if isForDragonflight then
 		-- Major Factions renown level and progress
 		if ns.settings.showMajorFactionRenownLevel then
-			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showMajorFactionRenownLevel"])
-			LocalTooltipUtil:AddMajorFactionsRenownLines(ExpansionTooltip, expansionInfo.ID)
+			local tooltip = ns.settings.separateMajorFactionTooltip and ReputationTooltip or ExpansionTooltip
+			LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 		end
 		-- Dragon Glyphs
 		if ns.settings.showDragonGlyphs then
@@ -2081,7 +2093,7 @@ function MenuLine_OnEnter(...)
 		end
 	end
 
-	ShowExpansionTooltip()
+	MenuLine_ShowTooltips()
 end
 
 -- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
@@ -2104,17 +2116,7 @@ local function AddMenuTooltipLine(info)
 	MenuTooltip:SetCell(lineIndex, 2, name, MenuTooltip_GetCellStyle())
 	if ns.settings.showEntryTooltip then
 		MenuTooltip:SetLineScript(lineIndex, "OnEnter", MenuLine_OnEnter, info)
-		MenuTooltip:SetLineScript(lineIndex, "OnLeave", function(self)
-			if ( ExpansionTooltip.slider and ExpansionTooltip.slider:IsShown() ) then
-				ReleaseTooltip(ExpansionTooltip)
-				MenuLine_CreateExpansionTooltip(MenuTooltip)
-				return
-			end
-			if (ExpansionTooltip:GetLineCount() > 0) then
-				ExpansionTooltip:Clear()
-				ExpansionTooltip:Hide()
-			end
-		end)
+		MenuTooltip:SetLineScript(lineIndex, "OnLeave", MenuLine_OnLeave)
 	end
 	if info.func then
 		MenuTooltip:SetLineScript(lineIndex, "OnMouseUp", MenuLine_OnClick, info)
@@ -2128,12 +2130,12 @@ local settingsInfo = {
 	label = SETTINGS,
 	description = BASIC_OPTIONS_TOOLTIP,
 	color = NORMAL_FONT_COLOR,
-	iconString = util.CreateInlineIcon("Warfronts-BaseMapIcons-Empty-Workshop-Minimap"),
+	iconString = CreateAtlasMarkup("Warfronts-BaseMapIcons-Empty-Workshop-Minimap", 16, 16),  --, 17, 15),
 	func = function() MRBP_Settings_OpenToCategory(AddonID) end
 }
 
 local function ShowMenuTooltip(parent)
-	-- Create dropdown menu from tooltip
+	-- Create tooltip and display as dropdown menu 
 	MenuTooltip = LibQTip:Acquire(ShortAddonID.."LibQTipMenuTooltip", 3, "CENTER", "LEFT", "CENTER")
 	MenuTooltip:SetPoint("TOPRIGHT", parent, "BOTTOM", 12, 5)
 	MenuTooltip:SetFrameStrata("MEDIUM")
@@ -2166,6 +2168,7 @@ local function ShowMenuTooltip(parent)
 	-- Content tooltip
 	if ns.settings.showEntryTooltip then
 		MenuLine_CreateExpansionTooltip(MenuTooltip)
+		MenuLine_CreateReputationTooltip(MenuTooltip)
 	end
 	MenuTooltip:Show()
 end

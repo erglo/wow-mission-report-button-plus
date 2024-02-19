@@ -171,10 +171,15 @@ local function GetMajorFactionIcon(majorFactionData)
 	end
 end
 
--- Requires expansionID, eg. util.expansion.data.Dragonflight.ID
-function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionID)
-	local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansionID)
+-- Requires expansionInfo, eg. util.expansion.data.Dragonflight
+function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
+	local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansionInfo.ID)
 	if #majorFactionData then
+		if (tooltip.key == ShortAddonID.."LibQTipReputationTooltip") then
+			-- self:AddHeaderLine(tooltip, L["showMajorFactionRenownLevel"], nil, true)
+			self:AddHeaderLine(tooltip, expansionInfo.name, nil, true)
+		end
+		self:AddHeaderLine(tooltip, L["showMajorFactionRenownLevel"])
 		for _, factionData in ipairs(majorFactionData) do
 			local factionIcon = GetMajorFactionIcon(factionData)
 			local FactionColor = ns.settings.applyMajorFactionColors and util.garrison.GetMajorFactionColor(factionData) or TOOLTIP_TEXT_FONT_COLOR

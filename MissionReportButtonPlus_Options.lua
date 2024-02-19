@@ -69,6 +69,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showMajorFactionRenownLevel"] = true,
 	["applyMajorFactionColors"] = true,
 	["hideMajorFactionUnlockDescription"] = false,
+	["separateMajorFactionTooltip"] = false,
 	["showDragonGlyphs"] = true,
 	["autoHideCompletedDragonGlyphZones"] = false,
 	["showDragonflightWorldMapEvents"] = true,
@@ -868,6 +869,14 @@ function MRBP_Settings_Register()
 			tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_UNLOCK_TOOLTIP,
 			parentVariable = "showMajorFactionRenownLevel",
 			modifyPredicate = ShouldShowEntryTooltip,
+		},
+		{
+			variable = "separateMajorFactionTooltip",
+			name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
+			tooltip = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TOOLTIP,
+			parentVariable = "showMajorFactionRenownLevel",
+			modifyPredicate = ShouldShowEntryTooltip,
+			tag = Settings.Default.True,
 		},
 		{
 			variable = "showDragonGlyphs",
