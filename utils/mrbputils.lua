@@ -3,7 +3,7 @@
 --
 -- by erglo <erglo.coder+MRBP@gmail.com>
 --
--- Copyright (C) 2023  Erwin D. Glockner (aka erglo)
+-- Copyright (C) 2024  Erwin D. Glockner (aka erglo)
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -51,7 +51,8 @@ _log.DEBUG = 10;
 _log.NOTSET = 0;
 _log.USER = -10;
 
-_log.DEVMODE = false;
+_log.DEVMODE = false
+ns.isDebugActive = _log.DEVMODE
 
 -- _log.level = _log.INFO;
 -- _log.level = _log.DEBUG;
@@ -426,7 +427,7 @@ local DEFENDER_OF_THE_BROKEN_ISLES_ID = 11544;
 local FRONTLINE_WARRIOR_ALLIANCE_ASSAULTS_ID = 13283;  -- BfA Faction Assaults
 local FRONTLINE_WARRIOR_HORDE_ASSAULTS_ID = 13284;  -- BfA Faction Assaults
 local UNITED_FRONT_ID = 15000;  -- Shadowlands threat in The Maw 
-local DEAD_MEN_TELL_SOME_TALES_ID = 15647;  -- Shadowlands Covenant Campaign
+-- local DEAD_MEN_TELL_SOME_TALES_ID = 15647;  -- Shadowlands Covenant Campaign	--> TODO - add this
 --> Note: The assetIDs returned for this achievement are always 0,
 --  see util.covenant.UpdateData(...) for alternative solution.
 local TEMPORAL_ACQUISITIONS_SPECIALIST_ID = 18554  -- Time Rifts				--> TODO - add this ???
@@ -1039,7 +1040,7 @@ function util.garrison.GetFactionParagonInfo(factionID)
 	};
 end
 
--- Build a generic reputation progress string for given faction and return it.
+-- Build a generic reputation progress string for given paragon and return it.
 ---@param paragonInfo FactionParagonInfo
 ---@return string progressText
 --
@@ -1053,6 +1054,21 @@ function util.garrison.GetFactionParagonProgressText(paragonInfo)
 	local progressText = GENERIC_FRACTION_STRING:format(value, paragonInfo.threshold)
 
 	return progressText
+end
+
+-- Get the completion text for given paragon and return it.
+---@param paragonInfo FactionParagonInfo
+---@return string completionText
+--
+function util.garrison.GetParagonCompletionText(paragonInfo)
+	if paragonInfo.hasRewardPending then
+		local questIndex = C_QuestLog.GetLogIndexForQuestID(paragonInfo.rewardQuestID)
+		local text = GetQuestLogCompletionText(questIndex)
+		if not L:StringIsEmpty(text) then
+			return text
+		end
+	end
+	return ''
 end
 
 ----- Shadowlands - Covenant utilities -----
@@ -2024,7 +2040,7 @@ PoiFilter.ignoredZoneAtlasNamePatterns = {
 	"^warlockportal.*",
 	"^groupfinder.*",
 	-- -- "^groupfinder[-]icon[-]class[-].*",
-	-- "map[-]icon[-].*classhall",
+	"map[-]icon[-].*classhall",
 	-- "^Zidormi.*",
 	"^poi[-]torghast",
 	-- -- "^fishing[-]hole",
@@ -2384,7 +2400,7 @@ function ns.GetTrackedAchievementTitles(textColor)
 		ArgusInvasionData.achievementID,
 		BfAFactionAssaultsData.achievementIDs[BfAFactionAssaultsData.playerFactionIndex],
 		UNITED_FRONT_ID,  --> Shadowlands, The Maw assault threat
-		DEAD_MEN_TELL_SOME_TALES_ID,  --> Shadowlands Covenant Campaign
+		-- DEAD_MEN_TELL_SOME_TALES_ID,  --> Shadowlands Covenant Campaign
 		CampAylaagData.achievementID,
 	};
 	table.sort(trackedAchievements);

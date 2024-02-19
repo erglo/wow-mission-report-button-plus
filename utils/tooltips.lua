@@ -25,6 +25,9 @@ local ShortAddonID = "MRBP"
 local L = ns.L
 local util = ns.utilities
 
+local LocalTooltipUtil = {}  --> Handler from this file
+ns.utilities.tooltip = LocalTooltipUtil
+
 local LibQTip = LibStub('LibQTip-1.0')
 local LocalLibQTipUtil = ns.utils.libqtip
 -- local MenuTooltip, ExpansionTooltip 
@@ -32,6 +35,11 @@ local LocalLibQTipUtil = ns.utils.libqtip
 ----- Upvalues -----
 
 local format = string.format
+local QuestUtils_GetQuestName = QuestUtils_GetQuestName
+local CovenantCalling_CheckCallings = CovenantCalling_CheckCallings
+local CreateAtlasMarkup = CreateAtlasMarkup
+local CreateTextureMarkup = CreateTextureMarkup
+local CreateSimpleTextureMarkup = CreateSimpleTextureMarkup
 
 ----- Colors -----
 
@@ -50,13 +58,16 @@ local TOOLTIP_TEXT_FONT_COLOR = WHITE_FONT_COLOR
 
 ----- Icons -----
 
-local TOOLTIP_DASH_ICON_ID = 3083385
-local TOOLTIP_DASH_ICON_STRING = util.CreateInlineIcon(3083385)
-local TOOLTIP_CLOCK_ICON_STRING = util.CreateInlineIcon1("auctionhouse-icon-clock")
-local TOOLTIP_CHECK_MARK_ICON_STRING = util.CreateInlineIcon(628564)
-local TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING = util.CreateInlineIcon(130751)
+-- local TOOLTIP_DASH_ICON_ID = 3083385
 -- local TOOLTIP_GRAY_CHECK_MARK_ICON_STRING = util.CreateInlineIcon(130750)
 -- local TOOLTIP_ORANGE_CHECK_MARK_ICON_STRING = util.CreateInlineIcon("Adventures-Checkmark")
+local TOOLTIP_DASH_ICON_STRING = CreateSimpleTextureMarkup(3083385, 16, 16)
+local TOOLTIP_CLOCK_ICON_STRING = CreateAtlasMarkup("auctionhouse-icon-clock", 16, 16)
+local TOOLTIP_CHECK_MARK_ICON_STRING = CreateSimpleTextureMarkup(628564, 16, 16)
+local TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING = CreateSimpleTextureMarkup(130751, 16, 16)
+local TOOLTIP_BAG_ICON_STRING = CreateAtlasMarkup("ParagonReputation_Bag", 13, 15)
+local TOOLTIP_BAG_FULL_ICON_STRING = CreateAtlasMarkup("ParagonReputation_Bag", 13, 15)..CreateAtlasMarkup("ParagonReputation_Checkmark", 14, 12, -9, -1)
+-- REF.: CreateAtlasMarkup(atlasName, width, height, offsetX, offsetY, rVertexColor, gVertexColor, bVertexColor)
 
 ----- Strings -----
 
@@ -78,7 +89,7 @@ local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER
 ---@param color table|nil  A color class (see <FrameXML/GlobalColors.lua>); defaults to TOOLTIP_TEXT_FONT_COLOR
 ---@return string tooltipText
 --
-local function AppendText(text, color)
+local function AppendColoredText(text, color)
     local FontColor = color or TOOLTIP_TEXT_FONT_COLOR
     return TEXT_DELIMITER..FontColor:WrapTextInColorCode(text)
 end
@@ -99,10 +110,10 @@ local GetDefaultCellStyle = function()
 	})
 end
 
-local function Tooltip_AddHeaderLine(tooltip, text, TextColor, isTooltipTitle, ...)
+function LocalTooltipUtil:AddHeaderLine(tooltip, text, TextColor, isTooltipTitle, ...)
     local FontColor = TextColor or TOOLTIP_HEADER_FONT_COLOR
 	if isTooltipTitle then
-    	local lineIndex, nextColumnIndex = LocalLibQTipUtil:SetColoredTitle(tooltip, FontColor, text, ...)
+    	local lineIndex, nextColumnIndex = LocalLibQTipUtil:SetTitle(tooltip, text, ...)
 		return lineIndex, nextColumnIndex
 	end
 	LocalLibQTipUtil:AddBlankLineToTooltip(tooltip)
@@ -112,7 +123,7 @@ local function Tooltip_AddHeaderLine(tooltip, text, TextColor, isTooltipTitle, .
     return lineIndex, nextColumnIndex
 end
 
-local function Tooltip_AddTextLine(tooltip, text, TextColor, ...)
+function LocalTooltipUtil:AddTextLine(tooltip, text, TextColor, ...)
 	if L:StringIsEmpty(text) then
         return
     end
@@ -122,34 +133,34 @@ local function Tooltip_AddTextLine(tooltip, text, TextColor, ...)
 	return lineIndex, nextColumnIndex
 end
 
-local function Tooltip_AddIconLine(tooltip, text, icon, TextColor, ...)
+function LocalTooltipUtil:AddIconLine(tooltip, text, icon, TextColor, ...)
 	if not icon then
-		return Tooltip_AddTextLine(tooltip, text, TextColor, ...)
+		return self:AddTextLine(tooltip, text, TextColor, ...)
 	end
-	local iconString = util.CreateInlineIcon1(icon)  --> with yOffset = -1
-	return Tooltip_AddTextLine(tooltip, iconString..TEXT_DELIMITER..text, TextColor, ...)
+	local iconString = util.CreateInlineIcon(icon)
+	return self:AddTextLine(tooltip, iconString..TEXT_DELIMITER..text, TextColor, ...)
 end
 
-local function Tooltip_AddObjectiveLine(tooltip, text, completed, TextColor, ...)
+function LocalTooltipUtil:AddObjectiveLine(tooltip, text, completed, TextColor, ...)
 	if L:StringIsEmpty(text) then
         return
     end
 	local iconString = completed and TOOLTIP_CHECK_MARK_ICON_STRING or TOOLTIP_DASH_ICON_STRING
-	return Tooltip_AddTextLine(tooltip, iconString..TEXT_DELIMITER..text, completed and DISABLED_FONT_COLOR or TextColor, ...)
+	return self:AddTextLine(tooltip, iconString..TEXT_DELIMITER..text, completed and DISABLED_FONT_COLOR or TextColor, ...)
 end
 
-local function Tooltip_AddAchievementLine(tooltip, text, icon, TextColor, completed, ...)
+function LocalTooltipUtil:AddAchievementLine(tooltip, text, icon, TextColor, completed, ...)
 	if not completed then
-		return Tooltip_AddIconLine(tooltip, text, icon, TextColor, ...)
+		return self:AddIconLine(tooltip, text, icon, TextColor, ...)
 	end
 	local lineText = text..TEXT_DELIMITER..TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING
-	return Tooltip_AddIconLine(tooltip, lineText, icon, completed and DISABLED_FONT_COLOR or TextColor, ...)
+	return self:AddIconLine(tooltip, lineText, icon, completed and DISABLED_FONT_COLOR or TextColor, ...)
 end
 
-local function Tooltip_AddTimeRemainingLine(tooltip, timeString, ...)
+function LocalTooltipUtil:AddTimeRemainingLine(tooltip, timeString, ...)
 	local text = timeString or RED_FONT_COLOR:WrapTextInColorCode(RETRIEVING_DATA)
 	local iconString = TOOLTIP_DASH_ICON_STRING..TEXT_DELIMITER..TOOLTIP_CLOCK_ICON_STRING
-	return Tooltip_AddTextLine(tooltip, iconString..TEXT_DELIMITER..text, ...)
+	return self:AddTextLine(tooltip, iconString..TEXT_DELIMITER..text, ...)
 end
 
 ----- MRBP content -----
@@ -161,136 +172,148 @@ local function GetMajorFactionIcon(majorFactionData)
 end
 
 -- Requires expansionID, eg. util.expansion.data.Dragonflight.ID
-local function Tooltip_AddMajorFactionsRenownLines(tooltip, expansionID)
+function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionID)
 	local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansionID)
-	for _, factionData in ipairs(majorFactionData) do
-		if factionData then
+	if #majorFactionData then
+		for _, factionData in ipairs(majorFactionData) do
 			local factionIcon = GetMajorFactionIcon(factionData)
 			local FactionColor = ns.settings.applyMajorFactionColors and util.garrison.GetMajorFactionColor(factionData) or TOOLTIP_TEXT_FONT_COLOR
-			Tooltip_AddIconLine(tooltip, factionData.name, factionIcon, FactionColor)
+			self:AddIconLine(tooltip, factionData.name, factionIcon, FactionColor)
 			if factionData.isUnlocked then
 				-- Show current renown progress
 				local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel)
 				local progressText = GENERIC_FRACTION_STRING:format(factionData.renownReputationEarned, factionData.renownLevelThreshold)
 				local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID)
-				local renownLevelSuffix = AppendText(PARENS_TEMPLATE:format(renownLevelText), hasMaxRenown and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR)
+				local renownLevelSuffix = AppendColoredText(PARENS_TEMPLATE:format(renownLevelText), hasMaxRenown and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR)
 				local lineText = hasMaxRenown and MAJOR_FACTION_MAX_RENOWN_REACHED or progressText
-				Tooltip_AddObjectiveLine(tooltip, lineText..renownLevelSuffix, hasMaxRenown)
+				self:AddObjectiveLine(tooltip, lineText..renownLevelSuffix, hasMaxRenown)
 				if util.garrison.IsFactionParagon(factionData.factionID) then
 					local paragonInfo = util.garrison.GetFactionParagonInfo(factionData.factionID)
-					local bagIcon = paragonInfo.hasRewardPending and "Levelup-Icon-Bag" or "ParagonReputation_Bag"
-					local bagIconString = util.CreateInlineIcon(bagIcon, 13, 15, 3, 0)
+					local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING
 					local paragonProgressText = util.garrison.GetFactionParagonProgressText(paragonInfo)
-					Tooltip_AddObjectiveLine(tooltip, paragonProgressText..bagIconString)
+					self:AddObjectiveLine(tooltip, paragonProgressText..TEXT_DELIMITER..bagIconString)
+					if paragonInfo.hasRewardPending then
+						local completionText = util.garrison.GetParagonCompletionText(paragonInfo)
+						self:AddObjectiveLine(tooltip, completionText)
+					end
 				end
 			else
 				-- Major Faction is not unlocked, yet :(
-				Tooltip_AddObjectiveLine(tooltip, MAJOR_FACTION_BUTTON_FACTION_LOCKED, nil, DISABLED_FONT_COLOR)
+				self:AddObjectiveLine(tooltip, MAJOR_FACTION_BUTTON_FACTION_LOCKED, nil, DISABLED_FONT_COLOR)
 				if not ns.settings.hideMajorFactionUnlockDescription then
-					Tooltip_AddObjectiveLine(tooltip, factionData.unlockDescription, nil, DISABLED_FONT_COLOR)
+					self:AddObjectiveLine(tooltip, factionData.unlockDescription, nil, DISABLED_FONT_COLOR)
 				end
 			end
 		end
 	end
 end
 
-local function Tooltip_AddDragonGlyphLines(tooltip)
-	local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = util.garrison.GetDragonGlyphsCount()
-	-- Show collected glyphs per zone
-	for mapName, count in pairs(glyphsPerZone) do
-		local isComplete = count.numComplete == count.numTotal
-		if not (isComplete and ns.settings.autoHideCompletedDragonGlyphZones) then
-            local zoneName = mapName..HEADER_COLON
-			local counterText = GENERIC_FRACTION_STRING:format(count.numComplete, count.numTotal)
-			local lineColor = isComplete and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
-            local resultsText = AppendText(counterText, lineColor)
-			Tooltip_AddObjectiveLine(tooltip, zoneName..resultsText, isComplete)
+function LocalTooltipUtil:AddDragonGlyphLines(tooltip)
+	if util.garrison.IsDragonridingUnlocked() then
+		local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = util.garrison.GetDragonGlyphsCount()
+		-- Show collected glyphs per zone
+		for mapName, count in pairs(glyphsPerZone) do
+			local isComplete = count.numComplete == count.numTotal
+			if not (isComplete and ns.settings.autoHideCompletedDragonGlyphZones) then
+				local zoneName = mapName..HEADER_COLON
+				local counterText = GENERIC_FRACTION_STRING:format(count.numComplete, count.numTotal)
+				local lineColor = isComplete and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
+				local resultsText = AppendColoredText(counterText, lineColor)
+				self:AddObjectiveLine(tooltip, zoneName..resultsText, isComplete)
+			end
 		end
-	end
-	-- Add glyph collection summary
-	local treeCurrencyInfo = util.garrison.GetDragonRidingTreeCurrencyInfo()
-	local youCollectedAmountString = TRADESKILL_NAME_RANK:format(YOU_COLLECTED_LABEL, numGlyphsCollected, numGlyphsTotal)
-	local collectedAll = numGlyphsCollected == numGlyphsTotal
-	local lineColor = collectedAll and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
-	local lineSuffix = collectedAll and TEXT_DELIMITER..TOOLTIP_CHECK_MARK_ICON_STRING or ''
-	Tooltip_AddIconLine(tooltip, youCollectedAmountString..lineSuffix, treeCurrencyInfo.texture, lineColor)
-	if (treeCurrencyInfo.quantity > 0) then
-		-- Inform user that there are glyphs to spend
-		local currencySymbolString = util.CreateInlineIcon(treeCurrencyInfo.texture, 16, 16, 0, -1)
-		local availableAmountText = PROFESSIONS_CURRENCY_AVAILABLE:format(treeCurrencyInfo.quantity, currencySymbolString)
-		Tooltip_AddObjectiveLine(tooltip, availableAmountText)
-	end
-	if (numGlyphsCollected == 0) then
-		-- Inform player on how to get some glyphs
-		Tooltip_AddIconLine(tooltip, DRAGON_RIDING_CURRENCY_TUTORIAL, treeCurrencyInfo.texture, DISABLED_FONT_COLOR)
+		-- Add glyph collection summary
+		local treeCurrencyInfo = util.garrison.GetDragonRidingTreeCurrencyInfo()
+		local youCollectedAmountString = TRADESKILL_NAME_RANK:format(YOU_COLLECTED_LABEL, numGlyphsCollected, numGlyphsTotal)
+		local collectedAll = numGlyphsCollected == numGlyphsTotal
+		local lineColor = collectedAll and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
+		local lineSuffix = collectedAll and TEXT_DELIMITER..TOOLTIP_CHECK_MARK_ICON_STRING or ''
+		self:AddIconLine(tooltip, youCollectedAmountString..lineSuffix, treeCurrencyInfo.texture, lineColor)
+		if (treeCurrencyInfo.quantity > 0) then
+			-- Inform user that there are glyphs to spend
+			local currencySymbolString = util.CreateInlineIcon(treeCurrencyInfo.texture, 16, 16, 0, -1)
+			local availableAmountText = PROFESSIONS_CURRENCY_AVAILABLE:format(treeCurrencyInfo.quantity, currencySymbolString)
+			self:AddObjectiveLine(tooltip, availableAmountText)
+		end
+		if (numGlyphsCollected == 0) then
+			-- Inform player on how to get some glyphs
+			self:AddIconLine(tooltip, DRAGON_RIDING_CURRENCY_TUTORIAL, treeCurrencyInfo.texture, DISABLED_FONT_COLOR)
+		end
+	else
+		-- Not unlocked, yet :(
+		local dragonIconDisabled = util.CreateInlineIcon("dragonriding-barbershop-icon-category-head", 20, 20, -2)
+		local disabledInfoText = LANDING_DRAGONRIDING_TREE_BUTTON_DISABLED
+		self:AddTextLine(tooltip, dragonIconDisabled..disabledInfoText, DISABLED_FONT_COLOR)
 	end
 end
 
 ----- Missions -----
 
-local function Tooltip_AddGarrisonMissionLines(tooltip, garrisonTypeID, garrisonInfo, shouldShowMissionCompletedMessage)
-    local numInProgress, numCompleted = util.garrison.GetInProgressMissionCount(expansionInfo.garrisonTypeID)
+function LocalTooltipUtil:AddGarrisonMissionLines(tooltip, garrisonInfo, shouldShowMissionCompletedMessage)
+    local numInProgress, numCompleted = util.garrison.GetInProgressMissionCount(garrisonInfo.garrisonTypeID)
 	local hasCompletedAllMissions = numCompleted > 0 and numCompleted == numInProgress
-	Tooltip_AddHeaderLine(tooltip, garrisonInfo.msg.missionsTitle)
+	self:AddHeaderLine(tooltip, garrisonInfo.msg.missionsTitle)
 	-- Mission counter
 	if (numInProgress > 0) then
 		local progressText = format(garrisonInfo.msg.missionsReadyCount, numCompleted, numInProgress)
-		Tooltip_AddObjectiveLine(tooltip, progressText, hasCompletedAllMissions)
+		self:AddObjectiveLine(tooltip, progressText, hasCompletedAllMissions)
 	else
 		-- No missions active
-		Tooltip_AddTextLine(tooltip, garrisonInfo.msg.missionsEmptyProgress)
+		self:AddTextLine(tooltip, garrisonInfo.msg.missionsEmptyProgress)
 	end
 	-- Return to base info
 	if shouldShowMissionCompletedMessage then
-		Tooltip_AddTextLine(tooltip, garrisonInfo.msg.missionsComplete)
+		self:AddTextLine(tooltip, garrisonInfo.msg.missionsComplete)
     end
 end
 
 ----- Bounty board -----
 
-local QuestUtils_GetQuestName = QuestUtils_GetQuestName
-local CovenantCalling_CheckCallings = CovenantCalling_CheckCallings
-local CreateTextureMarkup = CreateTextureMarkup
+function LocalTooltipUtil:AddBountyBoardLines(tooltip, garrisonInfo)
+	local isForShadowlands = garrisonInfo.garrisonTypeID == util.expansion.data.Shadowlands.garrisonTypeID
 
-local function Tooltip_AddBountyBoardLines(tooltip, expansionInfo, garrisonInfo)
-    local isForLegion = expansionInfo.garrisonTypeID == util.expansion.data.Legion.garrisonTypeID
-	local isForBattleForAzeroth = expansionInfo.garrisonTypeID == util.expansion.data.BattleForAzeroth.garrisonTypeID
-	local isForShadowlands = expansionInfo.garrisonTypeID == util.expansion.data.Shadowlands.garrisonTypeID
-	
     -- Only available since Legion (WoW 7.x); no longer useful in Dragonflight (WoW 10.x)
 	local bountyBoard = garrisonInfo.bountyBoard
-	if bountyBoard.AreBountiesUnlocked() then
-		local bounties = bountyBoard.GetBounties()
-		if (isForShadowlands and #bounties == 0) then
-			-- System retrieves callings through event listening and on opening the mission frame; try to update (again).
-			CovenantCalling_CheckCallings()
-			bounties = bountyBoard.GetBounties()
-		end
-		if (#bounties > 0) then
-			Tooltip_AddHeaderLine(tooltip, bountyBoard.title)
-			for _, bountyData in ipairs(bounties) do
-				if bountyData then
-					local questName = QuestUtils_GetQuestName(bountyData.questID)
-					if isForShadowlands then
-						-- Shadowland bounties have a golden border around their icon; need special treatment.
-						-- REF.: CreateTextureMarkup(file, fileWidth, fileHeight, width, height, left, right, top, bottom, xOffset, yOffset)
-						local iconString = CreateTextureMarkup(bountyData.icon, 256, 256, 16, 16, 0.28, 0.74, 0.26, 0.72, 1, -1)
-						questName = iconString..TEXT_DELIMITER..questName
-					end
-					local bountyIcon = not isForShadowlands and bountyData.icon or nil
-					if bountyData.turninRequirementText then
-						Tooltip_AddIconLine(tooltip, questName, bountyIcon, DISABLED_FONT_COLOR)
-						-- if ns.settings.showBountyRequirements then		--> TODO - Re-add option to settings
-						Tooltip_AddObjectiveLine(tooltip, bountyData.turninRequirementText, nil, WARNING_FONT_COLOR)
-						-- end
-					else
-						Tooltip_AddIconLine(tooltip, questName, bountyIcon)
-					end
+	if not bountyBoard.AreBountiesUnlocked() then
+		return
+	end
+
+	-- List available bounties
+	local bounties = bountyBoard.GetBounties()
+	if (isForShadowlands and #bounties == 0) then
+		-- System retrieves callings through event listening and on opening the mission frame; try to update (again).
+		CovenantCalling_CheckCallings()
+		bounties = bountyBoard.GetBounties()
+	end
+	self:AddHeaderLine(tooltip, bountyBoard.title)
+	if (#bounties > 0) then
+		for _, bountyData in ipairs(bounties) do
+			local questName = QuestUtils_GetQuestName(bountyData.questID)
+			if isForShadowlands then
+				-- Shadowland bounties have a golden border around their icon; need special treatment.
+				-- REF.: CreateTextureMarkup(file, fileWidth, fileHeight, width, height, left, right, top, bottom, xOffset, yOffset)
+				local iconString = CreateTextureMarkup(bountyData.icon, 256, 256, 16, 16, 0.28, 0.74, 0.26, 0.72, 1, -1)
+				questName = iconString..TEXT_DELIMITER..questName
+			end
+			local bountyIcon = not isForShadowlands and bountyData.icon or nil
+			if bountyData.turninRequirementText then
+				self:AddIconLine(tooltip, questName, bountyIcon, DISABLED_FONT_COLOR)
+				-- if ns.settings.showBountyRequirements then					--> TODO - Re-add option to settings
+				self:AddObjectiveLine(tooltip, bountyData.turninRequirementText, nil, WARNING_FONT_COLOR)
+				-- end
+			else
+				local complete = C_QuestLog.IsComplete(bountyData.questID)
+				questName = complete and questName..TEXT_DELIMITER..TOOLTIP_CHECK_MARK_ICON_STRING or questName
+				self:AddIconLine(tooltip, questName, bountyIcon, complete and DISABLED_FONT_COLOR)
+				if complete then
+					self:AddObjectiveLine(tooltip, bountyBoard.isCompleteMessage)
 				end
 			end
-		elseif not isForShadowlands then									    --> TODO - Check if still needed
-			Tooltip_AddObjectiveLine(tooltip, bountyBoard.noBountiesMessage)
 		end
+	-- elseif not isForShadowlands then									    	--> TODO - Check if still needed
+		-- self:AddObjectiveLine(tooltip, bountyBoard.noBountiesMessage)
+	else
+		self:AddObjectiveLine(tooltip, RETRIEVING_DATA, false, RED_FONT_COLOR)
 	end
 end
 

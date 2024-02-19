@@ -44,6 +44,7 @@ local util = ns.utilities
 local LibQTip = LibStub('LibQTip-1.0')
 local MenuTooltip, ExpansionTooltip
 local LocalLibQTipUtil = ns.utils.libqtip
+local LocalTooltipUtil = ns.utilities.tooltip
 
 local MRBP_GARRISON_TYPE_INFOS = {}
 local MRBP_EventMessagesCounter = {}
@@ -453,6 +454,7 @@ function MRBP:LoadData()
 	MRBP_GARRISON_TYPE_INFOS = {
 		----- Warlords of Draenor -----
 		[util.expansion.data.WarlordsOfDraenor.garrisonTypeID] = {
+			["garrisonTypeID"] = util.expansion.data.WarlordsOfDraenor.garrisonTypeID,
 			["tagName"] = playerInfo.factionGroup,
 			["title"] = GARRISON_LANDING_PAGE_TITLE,
 			["description"] = MINIMAP_GARRISON_LANDING_PAGE_TOOLTIP,
@@ -472,6 +474,7 @@ function MRBP:LoadData()
 		},
 		----- Legion -----
 		[util.expansion.data.Legion.garrisonTypeID] = {
+			["garrisonTypeID"] = util.expansion.data.Legion.garrisonTypeID,
 			["tagName"] = playerInfo.className,
 			["title"] = ORDER_HALL_LANDING_PAGE_TITLE,
 			["description"] = MINIMAP_ORDER_HALL_LANDING_PAGE_TOOLTIP,
@@ -494,12 +497,14 @@ function MRBP:LoadData()
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
+				["isCompleteMessage"] = BOUNTY_TUTORIAL_BOUNTY_FINISHED,
 				["GetBounties"] = function() return util.quest.GetBountiesForMapID(650) end,  --> any child zone from "continents" in Legion seems to work
 				["AreBountiesUnlocked"] = function() return MapUtil.MapHasUnlockedBounties(650) end,
 			},
 		},
 		----- Battle for Azeroth -----
 		[util.expansion.data.BattleForAzeroth.garrisonTypeID] = {
+			["garrisonTypeID"] = util.expansion.data.BattleForAzeroth.garrisonTypeID,
 			["tagName"] = playerInfo.factionGroup,
 			["title"] = GARRISON_TYPE_8_0_LANDING_PAGE_TITLE,
 			["description"] = GARRISON_TYPE_8_0_LANDING_PAGE_TOOLTIP,
@@ -522,12 +527,14 @@ function MRBP:LoadData()
 			["bountyBoard"] = {
 				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
+				["isCompleteMessage"] = BOUNTY_TUTORIAL_BOUNTY_FINISHED,
 				["GetBounties"] = function() return util.quest.GetBountiesForMapID(875) end,  --> or any child zone from "continents" seems to work as well.
 				["AreBountiesUnlocked"] = function() return MapUtil.MapHasUnlockedBounties(875) end,  --> checking only Zandalar should be enough
 			},
 		},
 		----- Shadowlands -----
 		[util.expansion.data.Shadowlands.garrisonTypeID] = {
+			["garrisonTypeID"] = util.expansion.data.Shadowlands.garrisonTypeID,
 			["tagName"] = playerInfo.covenantID,
 			["title"] = GARRISON_TYPE_9_0_LANDING_PAGE_TITLE,
 			["description"] = GARRISON_TYPE_9_0_LANDING_PAGE_TOOLTIP,
@@ -550,12 +557,14 @@ function MRBP:LoadData()
 			["bountyBoard"] = {
 				["title"] = CALLINGS_QUESTS,
 				["noBountiesMessage"] = BOUNTY_BOARD_NO_CALLINGS_DAYS_1,
+				["isCompleteMessage"] = BOUNTY_TUTORIAL_BOUNTY_FINISHED,
 				["GetBounties"] = function() return {} end,  --> Shadowlands callings will be added later via the event handler.
 				["AreBountiesUnlocked"] = function() return C_CovenantCallings.AreCallingsUnlocked() end,
 			},
 		},
 		----- Dragonflight -----
 		[util.expansion.data.Dragonflight.garrisonTypeID] = {
+			["garrisonTypeID"] = util.expansion.data.Dragonflight.garrisonTypeID,
 			-- ["tagName"] = playerInfo.className == "EVOKER" and "alt" or playerInfo.factionGroup,
 			["tagName"] = playerInfo.factionGroup,
 			["title"] = DRAGONFLIGHT_LANDING_PAGE_TITLE,
@@ -925,8 +934,10 @@ local function AddMultiPOITestText(poiInfos, tooltipText)
 				tooltipText = tooltipText.."|nD:"..poi.description
 			end
 			-- Add location name
-			tooltipText = tooltipText.."|nM:"..poi.mapInfo.name
-			tooltipText = tooltipText.." > "..tostring(poi.mapInfo.mapID)
+			if poi.mapInfo then
+				tooltipText = tooltipText.."|nM:"..poi.mapInfo.name
+				tooltipText = tooltipText.." > "..tostring(poi.mapInfo.mapID)
+			end
 			-- Add time remaining info
 			if (poi.isTimed and poi.timeString)then
 				tooltipText = tooltipText.."|nT:"..TOOLTIP_CLOCK_ICON_STRING
@@ -1675,140 +1686,6 @@ end
 
 ----- LibQTip -----
 
--- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
-local MenuLine_GetCellStyle = function()
-	return SafeUnpack({
-		nil,	--> font 
-		"LEFT",	--> justification 
-		nil,	--> colSpan 
-		nil,	--> provider 
-		nil,	--> leftPadding 
-		nil,	--> rightPadding 
-		230,	--> maxWidth 
-		150,	--> minWidth 
-	})
-end
-
-local function ExpansionTooltip_AddHeaderLine(text, TextColor, isTooltipTitle, ...)
-	if isTooltipTitle then
-    	local lineIndex, nextColumnIndex = LocalLibQTipUtil:SetTitle(ExpansionTooltip, text, ...)
-		return lineIndex, nextColumnIndex
-	end
-	LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)					--> TODO - Add to options ???
-	local FontColor = TextColor or NORMAL_FONT_COLOR
-	local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
-	ExpansionTooltip:SetCell(lineIndex, 1, text, MenuLine_GetCellStyle())
-	lineIndex, nextColumnIndex = ExpansionTooltip:AddSeparator(2, LIGHTGRAY_FONT_COLOR:GetRGBA())
-    return lineIndex, nextColumnIndex
-end
-
-local function ExpansionTooltip_AddTextLine(text, TextColor, ...)
-	if L:StringIsEmpty(text) then return end
-	local FontColor = TextColor or HIGHLIGHT_FONT_COLOR
-	local lineIndex, nextColumnIndex = LocalLibQTipUtil:AddColoredLine(ExpansionTooltip, FontColor, '', ...)
-	ExpansionTooltip:SetCell(lineIndex, 1, text, MenuLine_GetCellStyle())
-	return lineIndex, nextColumnIndex
-end
-
-local function ExpansionTooltip_AddIconLine(text, icon, TextColor, ...)
-	if not icon then
-		return ExpansionTooltip_AddTextLine(text, TextColor, ...)
-	end
-	local iconString = util.CreateInlineIcon1(icon)  --> with yOffset = -1
-	return ExpansionTooltip_AddTextLine(iconString..TEXT_DELIMITER..text, TextColor, ...)
-end
-
-local function ExpansionTooltip_AddObjectiveLine(text, completed, TextColor, ...)
-	if L:StringIsEmpty(text) then return end
-	local iconString = completed and TOOLTIP_CHECK_MARK_ICON_STRING or TOOLTIP_DASH_ICON_STRING
-	return ExpansionTooltip_AddTextLine(iconString..TEXT_DELIMITER..text, completed and DISABLED_FONT_COLOR or TextColor, ...)
-end
-
-local function ExpansionTooltip_AddAchievementLine(text, icon, TextColor, completed, ...)
-	if not completed then
-		return ExpansionTooltip_AddIconLine(text, icon, TextColor, ...)
-	end
-	local lineText = text..TEXT_DELIMITER..TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING
-	return ExpansionTooltip_AddIconLine(lineText, icon, completed and DISABLED_FONT_COLOR or TextColor, ...)
-end
-
-local function ExpansionTooltip_AddTimeRemainingLine(timeString, ...)
-	local text = timeString or RETRIEVING_DATA
-	local iconStrings = TOOLTIP_DASH_ICON_STRING..TEXT_DELIMITER..TOOLTIP_CLOCK_ICON_STRING
-	ExpansionTooltip_AddTextLine(iconStrings..TEXT_DELIMITER..text, ...)
-end
-
-local function GetMajorFactionIcon(majorFactionData)
-	if (majorFactionData.expansionID == util.expansion.data.Dragonflight.ID) then
-		return "MajorFactions_MapIcons_"..majorFactionData.textureKit.."64"
-	end
-end
-
-local function ExpansionTooltip_AddDragonFlightFactionsRenownLines()
-	local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(util.expansion.data.Dragonflight.ID)
-	for _, factionData in ipairs(majorFactionData) do
-		if factionData then
-			local factionIcon = GetMajorFactionIcon(factionData)
-			local FactionColor = ns.settings.applyMajorFactionColors and util.garrison.GetMajorFactionColor(factionData) or WHITE_FONT_COLOR
-			ExpansionTooltip_AddIconLine(factionData.name, factionIcon, FactionColor)
-			if factionData.isUnlocked then
-				-- Show current renown progress
-				local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel)
-				local progressText = GENERIC_FRACTION_STRING:format(factionData.renownReputationEarned, factionData.renownLevelThreshold)
-				local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID)
-				local renownLevelSuffix = TooltipText_AppendText('', PARENS_TEMPLATE:format(renownLevelText), hasMaxRenown and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR)
-				local lineText = hasMaxRenown and MAJOR_FACTION_MAX_RENOWN_REACHED or progressText
-				ExpansionTooltip_AddObjectiveLine(lineText..renownLevelSuffix, hasMaxRenown)
-				if util.garrison.IsFactionParagon(factionData.factionID) then
-					local paragonInfo = util.garrison.GetFactionParagonInfo(factionData.factionID)
-					local bagIcon = paragonInfo.hasRewardPending and "Levelup-Icon-Bag" or "ParagonReputation_Bag"
-					local bagIconString = util.CreateInlineIcon(bagIcon, 13, 15, 3, 0)
-					local paragonProgressText = util.garrison.GetFactionParagonProgressText(paragonInfo)
-					ExpansionTooltip_AddObjectiveLine(paragonProgressText..bagIconString)
-				end
-			else
-				-- Major Faction is not unlocked, yet :(
-				ExpansionTooltip_AddObjectiveLine(MAJOR_FACTION_BUTTON_FACTION_LOCKED, nil, DISABLED_FONT_COLOR)
-				if not ns.settings.hideMajorFactionUnlockDescription then
-					ExpansionTooltip_AddObjectiveLine(factionData.unlockDescription, nil, DISABLED_FONT_COLOR)
-				end
-			end
-		end
-	end
-end
-
-local function ExpansionTooltip_AddDragonGlyphLines()
-	local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = util.garrison.GetDragonGlyphsCount()
-	-- Add counter of collected glyphs per zone
-	for mapName, count in pairs(glyphsPerZone) do
-		local zoneName = mapName..HEADER_COLON
-		local isComplete = count.numComplete == count.numTotal
-		if not (isComplete and ns.settings.autoHideCompletedDragonGlyphZones) then
-			local countedText = GENERIC_FRACTION_STRING:format(count.numComplete, count.numTotal)
-			local lineColor = isComplete and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
-			local resultsText = TooltipText_AppendText('', countedText, lineColor)
-			ExpansionTooltip_AddObjectiveLine(zoneName..resultsText, isComplete)
-		end
-	end
-	-- Add glyph collection summary
-	local treeCurrencyInfo = util.garrison.GetDragonRidingTreeCurrencyInfo()
-	local youCollectedAmountString = TRADESKILL_NAME_RANK:format(YOU_COLLECTED_LABEL, numGlyphsCollected, numGlyphsTotal)
-	local collectedAll = numGlyphsCollected == numGlyphsTotal
-	local lineColor = collectedAll and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
-	local lineSuffix = collectedAll and TEXT_DELIMITER..TOOLTIP_CHECK_MARK_ICON_STRING or ''
-	ExpansionTooltip_AddIconLine(youCollectedAmountString..lineSuffix, treeCurrencyInfo.texture, lineColor)
-	if (treeCurrencyInfo.quantity > 0) then
-		-- Inform user that there are glyphs to spend
-		local currencySymbolString = util.CreateInlineIcon(treeCurrencyInfo.texture, 16, 16, 0, -1)
-		local availableAmountText = PROFESSIONS_CURRENCY_AVAILABLE:format(treeCurrencyInfo.quantity, currencySymbolString)
-		ExpansionTooltip_AddObjectiveLine(availableAmountText)
-	end
-	if (numGlyphsCollected == 0) then
-		-- Inform player on how to get some glyphs
-		ExpansionTooltip_AddIconLine(DRAGON_RIDING_CURRENCY_TUTORIAL, treeCurrencyInfo.texture, DISABLED_FONT_COLOR)
-	end
-end
-
 -- Create expansion summary content tooltip
 function MenuLine_CreateExpansionTooltip(parentFrame)
 	ExpansionTooltip = LibQTip:Acquire(ShortAddonID.."LibQTipExpansionTooltip", 1, "LEFT")
@@ -1825,11 +1702,11 @@ function MenuLine_OnEnter(...)
 	local garrisonInfo = MRBP_GARRISON_TYPE_INFOS[expansionInfo.garrisonTypeID]
 	local isSettingsLine = expansionInfo.ID == nil
 	local tooltipTitle = (ns.settings.preferExpansionName and not isSettingsLine) and garrisonInfo.title or expansionInfo.name
-	ExpansionTooltip_AddHeaderLine(isSettingsLine and expansionInfo.label or tooltipTitle, nil, true)
+	LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, isSettingsLine and expansionInfo.label or tooltipTitle, nil, true)
 	local tooltipDescription = expansionInfo.description or garrisonInfo.description
 	if tooltipDescription then
 		local FontColor = expansionInfo.disabled and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
-		ExpansionTooltip_AddTextLine(tooltipDescription, FontColor, ...)
+		LocalTooltipUtil:AddTextLine(ExpansionTooltip, tooltipDescription, FontColor, ...)
 	end
 	if isSettingsLine then
 		-- Stop here; no content body for the settings line
@@ -1848,7 +1725,7 @@ function MenuLine_OnEnter(...)
 	if expansionInfo.disabled then
 		-- Show requirement info for unlocking the given expansion type
 		LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
-		ExpansionTooltip_AddTextLine(garrisonInfo.msg.requirementText, DIM_RED_FONT_COLOR, ...)
+		LocalTooltipUtil:AddTextLine(ExpansionTooltip, garrisonInfo.msg.requirementText, DIM_RED_FONT_COLOR, ...)
 		-- -- Stop here; no content for locked expansions
 		-- ShowExpansionTooltip()
 		-- return
@@ -1857,21 +1734,8 @@ function MenuLine_OnEnter(...)
 	----- In-progress missions -----
 
 	if ShouldShowMissionsInfoText(expansionInfo.garrisonTypeID) then
-		local numInProgress, numCompleted = util.garrison.GetInProgressMissionCount(expansionInfo.garrisonTypeID)
-		local hasCompletedAllMissions = numCompleted > 0 and numCompleted == numInProgress
-		ExpansionTooltip_AddHeaderLine(garrisonInfo.msg.missionsTitle)
-		-- Mission counter
-		if (numInProgress > 0) then
-			local progressText = string.format(garrisonInfo.msg.missionsReadyCount, numCompleted, numInProgress)
-			ExpansionTooltip_AddObjectiveLine(progressText, hasCompletedAllMissions)
-		else
-			-- No missions active
-			ExpansionTooltip_AddTextLine(garrisonInfo.msg.missionsEmptyProgress)
-		end
-		-- Return to base info
-		if ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID) then
-			ExpansionTooltip_AddTextLine(garrisonInfo.msg.missionsComplete)
-		end
+		local shouldShowMissionCompletedMessage = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID)
+		LocalTooltipUtil:AddGarrisonMissionLines(ExpansionTooltip, garrisonInfo, shouldShowMissionCompletedMessage)
 	end
 
 	----- Timewalking Vendor (currently Draenor + Legion only) -----
@@ -1882,9 +1746,9 @@ function MenuLine_OnEnter(...)
 			-- tooltipText = TooltipText_AddHeaderLine(tooltipText, vendorAreaPoiInfo.name);
 			-- tooltipText = TooltipText_AddIconLine(tooltipText, vendorAreaPoiInfo.mapInfo.name, vendorAreaPoiInfo.atlasName);
 			-- tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, vendorAreaPoiInfo.timeString);
-			ExpansionTooltip_AddHeaderLine(vendorAreaPoiInfo.name)
-			ExpansionTooltip_AddIconLine(vendorAreaPoiInfo.mapInfo.name, vendorAreaPoiInfo.atlasName)
-			ExpansionTooltip_AddTimeRemainingLine(vendorAreaPoiInfo.timeString)
+			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, vendorAreaPoiInfo.name)
+			LocalTooltipUtil:AddIconLine(ExpansionTooltip, vendorAreaPoiInfo.mapInfo.name, vendorAreaPoiInfo.atlasName)
+			LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, vendorAreaPoiInfo.timeString)
 		end
 	end
 
@@ -1893,21 +1757,21 @@ function MenuLine_OnEnter(...)
 	if isForWarlordsOfDraenor then
 		-- Garrison Invasion
 		if (ns.settings.showWoDGarrisonInvasionAlert and util.garrison.IsDraenorInvasionAvailable()) then
-			ExpansionTooltip_AddHeaderLine( L["showWoDGarrisonInvasionAlert"] )
-			ExpansionTooltip_AddIconLine(GARRISON_LANDING_INVASION_ALERT, "worldquest-tracker-questmarker", WARNING_FONT_COLOR)
-			ExpansionTooltip_AddTextLine(GARRISON_LANDING_INVASION_TOOLTIP)
+			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showWoDGarrisonInvasionAlert"])
+			LocalTooltipUtil:AddIconLine(ExpansionTooltip, GARRISON_LANDING_INVASION_ALERT, "worldquest-tracker-questmarker", WARNING_FONT_COLOR)
+			LocalTooltipUtil:AddTextLine(ExpansionTooltip, GARRISON_LANDING_INVASION_TOOLTIP)
 		end
 		-- Draenor Treasures
 		if ns.settings.showDraenorTreasures then
 			util.poi.SetDraenorTreasureArePoiIDs()  -- Prepare data
 			local draenorTreasuresAreaPoiInfos = util.poi.FindDraenorTreasures()
 			if draenorTreasuresAreaPoiInfos then
-				ExpansionTooltip_AddHeaderLine( L["showDraenorTreasures"] )
+				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showDraenorTreasures"])
 				for mapName, poiCountsPerMap in pairs(draenorTreasuresAreaPoiInfos) do
-					ExpansionTooltip_AddIconLine(mapName, "VignetteLoot", ORANGE_FONT_COLOR)
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, mapName, "VignetteLoot", ORANGE_FONT_COLOR)
 					for poiName, poiCount in pairs(poiCountsPerMap) do
 						local lineName = poiName..TEXT_DELIMITER..NORMAL_FONT_COLOR:WrapTextInColorCode("x"..tostring(poiCount))
-						ExpansionTooltip_AddObjectiveLine(lineName)
+						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, lineName)
 					end
 				end
 			end
@@ -1917,41 +1781,7 @@ function MenuLine_OnEnter(...)
 	----- Bounty board infos (Legion + BfA + Shadowlands only) -----
 
 	if ShouldShowBountyBoardText(expansionInfo.garrisonTypeID) then
-		-- Only available since Legion (WoW 7.x); no longer useful in Dragonflight (WoW 10.x)
-		local bountyBoard = garrisonInfo.bountyBoard
-		if bountyBoard.AreBountiesUnlocked() then
-			local bounties = bountyBoard.GetBounties()
-			if (isForShadowlands and #bounties == 0) then
-				-- System retrieves callings through event listening and on opening the mission frame; try to update (again).
-				CovenantCalling_CheckCallings()
-				bounties = bountyBoard.GetBounties()
-			end
-			if (#bounties > 0) then
-				ExpansionTooltip_AddHeaderLine(bountyBoard.title)
-				for _, bountyData in ipairs(bounties) do
-					if bountyData then
-						local questName = QuestUtils_GetQuestName(bountyData.questID)
-						if isForShadowlands then
-							-- Shadowland bounties have a golden border around their icon; need special treatment.
-							-- REF.: CreateTextureMarkup(file, fileWidth, fileHeight, width, height, left, right, top, bottom, xOffset, yOffset)
-							local iconString = CreateTextureMarkup(bountyData.icon, 256, 256, 16, 16, 0.28, 0.74, 0.26, 0.72, 1, -1);
-							questName = iconString..TEXT_DELIMITER..questName
-						end
-						local bountyIcon = not isForShadowlands and bountyData.icon or nil
-						if bountyData.turninRequirementText then
-							ExpansionTooltip_AddIconLine(questName, bountyIcon, DISABLED_FONT_COLOR)
-							-- if ns.settings.showBountyRequirements then		--> TODO - Re-add option to settings
-							ExpansionTooltip_AddObjectiveLine(bountyData.turninRequirementText, nil, WARNING_FONT_COLOR)
-							-- end
-						else
-							ExpansionTooltip_AddIconLine(questName, bountyIcon)
-						end
-					end
-				end
-			elseif not isForShadowlands then									--> TODO - Check if still needed
-				ExpansionTooltip_AddObjectiveLine(bountyBoard.noBountiesMessage)
-			end
-		end
+		LocalTooltipUtil:AddBountyBoardLines(ExpansionTooltip, garrisonInfo)
 	end
 
 	----- Legion -----
@@ -1961,20 +1791,20 @@ function MenuLine_OnEnter(...)
 		if ns.settings.showLegionAssaultsInfo then
 			local legionAssaultsAreaPoiInfo = util.poi.GetLegionAssaultsInfo()
 			if legionAssaultsAreaPoiInfo then
-				ExpansionTooltip_AddHeaderLine(legionAssaultsAreaPoiInfo.name)
-				ExpansionTooltip_AddIconLine(legionAssaultsAreaPoiInfo.parentMapInfo.name, legionAssaultsAreaPoiInfo.atlasName, legionAssaultsAreaPoiInfo.color)
-				ExpansionTooltip_AddTimeRemainingLine(legionAssaultsAreaPoiInfo.timeString)
-				ExpansionTooltip_AddObjectiveLine(legionAssaultsAreaPoiInfo.description, legionAssaultsAreaPoiInfo.isCompleted) --, legionAssaultsAreaPoiInfo.isCompleted)
+				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, legionAssaultsAreaPoiInfo.name)
+				LocalTooltipUtil:AddIconLine(ExpansionTooltip, legionAssaultsAreaPoiInfo.parentMapInfo.name, legionAssaultsAreaPoiInfo.atlasName, legionAssaultsAreaPoiInfo.color)
+				LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, legionAssaultsAreaPoiInfo.timeString)
+				LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, legionAssaultsAreaPoiInfo.description, TOOLTIP_DASH_ICON_ID, nil, legionAssaultsAreaPoiInfo.isCompleted)
 			end
 		end
 		-- Demon Invasions (Broken Shores)
 		if ns.settings.showBrokenShoreInvasionInfo then
 			local demonAreaPoiInfos = util.poi.GetBrokenShoreInvasionInfo()
 			if util.TableHasAnyEntries(demonAreaPoiInfos) then
-				ExpansionTooltip_AddHeaderLine( L["showBrokenShoreInvasionInfo"] )
+				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showBrokenShoreInvasionInfo"])
 				for _, demonPoi in ipairs(demonAreaPoiInfos) do
-					ExpansionTooltip_AddIconLine(demonPoi.name, demonPoi.atlasName, demonPoi.color)
-					ExpansionTooltip_AddTimeRemainingLine(demonPoi.timeString)
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, demonPoi.name, demonPoi.atlasName, demonPoi.color)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, demonPoi.timeString)
 				end
 			end
 		end
@@ -1982,13 +1812,11 @@ function MenuLine_OnEnter(...)
 		if ns.settings.showArgusInvasionInfo then
 			local riftAreaPoiInfos = util.poi.GetArgusInvasionPointsInfo()
 			if util.TableHasAnyEntries(riftAreaPoiInfos) then
-				ExpansionTooltip_AddHeaderLine( L["showArgusInvasionInfo"] )
+				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showArgusInvasionInfo"])
 				for _, riftPoi in ipairs(riftAreaPoiInfos) do
-					-- local appendCompleteIcon = true
-					-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, riftPoi.description, riftPoi.isCompleted, riftPoi.color, appendCompleteIcon, riftPoi.atlasName, riftPoi.isCompleted)
-					ExpansionTooltip_AddAchievementLine(riftPoi.description, riftPoi.atlasName, riftPoi.color, riftPoi.isCompleted)
-					ExpansionTooltip_AddObjectiveLine(riftPoi.mapInfo.name)
-					ExpansionTooltip_AddTimeRemainingLine(riftPoi.timeString)
+					LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, riftPoi.description, riftPoi.atlasName, riftPoi.color, riftPoi.isCompleted)
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, riftPoi.mapInfo.name)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, riftPoi.timeString)
 				end
 			end
 		end
@@ -2006,11 +1834,11 @@ function MenuLine_OnEnter(...)
 				threatData[1].mapInfo.name or  --> for future (yet uncovered) expansions
 				UNKNOWN  --> just in case
 			)
-			ExpansionTooltip_AddHeaderLine(headerName)
+			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, headerName)
 			for i, threatInfo in ipairs(threatData) do 							--> TODO - Add major-minor assault type icon for N'Zoth Assaults
-				ExpansionTooltip_AddAchievementLine(threatInfo.questName, threatInfo.atlasName, threatInfo.color, threatInfo.isCompleted)
-				ExpansionTooltip_AddObjectiveLine(threatInfo.mapInfo.name)
-				ExpansionTooltip_AddTimeRemainingLine(threatInfo.timeLeftString)
+				LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, threatInfo.questName, threatInfo.atlasName, threatInfo.color, threatInfo.isCompleted)
+				LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, threatInfo.mapInfo.name)
+				LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, threatInfo.timeLeftString)
 			end
 		end
 	end
@@ -2022,20 +1850,20 @@ function MenuLine_OnEnter(...)
 			local factionAssaultsAreaPoiInfo = util.poi.GetBfAFactionAssaultsInfo()
 			if factionAssaultsAreaPoiInfo then
 				local FontColor = ns.settings.applyBfAFactionColors and factionAssaultsAreaPoiInfo.color or nil
-				ExpansionTooltip_AddHeaderLine( L["showBfAFactionAssaultsInfo"] )
-				ExpansionTooltip_AddIconLine(factionAssaultsAreaPoiInfo.parentMapInfo.name, factionAssaultsAreaPoiInfo.atlasName, FontColor)
-				ExpansionTooltip_AddTimeRemainingLine(factionAssaultsAreaPoiInfo.timeString)
-				ExpansionTooltip_AddAchievementLine(factionAssaultsAreaPoiInfo.description, TOOLTIP_DASH_ICON_ID, nil, factionAssaultsAreaPoiInfo.isCompleted)
+				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showBfAFactionAssaultsInfo"])
+				LocalTooltipUtil:AddIconLine(ExpansionTooltip, factionAssaultsAreaPoiInfo.parentMapInfo.name, factionAssaultsAreaPoiInfo.atlasName, FontColor)
+				LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, factionAssaultsAreaPoiInfo.timeString)
+				LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, factionAssaultsAreaPoiInfo.description, TOOLTIP_DASH_ICON_ID, nil, factionAssaultsAreaPoiInfo.isCompleted)
 			end
 		end
 		if ns.settings.showBfAIslandExpeditionsInfo then
 			local islandExpeditionInfo = util.poi.GetBfAIslandExpeditionInfo()
 			if islandExpeditionInfo then
-				ExpansionTooltip_AddHeaderLine( L["showBfAIslandExpeditionsInfo"] )
-				ExpansionTooltip_AddIconLine(islandExpeditionInfo.name, islandExpeditionInfo.atlasName)
+				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showBfAIslandExpeditionsInfo"])
+				LocalTooltipUtil:AddIconLine(ExpansionTooltip, islandExpeditionInfo.name, islandExpeditionInfo.atlasName)
 				local appendedTextColor = islandExpeditionInfo.isCompleted and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
 				local appendedText = appendedTextColor:WrapTextInColorCode( PARENS_TEMPLATE:format(islandExpeditionInfo.fulfilledPercentageString) )
-				ExpansionTooltip_AddObjectiveLine(islandExpeditionInfo.progressText..TEXT_DELIMITER..appendedText, islandExpeditionInfo.isCompleted)
+				LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, islandExpeditionInfo.progressText..TEXT_DELIMITER..appendedText, islandExpeditionInfo.isCompleted)
 			end
 		end
 	end
@@ -2045,7 +1873,7 @@ function MenuLine_OnEnter(...)
 	if (isForShadowlands and ns.settings.showCovenantRenownLevel) then
 		local covenantInfo = util.covenant.GetCovenantInfo()
 		if util.TableHasAnyEntries(covenantInfo) then
-			ExpansionTooltip_AddHeaderLine( L["showCovenantRenownLevel"] )
+			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showCovenantRenownLevel"])
 			local renownInfo = util.covenant.GetRenownData(covenantInfo.ID)
 			if renownInfo then
 				local FontColor = ns.settings.applyCovenantColors and covenantInfo.color or nil
@@ -2054,11 +1882,11 @@ function MenuLine_OnEnter(...)
 				if renownInfo.hasMaximumRenown then
 					-- Append max. level after covenant name
 					local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(renownInfo.currentRenownLevel)
-					lineText = lineText..TEXT_DELIMITER..HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(PARENS_TEMPLATE:format(renownLevelText))
+					lineText = lineText..TEXT_DELIMITER..DISABLED_FONT_COLOR:WrapTextInColorCode(PARENS_TEMPLATE:format(renownLevelText))
 					progressText = COVENANT_SANCTUM_RENOWN_REWARD_TITLE_COMPLETE
 				end
-				ExpansionTooltip_AddAchievementLine(lineText, covenantInfo.atlasName, FontColor, covenantInfo.isCompleted)
-				ExpansionTooltip_AddObjectiveLine(progressText, renownInfo.hasMaximumRenown)
+				LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, lineText, covenantInfo.atlasName, FontColor, covenantInfo.isCompleted)
+				LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, progressText, renownInfo.hasMaximumRenown)
 			end
 		end
 	end
@@ -2068,20 +1896,13 @@ function MenuLine_OnEnter(...)
 	if isForDragonflight then
 		-- Major Factions renown level and progress
 		if ns.settings.showMajorFactionRenownLevel then
-			ExpansionTooltip_AddHeaderLine( L["showMajorFactionRenownLevel"] )
-			ExpansionTooltip_AddDragonFlightFactionsRenownLines()
+			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showMajorFactionRenownLevel"])
+			LocalTooltipUtil:AddMajorFactionsRenownLines(ExpansionTooltip, expansionInfo.ID)
 		end
 		-- Dragon Glyphs
 		if ns.settings.showDragonGlyphs then
-			ExpansionTooltip_AddHeaderLine( L["showDragonGlyphs"] )
-			if util.garrison.IsDragonridingUnlocked() then
-				ExpansionTooltip_AddDragonGlyphLines()
-			else
-				-- Not unlocked, yet :(
-				local dragonIconDisabled = util.CreateInlineIcon("dragonriding-barbershop-icon-category-head", 20, 20, -2)
-				local disabledInfoText = LANDING_DRAGONRIDING_TREE_BUTTON_DISABLED
-				ExpansionTooltip_AddTextLine(dragonIconDisabled..disabledInfoText, DISABLED_FONT_COLOR)
-			end
+			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showDragonGlyphs"])
+			LocalTooltipUtil:AddDragonGlyphLines(ExpansionTooltip)
 		end
 		----- World Map events -----
 		if ns.settings.showDragonflightWorldMapEvents then
@@ -2089,16 +1910,16 @@ function MenuLine_OnEnter(...)
 			if ns.settings.showDragonRaceInfo then
 				local raceAreaPoiInfo = util.poi.GetDragonRaceInfo()
 				if raceAreaPoiInfo then
-					ExpansionTooltip_AddHeaderLine( L["showDragonRaceInfo"] )
-					ExpansionTooltip_AddIconLine(raceAreaPoiInfo.name, raceAreaPoiInfo.atlasName)
-					ExpansionTooltip_AddObjectiveLine(raceAreaPoiInfo.areaName)
-					ExpansionTooltip_AddTimeRemainingLine(raceAreaPoiInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showDragonRaceInfo"])
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, raceAreaPoiInfo.name, raceAreaPoiInfo.atlasName)
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, raceAreaPoiInfo.areaName)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, raceAreaPoiInfo.timeString)
 					if raceAreaPoiInfo.eventInfo then							--> TODO - Test this for next event
 						local iconString = util.CreateInlineIcon(raceAreaPoiInfo.eventInfo.texture, 16, 16, 3, -1)
 						-- tooltipText = TooltipText_AddIconLine(tooltipText, raceAreaPoiInfo.eventInfo.name, iconString, nil, true)
 						-- tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, raceAreaPoiInfo.eventInfo.timeString)
-						ExpansionTooltip_AddTextLine(iconString..raceAreaPoiInfo.eventInfo.name)
-						ExpansionTooltip_AddTimeRemainingLine(raceAreaPoiInfo.eventInfo.timeString)
+						LocalTooltipUtil:AddTextLine(ExpansionTooltip, iconString..raceAreaPoiInfo.eventInfo.name)
+						LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, raceAreaPoiInfo.eventInfo.timeString)
 					end
 				end
 			end
@@ -2106,10 +1927,10 @@ function MenuLine_OnEnter(...)
 			if ns.settings.showCampAylaagInfo then
 				local campAreaPoiInfo = util.poi.GetCampAylaagInfo();
 				if campAreaPoiInfo then
-					ExpansionTooltip_AddHeaderLine(campAreaPoiInfo.name)
-					ExpansionTooltip_AddIconLine(campAreaPoiInfo.mapInfo.name, campAreaPoiInfo.atlasName)
-					ExpansionTooltip_AddObjectiveLine(campAreaPoiInfo.areaName, campAreaPoiInfo.isCompleted)
-					ExpansionTooltip_AddTimeRemainingLine(campAreaPoiInfo.timeString and campAreaPoiInfo.timeString or campAreaPoiInfo.description)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, campAreaPoiInfo.name)
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, campAreaPoiInfo.mapInfo.name, campAreaPoiInfo.atlasName)
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, campAreaPoiInfo.areaName, campAreaPoiInfo.isCompleted)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, campAreaPoiInfo.timeString and campAreaPoiInfo.timeString or campAreaPoiInfo.description)
 				end
 			end
 			-- Grand Hunts
@@ -2120,9 +1941,9 @@ function MenuLine_OnEnter(...)
 					-- tooltipText = TooltipText_AddIconLine(tooltipText, huntsAreaPoiInfo.mapInfo.name, huntsAreaPoiInfo.atlasName);
 					-- -- tooltipText = TooltipText_AddObjectiveLine(tooltipText, huntsAreaPoiInfo.areaName);
 					-- tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, huntsAreaPoiInfo.timeString);
-					ExpansionTooltip_AddHeaderLine(huntsAreaPoiInfo.name)
-					ExpansionTooltip_AddIconLine(huntsAreaPoiInfo.mapInfo.name, huntsAreaPoiInfo.atlasName)
-					ExpansionTooltip_AddTimeRemainingLine(huntsAreaPoiInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, huntsAreaPoiInfo.name)
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, huntsAreaPoiInfo.mapInfo.name, huntsAreaPoiInfo.atlasName)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, huntsAreaPoiInfo.timeString)
 					-- print(feastAreaPoiInfo.name, "-->", feastAreaPoiInfo.description)
 				end
 			end
@@ -2130,22 +1951,22 @@ function MenuLine_OnEnter(...)
 			if ns.settings.showCommunityFeastInfo then
 				local feastAreaPoiInfo = util.poi.GetCommunityFeastInfo()
 				if feastAreaPoiInfo then
-					ExpansionTooltip_AddHeaderLine( L["showCommunityFeastInfo"] )
-					ExpansionTooltip_AddIconLine(feastAreaPoiInfo.mapInfo.name, feastAreaPoiInfo.atlasName)
-					ExpansionTooltip_AddObjectiveLine(feastAreaPoiInfo.name)
-					ExpansionTooltip_AddTimeRemainingLine(feastAreaPoiInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showCommunityFeastInfo"])
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, feastAreaPoiInfo.mapInfo.name, feastAreaPoiInfo.atlasName)
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, feastAreaPoiInfo.name)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, feastAreaPoiInfo.timeString)
 				end
 			end
 			-- Siege on Dragonbane Keep
 			if ns.settings.showDragonbaneKeepInfo then
 				local siegeAreaPoiInfo = util.poi.GetDragonbaneKeepInfo()
 				if siegeAreaPoiInfo then
-					ExpansionTooltip_AddHeaderLine(siegeAreaPoiInfo.name)
-					ExpansionTooltip_AddIconLine(siegeAreaPoiInfo.mapInfo.name, siegeAreaPoiInfo.atlasName)
-					ExpansionTooltip_AddObjectiveLine(siegeAreaPoiInfo.areaName)
-					ExpansionTooltip_AddTimeRemainingLine(siegeAreaPoiInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, siegeAreaPoiInfo.name)
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, siegeAreaPoiInfo.mapInfo.name, siegeAreaPoiInfo.atlasName)
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, siegeAreaPoiInfo.areaName)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, siegeAreaPoiInfo.timeString)
 					if not L:StringIsEmpty(siegeAreaPoiInfo.description) and not ns.settings.hideEventDescriptions then
-						ExpansionTooltip_AddObjectiveLine(siegeAreaPoiInfo.description)
+						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, siegeAreaPoiInfo.description)
 
 					end
 				end
@@ -2154,11 +1975,11 @@ function MenuLine_OnEnter(...)
 			if ns.settings.showElementalStormsInfo then
 				local stormsAreaPoiInfos = util.poi.GetElementalStormsInfo()
 				if util.TableHasAnyEntries(stormsAreaPoiInfos) then
-					ExpansionTooltip_AddHeaderLine( L["showElementalStormsInfo"] )
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showElementalStormsInfo"])
 					for _, stormPoi in ipairs(stormsAreaPoiInfos) do
-						ExpansionTooltip_AddIconLine(stormPoi.mapInfo.name, stormPoi.atlasName)
-						ExpansionTooltip_AddObjectiveLine(stormPoi.areaName)
-						ExpansionTooltip_AddTimeRemainingLine(stormPoi.timeString)
+						LocalTooltipUtil:AddIconLine(ExpansionTooltip, stormPoi.mapInfo.name, stormPoi.atlasName)
+						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, stormPoi.areaName)
+						LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, stormPoi.timeString)
 					end
 				end
 			end
@@ -2166,12 +1987,12 @@ function MenuLine_OnEnter(...)
 			if ns.settings.showFyrakkAssaultsInfo then
 				local dfFyrakkAssaultsAreaPoiInfo = util.poi.GetFyrakkAssaultsInfo()
 				if dfFyrakkAssaultsAreaPoiInfo then
-					ExpansionTooltip_AddHeaderLine(dfFyrakkAssaultsAreaPoiInfo.name)
-					ExpansionTooltip_AddIconLine(dfFyrakkAssaultsAreaPoiInfo.mapInfo.name, dfFyrakkAssaultsAreaPoiInfo.atlasName)
-					ExpansionTooltip_AddObjectiveLine(dfFyrakkAssaultsAreaPoiInfo.areaName)
-					ExpansionTooltip_AddTimeRemainingLine(dfFyrakkAssaultsAreaPoiInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.name)
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.mapInfo.name, dfFyrakkAssaultsAreaPoiInfo.atlasName)
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.areaName)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.timeString)
 					if not ns.settings.hideEventDescriptions then
-						ExpansionTooltip_AddObjectiveLine(dfFyrakkAssaultsAreaPoiInfo.description)
+						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.description)
 					end
 				end
 			end
@@ -2183,13 +2004,13 @@ function MenuLine_OnEnter(...)
 					-- tooltipText = TooltipText_AddIconLine(tooltipText, dfResearchersUnderFireInfo.mapInfo.name, dfResearchersUnderFireInfo.atlasName);
 					-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfResearchersUnderFireInfo.areaName);
 					-- tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfResearchersUnderFireInfo.timeString);
-					ExpansionTooltip_AddHeaderLine(dfResearchersUnderFireInfo.name)
-					ExpansionTooltip_AddIconLine(dfResearchersUnderFireInfo.mapInfo.name, dfResearchersUnderFireInfo.atlasName)
-					ExpansionTooltip_AddObjectiveLine(dfResearchersUnderFireInfo.areaName)
-					ExpansionTooltip_AddTimeRemainingLine(dfResearchersUnderFireInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, dfResearchersUnderFireInfo.name)
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfResearchersUnderFireInfo.mapInfo.name, dfResearchersUnderFireInfo.atlasName)
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfResearchersUnderFireInfo.areaName)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfResearchersUnderFireInfo.timeString)
 					if not ns.settings.hideEventDescriptions then
 						-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfResearchersUnderFireInfo.description);
-						ExpansionTooltip_AddObjectiveLine(dfResearchersUnderFireInfo.description)
+						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfResearchersUnderFireInfo.description)
 					end
 				end
 			end
@@ -2197,12 +2018,12 @@ function MenuLine_OnEnter(...)
 			if ns.settings.showTimeRiftInfo then
 				local dfTimeRiftsInfo = util.poi.GetTimeRiftInfo()
 				if dfTimeRiftsInfo then
-					ExpansionTooltip_AddHeaderLine(dfTimeRiftsInfo.name)
-					ExpansionTooltip_AddIconLine(dfTimeRiftsInfo.mapInfo.name, dfTimeRiftsInfo.atlasName)
-					ExpansionTooltip_AddObjectiveLine(dfTimeRiftsInfo.areaName)
-					ExpansionTooltip_AddTimeRemainingLine(dfTimeRiftsInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, dfTimeRiftsInfo.name)
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfTimeRiftsInfo.mapInfo.name, dfTimeRiftsInfo.atlasName)
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfTimeRiftsInfo.areaName)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfTimeRiftsInfo.timeString)
 					if not L:StringIsEmpty(dfTimeRiftsInfo.description) and not ns.settings.hideEventDescriptions then
-						ExpansionTooltip_AddObjectiveLine(dfTimeRiftsInfo.description)
+						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfTimeRiftsInfo.description)
 						if _log.DEVMODE then print(dfTimeRiftsInfo.name, "-->", dfTimeRiftsInfo.description) end
 					end
 				end
@@ -2211,32 +2032,32 @@ function MenuLine_OnEnter(...)
 			if ns.settings.showDreamsurgeInfo then
 				local dfDreamsurgeInfo = util.poi.GetDreamsurgeInfo()
 				if dfDreamsurgeInfo then
-					ExpansionTooltip_AddHeaderLine( L["showDreamsurgeInfo"] )
-					ExpansionTooltip_AddIconLine(dfDreamsurgeInfo.mapInfo.name, dfDreamsurgeInfo.atlasName)
-					ExpansionTooltip_AddObjectiveLine(dfDreamsurgeInfo.areaName)
-					ExpansionTooltip_AddTimeRemainingLine(dfDreamsurgeInfo.timeString)
-					ExpansionTooltip_AddTimeRemainingLine(dfDreamsurgeInfo.nextSurgeTimeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showDreamsurgeInfo"])
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfDreamsurgeInfo.mapInfo.name, dfDreamsurgeInfo.atlasName)
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfDreamsurgeInfo.areaName)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfDreamsurgeInfo.timeString)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfDreamsurgeInfo.nextSurgeTimeString)
 				end
 			end
 			-- Superbloom
 			if ns.settings.showSuperbloomInfo then
 				local dfSuperbloomInfo = util.poi.GetSuperbloomInfo()
 				if dfSuperbloomInfo then
-					ExpansionTooltip_AddHeaderLine( dfSuperbloomInfo.name or L["showSuperbloomInfo"] )
-					ExpansionTooltip_AddIconLine(dfSuperbloomInfo.mapInfo.name, dfSuperbloomInfo.atlasName)
-					ExpansionTooltip_AddObjectiveLine(dfSuperbloomInfo.areaName)
-					ExpansionTooltip_AddTimeRemainingLine(dfSuperbloomInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, dfSuperbloomInfo.name or L["showSuperbloomInfo"])
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfSuperbloomInfo.mapInfo.name, dfSuperbloomInfo.atlasName)
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfSuperbloomInfo.areaName)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfSuperbloomInfo.timeString)
 				end
 			end
 			-- The Big Dig
 			if ns.settings.showTheBigDigInfo then
 				local dfTheBigDigInfo = util.poi.GetTheBigDigInfo()
 				if dfTheBigDigInfo then
-					ExpansionTooltip_AddHeaderLine( L["showTheBigDigInfo"] )
-					ExpansionTooltip_AddIconLine(dfTheBigDigInfo.name, dfTheBigDigInfo.atlasName)
-					ExpansionTooltip_AddObjectiveLine(dfTheBigDigInfo.mapInfo.name)
-					ExpansionTooltip_AddObjectiveLine(dfTheBigDigInfo.areaName)
-					ExpansionTooltip_AddTimeRemainingLine(dfTheBigDigInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showTheBigDigInfo"])
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfTheBigDigInfo.name, dfTheBigDigInfo.atlasName)
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfTheBigDigInfo.mapInfo.name)
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfTheBigDigInfo.areaName)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfTheBigDigInfo.timeString)
 				end
 			end
 		end
@@ -2246,17 +2067,17 @@ function MenuLine_OnEnter(...)
 
 	if (_log.DEVMODE) then
 		LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
-		ExpansionTooltip_AddTextLine(EVENTS_LABEL, DIM_GREEN_FONT_COLOR)
+		LocalTooltipUtil:AddTextLine(ExpansionTooltip, EVENTS_LABEL, DIM_GREEN_FONT_COLOR)
 		local tooltipText = ''
 		for _, mapID in ipairs(garrisonInfo.continents) do
 			local poiInfos = util.map.GetAreaPOIInfoForContinent(mapID)
 			tooltipText = AddMultiPOITestText(poiInfos, tooltipText)
-			ExpansionTooltip_AddTextLine(tooltipText)
+			LocalTooltipUtil:AddTextLine(ExpansionTooltip, tooltipText)
 		end
 		if garrisonInfo.poiZones then
 			local zonePoiInfos = util.map.GetAreaPOIInfoForZones(garrisonInfo.poiZones)
 			tooltipText = AddMultiPOITestText(zonePoiInfos, tooltipText)
-			ExpansionTooltip_AddTextLine(tooltipText)
+			LocalTooltipUtil:AddTextLine(ExpansionTooltip, tooltipText)
 		end
 	end
 
@@ -2307,7 +2128,7 @@ local settingsInfo = {
 	label = SETTINGS,
 	description = BASIC_OPTIONS_TOOLTIP,
 	color = NORMAL_FONT_COLOR,
-	iconString = util.CreateInlineIcon1("Warfronts-BaseMapIcons-Empty-Workshop-Minimap"),
+	iconString = util.CreateInlineIcon("Warfronts-BaseMapIcons-Empty-Workshop-Minimap"),
 	func = function() MRBP_Settings_OpenToCategory(AddonID) end
 }
 
