@@ -1397,7 +1397,7 @@ function MRBP:GarrisonLandingPageDropDown_OnLoad()
 	self.dropdown.point = "TOPRIGHT"  --> default: "TOPLEFT"
 	self.dropdown.relativePoint = "BOTTOMRIGHT"  --> default: "BOTTOMLEFT"
 
-	UIDropDownMenu_Initialize(self.dropdown, self.GarrisonLandingPageDropDown_Initialize, ns.settings.menuStyleID == "1" and "MENU" or '')
+	UIDropDownMenu_Initialize(self.dropdown, self.GarrisonLandingPageDropDown_Initialize, ns.settings.menuStyleID == "2" and "MENU" or '')
 end
 
 -- Create the dropdown menu items.
@@ -2190,7 +2190,7 @@ function MRBP_OnClick(self, button, isDown)
 	_log:debug(string.format("Got mouse click: %s, isDown: %s", button, tostring(isDown)))
 
 	if (button == "RightButton") then
-		if (tonumber(ns.settings.menuStyleID) < 3) then
+		if (tonumber(ns.settings.menuStyleID) > 1) then
 			UIDropDownMenu_Refresh(MRBP.dropdown)
 			ToggleDropDownMenu(1, nil, MRBP.dropdown, self, -14, 5)
 		else

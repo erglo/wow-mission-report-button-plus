@@ -33,13 +33,16 @@
 --
 --------------------------------------------------------------------------------
 
-local AddonID, ns = ...
-local L = ns.L
-local _log = ns.dbg_logger
-local util = ns.utilities
+local AddonID, ns = ...;
+local L = ns.L;
+local _log = ns.dbg_logger;
+local util = ns.utilities;
 
--- Backwards compatibility 
-local GetAddOnInfo = C_AddOns.GetAddOnInfo
+local _, addonTitle, addonNotes = C_AddOns.GetAddOnInfo(AddonID);
+
+local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
+
+local GRAY = function(txt) return GRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
 
 ----- User settings ------------------------------------------------------------
 
@@ -380,7 +383,7 @@ end
 ---Register this addon's settings to the new (WoW 10.x) settings UI.
 ---
 function MRBP_Settings_Register()
-	local category, layout = Settings.RegisterVerticalLayoutCategory(AddonID);
+	local category, layout = Settings.RegisterVerticalLayoutCategory(addonTitle);
 	category.ID = AddonID;
 	Settings.RegisterAddOnCategory(category);
 
@@ -409,7 +412,7 @@ function MRBP_Settings_Register()
 		},
 		{
 			variable = "showMinimapButton",
-			name = strjoin(" ", L.CFG_MINIMAPBUTTON_SHOWBUTTON_TEXT, GRAY_FONT_COLOR:WrapTextInColorCode(L.WORK_IS_EXPERIMENTAL)),
+			name = strjoin(" ", L.CFG_MINIMAPBUTTON_SHOWBUTTON_TEXT, GRAY(L.WORK_IS_EXPERIMENTAL)),
 			tooltip = strjoin("|n|n", L.CFG_MINIMAPBUTTON_SHOWBUTTON_TOOLTIP, L.WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION),
 			modifyPredicate = function()
 				local result =  ns.MRBP_IsAnyGarrisonRequirementMet();
@@ -485,7 +488,7 @@ function MRBP_Settings_Register()
 
 	CheckBox_CreateFromList(category, checkBoxList_DropDownMenuSettings);
 
-	------- Menu style selection -----------------------------------------------
+	------- Menu style selection -------------------------------------------------> TODO - Remove later	
 
 	local styleMenu = {
 		name = L.CFG_DDMENU_STYLESELECTION_LABEL,
@@ -493,14 +496,15 @@ function MRBP_Settings_Register()
 		variable = "menuStyleID",
 		defaultValue = ns.settings.menuStyleID,
 	};
+	local deprecationWarning = "|n|n"..GRAY(format("Note:|nThe options marked with '%s' will be removed in a future release. Their tooltip content will not be updated any more.|nFor more tooltip options go to the subcategory 'Tooltip'.", ADDON_INTERFACE_VERSION));
 	function styleMenu.GetOptions()
 		local container = Settings.CreateControlTextContainer();
-		local optionText1 = L.CFG_DDMENU_STYLESELECTION_VALUE1_TEXT..GRAY_FONT_COLOR:WrapTextInColorCode(" ("..DEFAULT..")");  --> WoW global string
-		local optionText2 = L.CFG_DDMENU_STYLESELECTION_VALUE2_TEXT;
-		local optionText3 = "New Tooltip"  --> TODO - L10n
-		container:Add("1", optionText1, L.CFG_DDMENU_STYLESELECTION_VALUE1_TOOLTIP);
-		container:Add("2", optionText2, L.CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP);
-		container:Add("3", optionText3, "The new LibQTip. This style is more flexible and highly customizable. (See settings subcategory 'Tooltip')")  --> TODO - L10n
+		local optionText1 = L.CFG_DDMENU_STYLESELECTION_VALUE1_TEXT..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(ADDON_INTERFACE_VERSION));
+		local optionText2 = L.CFG_DDMENU_STYLESELECTION_VALUE2_TEXT..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(ADDON_INTERFACE_VERSION));
+		local optionText3 = "New Tooltip";  --> TODO - L10n ???
+		container:Add("1", optionText3, "The new LibQTip Tooltip. This style is more flexible and highly customizable.|n(See settings subcategory 'Tooltip')")  --> TODO - L10n
+		container:Add("2", optionText1, L.CFG_DDMENU_STYLESELECTION_VALUE1_TOOLTIP);
+		container:Add("3", optionText2, L.CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP..deprecationWarning);
 		return container:GetData();
 	end
 	function styleMenu.OnValueChanged(owner, setting, value)
@@ -613,7 +617,7 @@ function MRBP_Settings_Register()
 		return ns.settings.showEntryTooltip;
 	end
 
-	local entryTooltipSubcategoryLabel = GRAY_FONT_COLOR:WrapTextInColorCode(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL..HEADER_COLON.." ");
+	local entryTooltipSubcategoryLabel = GRAY(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL..HEADER_COLON.." ");
 
 	-- layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
 
@@ -1014,8 +1018,6 @@ function MRBP_Settings_Register()
 	sublayout:AddAnchorPoint("BOTTOMRIGHT", -10, 10);
 
 	------- Add-on infos -------------------------------------------------------
-
-	local _, addonTitle, addonNotes = GetAddOnInfo(AddonID);
 
 	local aboutSectionHeader = aboutFrame:CreateFontString(aboutFrame:GetName().."AboutSectionHeader", "OVERLAY", "GameFontHighlightLarge");
 	aboutSectionHeader:SetJustifyH("LEFT");
