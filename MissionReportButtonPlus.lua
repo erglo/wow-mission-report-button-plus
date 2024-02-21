@@ -2312,8 +2312,12 @@ function MRBP:RegisterSlashCommands()
 			elseif (msg == 'config') then
 				MRBP_Settings_OpenToCategory(AddonID);
 
-			-- elseif (msg == 'about') then
-			-- 	MRBP_Settings_OpenToCategory("AboutFrame");
+			elseif (msg == 'tooltip' or msg == 'tip') then
+				MRBP_Settings_OpenAndSelectCategory(ns.MENU_TOOLTIP_CATEGORY)
+
+			elseif (msg == 'about') then
+				-- MRBP_Settings_OpenAndSelectCategory(ns.ABOUT_CATEGORY);
+				MRBP_Settings_OpenToSubcategory(ns.ABOUT_CATEGORY:GetID());
 
 			elseif (msg == 'show') then
 				MRBP:ShowMinimapButton_User()
