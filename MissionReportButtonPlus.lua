@@ -68,7 +68,8 @@ local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR
 local RED_FONT_COLOR = RED_FONT_COLOR
 local WARNING_FONT_COLOR = WARNING_FONT_COLOR
 
-local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER
+local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
+local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
 
 ----- Main ---------------------------------------------------------------------
 
@@ -303,7 +304,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			local unlockedMessage = DRAGONFLIGHT_LANDING_PAGE_ALERT_MAJOR_FACTION_UNLOCKED;
 			if majorFactionData then
 				local majorFactionColor = _G[strupper(majorFactionData.textureKit).."_MAJOR_FACTION_COLOR"];
-				unlockedMessage = unlockedMessage.." - "..majorFactionColor:WrapTextInColorCode(majorFactionData.name);
+				unlockedMessage = unlockedMessage..TEXT_DASH_SEPARATOR..majorFactionColor:WrapTextInColorCode(majorFactionData.name);
 			end
 			ns.cprint(unlockedMessage);
 			ns.MRBP_ReloadDropdown();
@@ -2400,7 +2401,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 	GameTooltip_AddNormalLine(tooltip, BASIC_OPTIONS_TOOLTIP);
 	util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-rightbutton");
 	if MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight) then
-		GameTooltip_AddNormalLine(tooltip, GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE.." - "..LANDING_DRAGONRIDING_PANEL_SUBTITLE);
+		GameTooltip_AddNormalLine(tooltip, GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE..TEXT_DASH_SEPARATOR..LANDING_DRAGONRIDING_PANEL_SUBTITLE);
 		util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-middlebutton");
 	end
 	-- GameTooltip_AddBlankLineToTooltip(tooltip);

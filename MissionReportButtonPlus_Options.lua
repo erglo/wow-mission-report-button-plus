@@ -41,9 +41,9 @@ local util = ns.utilities;
 local _, addonTitle, addonNotes = C_AddOns.GetAddOnInfo(AddonID);
 
 local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
+local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
 
 local GRAY = function(txt) return GRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
-local HIGHLIGHT = function(txt) return HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(txt) end;
 
 ----- User settings ------------------------------------------------------------
 
@@ -404,13 +404,14 @@ local function CreateMenuTooltipSettings(category, layout)
 		variable = "menuStyleID",
 		defaultValue = ns.settings.menuStyleID,
 	};
-	local deprecationWarning = "|n|n"..GRAY(format("Note:|nThe options marked with '%s' will be removed in a future release. Their tooltip content will not be updated any more.|nFor more tooltip options go to the subcategory 'Tooltip'.", L.CFG_DDMENU_SEPARATOR_HEADING));
+	-- @Translators: Do NOT translate this section! It will be removed soon.
+	local deprecationWarning = "|n|n"..GRAY(format("Note:|nThe options marked with '%s' will be removed in a future release. Their tooltip content will NOT be updated any more.", ADDON_INTERFACE_VERSION));
 	function styleMenu.GetOptions()
 		local container = Settings.CreateControlTextContainer();
 		local optionText1 = L.CFG_DDMENU_STYLESELECTION_VALUE1_TEXT..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(ADDON_INTERFACE_VERSION));
 		local optionText2 = L.CFG_DDMENU_STYLESELECTION_VALUE2_TEXT..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(ADDON_INTERFACE_VERSION));
-		local optionText3 = "New Tooltip";  --> TODO - L10n ???
-		container:Add("1", optionText3, "The new LibQTip Tooltip. This style is more flexible and highly customizable.|n(See settings subcategory 'Tooltip')")  --> TODO - L10n
+		local optionText3 = "New Tooltip";  									--> TODO - L10n ???
+		container:Add("1", optionText3, "The new LibQTip Tooltip. This style is more flexible and highly customizable.");
 		container:Add("2", optionText1, L.CFG_DDMENU_STYLESELECTION_VALUE1_TOOLTIP);
 		container:Add("3", optionText2, L.CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP..deprecationWarning);
 		return container:GetData();
@@ -753,7 +754,7 @@ ExpansionTooltipSettings[util.expansion.data.Dragonflight.ID] = {
 	},
 	{
 		variable = "showDragonflightWorldMapEvents",
-		name = HIGHLIGHT(L["showDragonflightWorldMapEvents"]),
+		name = L["showDragonflightWorldMapEvents"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
 		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
@@ -897,12 +898,24 @@ function MRBP_Settings_OpenToAddonCategory(categoryID)
 	end
 end
 
+local function GetOwnedExpansionInfoList()
+	local infoList = {};
+	local expansionList = util.expansion.GetExpansionsWithLandingPage();
+	for _, expansionInfo in ipairs(expansionList) do
+		local ownsExpansion = util.expansion.DoesPlayerOwnExpansion(expansionInfo.ID);
+		if ownsExpansion then
+			tinsert(infoList, expansionInfo);
+		end
+	end
+	return infoList;
+end
+
 ---Register this addon's settings to the new (WoW 10.x) settings UI.
 ---
 function MRBP_Settings_Register()
-	local category, layout = Settings.RegisterVerticalLayoutCategory(addonTitle);
-	category.ID = AddonID;
-	Settings.RegisterAddOnCategory(category);
+	local mainCategory, mainLayout = Settings.RegisterVerticalLayoutCategory(addonTitle);
+	mainCategory.ID = AddonID;
+	Settings.RegisterAddOnCategory(mainCategory);
 
 	LoadSettings();
 	--> TODO - Check need for 'ns.settings'; is maybe .GetVariableValue() better?
@@ -919,7 +932,7 @@ function MRBP_Settings_Register()
 
 	------- General settings ---------------------------------------------------
 
-	layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(GENERAL_SUBHEADER));  --> WoW global string
+	mainLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(GENERAL_SUBHEADER));  --> WoW global string
 
 	local checkBoxList_CommonSettings = {
 		{
@@ -959,11 +972,43 @@ function MRBP_Settings_Register()
 		},
 	};
 
-	CheckBox_CreateFromList(category, checkBoxList_CommonSettings);
+	CheckBox_CreateFromList(mainCategory, checkBoxList_CommonSettings);
 
 	if (ns.settings.showInAddonCompartment and not util.AddonCompartment.IsAddonRegistered()) then
 		util.AddonCompartment.RegisterAddon();
 	end
+
+	----- Shortcut buttons to settings subcategories -----															
+
+	local addSearchTags = Settings.Default.False;								--> TODO - L10n
+
+	-- Right-click menu button
+	local OnMenuTooltipButtonClick = function()
+		MRBP_Settings_OpenToAddonCategory(AddonID.."MenuTooltipSettings");
+	end
+	local menuTooltipButtonInitializer = CreateSettingsButtonInitializer(L.CFG_DDMENU_SEPARATOR_HEADING, SETTINGS..TEXT_DASH_SEPARATOR..L.CFG_DDMENU_ENTRYSELECTION_LABEL, OnMenuTooltipButtonClick, L.CFG_DDMENU_ENTRYSELECTION_TOOLTIP, addSearchTags);
+	mainLayout:AddInitializer(menuTooltipButtonInitializer);
+
+	-- Details tooltip option shortcuts (Expansion buttons)
+	mainLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
+	for _, expansionInfo in ipairs(GetOwnedExpansionInfoList()) do
+		local categoryID = format("%sExpansion%02dSettings", AddonID, expansionInfo.ID);
+		local OnExpansionButtonClick = function()
+			MRBP_Settings_OpenToAddonCategory(AddonID.."MenuTooltipSettings");
+			MRBP_Settings_OpenToAddonCategory(categoryID);
+		end
+		local expansionButtonInitializer = CreateSettingsButtonInitializer('', expansionInfo.name, OnExpansionButtonClick, '', addSearchTags);
+		mainLayout:AddInitializer(expansionButtonInitializer);
+	end
+
+	-- About frame button
+	mainLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_ABOUT_ADDON_LABEL));
+	local OnAboutButtonClick = function()
+		MRBP_Settings_OpenToAddonCategory(AddonID.."AboutFrame");
+	end
+	local aboutButtonLabel = WARDROBE_TOOLTIP_ENCOUNTER_SOURCE:format(L.CFG_ADDONINFOS_VERSION, L.CFG_ABOUT_SLASHCMD_LABEL)
+	local aboutButtonInitializer = CreateSettingsButtonInitializer(aboutButtonLabel, L.CFG_ABOUT_ADDON_LABEL, OnAboutButtonClick, L.CFG_ABOUT_ADDON_LABEL, addSearchTags);
+	mainLayout:AddInitializer(aboutButtonInitializer);
 
 	-- ------- Dropdown menu settings ---------------------------------------------
 
@@ -1517,7 +1562,7 @@ function MRBP_Settings_Register()
 	----- MenuTooltip ----------------------------------------------------------
 	------------------------------------------------------------------------------> TODO - L10n
 
-	local menuTooltipCategory, tooltipLayout = Settings.RegisterVerticalLayoutSubcategory(category, L.CFG_DDMENU_SEPARATOR_HEADING);
+	local menuTooltipCategory, tooltipLayout = Settings.RegisterVerticalLayoutSubcategory(mainCategory, L.CFG_DDMENU_SEPARATOR_HEADING);
 	menuTooltipCategory.ID = AddonID.."MenuTooltipSettings";
 
 	----- Right-click menu settings -----
@@ -1532,19 +1577,16 @@ function MRBP_Settings_Register()
 	----- Expansion tooltip settings -----
 	--------------------------------------
 	if ns.settings.showEntryTooltip then
-		local expansionList = util.expansion.GetExpansionsWithLandingPage()
-		for _, expansionInfo in ipairs(expansionList) do
-			local ownsExpansion = util.expansion.DoesPlayerOwnExpansion(expansionInfo.ID);
-			if ownsExpansion then
-				-- Register expansion in its own subcategory
-				local expansionCategory, expansionLayout = Settings.RegisterVerticalLayoutSubcategory(menuTooltipCategory, expansionInfo.name);
-				expansionCategory.ID = format("%sExpansion%02dSettings", AddonID, expansionInfo.ID);
-				-- Settings.RegisterAddOnCategory(expansionCategory);
-				-- Add subcategory content
-				-- expansionLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
-				-- print("expansionCategory:", expansionCategory.ID, expansionInfo.name)
-				CreateExpansionTooltipSettings(expansionCategory, expansionInfo)
-			end
+		for _, expansionInfo in ipairs(GetOwnedExpansionInfoList()) do
+			-- Register expansion in its own subcategory
+			local categoryName = TEXT_DELIMITER..SETTINGS_SUBCATEGORY_FMT:format(expansionInfo.name, L.CFG_DDMENU_ENTRYTOOLTIP_LABEL);
+			local expansionCategory, expansionLayout = Settings.RegisterVerticalLayoutSubcategory(menuTooltipCategory, categoryName);
+			expansionCategory.ID = format("%sExpansion%02dSettings", AddonID, expansionInfo.ID);
+			-- Settings.RegisterAddOnCategory(expansionCategory);
+			-- Add subcategory content
+			-- expansionLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
+			-- print("expansionCategory:", expansionCategory.ID, expansionInfo.name)
+			CreateExpansionTooltipSettings(expansionCategory, expansionInfo)
 		end
 	end
 
@@ -1636,7 +1678,7 @@ function MRBP_Settings_Register()
 		-- Required function; even if empty
 	end
 
-	local aboutCategory, aboutLayout = Settings.RegisterCanvasLayoutSubcategory(category, aboutFrame, L.CFG_ABOUT_ADDON_LABEL);
+	local aboutCategory, aboutLayout = Settings.RegisterCanvasLayoutSubcategory(mainCategory, aboutFrame, L.CFG_ABOUT_ADDON_LABEL);
 	aboutCategory.ID = aboutFrame.name
 	aboutLayout:AddAnchorPoint("TOPLEFT", 10, -10);
 	aboutLayout:AddAnchorPoint("BOTTOMRIGHT", -10, 10);
