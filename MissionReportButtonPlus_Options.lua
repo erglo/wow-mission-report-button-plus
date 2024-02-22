@@ -866,49 +866,34 @@ end
 -- REF.: <FrameXML/Settings/Blizzard_Settings.lua>
 -- REF.: <FrameXML/Settings/Blizzard_Setting.lua>
 
----Open the settings panel to the given category.
----@param categoryIDOrFrame (string|number|table)  The category identifier
----@return boolean result  ???
----
-function MRBP_Settings_OpenToCategory(categoryIDOrFrame)
-	if type(categoryIDOrFrame) == "table" then
-		local categoryID = categoryIDOrFrame.name;
-		return Settings.OpenToCategory(categoryID);
-	else
-		return Settings.OpenToCategory(categoryIDOrFrame);
-	end
-end
-
-function MRBP_Settings_OpenAndSelectCategory(categoryTbl, scrollToElementName)
+function MRBP_Settings_OpenToAddonCategory(categoryID)
 	local SettingsPanel = SettingsPanel;
-	local function OpenSettings()
-		if not SettingsPanel:IsShown() then
-			print("Opening settings...")
-			SettingsPanel:Open();
+	-- Try Blizzard's way; works usually for addons in main category
+	local successful = SettingsPanel:OpenToCategory(categoryID);
+	if successful then
+		return;
+	end
+	local function FindCategory(categoryID, categories)
+		local categoryList = categories or SettingsPanel:GetAllCategories();
+		for _, category in ipairs(categoryList) do
+			-- Ignore categories from game settings; subcategories don't seem to have a category set
+			if (category.categorySet == Settings.CategorySet.AddOns or category.categorySet == nil) then
+				if (category.ID == categoryID) then
+					return category;
+				end
+				-- No luck in main categories, go check subcategories
+				if category:HasSubcategories() then
+					local categoryTbl = FindCategory(categoryID, category:GetSubcategories());
+					if categoryTbl then
+						return categoryTbl
+					end
+				end
+			end
 		end
 	end
+	local categoryTbl = FindCategory(categoryID);
 	if categoryTbl then
-		print("Selecting:", categoryTbl:GetName())
-		OpenSettings();
 		SettingsPanel:SelectCategory(categoryTbl);
-	else
-		print("Nothing selected.")
-	end
-end
-
-function MRBP_Settings_OpenToSubcategory(categoryID)
-	local SettingsPanel = SettingsPanel;
-	local function OpenSettings()
-		if not SettingsPanel:IsShown() then
-			print("Opening settings...")
-			SettingsPanel:Open();
-		end
-	end
-	for setting, category in pairs(SettingsPanel.settings) do
-		if (category:GetID() == categoryID) then
-			OpenSettings();
-			SettingsPanel:SelectCategory(category);
-		end
 	end
 end
 
@@ -1533,9 +1518,7 @@ function MRBP_Settings_Register()
 	------------------------------------------------------------------------------> TODO - L10n
 
 	local menuTooltipCategory, tooltipLayout = Settings.RegisterVerticalLayoutSubcategory(category, L.CFG_DDMENU_SEPARATOR_HEADING);
-	-- Settings.RegisterAddOnCategory(menuTooltipCategory);
-	ns.MENU_TOOLTIP_CATEGORY = menuTooltipCategory
-	-- Settings.eTest = menuTooltipCategory;
+	menuTooltipCategory.ID = AddonID.."MenuTooltipSettings";
 
 	----- Right-click menu settings -----
 	-- tooltipLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_SEPARATOR_HEADING));
@@ -1559,6 +1542,7 @@ function MRBP_Settings_Register()
 				-- Settings.RegisterAddOnCategory(expansionCategory);
 				-- Add subcategory content
 				-- expansionLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
+				-- print("expansionCategory:", expansionCategory.ID, expansionInfo.name)
 				CreateExpansionTooltipSettings(expansionCategory, expansionInfo)
 			end
 		end
@@ -1652,11 +1636,10 @@ function MRBP_Settings_Register()
 		-- Required function; even if empty
 	end
 
-	local subcategory, sublayout = Settings.RegisterCanvasLayoutSubcategory(category, aboutFrame, L.CFG_ABOUT_ADDON_LABEL);
-	ns.ABOUT_CATEGORY = subcategory;
-	sublayout:AddAnchorPoint("TOPLEFT", 10, -10);
-	sublayout:AddAnchorPoint("BOTTOMRIGHT", -10, 10);
-	-- Settings.RegisterAddOnCategory(subcategory);
+	local aboutCategory, aboutLayout = Settings.RegisterCanvasLayoutSubcategory(category, aboutFrame, L.CFG_ABOUT_ADDON_LABEL);
+	aboutCategory.ID = aboutFrame.name
+	aboutLayout:AddAnchorPoint("TOPLEFT", 10, -10);
+	aboutLayout:AddAnchorPoint("BOTTOMRIGHT", -10, 10);
 
 	------- Add-on infos -------------------------------------------------------
 

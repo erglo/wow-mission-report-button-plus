@@ -1476,7 +1476,7 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 			info.tCoordBottom = txBottom
 		end
 		info.func = function(self)
-			MRBP_Settings_OpenToCategory(AddonID);
+			MRBP_Settings_OpenToAddonCategory(AddonID);
 		end
 		info.tooltipOnButton = 1
 		info.tooltipTitle = SETTINGS  --> WoW global string
@@ -2131,7 +2131,7 @@ local settingsInfo = {
 	description = BASIC_OPTIONS_TOOLTIP,
 	color = NORMAL_FONT_COLOR,
 	iconString = CreateAtlasMarkup("Warfronts-BaseMapIcons-Empty-Workshop-Minimap", 16, 16),  --, 17, 15),
-	func = function() MRBP_Settings_OpenToCategory(AddonID) end
+	func = function() MRBP_Settings_OpenToAddonCategory(AddonID) end
 }
 
 local function ShowMenuTooltip(parent)
@@ -2310,14 +2310,13 @@ function MRBP:RegisterSlashCommands()
 				ns.settings.showChatNotifications = not enabled
 
 			elseif (msg == 'config') then
-				MRBP_Settings_OpenToCategory(AddonID);
+				MRBP_Settings_OpenToAddonCategory(AddonID);
 
 			elseif (msg == 'tooltip' or msg == 'tip') then
-				MRBP_Settings_OpenAndSelectCategory(ns.MENU_TOOLTIP_CATEGORY)
+				MRBP_Settings_OpenToAddonCategory(AddonID.."MenuTooltipSettings");
 
 			elseif (msg == 'about') then
-				-- MRBP_Settings_OpenAndSelectCategory(ns.ABOUT_CATEGORY);
-				MRBP_Settings_OpenToSubcategory(ns.ABOUT_CATEGORY:GetID());
+				MRBP_Settings_OpenToAddonCategory(AddonID.."AboutFrame");
 
 			elseif (msg == 'show') then
 				MRBP:ShowMinimapButton_User()
@@ -2668,7 +2667,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentClick(button, _, _, _, mou
 		end
 	end
 	if (mouseButton == "RightButton") then
-		MRBP_Settings_OpenToCategory(AddonID);
+		MRBP_Settings_OpenToAddonCategory(AddonID);
 	end
 	if (mouseButton == "MiddleButton" and MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight)) then
 		DragonridingPanelSkillsButtonMixin:OnClick();
