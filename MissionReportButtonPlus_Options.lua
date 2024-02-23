@@ -1,9 +1,9 @@
---------------------------------------------------------------------------------
---[[ Mission Report Button Plus - Interface Options (Settings) ]]--
+----------------------------------------------------------------------------
+--[[ Mission Report Button Plus - Interface Option Settings ]]--
 --
 -- by erglo <erglo.coder+MRBP@gmail.com>
 --
--- Copyright (C) 2023  Erwin D. Glockner (aka ergloCoder)
+-- Copyright (C) 2024  Erwin D. Glockner (aka ergloCoder)
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -64,7 +64,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showMissionCompletedHintOnlyForAll"] = false,
 	["menuStyleID"] = "1",
 	-- Menu entries
-	["activeMenuEntries"] = {"5", "6", "7", "8", "9"},
+	["activeMenuEntries"] = {"5", "6", "7", "8", "9", "99"},
 	-- Menu entries tooltip
 	-- ["showBountyRequirements"] = true,
 	-- ["showThreatsTimeRemaining"] = true,
@@ -131,7 +131,7 @@ ns.defaultSettings = {  --> default + fallback settings
 ---
 ---REF.: <FrameXML/TableUtil.lua>
 ---
----@param verbose (boolean|nil)  If true, prints debug messages to chat
+---@param verbose boolean|nil  If true, prints debug messages to chat
 ---
 local function LoadSettings(verbose)
 	local prev_loglvl = _log.level;
@@ -181,8 +181,8 @@ local function LoadSettings(verbose)
 end
 
 ---Save a given value for a given variable name.
----@param varName (string)  The name of the variable
----@param value (boolean|table)  The new value of the given variable
+---@param varName string  The name of the variable
+---@param value boolean|table  The new value of the given variable
 ---
 local function SaveSingleSetting(varName, value)
 	-- Save project-wide (namespace) settings
@@ -198,20 +198,33 @@ local function SaveSingleSetting(varName, value)
 end
 
 ---Print a user-friendly chat message about the currently selected setting.
----@param text (string)  The name of a given option
----@param isEnabled (boolean|table)  The value of given option
+---@param text string  The name of a given option
+---@param isEnabled boolean|table  The value of given option
 ---
 local function printOption(text, isEnabled)
-	local msg = isEnabled and VIDEO_OPTIONS_ENABLED or VIDEO_OPTIONS_DISABLED;  --> WoW global strings
+	local msg = isEnabled and VIDEO_OPTIONS_ENABLED or VIDEO_OPTIONS_DISABLED;
 	ns.cprint(text, "-", NORMAL_FONT_COLOR:WrapTextInColorCode(msg));
+end
+
+-- Return a list of expansions which the user owns.
+local function GetOwnedExpansionInfoList()
+	local infoList = {};
+	local expansionList = util.expansion.GetExpansionsWithLandingPage();
+	for _, expansionInfo in ipairs(expansionList) do
+		local ownsExpansion = util.expansion.DoesPlayerOwnExpansion(expansionInfo.ID);
+		if ownsExpansion then
+			tinsert(infoList, expansionInfo);
+		end
+	end
+	return infoList;
 end
 
 ----- Control utilities --------------------------------------------------------
 
 ---Handle the value of given setting control.
----@param owner (table)  The owner of given control (ignorable)
----@param setting (table)  The given setting control
----@param value (boolean|table)  The value of the given control
+---@param owner table  The owner of given control (ignorable)
+---@param setting table  The given setting control
+---@param value boolean|table  The value of the given control
 ---
 local function CheckBox_OnValueChanged(owner, setting, value)
 	if (setting.variable == "showChatNotifications") then
@@ -267,7 +280,7 @@ end
 
 ---Intercept the value of the dropdown menu entry (expansions) items to block the last entry from being disabled.
 ---The dropdown menu **needs** at least one entry in order to appear. 
----@param value (boolean)  The clicked value
+---@param value boolean  The clicked value
 ---@return boolean
 ---
 local function Checkbox_OnInterceptActiveMenuEntries(value)
@@ -276,7 +289,7 @@ local function Checkbox_OnInterceptActiveMenuEntries(value)
 	if (value == false and #ns.settings.activeMenuEntries == 1) then
 		-- Without any menu items the dropdown menu won't show up, so inform user
 		local warningText = L.CFG_DDMENU_ENTRYSELECTION_TEXT_WARNING;
-		ns.cprint(ERROR_COLOR:WrapTextInColorCode(warningText));  --> WoW global color
+		ns.cprint(ERROR_COLOR:WrapTextInColorCode(warningText));
 		if UIErrorsFrame then
 			UIErrorsFrame:AddExternalErrorMessage(warningText);
 			-- UIErrorsFrame:AddMessage(warningText, ERROR_COLOR:GetRGBA());
@@ -287,10 +300,10 @@ local function Checkbox_OnInterceptActiveMenuEntries(value)
 end
 
 ---Create a checkbox control and register it's setting and add it to the given category.
----@param category (table)  Add and register checkbox to this category.
----@param variableName (string)  The name of this checkbox' variable.
----@param name (string)  Label text of this checkbox.
----@param tooltip (string|nil)  Tooltip text for this checkbox. (Nilable)
+---@param category table  Add and register checkbox to this category.
+---@param variableName string  The name of this checkbox' variable.
+---@param name string  Label text of this checkbox.
+---@param tooltip string|nil  Tooltip text for this checkbox. (Nilable)
 ---@return table setting  The registered setting
 ---@return table initializer The checkbox control
 ---
@@ -327,8 +340,8 @@ local function CheckBox_Create(category, variableName, name, tooltip)
 end
 
 ---Create multiple checkboxes from a list of data.
----@param category (table)  The destination category.
----@param checkBoxList (table)  The list of data for each checkbox.
+---@param category table  The destination category.
+---@param checkBoxList table  The list of data for each checkbox.
 ---
 local function CheckBox_CreateFromList(category, checkBoxList)
 	-- Create checkboxes
@@ -358,6 +371,8 @@ local function CheckBox_CreateFromList(category, checkBoxList)
 		end
 	end
 end
+
+----- Controls -----
 
 local function CreateMenuTooltipSettings(category, layout)
 	local checkBoxList_DropDownMenuSettings = {
@@ -396,7 +411,7 @@ local function CreateMenuTooltipSettings(category, layout)
 
 	CheckBox_CreateFromList(category, checkBoxList_DropDownMenuSettings);
 
-	------- Menu style selection -------------------------------------------------> TODO - Remove later	
+	----- Menu style selection -----											--> TODO - Remove later	
 
 	local styleMenu = {
 		name = L.CFG_DDMENU_STYLESELECTION_LABEL,
@@ -410,7 +425,7 @@ local function CreateMenuTooltipSettings(category, layout)
 		local container = Settings.CreateControlTextContainer();
 		local optionText1 = L.CFG_DDMENU_STYLESELECTION_VALUE1_TEXT..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(ADDON_INTERFACE_VERSION));
 		local optionText2 = L.CFG_DDMENU_STYLESELECTION_VALUE2_TEXT..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(ADDON_INTERFACE_VERSION));
-		local optionText3 = "New Tooltip";  									--> TODO - L10n ???
+		local optionText3 = "New Tooltip";
 		container:Add("1", optionText3, "The new LibQTip Tooltip. This style is more flexible and highly customizable.");
 		container:Add("2", optionText1, L.CFG_DDMENU_STYLESELECTION_VALUE1_TOOLTIP);
 		container:Add("3", optionText2, L.CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP..deprecationWarning);
@@ -419,7 +434,6 @@ local function CreateMenuTooltipSettings(category, layout)
 	function styleMenu.OnValueChanged(owner, setting, value)
 		SaveSingleSetting("menuStyleID", value);
 		ns.MRBP_ReloadDropdown();
-		_log:debug("Menu style ID selected:", value);
 		if ns.settings.showChatNotifications then
 			local data = styleMenu.GetOptions();
 			for i, option in ipairs(data) do
@@ -434,14 +448,13 @@ local function CreateMenuTooltipSettings(category, layout)
 	-- REF.: Settings.CreateDropDown(categoryTbl, setting, options, tooltip)
 	local styleMenuSetting = Settings.RegisterAddOnSetting(category, styleMenu.name, styleMenu.variable, Settings.VarType.String, styleMenu.defaultValue);
 	local styleMenuInitializer = Settings.CreateDropDown(category, styleMenuSetting, styleMenu.GetOptions, styleMenu.tooltip);
-	styleMenuSetting:SetNewTagShown(Settings.Default.True)
-	-- styleMenuSetting:SetCommitFlags(Settings.CommitFlag.Apply, Settings.CommitFlag.Revertable);
+	styleMenuSetting:SetNewTagShown(Settings.Default.True);
 	-- Keep track of value changes
 	Settings.SetOnValueChangedCallback(styleMenu.variable, styleMenu.OnValueChanged, styleMenuSetting);
 end
 
 local function CreateMenuEntriesSelection(category, layout)
-	local sortFunc = ns.settings.reverseSortorder and util.expansion.SortAscending or util.expansion.SortDescending
+	local sortFunc = ns.settings.reverseSortorder and util.expansion.SortAscending or util.expansion.SortDescending;
 
 	local menuEntries = {};
 	menuEntries.expansionList = util.expansion.GetExpansionsWithLandingPage(sortFunc);
@@ -457,7 +470,6 @@ local function CreateMenuEntriesSelection(category, layout)
 		local displayInfo = util.expansion.GetDisplayInfo(expansionID);
 		if displayInfo then
 			local expansion = util.expansion.GetExpansionData(expansionID);
-			-- local playerOwnsExpansion = util.expansion.DoesPlayerOwnExpansion(expansionID);
 			local _, width, height = util.GetAtlasInfo(displayInfo.banner);
 			local bannerString = util.CreateInlineIcon(displayInfo.banner, width, height, 8, -16);
 			featuresString = featuresString..bannerString.."|n";
@@ -479,17 +491,11 @@ local function CreateMenuEntriesSelection(category, layout)
 	for _, expansion in ipairs(menuEntries.expansionList) do
 		local ownsExpansion = util.expansion.DoesPlayerOwnExpansion(expansion.ID);
 		tinsert(menuEntries.checkBoxList_MenuEntriesSettings, {
-				variable = "activeMenuEntries#"..tostring(expansion.ID),
-				name = ownsExpansion and expansion.name or DISABLED_FONT_COLOR:WrapTextInColorCode(expansion.name),
-				tooltip = ns.settingsMenuEntry ~= tostring(expansion.ID) and getMenuEntryTooltip(expansion.ID, ownsExpansion),
-				-- tag = expansion.ID == util.expansion.data.Dragonflight.ID and Settings.Default.True or nil,
-				modifyPredicate = function() return ownsExpansion end;
-				-- modifyPredicate = function()
-				-- 	return util.expansion.DoesPlayerOwnExpansion(expansion.ID);
-				-- 	name = HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(expansion.name),
-				-- end
-			}
-		);
+			variable = "activeMenuEntries#"..tostring(expansion.ID),
+			name = ownsExpansion and expansion.name or DISABLED_FONT_COLOR:WrapTextInColorCode(expansion.name),
+			tooltip = ns.settingsMenuEntry ~= tostring(expansion.ID) and getMenuEntryTooltip(expansion.ID, ownsExpansion),
+			modifyPredicate = function() return ownsExpansion end;
+		});
 	end
 
 	CheckBox_CreateFromList(category, menuEntries.checkBoxList_MenuEntriesSettings);
@@ -524,55 +530,49 @@ end
 -- local entryTooltipSubcategoryLabel = GRAY(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL..HEADER_COLON.." ");
 
 local function FormatTooltipTemplate(categoryName, tooltipText, additionalText)
-	local needsReloadText = format("|n|n- %s (%s)", HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(REQUIRES_RELOAD), SLASH_RELOAD1)
-	local needsUIReload = (not L:IsEnglishLocale(L.currentLocale) and L.defaultLabels[categoryName] == L[categoryName])
-	local formattedText = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(tooltipText or '')
-	formattedText = additionalText and formattedText..additionalText or formattedText
-	formattedText = needsUIReload and formattedText..needsReloadText or formattedText
-	return formattedText
+	local needsReloadText = format("|n|n- %s (%s)", HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(REQUIRES_RELOAD), SLASH_RELOAD1);
+	local needsUIReload = (not L:IsEnglishLocale(L.currentLocale) and L.defaultLabels[categoryName] == L[categoryName]);
+	local formattedText = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(tooltipText or '');
+	formattedText = additionalText and formattedText..additionalText or formattedText;
+	formattedText = needsUIReload and formattedText..needsReloadText or formattedText;
+	return formattedText;
 end
 
-local ExpansionTooltipSettings = {}
+local ExpansionTooltipSettings = {};
 
 ExpansionTooltipSettings[util.expansion.data.WarlordsOfDraenor.ID] = {
 	{
 		variable = "showWoDMissionInfo",
 		name = L["showWoDMissionInfo"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showWoDGarrisonInvasionAlert",
 		name = L["showWoDGarrisonInvasionAlert"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_GARRISON_INVASION_ALERT_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "hideWoDGarrisonInvasionAlertIcon",
 		name = L.CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT,
 		tooltip = L.CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP,
 		parentVariable = "showWoDGarrisonInvasionAlert",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showDraenorTreasures",
 		name = L["showDraenorTreasures"],
-		tooltip = "Show or hide the Stone Container, Oger Caches, etc. in Draenor.",
-		-- modifyPredicate = ShouldShowEntryTooltip,
+		tooltip = L.CFG_WOD_SHOW_DRAENOR_TREASURES_TOOLTIP,
 		tag = Settings.Default.True,
 	},
 	{
 		variable = "showWoDWorldMapEvents",
 		name = L["showWoDWorldMapEvents"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showWoDTimewalkingVendor",
 		name = L["showWoDTimewalkingVendor"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_TIMEWALKING_VENDOR_TOOLTIP,
 		parentVariable = "showWoDWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 };
 
@@ -581,54 +581,46 @@ ExpansionTooltipSettings[util.expansion.data.Legion.ID] = {
 		variable = "showLegionMissionInfo",
 		name = L["showLegionMissionInfo"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showLegionBounties",
 		name = L["showLegionBounties"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_LEGION_BOUNTIES_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showLegionWorldMapEvents",
 		name = L["showLegionWorldMapEvents"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showLegionAssaultsInfo",
 		name = L["showLegionAssaultsInfo"],
 		tooltip = FormatTooltipTemplate("showLegionAssaultsInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_LEGION_INVASION),
 		parentVariable = "showLegionWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showBrokenShoreInvasionInfo",
 		name = L["showBrokenShoreInvasionInfo"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DEMON_INVASION),
 		parentVariable = "showLegionWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showArgusInvasionInfo",
 		name = L["showArgusInvasionInfo"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ARGUS_INVASION),
 		parentVariable = "showLegionWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "applyInvasionColors",
 		name = L["applyInvasionColors"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_LEGION_INVASION_COLORS_TOOLTIP,
 		parentVariable = "showLegionWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showLegionTimewalkingVendor",
 		name = L["showLegionTimewalkingVendor"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_TIMEWALKING_VENDOR_TOOLTIP,
 		parentVariable = "showLegionWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 };
 
@@ -637,44 +629,37 @@ ExpansionTooltipSettings[util.expansion.data.BattleForAzeroth.ID] = {
 		variable = "showBfAMissionInfo",
 		name = L["showBfAMissionInfo"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showBfABounties",
 		name = L["showBfABounties"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BFA_BOUNTIES_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showNzothThreats",
 		name = L["showNzothThreats"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_NZOTH_THREATS_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showBfAWorldMapEvents",
 		name = L["showBfAWorldMapEvents"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showBfAFactionAssaultsInfo",
 		name = L["showBfAFactionAssaultsInfo"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_BFA_FACTION_ASSAULTS),
 		parentVariable = "showBfAWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "applyBfAFactionColors",
 		name = L["applyBfAFactionColors"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showBfAIslandExpeditionsInfo",
 		name = L["showBfAIslandExpeditionsInfo"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BFA_ISLAND_EXPEDITIONS_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 };
 
@@ -683,19 +668,16 @@ ExpansionTooltipSettings[util.expansion.data.Shadowlands.ID] = {
 		variable = "showCovenantMissionInfo",
 		name = L["showCovenantMissionInfo"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showCovenantBounties",
 		name = L["showCovenantBounties"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_COVENANT_BOUNTIES_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showMawThreats",
 		name = L["showMawThreats"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAW_THREATS_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showCovenantRenownLevel",
@@ -706,7 +688,6 @@ ExpansionTooltipSettings[util.expansion.data.Shadowlands.ID] = {
 		variable = "applyCovenantColors",
 		name = L["applyCovenantColors"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 };
 
@@ -715,132 +696,113 @@ ExpansionTooltipSettings[util.expansion.data.Dragonflight.ID] = {
 		variable = "showMajorFactionRenownLevel",
 		name = L["showMajorFactionRenownLevel"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_RENOWN_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "applyMajorFactionColors",
 		name = L["applyMajorFactionColors"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
 		parentVariable = "showMajorFactionRenownLevel",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "hideMajorFactionUnlockDescription",
 		name = L["hideMajorFactionUnlockDescription"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_UNLOCK_TOOLTIP,
 		parentVariable = "showMajorFactionRenownLevel",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "separateMajorFactionTooltip",
 		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
 		tooltip = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TOOLTIP,
 		parentVariable = "showMajorFactionRenownLevel",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 		tag = Settings.Default.True,
 	},
 	{
 		variable = "showDragonGlyphs",
 		name = L["showDragonGlyphs"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_DRAGON_GLYPHS_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "autoHideCompletedDragonGlyphZones",
 		name = L["autoHideCompletedDragonGlyphZones"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_HIDE_DRAGON_GLYPHS_TOOLTIP,
 		parentVariable = "showDragonGlyphs",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showDragonflightWorldMapEvents",
 		name = L["showDragonflightWorldMapEvents"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showDragonRaceInfo",
 		name = L["showDragonRaceInfo"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DRAGONRIDING_RACE),
 		parentVariable = "showDragonflightWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showCampAylaagInfo",
 		name = L["showCampAylaagInfo"],
 		tooltip = FormatTooltipTemplate("showCampAylaagInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_CAMP_AYLAAG),
 		parentVariable = "showDragonflightWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showGrandHuntsInfo",
 		name = L["showGrandHuntsInfo"],
 		tooltip = FormatTooltipTemplate("showGrandHuntsInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_GRAND_HUNTS),
 		parentVariable = "showDragonflightWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showCommunityFeastInfo",
 		name = L["showCommunityFeastInfo"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ISKAARA_FEAST),
 		parentVariable = "showDragonflightWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showDragonbaneKeepInfo",
 		name = L["showDragonbaneKeepInfo"],
 		tooltip = FormatTooltipTemplate("showDragonbaneKeepInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DRAGONBANE_KEEP),
 		parentVariable = "showDragonflightWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showElementalStormsInfo",
 		name = L["showElementalStormsInfo"],
 		tooltip = FormatTooltipTemplate("showElementalStormsInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ELEMENTAL_STORMS),
 		parentVariable = "showDragonflightWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showFyrakkAssaultsInfo",
 		name = L["showFyrakkAssaultsInfo"],
 		tooltip = FormatTooltipTemplate("showFyrakkAssaultsInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_FYRAKK_ASSAULTS),
 		parentVariable = "showDragonflightWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showResearchersUnderFireInfo",
 		name = L["showResearchersUnderFireInfo"],
 		tooltip = FormatTooltipTemplate("showResearchersUnderFireInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE, "|n|n"..L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN),
 		parentVariable = "showDragonflightWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showTimeRiftInfo",
 		name = L["showTimeRiftInfo"],
 		tooltip = FormatTooltipTemplate("showTimeRiftInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TIME_RIFTS),
 		parentVariable = "showDragonflightWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showDreamsurgeInfo",
 		name = L["showDreamsurgeInfo"],
 		tooltip = FormatTooltipTemplate("showDreamsurgeInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DREAMSURGE),
 		parentVariable = "showDragonflightWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showSuperbloomInfo",
 		name = L["showSuperbloomInfo"],
 		tooltip = FormatTooltipTemplate("showSuperbloomInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_SUPERBLOOM),
 		parentVariable = "showDragonflightWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "showTheBigDigInfo",
 		name = L["showTheBigDigInfo"],
 		tooltip = FormatTooltipTemplate("showTheBigDigInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_THE_BIG_DIG),
 		parentVariable = "showDragonflightWorldMapEvents",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 	{
 		variable = "hideEventDescriptions",
@@ -852,20 +814,13 @@ ExpansionTooltipSettings[util.expansion.data.Dragonflight.ID] = {
 };
 
 local function CreateExpansionTooltipSettings(category, expansionInfo)
-	local checkBoxList = ExpansionTooltipSettings[expansionInfo.ID]
+	local checkBoxList = ExpansionTooltipSettings[expansionInfo.ID];
 	if checkBoxList then
 		CheckBox_CreateFromList(category, checkBoxList);
 	end
 end
---------------------------------------------------------------------------------
------ Settings panel -----------------------------------------------------------
---------------------------------------------------------------------------------
--- REF.: <FrameXML/Settings/Blizzard_Deprecated.lua>
--- REF.: <FrameXML/Settings/Blizzard_ImplementationReadme.lua>
--- REF.: <FrameXML/Settings/Blizzard_SettingsPanel.lua>
--- REF.: <FrameXML/Settings/Blizzard_SettingControls.lua>
--- REF.: <FrameXML/Settings/Blizzard_Settings.lua>
--- REF.: <FrameXML/Settings/Blizzard_Setting.lua>
+
+----- OpenToCategory -----
 
 function MRBP_Settings_OpenToAddonCategory(categoryID)
 	local SettingsPanel = SettingsPanel;
@@ -886,7 +841,7 @@ function MRBP_Settings_OpenToAddonCategory(categoryID)
 				if category:HasSubcategories() then
 					local categoryTbl = FindCategory(categoryID, category:GetSubcategories());
 					if categoryTbl then
-						return categoryTbl
+						return categoryTbl;
 					end
 				end
 			end
@@ -898,20 +853,17 @@ function MRBP_Settings_OpenToAddonCategory(categoryID)
 	end
 end
 
-local function GetOwnedExpansionInfoList()
-	local infoList = {};
-	local expansionList = util.expansion.GetExpansionsWithLandingPage();
-	for _, expansionInfo in ipairs(expansionList) do
-		local ownsExpansion = util.expansion.DoesPlayerOwnExpansion(expansionInfo.ID);
-		if ownsExpansion then
-			tinsert(infoList, expansionInfo);
-		end
-	end
-	return infoList;
-end
+--------------------------------------------------------------------------------
+----- Settings panel -----------------------------------------------------------
+--------------------------------------------------------------------------------
+-- REF.: <FrameXML/Settings/Blizzard_Deprecated.lua>
+-- REF.: <FrameXML/Settings/Blizzard_ImplementationReadme.lua>
+-- REF.: <FrameXML/Settings/Blizzard_SettingsPanel.lua>
+-- REF.: <FrameXML/Settings/Blizzard_SettingControls.lua>
+-- REF.: <FrameXML/Settings/Blizzard_Settings.lua>
+-- REF.: <FrameXML/Settings/Blizzard_Setting.lua>
 
 ---Register this addon's settings to the new (WoW 10.x) settings UI.
----
 function MRBP_Settings_Register()
 	local mainCategory, mainLayout = Settings.RegisterVerticalLayoutCategory(addonTitle);
 	mainCategory.ID = AddonID;
@@ -920,19 +872,9 @@ function MRBP_Settings_Register()
 	LoadSettings();
 	--> TODO - Check need for 'ns.settings'; is maybe .GetVariableValue() better?
 
-	-- local needsReloadText = format("|n|n- %s (%s)", HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(REQUIRES_RELOAD), SLASH_RELOAD1)
+	----- General settings -----
 
-	-- local function FormatTooltipTemplate(categoryName, tooltipText, additionalText)
-	-- 	local needsUIReload = (not L:IsEnglishLocale(L.currentLocale) and L.defaultLabels[categoryName] == L[categoryName])
-	-- 	local formattedText = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(tooltipText or '')
-	-- 	formattedText = additionalText and formattedText..additionalText or formattedText
-	-- 	formattedText = needsUIReload and formattedText..needsReloadText or formattedText
-	-- 	return formattedText
-	-- end
-
-	------- General settings ---------------------------------------------------
-
-	mainLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(GENERAL_SUBHEADER));  --> WoW global string
+	mainLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(GENERAL_SUBHEADER));
 
 	local checkBoxList_CommonSettings = {
 		{
@@ -980,687 +922,141 @@ function MRBP_Settings_Register()
 
 	----- Shortcut buttons to settings subcategories -----															
 
-	local addSearchTags = Settings.Default.False;								--> TODO - L10n
+	local addSearchTags = Settings.Default.False;
 
 	-- Right-click menu button
-	local OnMenuTooltipButtonClick = function()
-		MRBP_Settings_OpenToAddonCategory(AddonID.."MenuTooltipSettings");
+	do
+		local OnMenuTooltipButtonClick = function()
+			MRBP_Settings_OpenToAddonCategory(AddonID.."MenuTooltipSettings");
+		end
+		local menuTooltipButtonLabel = WARDROBE_TOOLTIP_ENCOUNTER_SOURCE:format(L.CFG_DDMENU_ENTRYSELECTION_LABEL, L.CFG_DDMENU_SEPARATOR_HEADING)
+		local menuTooltipButtonInitializer = CreateSettingsButtonInitializer(menuTooltipButtonLabel, L.CFG_DDMENU_SEPARATOR_HEADING, OnMenuTooltipButtonClick, L.CFG_DDMENU_ENTRYSELECTION_TOOLTIP, addSearchTags);
+		mainLayout:AddInitializer(menuTooltipButtonInitializer);
 	end
-	local menuTooltipButtonInitializer = CreateSettingsButtonInitializer(L.CFG_DDMENU_SEPARATOR_HEADING, SETTINGS..TEXT_DASH_SEPARATOR..L.CFG_DDMENU_ENTRYSELECTION_LABEL, OnMenuTooltipButtonClick, L.CFG_DDMENU_ENTRYSELECTION_TOOLTIP, addSearchTags);
-	mainLayout:AddInitializer(menuTooltipButtonInitializer);
+
+	-- -- Appearance button
+	-- do
+	-- 	local OnAppearanceButtonClick = function()
+	-- 		MRBP_Settings_OpenToAddonCategory(AddonID.."AppearanceSettings");
+	-- 	end
+	-- 	local appearanceButtonInitializer = CreateSettingsButtonInitializer(APPEARANCE_LABEL, SETTINGS..TEXT_DASH_SEPARATOR..APPEARANCE_LABEL, OnAppearanceButtonClick, FEATURE_NOT_YET_AVAILABLE, addSearchTags);
+	-- 	mainLayout:AddInitializer(appearanceButtonInitializer);
+	-- end
 
 	-- Details tooltip option shortcuts (Expansion buttons)
-	mainLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
-	for _, expansionInfo in ipairs(GetOwnedExpansionInfoList()) do
-		local categoryID = format("%sExpansion%02dSettings", AddonID, expansionInfo.ID);
-		local OnExpansionButtonClick = function()
-			MRBP_Settings_OpenToAddonCategory(AddonID.."MenuTooltipSettings");
-			MRBP_Settings_OpenToAddonCategory(categoryID);
+	do
+		mainLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
+		for _, expansionInfo in ipairs(GetOwnedExpansionInfoList()) do
+			local categoryID = format("%sExpansion%02dSettings", AddonID, expansionInfo.ID);
+			local OnExpansionButtonClick = function()
+				MRBP_Settings_OpenToAddonCategory(AddonID.."MenuTooltipSettings");
+				MRBP_Settings_OpenToAddonCategory(categoryID);
+			end
+			local expansionButtonInitializer = CreateSettingsButtonInitializer('', expansionInfo.name, OnExpansionButtonClick, '', addSearchTags);
+			mainLayout:AddInitializer(expansionButtonInitializer);
 		end
-		local expansionButtonInitializer = CreateSettingsButtonInitializer('', expansionInfo.name, OnExpansionButtonClick, '', addSearchTags);
-		mainLayout:AddInitializer(expansionButtonInitializer);
 	end
 
 	-- About frame button
-	mainLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_ABOUT_ADDON_LABEL));
-	local OnAboutButtonClick = function()
-		MRBP_Settings_OpenToAddonCategory(AddonID.."AboutFrame");
+	do
+		mainLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_ABOUT_ADDON_LABEL));
+		local OnAboutButtonClick = function()
+			MRBP_Settings_OpenToAddonCategory(AddonID.."AboutFrame");
+		end
+		local aboutButtonLabel = WARDROBE_TOOLTIP_ENCOUNTER_SOURCE:format(L.CFG_ADDONINFOS_VERSION, L.CFG_ABOUT_SLASHCMD_LABEL)
+		local aboutButtonInitializer = CreateSettingsButtonInitializer(aboutButtonLabel, L.CFG_ABOUT_ADDON_LABEL, OnAboutButtonClick, L.CFG_ABOUT_ADDON_LABEL, addSearchTags);
+		mainLayout:AddInitializer(aboutButtonInitializer);
 	end
-	local aboutButtonLabel = WARDROBE_TOOLTIP_ENCOUNTER_SOURCE:format(L.CFG_ADDONINFOS_VERSION, L.CFG_ABOUT_SLASHCMD_LABEL)
-	local aboutButtonInitializer = CreateSettingsButtonInitializer(aboutButtonLabel, L.CFG_ABOUT_ADDON_LABEL, OnAboutButtonClick, L.CFG_ABOUT_ADDON_LABEL, addSearchTags);
-	mainLayout:AddInitializer(aboutButtonInitializer);
-
-	-- ------- Dropdown menu settings ---------------------------------------------
-
-	-- layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_SEPARATOR_HEADING));
-
-	-- local checkBoxList_DropDownMenuSettings = {
-	-- 	{
-	-- 		variable = "showEntryTooltip",
-	-- 		name = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_TEXT,
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_TOOLTIP,
-	-- 	},
-	-- 	{
-	-- 		variable = "preferExpansionName",
-	-- 		name = L.CFG_DDMENU_NAMING_TEXT,
-	-- 		tooltip = L.CFG_DDMENU_NAMING_TOOLTIP,
-	-- 	},
-	-- 	{
-	-- 		variable = "reverseSortorder",
-	-- 		name = L.CFG_DDMENU_SORTORDER_TEXT,
-	-- 		tooltip = L.CFG_DDMENU_SORTORDER_TOOLTIP,
-	-- 	},
-	-- 	{
-	-- 		variable = "showMissionTypeIcons",
-	-- 		name = L.CFG_DDMENU_REPORTICONS_TEXT,
-	-- 		tooltip = L.CFG_DDMENU_REPORTICONS_TOOLTIP,
-	-- 	},
-	-- 	{
-	-- 		variable = "showMissionCompletedHint",
-	-- 		name = L.CFG_DDMENU_ICONHINT_TEXT,
-	-- 		tooltip = L.CFG_DDMENU_ICONHINT_TOOLTIP,
-	-- 	},
-	-- 	{
-	-- 		variable = "showMissionCompletedHintOnlyForAll",
-	-- 		name = L.CFG_DDMENU_ICONHINTALL_TEXT,
-	-- 		tooltip = L.CFG_DDMENU_ICONHINTALL_TOOLTIP,
-	-- 		parentVariable = "showMissionCompletedHint",
-	-- 	},
-	-- };
-
-	-- CheckBox_CreateFromList(category, checkBoxList_DropDownMenuSettings);
-
-	-- ------- Menu style selection -------------------------------------------------> TODO - Remove later	
-
-	-- local styleMenu = {
-	-- 	name = L.CFG_DDMENU_STYLESELECTION_LABEL,
-	-- 	tooltip =   L.CFG_DDMENU_STYLESELECTION_TOOLTIP,
-	-- 	variable = "menuStyleID",
-	-- 	defaultValue = ns.settings.menuStyleID,
-	-- };
-	-- local deprecationWarning = "|n|n"..GRAY(format("Note:|nThe options marked with '%s' will be removed in a future release. Their tooltip content will not be updated any more.|nFor more tooltip options go to the subcategory 'Tooltip'.", ADDON_INTERFACE_VERSION));
-	-- function styleMenu.GetOptions()
-	-- 	local container = Settings.CreateControlTextContainer();
-	-- 	local optionText1 = L.CFG_DDMENU_STYLESELECTION_VALUE1_TEXT..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(ADDON_INTERFACE_VERSION));
-	-- 	local optionText2 = L.CFG_DDMENU_STYLESELECTION_VALUE2_TEXT..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(ADDON_INTERFACE_VERSION));
-	-- 	local optionText3 = "New Tooltip";  --> TODO - L10n ???
-	-- 	container:Add("1", optionText3, "The new LibQTip Tooltip. This style is more flexible and highly customizable.|n(See settings subcategory 'Tooltip')")  --> TODO - L10n
-	-- 	container:Add("2", optionText1, L.CFG_DDMENU_STYLESELECTION_VALUE1_TOOLTIP);
-	-- 	container:Add("3", optionText2, L.CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP..deprecationWarning);
-	-- 	return container:GetData();
-	-- end
-	-- function styleMenu.OnValueChanged(owner, setting, value)
-	-- 	SaveSingleSetting("menuStyleID", value);
-	-- 	ns.MRBP_ReloadDropdown();
-	-- 	_log:debug("Menu style ID selected:", value);
-	-- 	if ns.settings.showChatNotifications then
-	-- 		local data = styleMenu.GetOptions();
-	-- 		for i, option in ipairs(data) do
-	-- 			if (value == option.value) then
-	-- 				printOption(format("%s - %s", setting.name, option.label), Settings.Default.True);
-	-- 				--> always true for each selected style
-	-- 			end
-	-- 		end
-	-- 	end
-	-- end
-	-- -- REF.: Settings.RegisterAddOnSetting(categoryTbl, name, variable, variableType, defaultValue)
-	-- -- REF.: Settings.CreateDropDown(categoryTbl, setting, options, tooltip)
-	-- local styleMenuSetting = Settings.RegisterAddOnSetting(category, styleMenu.name, styleMenu.variable, Settings.VarType.String, styleMenu.defaultValue);
-	-- local styleMenuInitializer = Settings.CreateDropDown(category, styleMenuSetting, styleMenu.GetOptions, styleMenu.tooltip);
-	-- styleMenuSetting:SetNewTagShown(Settings.Default.True)
-	-- -- styleMenuSetting:SetCommitFlags(Settings.CommitFlag.Apply, Settings.CommitFlag.Revertable);
-	-- -- Keep track of value changes
-	-- Settings.SetOnValueChangedCallback(styleMenu.variable, styleMenu.OnValueChanged, styleMenuSetting);
-
-	-- ------- Menu entries selection ---------------------------------------------
-
-	-- layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYSELECTION_LABEL));
-
-	-- local menuEntries = {};
-	-- menuEntries.expansionList = util.expansion.GetExpansionsWithLandingPage();
-	-- menuEntries.settingsCB = {  --> Additional "Settings" menu entry
-	-- 	ID = 99,
-	-- 	name = "[ "..SETTINGS.." ]"  --> WoW global string
-	-- };
-	-- tinsert(menuEntries.expansionList, menuEntries.settingsCB);
-	-- ns.settingsMenuEntry = tostring(menuEntries.settingsCB.ID);
-
-	-- local function getMenuEntryTooltip(expansionID, playerOwnsExpansion)
-	-- 	local featuresString = '';
-	-- 	local displayInfo = util.expansion.GetDisplayInfo(expansionID);
-	-- 	if displayInfo then
-	-- 		local expansion = util.expansion.GetExpansionData(expansionID);
-	-- 		-- local playerOwnsExpansion = util.expansion.DoesPlayerOwnExpansion(expansionID);
-	-- 		local _, width, height = util.GetAtlasInfo(displayInfo.banner);
-	-- 		local bannerString = util.CreateInlineIcon(displayInfo.banner, width, height, 8, -16);
-	-- 		featuresString = featuresString..bannerString.."|n";
-	-- 		if not playerOwnsExpansion then
-	-- 			featuresString = "|n"..ERROR_COLOR_CODE..featuresString..ERR_REQUIRES_EXPANSION_S:format(expansion.name)..FONT_COLOR_CODE_CLOSE.."|n|n";  --> WoW global string
-	-- 		end
-	-- 		featuresString = featuresString..HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(FEATURES_LABEL).."|n|n";  --> WoW global string
-	-- 		for _, feature in ipairs(displayInfo.features) do
-	-- 			local iconString = util.CreateInlineIcon(feature.icon);
-	-- 			featuresString = featuresString..iconString.." "..feature.text.."|n";
-	-- 		end
-	-- 	end
-	-- 	return featuresString;
-	-- end
-
-	-- -- Map names to settings
-	-- menuEntries.checkBoxList_MenuEntriesSettings = {};
-
-	-- for _, expansion in ipairs(menuEntries.expansionList) do
-	-- 	local ownsExpansion = util.expansion.DoesPlayerOwnExpansion(expansion.ID);
-	-- 	tinsert(menuEntries.checkBoxList_MenuEntriesSettings, {
-	-- 			variable = "activeMenuEntries#"..tostring(expansion.ID),
-	-- 			name = ownsExpansion and HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(expansion.name) or expansion.name,
-	-- 			tooltip = ns.settingsMenuEntry ~= tostring(expansion.ID) and getMenuEntryTooltip(expansion.ID, ownsExpansion),
-	-- 			-- tag = expansion.ID == util.expansion.data.Dragonflight.ID and Settings.Default.True or nil,
-	-- 			modifyPredicate = function() return ownsExpansion end;
-	-- 			-- modifyPredicate = function()
-	-- 			-- 	return util.expansion.DoesPlayerOwnExpansion(expansion.ID);
-	-- 			-- 	name = HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(expansion.name),
-	-- 			-- end
-	-- 		}
-	-- 	);
-	-- end
-
-	-- CheckBox_CreateFromList(category, menuEntries.checkBoxList_MenuEntriesSettings);
-
-	-- -- Add un-/check all entry buttons
-	-- local function OnButtonClick(value)
-	-- 	-- De-/Select all expansion entries
-	-- 	for _, expansion in ipairs(menuEntries.expansionList) do
-	-- 		local varName = "activeMenuEntries#"..tostring(expansion.ID);
-	-- 		local setting = Settings.GetSetting(varName);
-	-- 		if (value == Settings.Default.False and ns.settingsMenuEntry == tostring(expansion.ID)) then
-	-- 			setting:SetValue(Settings.Default.True);
-	-- 		else
-	-- 			setting:SetValue(value);
-	-- 		end
-	-- 	end
-	-- end
-	-- local function OnCheckAll()
-	-- 	OnButtonClick(Settings.Default.True);
-	-- end
-	-- local function OnUncheckAll()
-	-- 	OnButtonClick(Settings.Default.False);
-	-- end
-	-- -- REF.: CreateSettingsButtonInitializer(name, buttonText, buttonClick, tooltip, addSearchTags)
-	-- local addSearchTags = Settings.Default.False;
-	-- local checkAllInitializer = CreateSettingsButtonInitializer('', CHECK_ALL, OnCheckAll, nil, addSearchTags);
-	-- layout:AddInitializer(checkAllInitializer);
-	-- local unCheckAllInitializer = CreateSettingsButtonInitializer('', UNCHECK_ALL, OnUncheckAll, nil, addSearchTags);
-	-- layout:AddInitializer(unCheckAllInitializer);
-
-	------- Menu entries tooltip settings --------------------------------------
-
-	-- local function ShouldShowEntryTooltip()
-	-- 	return ns.settings.showEntryTooltip;
-	-- end
-
-	-- local entryTooltipSubcategoryLabel = GRAY(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL..HEADER_COLON.." ");
-
-	-- layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
-
-	-- local checkBoxList_EntryTooltipSettings = {
-	-- 	-- {
-	-- 	-- 	variable = "showBountyRequirements",
-	-- 	-- 	name = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTYREQUIREMENTS_TEXT,
-	-- 	-- 	tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BOUNTYREQUIREMENTS_TOOLTIP,
-	-- 	-- 	modifyPredicate = ShouldShowEntryTooltip,
-	-- 	-- },
-	-- 	-- {
-	-- 	-- 	variable = "showThreatsTimeRemaining",
-	-- 	-- 	name = L.CFG_DDMENU_ENTRYTOOLTIP_THREATS_TIMELEFT_TEXT,
-	-- 	-- 	tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_THREATS_TIMELEFT_TOOLTIP,
-	-- 	-- 	modifyPredicate = ShouldShowEntryTooltip,
-	-- 	-- },
-	-- 	{
-	-- 		variable = "showEntryRequirements",
-	-- 		name = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TEXT,
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_REQUIREMENT_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- };
-
-	-- CheckBox_CreateFromList(category, checkBoxList_EntryTooltipSettings);
-
-	-- ------- Tooltip settings - Warlords of Draenor -----------------------------
-
-	-- local expansionName_WarlordsOfDraenor = util.expansion.data.WarlordsOfDraenor.name;
-	-- layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(entryTooltipSubcategoryLabel..expansionName_WarlordsOfDraenor));
-
-	-- local checkBoxList_WoDEntryTooltipSettings = {
-	-- 	{
-	-- 		variable = "showWoDMissionInfo",
-	-- 		name = L["showWoDMissionInfo"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showWoDGarrisonInvasionAlert",
-	-- 		name = L["showWoDGarrisonInvasionAlert"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_GARRISON_INVASION_ALERT_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "hideWoDGarrisonInvasionAlertIcon",
-	-- 		name = L.CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT,
-	-- 		tooltip = L.CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP,
-	-- 		parentVariable = "showWoDGarrisonInvasionAlert",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showDraenorTreasures",
-	-- 		name = L["showDraenorTreasures"],
-	-- 		tooltip = "Show or hide the Stone Container, Oger Caches, etc. in Draenor.",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 		tag = Settings.Default.True,
-	-- 	},
-	-- 	{
-	-- 		variable = "showWoDWorldMapEvents",
-	-- 		name = L["showWoDWorldMapEvents"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showWoDTimewalkingVendor",
-	-- 		name = L["showWoDTimewalkingVendor"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_TIMEWALKING_VENDOR_TOOLTIP,
-	-- 		parentVariable = "showWoDWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- };
-
-	-- CheckBox_CreateFromList(category, checkBoxList_WoDEntryTooltipSettings);
-
-	-- ------- Tooltip settings - Legion ------------------------------------------
-
-	-- local expansionName_Legion = util.expansion.data.Legion.name;
-	-- layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(entryTooltipSubcategoryLabel..expansionName_Legion));
-
-	-- local checkBoxList_LegionEntryTooltipSettings = {
-	-- 	{
-	-- 		variable = "showLegionMissionInfo",
-	-- 		name = L["showLegionMissionInfo"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showLegionBounties",
-	-- 		name = L["showLegionBounties"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_LEGION_BOUNTIES_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showLegionWorldMapEvents",
-	-- 		name = L["showLegionWorldMapEvents"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showLegionAssaultsInfo",
-	-- 		name = L["showLegionAssaultsInfo"],
-	-- 		tooltip = FormatTooltipTemplate("showLegionAssaultsInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_LEGION_INVASION),
-	-- 		parentVariable = "showLegionWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showBrokenShoreInvasionInfo",
-	-- 		name = L["showBrokenShoreInvasionInfo"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DEMON_INVASION),
-	-- 		parentVariable = "showLegionWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showArgusInvasionInfo",
-	-- 		name = L["showArgusInvasionInfo"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ARGUS_INVASION),
-	-- 		parentVariable = "showLegionWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "applyInvasionColors",
-	-- 		name = L["applyInvasionColors"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_LEGION_INVASION_COLORS_TOOLTIP,
-	-- 		parentVariable = "showLegionWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showLegionTimewalkingVendor",
-	-- 		name = L["showLegionTimewalkingVendor"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_TIMEWALKING_VENDOR_TOOLTIP,
-	-- 		parentVariable = "showLegionWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- };
-
-	-- CheckBox_CreateFromList(category, checkBoxList_LegionEntryTooltipSettings);
-
-	-- ------- Tooltip settings - Battle for Azeroth ------------------------------
-
-	-- local expansionName_BattleForAzeroth = util.expansion.data.BattleForAzeroth.name;
-	-- layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(entryTooltipSubcategoryLabel..expansionName_BattleForAzeroth));
-
-	-- local checkBoxList_BfAEntryTooltipSettings = {
-	-- 	{
-	-- 		variable = "showBfAMissionInfo",
-	-- 		name = L["showBfAMissionInfo"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showBfABounties",
-	-- 		name = L["showBfABounties"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BFA_BOUNTIES_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showNzothThreats",
-	-- 		name = L["showNzothThreats"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_NZOTH_THREATS_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showBfAWorldMapEvents",
-	-- 		name = L["showBfAWorldMapEvents"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showBfAFactionAssaultsInfo",
-	-- 		name = L["showBfAFactionAssaultsInfo"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_BFA_FACTION_ASSAULTS),
-	-- 		parentVariable = "showBfAWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "applyBfAFactionColors",
-	-- 		name = L["applyBfAFactionColors"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showBfAIslandExpeditionsInfo",
-	-- 		name = L["showBfAIslandExpeditionsInfo"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_BFA_ISLAND_EXPEDITIONS_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- };
-
-	-- CheckBox_CreateFromList(category, checkBoxList_BfAEntryTooltipSettings);
-
-	-- ------- Tooltip settings - Shadowlands -------------------------------------
-
-	-- local expansionName_Shadowlands = util.expansion.data.Shadowlands.name;
-	-- layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(entryTooltipSubcategoryLabel..expansionName_Shadowlands));
-
-	-- local checkBoxList_SLEntryTooltipSettings = {
-	-- 	{
-	-- 		variable = "showCovenantMissionInfo",
-	-- 		name = L["showCovenantMissionInfo"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showCovenantBounties",
-	-- 		name = L["showCovenantBounties"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_COVENANT_BOUNTIES_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showMawThreats",
-	-- 		name = L["showMawThreats"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAW_THREATS_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showCovenantRenownLevel",
-	-- 		name = L["showCovenantRenownLevel"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_COVENANT_RENOWN_TOOLTIP,
-	-- 	},
-	-- 	{
-	-- 		variable = "applyCovenantColors",
-	-- 		name = L["applyCovenantColors"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- };
-
-	-- CheckBox_CreateFromList(category, checkBoxList_SLEntryTooltipSettings);
-
-	-- ------- Tooltip settings - Dragonflight ------------------------------------
-
-	-- local dfName = util.expansion.data.Dragonflight.name;
-	-- layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(entryTooltipSubcategoryLabel..dfName));
-
-	-- local checkBoxList_dfEntryTooltipSettings = {
-	-- 	{
-	-- 		variable = "showMajorFactionRenownLevel",
-	-- 		name = L["showMajorFactionRenownLevel"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_RENOWN_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "applyMajorFactionColors",
-	-- 		name = L["applyMajorFactionColors"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
-	-- 		parentVariable = "showMajorFactionRenownLevel",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "hideMajorFactionUnlockDescription",
-	-- 		name = L["hideMajorFactionUnlockDescription"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_UNLOCK_TOOLTIP,
-	-- 		parentVariable = "showMajorFactionRenownLevel",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "separateMajorFactionTooltip",
-	-- 		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
-	-- 		tooltip = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TOOLTIP,
-	-- 		parentVariable = "showMajorFactionRenownLevel",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 		tag = Settings.Default.True,
-	-- 	},
-	-- 	{
-	-- 		variable = "showDragonGlyphs",
-	-- 		name = L["showDragonGlyphs"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_DRAGON_GLYPHS_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "autoHideCompletedDragonGlyphZones",
-	-- 		name = L["autoHideCompletedDragonGlyphZones"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_HIDE_DRAGON_GLYPHS_TOOLTIP,
-	-- 		parentVariable = "showDragonGlyphs",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showDragonflightWorldMapEvents",
-	-- 		name = L["showDragonflightWorldMapEvents"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showDragonRaceInfo",
-	-- 		name = L["showDragonRaceInfo"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DRAGONRIDING_RACE),
-	-- 		parentVariable = "showDragonflightWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showCampAylaagInfo",
-	-- 		name = L["showCampAylaagInfo"],
-	-- 		tooltip = FormatTooltipTemplate("showCampAylaagInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_CAMP_AYLAAG),
-	-- 		parentVariable = "showDragonflightWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showGrandHuntsInfo",
-	-- 		name = L["showGrandHuntsInfo"],
-	-- 		tooltip = FormatTooltipTemplate("showGrandHuntsInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_GRAND_HUNTS),
-	-- 		parentVariable = "showDragonflightWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showCommunityFeastInfo",
-	-- 		name = L["showCommunityFeastInfo"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ISKAARA_FEAST),
-	-- 		parentVariable = "showDragonflightWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showDragonbaneKeepInfo",
-	-- 		name = L["showDragonbaneKeepInfo"],
-	-- 		tooltip = FormatTooltipTemplate("showDragonbaneKeepInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DRAGONBANE_KEEP),
-	-- 		parentVariable = "showDragonflightWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showElementalStormsInfo",
-	-- 		name = L["showElementalStormsInfo"],
-	-- 		tooltip = FormatTooltipTemplate("showElementalStormsInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ELEMENTAL_STORMS),
-	-- 		parentVariable = "showDragonflightWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showFyrakkAssaultsInfo",
-	-- 		name = L["showFyrakkAssaultsInfo"],
-	-- 		tooltip = FormatTooltipTemplate("showFyrakkAssaultsInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_FYRAKK_ASSAULTS),
-	-- 		parentVariable = "showDragonflightWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showResearchersUnderFireInfo",
-	-- 		name = L["showResearchersUnderFireInfo"],
-	-- 		tooltip = FormatTooltipTemplate("showResearchersUnderFireInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE, "|n|n"..L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN),
-	-- 		parentVariable = "showDragonflightWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showTimeRiftInfo",
-	-- 		name = L["showTimeRiftInfo"],
-	-- 		tooltip = FormatTooltipTemplate("showTimeRiftInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TIME_RIFTS),
-	-- 		parentVariable = "showDragonflightWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showDreamsurgeInfo",
-	-- 		name = L["showDreamsurgeInfo"],
-	-- 		tooltip = FormatTooltipTemplate("showDreamsurgeInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DREAMSURGE),
-	-- 		parentVariable = "showDragonflightWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showSuperbloomInfo",
-	-- 		name = L["showSuperbloomInfo"],
-	-- 		tooltip = FormatTooltipTemplate("showSuperbloomInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_SUPERBLOOM),
-	-- 		parentVariable = "showDragonflightWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showTheBigDigInfo",
-	-- 		name = L["showTheBigDigInfo"],
-	-- 		tooltip = FormatTooltipTemplate("showTheBigDigInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_THE_BIG_DIG),
-	-- 		parentVariable = "showDragonflightWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "hideEventDescriptions",
-	-- 		name = L["hideEventDescriptions"],
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS,
-	-- 		parentVariable = "showDragonflightWorldMapEvents",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- };
-
-	-- CheckBox_CreateFromList(category, checkBoxList_dfEntryTooltipSettings);
 
 	----------------------------------------------------------------------------
-	----- MenuTooltip ----------------------------------------------------------
-	------------------------------------------------------------------------------> TODO - L10n
+	----- MenuTooltip (dropdown menu) ------------------------------------------
+	----------------------------------------------------------------------------
 
-	local menuTooltipCategory, tooltipLayout = Settings.RegisterVerticalLayoutSubcategory(mainCategory, L.CFG_DDMENU_SEPARATOR_HEADING);
+	local menuTooltipCategory, menuTooltipLayout = Settings.RegisterVerticalLayoutSubcategory(mainCategory, L.CFG_DDMENU_SEPARATOR_HEADING);
 	menuTooltipCategory.ID = AddonID.."MenuTooltipSettings";
 
 	----- Right-click menu settings -----
-	-- tooltipLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_SEPARATOR_HEADING));
-	CreateMenuTooltipSettings(menuTooltipCategory, tooltipLayout)
+	CreateMenuTooltipSettings(menuTooltipCategory, menuTooltipLayout);
 
 	----- Menu entries selection -----
-	tooltipLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYSELECTION_LABEL));
-	CreateMenuEntriesSelection(menuTooltipCategory, tooltipLayout)
+	menuTooltipLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYSELECTION_LABEL));
+	CreateMenuEntriesSelection(menuTooltipCategory, menuTooltipLayout);
 
-	--------------------------------------
 	----- Expansion tooltip settings -----
-	--------------------------------------
 	if ns.settings.showEntryTooltip then
 		for _, expansionInfo in ipairs(GetOwnedExpansionInfoList()) do
 			-- Register expansion in its own subcategory
-			local categoryName = TEXT_DELIMITER..SETTINGS_SUBCATEGORY_FMT:format(expansionInfo.name, L.CFG_DDMENU_ENTRYTOOLTIP_LABEL);
-			local expansionCategory, expansionLayout = Settings.RegisterVerticalLayoutSubcategory(menuTooltipCategory, categoryName);
+			local expansionCategory, expansionLayout = Settings.RegisterVerticalLayoutSubcategory(menuTooltipCategory, expansionInfo.name);
 			expansionCategory.ID = format("%sExpansion%02dSettings", AddonID, expansionInfo.ID);
-			-- Settings.RegisterAddOnCategory(expansionCategory);
 			-- Add subcategory content
-			-- expansionLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
-			-- print("expansionCategory:", expansionCategory.ID, expansionInfo.name)
-			CreateExpansionTooltipSettings(expansionCategory, expansionInfo)
+			expansionLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
+			CreateExpansionTooltipSettings(expansionCategory, expansionInfo);
 		end
 	end
 
-	-- --[[
-	-- 	nil,	--> font 
-	-- 	"LEFT",	--> justification 
-	-- 	nil,	--> leftPadding 
-	-- 	nil,	--> rightPadding 
-	-- 	nil,	--> maxWidth 
-	-- 	150,	--> minWidth
-	-- 	lineHeight
-	-- 	menuTextColor
-	-- 	menuHighlightTexture
+	----------------------------------------------------------------------------
+	----- Tooltip appearance ---------------------------------------------------
+	------------------------------------------------------------------------------> TODO - L10n
 
-	-- 	tipScrollStep
-	-- 	tipSeparatorLineColor
-	-- 	tipHeaderTextJustify
-	-- 	tipHeaderTextColor
-	-- 	tipHeaderBackgroundColor
-	-- ]]
+	-- local appearanceHeaderText = GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AVAILABLE))
+	-- local appearanceCategory, appearanceLayout = Settings.RegisterVerticalLayoutSubcategory(mainCategory, appearanceHeaderText);
+	-- appearanceCategory.ID = AddonID.."AppearanceSettings";
 
+	-- --> TODO - (see below)
+	-- -- --[[
+	-- -- 	nil,	--> font 
+	-- -- 	"LEFT",	--> justification 
+	-- -- 	nil,	--> leftPadding 
+	-- -- 	nil,	--> rightPadding 
+	-- -- 	nil,	--> maxWidth 
+	-- -- 	150,	--> minWidth
+	-- -- 	lineHeight
+	-- -- 	menuTextColor
+	-- -- 	menuHighlightTexture
+
+	-- -- 	tipScrollStep
+	-- -- 	tipSeparatorLineColor
+	-- -- 	tipHeaderTextJustify
+	-- -- 	tipHeaderTextColor
+	-- -- 	tipHeaderBackgroundColor
+	-- -- ]]
+
+	-- ----- MenuTooltip appearance -----
+	-- appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_SEPARATOR_HEADING));
+
+	-- -- MenuTooltip width
 	-- do
-	-- 	local setting2 = Settings.RegisterAddOnSetting(tooltipCategory, HUD_EDIT_MODE_SETTING_CHAT_FRAME_WIDTH, "widthMenuTooltip", Settings.VarType.Number, 150);
+	-- 	local menuWidthSetting = Settings.RegisterAddOnSetting(appearanceCategory, HUD_EDIT_MODE_SETTING_CHAT_FRAME_WIDTH, "widthMenuTooltip", Settings.VarType.Number, 150);
 	-- 	local minValue, maxValue, step = 50, floor(GetScreenWidth() / 3), 5;
-	-- 	local options = Settings.CreateSliderOptions(minValue, maxValue, step);
-	-- 	options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, nil);
+	-- 	local menuWidthOptions = Settings.CreateSliderOptions(minValue, maxValue, step);
+	-- 	menuWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, nil);
 	-- 	-- REF.: Settings.CreateSlider(category, setting, options, tooltip)
-	-- 	local initializer2 = Settings.CreateSlider(tooltipCategory, setting2, options, "Transparenz des Rechtsklick-Menüs festlegen.");
+	-- 	local menuWidthInitializer = Settings.CreateSlider(appearanceCategory, menuWidthSetting, menuWidthOptions, "Transparenz des Rechtsklick-Menüs festlegen.");
 	-- 	local function OnValueChanged(owner, setting, value)
-	-- 		-- SetCVar("displaySpellActivationOverlays", value > 0);
 	-- 		print("-->", setting.name, value)
 	-- 	end
 	-- 	Settings.SetOnValueChangedCallback("maxWidthMenuTooltip", OnValueChanged);
-	-- 	-- initializer2:AddModifyPredicate(Settings.Default.True);
+	-- 	menuWidthInitializer:AddModifyPredicate(function() return Settings.Default.False; end);
 	-- end
-	-- -- Text justification
-	-- -- do
-	-- -- 	local justifyValues = {"LEFT", "CENTER", "RIGHT"}
-	-- -- 	local justifyMenuTextSetting = Settings.RegisterAddOnSetting(tooltipCategory, "Textausrichtung", "justifyMenuTooltipText", Settings.VarType.String, ns.defaultSettings["justifyMenuTooltipText"]);
-	-- -- 	local selfCastInitializer = Settings.CreateDropDown(category, selfCastSetting, GetOptions, OPTION_TOOLTIP_AUTO_SELF_CAST);
-	-- -- end
 
-	-- -- Content tooltip
-	-- tooltipLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Details-Tooltip"));
-
-	-- -- REF.: Settings.RegisterAddOnSetting(categoryTbl, name, variable, variableType, defaultValue)
-	-- local setting1 = Settings.RegisterAddOnSetting(tooltipCategory, "Tooltip anzeigen", "testSetting", Settings.VarType.Boolean, Settings.Default.True);
-	-- local initializer1 = Settings.CreateCheckBox(tooltipCategory, setting1, "Hello tooltip details");
-
-	-- layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_SEPARATOR_HEADING));
-
-	-- local checkBoxList_MenuStyleSettings = {
-	-- 	{
-	-- 		variable = "showEntryTooltip",
-	-- 		name = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_TEXT,
-	-- 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_SHOW_TOOLTIP,
-	-- 	},
-	-- 	{
-	-- 		variable = "hideWoDGarrisonInvasionAlertIcon",
-	-- 		name = L.CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT,
-	-- 		tooltip = L.CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP,
-	-- 		parentVariable = "showWoDGarrisonInvasionAlert",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 	},
-	-- 	{
-	-- 		variable = "showDraenorTreasures",
-	-- 		name = L["showDraenorTreasures"],
-	-- 		tooltip = "Show or hide the Stone Container, Oger Caches, etc. in Draenor.",
-	-- 		modifyPredicate = ShouldShowEntryTooltip,
-	-- 		tag = Settings.Default.True,
-	-- 	},
-	-- };
-
-	-- CheckBox_CreateFromList(tooltipCategory, checkBoxList_MenuStyleSettings);
+	-- -- MenuTooltip text alignment
+	-- do
+	-- 	local justifyValues = {
+	-- 		["LEFT"] = HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT,
+	-- 		["CENTER"] = "Center",
+	-- 		["RIGHT"] = HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT,
+	-- 	};
+	-- 	local function GetOptions()
+	-- 		local container = Settings.CreateControlTextContainer();
+	-- 		for key, label in pairs(justifyValues) do
+	-- 			container:Add(key, label, '');
+	-- 		end
+	-- 		return container:GetData();
+	-- 	end
+	-- 	local justifyMenuTextSetting = Settings.RegisterAddOnSetting(appearanceCategory, "Text Alignment", "justifyMenuTooltipText", Settings.VarType.String, ns.defaultSettings["justifyMenuTooltipText"]);
+	-- 	local justifyMenuTextInitializer = Settings.CreateDropDown(appearanceCategory, justifyMenuTextSetting, GetOptions, "Align names to this side. (NYI)");
+	-- 	justifyMenuTextInitializer:AddModifyPredicate(function() return Settings.Default.False; end);
+	-- end
 
 	----------------------------------------------------------------------------
 	----- About this addon -----------------------------------------------------
@@ -1679,7 +1075,7 @@ function MRBP_Settings_Register()
 	end
 
 	local aboutCategory, aboutLayout = Settings.RegisterCanvasLayoutSubcategory(mainCategory, aboutFrame, L.CFG_ABOUT_ADDON_LABEL);
-	aboutCategory.ID = aboutFrame.name
+	aboutCategory.ID = aboutFrame.name;
 	aboutLayout:AddAnchorPoint("TOPLEFT", 10, -10);
 	aboutLayout:AddAnchorPoint("BOTTOMRIGHT", -10, 10);
 
@@ -1733,7 +1129,7 @@ function MRBP_Settings_Register()
 		metaLabel:SetPoint("TOPLEFT", parentFrame, "BOTTOMLEFT", 0, -8);
 		metaLabel:SetWidth(100);
 		metaLabel:SetJustifyH("RIGHT");
-		metaLabel:SetText(labelText..HEADER_COLON);  --> WoW global string
+		metaLabel:SetText(labelText..HEADER_COLON);
 
 		if infoLabel then
 			local metaValue = aboutFrame:CreateFontString(aboutFrame:GetName().."MetaValue"..tostring(i), "ARTWORK", "GameFontHighlightSmall");
@@ -1786,7 +1182,7 @@ function MRBP_Settings_Register()
 		end
 		slashCmdLabel:SetWidth(100);
 		slashCmdLabel:SetJustifyH("RIGHT");
-		slashCmdLabel:SetText(slashCmdText..HEADER_COLON);  --> WoW global string
+		slashCmdLabel:SetText(slashCmdText..HEADER_COLON);
 
 		local slashCmdHelpLabel = aboutFrame:CreateFontString(aboutFrame:GetName()..strupper(slashCmdText).."Description", "ARTWORK", "GameFontHighlight");
 		slashCmdHelpLabel:SetPoint("LEFT", slashCmdLabel, "RIGHT", 4, 0);
@@ -1794,7 +1190,10 @@ function MRBP_Settings_Register()
 
 		slashParent = slashCmdLabel;
 	end
+end
 
+--@do-not-package@
+--------------------------------------------------------------------------------
 	---- Tests ----
 
 	-- layout:AddInitializer(CreateSettingsListSectionHeaderInitializer("Tests"));
@@ -1822,4 +1221,5 @@ function MRBP_Settings_Register()
 	-- end
 	-- local infoButtonInitializer = CreateSettingsButtonInitializer("Add-on Infos", "Anzeigen", OnButtonClick, "Infos zu diesem Add-on anzeigen.");
 	-- layout:AddInitializer(infoButtonInitializer);
-end
+--------------------------------------------------------------------------------
+--@end-do-not-package@
