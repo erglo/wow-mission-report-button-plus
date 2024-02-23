@@ -119,6 +119,7 @@ ns.L = {
 	CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP = "This style represents the look of a common dialog (pre-Dragonflight).",
 	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT = "Hide Alert Icon",
 	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP = "Hide the Invasion Alert icon on top of the Draenor Garrison Landing Page frame, even if an invasion is available.",
+	CFG_WOD_SHOW_DRAENOR_TREASURES_TOOLTIP = "Show a summarization of the Draenor maps Stone Containers, Ogre Caches, etc.",
 	CFG_ABOUT_ADDON_LABEL = "About this Add-on",
 	CFG_ABOUT_SLASHCMD_LABEL = "Slash Commands",
 	--[[ Testing ]]--

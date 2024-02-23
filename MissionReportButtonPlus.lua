@@ -2281,8 +2281,8 @@ local SLASH_CMD_ARGLIST = {
 	{"show", L.SLASHCMD_DESC_SHOW},
 	{"hide", L.SLASHCMD_DESC_HIDE},
 	{"hook", L.SLASHCMD_DESC_HOOK},
-	{"config", BASIC_OPTIONS_TOOLTIP},  --> WoW global string
-	--> TODO - "about"
+	{"config", BASIC_OPTIONS_TOOLTIP},
+	{"about", L.CFG_ABOUT_ADDON_LABEL},
 }
 ns.SLASH_CMD_ARGLIST = SLASH_CMD_ARGLIST;
 

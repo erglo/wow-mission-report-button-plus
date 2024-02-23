@@ -133,6 +133,7 @@ ns.L = {
 	CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP = "Dieser Stil entspricht dem Aussehen der Dialoge vor der Dragonflight-Erweiterung.",
 	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT = "Alarm-Symbol ausblenden",
 	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP = "Das Invasionsalarm-Symbol am oberen Rand des Missionsbericht-Fensters eurer Draenor-Garnison ausblenden, selbst wenn Invasionen verfügbar sind.",
+	CFG_WOD_SHOW_DRAENOR_TREASURES_TOOLTIP = "Auf der Draenor-Karte sichtbaren Steintruhen, Ogervorräte, etc. zusammengefasst anzeigen.",
 	CFG_ABOUT_ADDON_LABEL = "Über dieses Addon",
 	CFG_ABOUT_SLASHCMD_LABEL = "Slash-Befehle",
 	--[[ Testing ]]--

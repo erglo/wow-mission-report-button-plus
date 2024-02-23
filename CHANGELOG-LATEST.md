@@ -9,17 +9,19 @@
 
 ### Added
 
-* Settings: added options for recent changes.
-* Tooltip: added `Paragon reputation progress` to major factions.
-* Tooltip: added new `tooltip handler` [LibQTip](https://www.curseforge.com/wow/addons/libqtip-1-0) for better organizing and displaying the tooltip content.
-* Warlords of Draenor: added a list of yet uncollected `treasures` in Draenor.
+* Dragonflight: added `Paragon reputation progress` to major factions.
+* Warlords of Draenor: added an optional list of yet uncollected `treasures` in Draenor.
+* Tooltip: Dragonflight major factions can be `separated` into its own tooltip.
+* Tooltip: expansion content tooltips are now `scrollable`.
+* Tooltip: added `new tooltip handler` [LibQTip](https://www.curseforge.com/wow/addons/libqtip-1-0) for better organizing and displaying the tooltip content.
 
 ### Changed
 
-* L10n: Updated locale files.
+* L10n: updated locale files.
+* Settings: reorganized addon settings into multiple subcategories.
 * Minimap Button: right-clicking the minimap button now toggles the menu.
-* Tooltip: converted content to the new tooltip format.
 * Legion + BfA: refined bounty data retrieval.
+* Tooltip: converted content to the new tooltip format.
 &nbsp;  
 
 ## Previous changes
