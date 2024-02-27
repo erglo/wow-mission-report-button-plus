@@ -37,15 +37,12 @@ local LocalLibQTipUtil = ns.utils.libqtip
 local format = string.format
 local QuestUtils_GetQuestName = QuestUtils_GetQuestName
 local CovenantCalling_CheckCallings = CovenantCalling_CheckCallings
-local CreateAtlasMarkup = CreateAtlasMarkup
 local CreateTextureMarkup = CreateTextureMarkup
-local CreateSimpleTextureMarkup = CreateSimpleTextureMarkup
+-- local CreateAtlasMarkup = CreateAtlasMarkup
 
 ----- Colors -----
 
-local DIM_RED_FONT_COLOR = DIM_RED_FONT_COLOR
 local DISABLED_FONT_COLOR = DISABLED_FONT_COLOR
-local HIGHLIGHT_FONT_COLOR = HIGHLIGHT_FONT_COLOR
 local LIGHTGRAY_FONT_COLOR = LIGHTGRAY_FONT_COLOR
 local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR
 local RED_FONT_COLOR = RED_FONT_COLOR
@@ -58,16 +55,12 @@ local TOOLTIP_TEXT_FONT_COLOR = WHITE_FONT_COLOR
 
 ----- Icons -----
 
--- local TOOLTIP_DASH_ICON_ID = 3083385
--- local TOOLTIP_GRAY_CHECK_MARK_ICON_STRING = util.CreateInlineIcon(130750)
--- local TOOLTIP_ORANGE_CHECK_MARK_ICON_STRING = util.CreateInlineIcon("Adventures-Checkmark")
-local TOOLTIP_DASH_ICON_STRING = CreateSimpleTextureMarkup(3083385, 16, 16)
-local TOOLTIP_CLOCK_ICON_STRING = CreateAtlasMarkup("auctionhouse-icon-clock", 16, 16)
-local TOOLTIP_CHECK_MARK_ICON_STRING = CreateSimpleTextureMarkup(628564, 16, 16)
-local TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING = CreateSimpleTextureMarkup(130751, 16, 16)
-local TOOLTIP_BAG_ICON_STRING = CreateAtlasMarkup("ParagonReputation_Bag", 13, 15)
-local TOOLTIP_BAG_FULL_ICON_STRING = CreateAtlasMarkup("ParagonReputation_Bag", 13, 15)..CreateAtlasMarkup("ParagonReputation_Checkmark", 14, 12, -9, -1)
--- REF.: CreateAtlasMarkup(atlasName, width, height, offsetX, offsetY, rVertexColor, gVertexColor, bVertexColor)
+local TOOLTIP_DASH_ICON_STRING = util.CreateInlineIcon(3083385, 16)
+local TOOLTIP_CLOCK_ICON_STRING = util.CreateInlineIcon("auctionhouse-icon-clock", 16)
+local TOOLTIP_CHECK_MARK_ICON_STRING = util.CreateInlineIcon(628564, 16)
+local TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING = util.CreateInlineIcon(130751, 16, 16, 1)
+local TOOLTIP_BAG_ICON_STRING = util.CreateInlineIcon("ParagonReputation_Bag", 13, 15)
+local TOOLTIP_BAG_FULL_ICON_STRING = TOOLTIP_BAG_ICON_STRING..util.CreateInlineIcon("ParagonReputation_Checkmark", 14, 12, -9, -1)
 
 ----- Strings -----
 
@@ -75,7 +68,6 @@ local HEADER_COLON = HEADER_COLON
 local PARENS_TEMPLATE = PARENS_TEMPLATE
 local GENERIC_FRACTION_STRING = GENERIC_FRACTION_STRING
 local MAJOR_FACTION_BUTTON_RENOWN_LEVEL = MAJOR_FACTION_BUTTON_RENOWN_LEVEL
-local MAJOR_FACTION_MAX_RENOWN_REACHED = MAJOR_FACTION_MAX_RENOWN_REACHED
 local MAJOR_FACTION_BUTTON_FACTION_LOCKED = MAJOR_FACTION_BUTTON_FACTION_LOCKED
 local TRADESKILL_NAME_RANK = TRADESKILL_NAME_RANK
 local YOU_COLLECTED_LABEL = YOU_COLLECTED_LABEL
@@ -153,7 +145,7 @@ function LocalTooltipUtil:AddAchievementLine(tooltip, text, icon, TextColor, com
 	if not completed then
 		return self:AddIconLine(tooltip, text, icon, TextColor, ...)
 	end
-	local lineText = text..TEXT_DELIMITER..TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING
+	local lineText = text..TOOLTIP_YELLOW_CHECK_MARK_ICON_STRING
 	return self:AddIconLine(tooltip, lineText, icon, completed and DISABLED_FONT_COLOR or TextColor, ...)
 end
 

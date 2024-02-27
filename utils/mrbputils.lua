@@ -249,21 +249,20 @@ function util.CreateInlineIcon(atlasNameOrTexID, sizeX, sizeY, xOffset, yOffset)
 	sizeX = sizeX or 16;
 	sizeY = sizeY or sizeX;
 	xOffset = xOffset or 0;
-	yOffset = yOffset or 0;  -- -1;
+	yOffset = yOffset or 0;
 
-	local isNumberString = tonumber(atlasNameOrTexID) ~= nil;
-	if isNumberString then
-		atlasNameOrTexID = tonumber(atlasNameOrTexID);
-	end
-	if ( type(atlasNameOrTexID) == "number") then
+	if (type(atlasNameOrTexID) == "number") then
 		-- REF.: CreateTextureMarkup(file, fileWidth, fileHeight, width, height, left, right, top, bottom, xOffset, yOffset)
 		return CreateTextureMarkup(atlasNameOrTexID, 0, 0, sizeX, sizeY, 0, 0, 0, 0, xOffset, yOffset);  --> keep original color
 		-- return string.format("|T%d:%d:%d:%d:%d|t", atlasNameOrTexID, size, size, xOffset, yOffset);
 	end
-	if ( type(atlasNameOrTexID) == "string" or tonumber(atlasNameOrTexID) ~= nil ) then
+	-- if ( type(atlasNameOrTexID) == "string" or tonumber(atlasNameOrTexID) ~= nil ) then
+	if (type(atlasNameOrTexID) == "string") then
 		-- REF.: CreateAtlasMarkup(atlasName, width, height, offsetX, offsetY, rVertexColor, gVertexColor, bVertexColor)
 		return CreateAtlasMarkup(atlasNameOrTexID, sizeX, sizeY, xOffset, yOffset);  --> keep original color
 	end
+
+	return ''
 end
 
 function util.CreateInlineIcon1(atlasNameOrTexID, sizeX, sizeY, xOffset, yOffset)
