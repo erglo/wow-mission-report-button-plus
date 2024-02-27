@@ -1866,20 +1866,21 @@ end
 --- BfA: Island Expeditions ---
 
 function util.poi.GetBfAIslandExpeditionInfo()
-	local islandExpeditionsQuestID = C_IslandsQueue.GetIslandsWeeklyQuestID();   --> 53435
-	local numObjectives = C_QuestLog.GetNumQuestObjectives(islandExpeditionsQuestID);  --> 1
+	local islandExpeditionsQuestID = C_IslandsQueue.GetIslandsWeeklyQuestID();
+	local numObjectives = C_QuestLog.GetNumQuestObjectives(islandExpeditionsQuestID);
 	local displayAsCompleted = false;
 	local text, objectiveType, completed, numFulfilled, numRequired = GetQuestObjectiveInfo(islandExpeditionsQuestID, numObjectives, displayAsCompleted);
-	local fulfilledPercentage = (numFulfilled / numRequired) * 100;  --> eg. (30224/36000)*100 = 83,95
-	local data = {
-		name = LocalQuestUtil.GetQuestName(islandExpeditionsQuestID),  --> "Azerit für die Horde"
+	if not (numFulfilled or numRequired) then return end;
+	local fulfilledPercentage = (numFulfilled / numRequired) * 100;
+	local expeditionData = {
+		name = LocalQuestUtil.GetQuestName(islandExpeditionsQuestID),
 		atlasName = "poi-islands-table",
 		isCompleted = completed,
-		fulfilledPercentageString = PERCENTAGE_STRING:format(fulfilledPercentage),  --> eg. '83 %'
-		progressText = ISLANDS_QUEUE_WEEKLY_QUEST_PROGRESS:format(numFulfilled, numRequired),  --> "%d/%d Azerite";
+		fulfilledPercentageString = PERCENTAGE_STRING:format(fulfilledPercentage),
+		progressText = ISLANDS_QUEUE_WEEKLY_QUEST_PROGRESS:format(numFulfilled, numRequired),
 	};
 
-	return data;
+	return expeditionData;
 end
 
 ----- Legion: Legion Assaults (Legion Invasion on The Broken Isles) -----

@@ -21,6 +21,7 @@
 * Settings: reorganized addon settings into multiple subcategories.
 * Minimap Button: right-clicking the minimap button now toggles the menu.
 * Legion + BfA: refined bounty data retrieval.
+* Tooltip (new): moved expansion unlocking requirements to in-progress missions; expansion tooltips are no longer completely locked.
 * Tooltip: converted content to the new tooltip format.
 &nbsp;  
 

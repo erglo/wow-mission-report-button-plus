@@ -1174,11 +1174,13 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 		end
 		if ns.settings.showBfAIslandExpeditionsInfo then
 			local islandExpeditionInfo = util.poi.GetBfAIslandExpeditionInfo();
-			tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showBfAIslandExpeditionsInfo"]);
-			tooltipText = TooltipText_AddIconLine(tooltipText, islandExpeditionInfo.name, islandExpeditionInfo.atlasName);
-			tooltipText = TooltipText_AddObjectiveLine(tooltipText, islandExpeditionInfo.progressText, islandExpeditionInfo.isCompleted);
-			local appendedTextColor = islandExpeditionInfo.isCompleted and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR;
-			tooltipText = TooltipText_AppendText(tooltipText, PARENS_TEMPLATE:format(islandExpeditionInfo.fulfilledPercentageString), appendedTextColor);
+			if islandExpeditionInfo then
+				tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showBfAIslandExpeditionsInfo"]);
+				tooltipText = TooltipText_AddIconLine(tooltipText, islandExpeditionInfo.name, islandExpeditionInfo.atlasName);
+				tooltipText = TooltipText_AddObjectiveLine(tooltipText, islandExpeditionInfo.progressText, islandExpeditionInfo.isCompleted);
+				local appendedTextColor = islandExpeditionInfo.isCompleted and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR;
+				tooltipText = TooltipText_AppendText(tooltipText, PARENS_TEMPLATE:format(islandExpeditionInfo.fulfilledPercentageString), appendedTextColor);
+			end
 		end
 	end
 
@@ -1735,20 +1737,26 @@ local function MenuLine_OnEnter(...)
 
 	------ Unlocking requirements -----
 
-	if expansionInfo.disabled then
-		-- Show requirement info for unlocking the given expansion type
-		LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
-		LocalTooltipUtil:AddTextLine(ExpansionTooltip, garrisonInfo.msg.requirementText, DIM_RED_FONT_COLOR, ...)
-		-- -- Stop here; no content for locked expansions
-		-- MenuLine_ShowTooltips()
-		-- return
-	end
+	-- if expansionInfo.disabled then
+	-- 	-- Show requirement info for unlocking the given expansion type
+	-- 	LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
+	-- 	LocalTooltipUtil:AddTextLine(ExpansionTooltip, garrisonInfo.msg.requirementText, DIM_RED_FONT_COLOR, ...)
+	-- 	-- -- Stop here; no content for locked expansions
+	-- 	-- MenuLine_ShowTooltips()
+	-- 	-- return
+	-- end
 
 	----- In-progress missions -----
 
 	if ShouldShowMissionsInfoText(expansionInfo.garrisonTypeID) then
-		local shouldShowMissionCompletedMessage = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID)
-		LocalTooltipUtil:AddGarrisonMissionLines(ExpansionTooltip, garrisonInfo, shouldShowMissionCompletedMessage)
+		LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, garrisonInfo.msg.missionsTitle)
+		if expansionInfo.disabled then
+			-- Show requirement info for unlocking the given expansion type
+			LocalTooltipUtil:AddTextLine(ExpansionTooltip, garrisonInfo.msg.requirementText, DIM_RED_FONT_COLOR, ...)
+		else
+			local shouldShowMissionCompletedMessage = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID)
+			LocalTooltipUtil:AddGarrisonMissionLines(ExpansionTooltip, garrisonInfo, shouldShowMissionCompletedMessage)
+		end
 	end
 
 	----- Timewalking Vendor (currently Draenor + Legion only) -----
@@ -1813,7 +1821,7 @@ local function MenuLine_OnEnter(...)
 		-- Demon Invasions (Broken Shores)
 		if ns.settings.showBrokenShoreInvasionInfo then
 			local demonAreaPoiInfos = util.poi.GetBrokenShoreInvasionInfo()
-			if util.TableHasAnyEntries(demonAreaPoiInfos) then
+			if (#demonAreaPoiInfos > 0) then
 				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showBrokenShoreInvasionInfo"])
 				for _, demonPoi in ipairs(demonAreaPoiInfos) do
 					LocalTooltipUtil:AddIconLine(ExpansionTooltip, demonPoi.name, demonPoi.atlasName, demonPoi.color)
@@ -1824,7 +1832,7 @@ local function MenuLine_OnEnter(...)
 		-- Invasion Points (Argus)
 		if ns.settings.showArgusInvasionInfo then
 			local riftAreaPoiInfos = util.poi.GetArgusInvasionPointsInfo()
-			if util.TableHasAnyEntries(riftAreaPoiInfos) then
+			if (#riftAreaPoiInfos > 0) then
 				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showArgusInvasionInfo"])
 				for _, riftPoi in ipairs(riftAreaPoiInfos) do
 					LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, riftPoi.description, riftPoi.atlasName, riftPoi.color, riftPoi.isCompleted)
@@ -1839,7 +1847,7 @@ local function MenuLine_OnEnter(...)
 
 	if ShouldShowActiveThreatsText(expansionInfo.garrisonTypeID) then
 		local activeThreats = util.threats.GetActiveThreats()
-		local threatData = activeThreats[expansionInfo.ID]
+		local threatData = activeThreats and activeThreats[expansionInfo.ID]
 		if threatData then
 			local headerName = (
 				isForBattleForAzeroth and L["showNzothThreats"] or
@@ -2119,11 +2127,10 @@ local function AddMenuTooltipLine(info)
 		MenuTooltip:SetLineScript(lineIndex, "OnEnter", MenuLine_OnEnter, info)
 		MenuTooltip:SetLineScript(lineIndex, "OnLeave", MenuLine_OnLeave)
 	end
-	if info.func then
-		MenuTooltip:SetLineScript(lineIndex, "OnMouseUp", MenuLine_OnClick, info)
-	end
 	if info.disabled then
     	MenuTooltip:SetLineTextColor(lineIndex, DISABLED_FONT_COLOR:GetRGBA())
+	elseif info.func then
+		MenuTooltip:SetLineScript(lineIndex, "OnMouseUp", MenuLine_OnClick, info)
 	end
 end
 
@@ -2163,7 +2170,9 @@ local function ShowMenuTooltip(parent)
 	end
 	-- Options
 	if tContains(ns.settings.activeMenuEntries, ns.settingsMenuEntry) then
-		MenuTooltip:AddSeparator()
+		if (#ns.settings.activeMenuEntries > 1) then
+			MenuTooltip:AddSeparator()
+		end
 		AddMenuTooltipLine(settingsInfo)
 	end
 	-- Content tooltip

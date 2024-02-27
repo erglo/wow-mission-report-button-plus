@@ -250,7 +250,7 @@ end
 function LocalTooltipUtil:AddGarrisonMissionLines(tooltip, garrisonInfo, shouldShowMissionCompletedMessage)
     local numInProgress, numCompleted = util.garrison.GetInProgressMissionCount(garrisonInfo.garrisonTypeID)
 	local hasCompletedAllMissions = numCompleted > 0 and numCompleted == numInProgress
-	self:AddHeaderLine(tooltip, garrisonInfo.msg.missionsTitle)
+	-- self:AddHeaderLine(tooltip, garrisonInfo.msg.missionsTitle)
 	-- Mission counter
 	if (numInProgress > 0) then
 		local progressText = format(garrisonInfo.msg.missionsReadyCount, numCompleted, numInProgress)
