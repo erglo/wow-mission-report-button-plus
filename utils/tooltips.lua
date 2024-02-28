@@ -166,7 +166,7 @@ end
 -- Requires expansionInfo, eg. util.expansion.data.Dragonflight
 function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 	local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansionInfo.ID)
-	if #majorFactionData then
+	if (#majorFactionData > 0) then
 		if (tooltip.key == ShortAddonID.."LibQTipReputationTooltip") then
 			-- self:AddHeaderLine(tooltip, L["showMajorFactionRenownLevel"], nil, true)
 			self:AddHeaderLine(tooltip, expansionInfo.name, nil, true)

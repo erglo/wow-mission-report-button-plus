@@ -1070,6 +1070,33 @@ function util.garrison.GetParagonCompletionText(paragonInfo)
 	return ''
 end
 
+-- Check if given expansion has reputation rewards pending.
+---@param expansionID number
+---@return boolean hasRewardPending
+--
+function util.garrison.HasMajorFactionReputationReward(expansionID)
+	local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansionID)
+	if (#majorFactionData == 0) then
+		return false
+	end
+	for i, factionData in ipairs(majorFactionData) do
+		if factionData.isUnlocked then
+			if util.garrison.IsFactionParagon(factionData.factionID) then
+				local paragonInfo = util.garrison.GetFactionParagonInfo(factionData.factionID)
+				if paragonInfo.hasRewardPending then
+					return true
+				end
+			else
+				local hasRewardPending = factionData.renownReputationEarned >= factionData.renownLevelThreshold
+				if hasRewardPending then
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
 ----- Shadowlands - Covenant utilities -----
 --
 -- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/CovenantsDocumentation.lua>

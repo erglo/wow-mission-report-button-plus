@@ -1643,6 +1643,15 @@ local function ShouldShowMissionCompletedHint(garrisonTypeID)
 	return hasCompletedAllMissions
 end
 
+-- Return a suitable atlas name for given expansion.
+local function GetExpansionHintIcon(expansionInfo)
+	if (expansionInfo.ID < util.expansion.data.Dragonflight.ID) then
+		return ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID) and util.CreateInlineIcon("QuestNormal")
+	else
+		return util.garrison.HasMajorFactionReputationReward(expansionInfo.ID) and util.CreateInlineIcon("Levelup-Icon-Bag", 14, 16)
+	end
+end
+
 ----- LibQTip -----
 
 local uiScale = UIParent:GetEffectiveScale()
@@ -2160,7 +2169,7 @@ local function ShowMenuTooltip(parent)
 		expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or garrisonInfo.title
 		expansionInfo.minimapIcon = ns.settings.showMissionTypeIcons and util.CreateInlineIcon(garrisonInfo.minimapIcon)
 		expansionInfo.disabled = not MRBP_IsGarrisonRequirementMet(expansionInfo.garrisonTypeID)
-		expansionInfo.iconString = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID) and util.CreateInlineIcon("QuestNormal") or nil
+		expansionInfo.iconString = GetExpansionHintIcon(expansionInfo)
 		expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID) end
 		local playerOwnsExpansion = util.expansion.DoesPlayerOwnExpansion(expansionInfo.ID)
 		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(expansionInfo.ID))  --> user option
@@ -2439,7 +2448,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 				util.GameTooltip_AddAtlas(tooltip, garrInfo.minimapIcon, 36, 36, Enum.TooltipTextureAnchor.RightCenter);
 				-- Major Factions
 				local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansion.ID);
-				if util.TableHasAnyEntries(majorFactionData) then
+				if (#majorFactionData > 0) then
 					for _, factionData in ipairs(majorFactionData) do
 						if factionData.isUnlocked then
 							local factionAtlasName = "MajorFactions_MapIcons_"..factionData.textureKit.."64";
