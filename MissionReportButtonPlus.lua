@@ -70,6 +70,7 @@ local WARNING_FONT_COLOR = WARNING_FONT_COLOR
 
 local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
 local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
+local GENERIC_FRACTION_STRING = GENERIC_FRACTION_STRING;
 
 ----- Main ---------------------------------------------------------------------
 
@@ -2405,6 +2406,9 @@ end
 -- REF.: <FrameXML/GameTooltip.lua>
 -- REF.: <FrameXML/SharedTooltipTemplates.lua>
 
+local TOOLTIP_BAG_ICON_STRING = util.CreateInlineIcon("ParagonReputation_Bag", 13, 15);
+local TOOLTIP_BAG_FULL_ICON_STRING = TOOLTIP_BAG_ICON_STRING..util.CreateInlineIcon("ParagonReputation_Checkmark", 14, 12, -9, -1);
+
 -- function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 	local addonTitle = button.value;
@@ -2455,13 +2459,22 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 							local factionAtlasName = "MajorFactions_MapIcons_"..factionData.textureKit.."64";
 							local factionColor = util.garrison.GetMajorFactionColor(factionData);  -- WHITE_FONT_COLOR
 							local renownLevelText = factionColor:WrapTextInColorCode(MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel));
-							local reputationLevelText = format("%d/%d", factionData.renownReputationEarned, factionData.renownLevelThreshold);
-							local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID);
-							local lineText = format("%s: %s - %s", util.strip_DE_hyphen(factionData.name), renownLevelText, reputationLevelText);
-							if hasMaxRenown then
-								lineText = format("%s: %s", util.strip_DE_hyphen(factionData.name), renownLevelText);
+							local levelThreshold = factionData.renownLevelThreshold;
+							local reputationEarned = factionData.renownReputationEarned;
+							local suffixText = '';
+							local isParagon = util.garrison.IsFactionParagon(factionData.factionID);
+							if isParagon then
+								local paragonInfo = util.garrison.GetFactionParagonInfo(factionData.factionID);
+								local value = mod(paragonInfo.currentValue, paragonInfo.threshold);
+								levelThreshold = paragonInfo.threshold;
+								reputationEarned = paragonInfo.hasRewardPending and value + paragonInfo.threshold or value;
+								local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING;
+								suffixText = TEXT_DELIMITER..bagIconString;
 							end
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText, hasMaxRenown, wrapLine, leftOffset, factionAtlasName);
+							local reputationLevelText = GENERIC_FRACTION_STRING:format(reputationEarned, levelThreshold);
+							local lineText = format("%s: %s - %s", factionData.name, renownLevelText, HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(reputationLevelText));
+							local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID);
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText..suffixText, hasMaxRenown, wrapLine, leftOffset, factionAtlasName);
 						end
 					end
 				end
@@ -2469,7 +2482,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 				if (expansion.ID == util.expansion.data.Dragonflight.ID) then
 					local treeCurrencyInfo = util.garrison.GetDragonRidingTreeCurrencyInfo();
 					local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = util.garrison.GetDragonGlyphsCount();
-					local collectedAmountString = WHITE_FONT_COLOR:WrapTextInColorCode(format("%d/%d", numGlyphsCollected, numGlyphsTotal));
+					local collectedAmountString = WHITE_FONT_COLOR:WrapTextInColorCode(GENERIC_FRACTION_STRING:format(numGlyphsCollected, numGlyphsTotal));
 					local isCompleted = numGlyphsCollected == numGlyphsTotal;
 					util.GameTooltip_AddObjectiveLine(tooltip, L["showDragonGlyphs"]..": "..collectedAmountString, isCompleted, wrapLine, leftOffset, treeCurrencyInfo.texture);
 					-- Dragonriding Race
@@ -2600,7 +2613,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 				-- Command table missions
 				if (expansion.ID ~= util.expansion.data.Dragonflight.ID and garrInfo.missions.numInProgress > 0) then
 					local hasCompletedAllMissions = garrInfo.missions.numCompleted == garrInfo.missions.numInProgress;
-					local progressText = string.format("%d/%d", garrInfo.missions.numCompleted, garrInfo.missions.numInProgress);
+					local progressText = GENERIC_FRACTION_STRING:format(garrInfo.missions.numCompleted, garrInfo.missions.numInProgress);
 					util.GameTooltip_AddObjectiveLine(tooltip, garrInfo.msg.missionsTitle..": "..progressText, hasCompletedAllMissions);
 				end
 				-- Bounty Board + Covenant Callings
