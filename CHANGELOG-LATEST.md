@@ -10,7 +10,9 @@
 ### Added
 
 * Dragonflight: added `Paragon reputation progress` to major factions.
+* Legion: added pseudo-requirement quest "Aiding Khadgar" for Evoker.
 * Warlords of Draenor: added an optional list of yet uncollected `treasures` in Draenor.
+* Tooltip: added optional icon hint for pending reputation reward from major factions.
 * Tooltip: Dragonflight major factions can be `separated` into its own tooltip.
 * Tooltip: expansion content tooltips are now `scrollable`.
 * Tooltip: added `new tooltip handler` [LibQTip](https://www.curseforge.com/wow/addons/libqtip-1-0) for better organizing and displaying the tooltip content.

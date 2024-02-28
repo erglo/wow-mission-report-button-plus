@@ -240,6 +240,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 					local addonTitle = ns.GetAddOnMetadata(interferingAddonName, "Title")
 					_log.info(foundMessage, addonTitle)
 					self:RedoButtonHooks(informUser)
+					return  -- stop at first match
 				end
 			end
 
@@ -357,7 +358,7 @@ local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
 		["MONK"] = {42187, "Rise, Champions"},
 		["DRUID"] = {42583, "Rise, Champions"},
 		["DEMONHUNTER"] = {42670, "Rise, Champions"},
-		["EVOKER"] = {0, "???"},  --> not available for Legion ???
+		["EVOKER"] = {72129, "Aiding Khadgar"},  --> no Class Hall for Evoker (!); talk to Khadgar instead.
 	},
 	[util.expansion.data.BattleForAzeroth.garrisonTypeID] = {
 		["Horde"] = {51771, "War of Shadows"},
@@ -481,8 +482,7 @@ function MRBP:LoadData()
 			["tagName"] = playerInfo.className,
 			["title"] = ORDER_HALL_LANDING_PAGE_TITLE,
 			["description"] = MINIMAP_ORDER_HALL_LANDING_PAGE_TOOLTIP,
-			["minimapIcon"] = playerInfo.className == "EVOKER" and "UF-Essence-Icon-Active" or  -- "legionmission-landingbutton-demonhunter-up" or
-							  string.format("legionmission-landingbutton-%s-up", playerInfo.className),
+			["minimapIcon"] = playerInfo.className == "EVOKER" and "UF-Essence-Icon-Active" or string.format("legionmission-landingbutton-%s-up", playerInfo.className),
 			-- ["banner"] = "accountupgradebanner-legion",  -- 199x117  		--> TODO - Use with new frame
 			["msg"] = {
 				["missionsTitle"] = GARRISON_MISSIONS,
@@ -974,10 +974,11 @@ local function BuildMenuEntryLabel(garrInfo)
 end
 
 local function ShouldShowMissionsInfoText(garrisonTypeID)
+	local className = select(2, UnitClass("player"));
 	return (
 		(garrisonTypeID == util.expansion.data.Shadowlands.garrisonTypeID and ns.settings.showCovenantMissionInfo) or
 		(garrisonTypeID == util.expansion.data.BattleForAzeroth.garrisonTypeID and ns.settings.showBfAMissionInfo) or
-		(garrisonTypeID == util.expansion.data.Legion.garrisonTypeID and ns.settings.showLegionMissionInfo) or
+		(garrisonTypeID == util.expansion.data.Legion.garrisonTypeID and ns.settings.showLegionMissionInfo and className ~= "EVOKER") or
 		(garrisonTypeID == util.expansion.data.WarlordsOfDraenor.garrisonTypeID and ns.settings.showWoDMissionInfo)
 	);
 end
@@ -1054,7 +1055,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				CovenantCalling_CheckCallings()
 			end
 			local isIconString = true;
-			if (#bounties > 0) then
+			if util.TableHasAnyEntries(bounties) then
 				for _, bountyData in ipairs(bounties) do
 					if bountyData then
 						local questName = QuestUtils_GetQuestName(bountyData.questID)
@@ -1746,14 +1747,15 @@ local function MenuLine_OnEnter(...)
 
 	------ Unlocking requirements -----
 
-	-- if expansionInfo.disabled then
-	-- 	-- Show requirement info for unlocking the given expansion type
-	-- 	LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
-	-- 	LocalTooltipUtil:AddTextLine(ExpansionTooltip, garrisonInfo.msg.requirementText, DIM_RED_FONT_COLOR, ...)
-	-- 	-- -- Stop here; no content for locked expansions
-	-- 	-- MenuLine_ShowTooltips()
-	-- 	-- return
-	-- end
+	-- Moved to next category (see below)
+	-- Special treatment for Evoker; they don't have a Class Hall in Legion, hence no mission table.
+	if (isForLegion and expansionInfo.disabled) then
+		local className = select(2, UnitClass("player"))
+		if (className == "EVOKER") then
+			LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
+			LocalTooltipUtil:AddTextLine(ExpansionTooltip, garrisonInfo.msg.requirementText, DIM_RED_FONT_COLOR)
+		end
+	end
 
 	----- In-progress missions -----
 
@@ -1761,7 +1763,7 @@ local function MenuLine_OnEnter(...)
 		LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, garrisonInfo.msg.missionsTitle)
 		if expansionInfo.disabled then
 			-- Show requirement info for unlocking the given expansion type
-			LocalTooltipUtil:AddTextLine(ExpansionTooltip, garrisonInfo.msg.requirementText, DIM_RED_FONT_COLOR, ...)
+			LocalTooltipUtil:AddTextLine(ExpansionTooltip, garrisonInfo.msg.requirementText, DIM_RED_FONT_COLOR)
 		else
 			local shouldShowMissionCompletedMessage = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID)
 			LocalTooltipUtil:AddGarrisonMissionLines(ExpansionTooltip, garrisonInfo, shouldShowMissionCompletedMessage)
@@ -1819,7 +1821,7 @@ local function MenuLine_OnEnter(...)
 		-- Demon Invasions (Broken Shores)
 		if ns.settings.showBrokenShoreInvasionInfo then
 			local demonAreaPoiInfos = util.poi.GetBrokenShoreInvasionInfo()
-			if (#demonAreaPoiInfos > 0) then
+			if util.TableHasAnyEntries(demonAreaPoiInfos) then
 				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showBrokenShoreInvasionInfo"])
 				for _, demonPoi in ipairs(demonAreaPoiInfos) do
 					LocalTooltipUtil:AddIconLine(ExpansionTooltip, demonPoi.name, demonPoi.atlasName, ns.settings.applyInvasionColors and demonPoi.color)
@@ -1830,7 +1832,7 @@ local function MenuLine_OnEnter(...)
 		-- Invasion Points (Argus)
 		if ns.settings.showArgusInvasionInfo then
 			local riftAreaPoiInfos = util.poi.GetArgusInvasionPointsInfo()
-			if (#riftAreaPoiInfos > 0) then
+			if util.TableHasAnyEntries(riftAreaPoiInfos) then
 				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showArgusInvasionInfo"])
 				for _, riftPoi in ipairs(riftAreaPoiInfos) do
 					LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, riftPoi.description, riftPoi.atlasName, ns.settings.applyInvasionColors and riftPoi.color, riftPoi.isCompleted)
@@ -2442,7 +2444,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 				util.GameTooltip_AddAtlas(tooltip, garrInfo.minimapIcon, 36, 36, Enum.TooltipTextureAnchor.RightCenter);
 				-- Major Factions
 				local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansion.ID);
-				if (#majorFactionData > 0) then
+				if util.TableHasAnyEntries(majorFactionData) then
 					for _, factionData in ipairs(majorFactionData) do
 						if factionData.isUnlocked then
 							local factionAtlasName = "MajorFactions_MapIcons_"..factionData.textureKit.."64";
