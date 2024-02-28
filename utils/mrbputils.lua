@@ -2018,45 +2018,45 @@ end
 
 ----- Draenor Treasures -----
 
-local DraenorTreasuresData = {}
-DraenorTreasuresData.areaPoiIDs = {}  --> will be filled in function below
-DraenorTreasuresData.mapID = 572
-DraenorTreasuresData.mapInfos = LocalMapUtil.GetMapChildrenInfo(DraenorTreasuresData.mapID, Enum.UIMapType.Zone)
-DraenorTreasuresData.ignorePrimaryMapForPOI = false
-DraenorTreasuresData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID
-DraenorTreasuresData.SortingFunction = LocalPoiUtil.SortMapIDsAscending
-DraenorTreasuresData.SetDraenorTreasureArePoiIDs = function()
+local DraenorTreasuresData = {};
+DraenorTreasuresData.areaPoiIDs = {};  --> will be filled in function below
+DraenorTreasuresData.mapID = 572;
+DraenorTreasuresData.mapInfos = LocalMapUtil.GetMapChildrenInfo(DraenorTreasuresData.mapID, Enum.UIMapType.Zone);
+DraenorTreasuresData.ignorePrimaryMapForPOI = false;
+DraenorTreasuresData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
+DraenorTreasuresData.SortingFunction = LocalPoiUtil.SortMapIDsAscending;
+DraenorTreasuresData.PrepareDraenorTreasureArePoiIDs = function()
 	for _, mapInfo in ipairs(DraenorTreasuresData.mapInfos) do
-		local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(mapInfo)
+		local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(mapInfo);
 		if (activeAreaPOIs and #activeAreaPOIs > 0) then
 			for _, poiInfo in ipairs(activeAreaPOIs) do
-				tinsert(DraenorTreasuresData.areaPoiIDs, poiInfo.areaPoiID)
+				tinsert(DraenorTreasuresData.areaPoiIDs, poiInfo.areaPoiID);
 			end
 		end
 	end
-	table.sort(DraenorTreasuresData.areaPoiIDs)
+	table.sort(DraenorTreasuresData.areaPoiIDs);
 end
-util.poi.SetDraenorTreasureArePoiIDs = DraenorTreasuresData.SetDraenorTreasureArePoiIDs
+util.poi.PrepareDraenorTreasureArePoiIDs = DraenorTreasuresData.PrepareDraenorTreasureArePoiIDs;
 
 function util.poi.FindDraenorTreasures()
-	local poiInfoTable = LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(DraenorTreasuresData)
+	local poiInfoTable = LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(DraenorTreasuresData);
 	if util.TableHasAnyEntries(poiInfoTable) then
-		local areas = {}
+		local areas = {};
 		for _, poiInfo in ipairs(poiInfoTable) do
 			if _log.DEVMODE then
 				if not tContains(TestPoiUtil.separatedAreaPoiIDs, tostring(poiInfo.areaPoiID)) then
-					tinsert(TestPoiUtil.separatedAreaPoiIDs, tostring(poiInfo.areaPoiID))
+					tinsert(TestPoiUtil.separatedAreaPoiIDs, tostring(poiInfo.areaPoiID));
 				end
 			end
 			if not areas[poiInfo.mapInfo.name] then
-				areas[poiInfo.mapInfo.name] = {}
+				areas[poiInfo.mapInfo.name] = {};
 			end
 			if not areas[poiInfo.mapInfo.name][poiInfo.name] then
-				areas[poiInfo.mapInfo.name][poiInfo.name] = 0
+				areas[poiInfo.mapInfo.name][poiInfo.name] = 0;
 			end
-			areas[poiInfo.mapInfo.name][poiInfo.name] = areas[poiInfo.mapInfo.name][poiInfo.name] + 1
+			areas[poiInfo.mapInfo.name][poiInfo.name] = areas[poiInfo.mapInfo.name][poiInfo.name] + 1;
 		end
-		return areas
+		return areas;
 	end
 end
 

@@ -1792,19 +1792,8 @@ local function MenuLine_OnEnter(...)
 			LocalTooltipUtil:AddTextLine(ExpansionTooltip, GARRISON_LANDING_INVASION_TOOLTIP)
 		end
 		-- Draenor Treasures
-		if ns.settings.showDraenorTreasures then
-			util.poi.SetDraenorTreasureArePoiIDs()  -- Prepare data
-			local draenorTreasuresAreaPoiInfos = util.poi.FindDraenorTreasures()
-			if draenorTreasuresAreaPoiInfos then
-				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showDraenorTreasures"])
-				for mapName, poiCountsPerMap in pairs(draenorTreasuresAreaPoiInfos) do
-					LocalTooltipUtil:AddIconLine(ExpansionTooltip, mapName, "VignetteLoot", ORANGE_FONT_COLOR)
-					for poiName, poiCount in pairs(poiCountsPerMap) do
-						local lineName = poiName..TEXT_DELIMITER..NORMAL_FONT_COLOR:WrapTextInColorCode("x"..tostring(poiCount))
-						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, lineName)
-					end
-				end
-			end
+		if (ns.settings.showWoDWorldMapEvents and ns.settings.showDraenorTreasures) then
+			LocalTooltipUtil:AddDraenorTreasureLines(ExpansionTooltip)
 		end
 	end
 

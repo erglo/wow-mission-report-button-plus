@@ -568,12 +568,6 @@ ExpansionTooltipSettings[util.expansion.data.WarlordsOfDraenor.ID] = {
 		parentVariable = "showWoDGarrisonInvasionAlert",
 	},
 	{
-		variable = "showDraenorTreasures",
-		name = L["showDraenorTreasures"],
-		tooltip = L.CFG_WOD_SHOW_DRAENOR_TREASURES_TOOLTIP,
-		tag = Settings.Default.True,
-	},
-	{
 		variable = "showWoDWorldMapEvents",
 		name = L["showWoDWorldMapEvents"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
@@ -583,6 +577,13 @@ ExpansionTooltipSettings[util.expansion.data.WarlordsOfDraenor.ID] = {
 		name = L["showWoDTimewalkingVendor"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_TIMEWALKING_VENDOR_TOOLTIP,
 		parentVariable = "showWoDWorldMapEvents",
+	},
+	{
+		variable = "showDraenorTreasures",
+		name = L["showDraenorTreasures"],
+		tooltip = L.CFG_WOD_SHOW_DRAENOR_TREASURES_TOOLTIP,
+		parentVariable = "showWoDWorldMapEvents",
+		tag = Settings.Default.True,
 	},
 };
 

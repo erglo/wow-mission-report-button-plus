@@ -315,4 +315,21 @@ function LocalTooltipUtil:AddBountyBoardLines(tooltip, garrisonInfo)
 	end
 end
 
+----- Draenor Treasures -----
+
+function LocalTooltipUtil:AddDraenorTreasureLines(tooltip)
+	util.poi.PrepareDraenorTreasureArePoiIDs()
+	local draenorTreasuresAreaPoiInfos = util.poi.FindDraenorTreasures()
+	if draenorTreasuresAreaPoiInfos then
+		self:AddHeaderLine(tooltip, L["showDraenorTreasures"])
+		for mapName, poiCountsPerMap in pairs(draenorTreasuresAreaPoiInfos) do
+			self:AddIconLine(tooltip, mapName, "VignetteLoot", ORANGE_FONT_COLOR)
+			for poiName, poiCount in pairs(poiCountsPerMap) do
+				local lineName = poiName..TEXT_DELIMITER..NORMAL_FONT_COLOR:WrapTextInColorCode("x"..tostring(poiCount))
+				self:AddObjectiveLine(tooltip, lineName)
+			end
+		end
+	end
+end
+
 --------------------------------------------------------------------------------
