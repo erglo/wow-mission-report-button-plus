@@ -61,9 +61,10 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showEntryTooltip"] = true,
 	["preferExpansionName"] = true,
 	["reverseSortorder"] = false,
-	["showMissionTypeIcons"] = true,
+	["showLandingPageIcons"] = true,
 	["showMissionCompletedHint"] = true,
 	["showMissionCompletedHintOnlyForAll"] = false,
+	["showReputationRewardPendingHint"] = true,
 	["menuStyleID"] = "1",
 	-- Menu entries
 	["activeMenuEntries"] = {"5", "6", "7", "8", "9", "99"},
@@ -395,7 +396,7 @@ local function CreateMenuTooltipSettings(category, layout)
 			tooltip = L.CFG_DDMENU_SORTORDER_TOOLTIP,
 		},
 		{
-			variable = "showMissionTypeIcons",
+			variable = "showLandingPageIcons",
 			name = L.CFG_DDMENU_REPORTICONS_TEXT,
 			tooltip = L.CFG_DDMENU_REPORTICONS_TOOLTIP,
 		},
@@ -409,6 +410,12 @@ local function CreateMenuTooltipSettings(category, layout)
 			name = L.CFG_DDMENU_ICONHINTALL_TEXT,
 			tooltip = L.CFG_DDMENU_ICONHINTALL_TOOLTIP,
 			parentVariable = "showMissionCompletedHint",
+		},
+		{
+			variable = "showReputationRewardPendingHint",
+			name = L.CFG_DDMENU_REPUTATION_HINT_TEXT,
+			tooltip = L.CFG_DDMENU_REPUTATION_HINT_TOOLTIP,
+			tag = Settings.Default.True,
 		},
 	};
 

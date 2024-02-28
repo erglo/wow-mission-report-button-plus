@@ -1416,7 +1416,7 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 	for _, expansion in ipairs(expansionList) do
 		local garrTypeID = expansion.garrisonTypeID;
 		local garrInfo = MRBP_GARRISON_TYPE_INFOS[garrTypeID];
-		if ns.settings.showMissionTypeIcons then
+		if ns.settings.showLandingPageIcons then
 			filename, width, height, txLeft, txRight, txTop, txBottom = util.GetAtlasInfo(garrInfo.minimapIcon);
 		end
 		garrInfo.shouldShowDisabled = not MRBP_IsGarrisonRequirementMet(garrTypeID);
@@ -1441,7 +1441,7 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 			info.tooltipTitle = ns.settings.preferExpansionName and garrInfo.title or garrInfo.expansion.name;
 			info.tooltipText = BuildMenuEntryTooltip(garrInfo, activeThreats);
 			-- info.tooltipWarning = "Warning example";
-			if ns.settings.showMissionTypeIcons then
+			if ns.settings.showLandingPageIcons then
 				info.icon = filename;
 				-- info.iconTooltipTitle = "Testtitle";
 				-- info.iconTooltipText = "Testtext";
@@ -1461,14 +1461,14 @@ function MRBP:GarrisonLandingPageDropDown_Initialize(level)
 	end
 	if tContains(ns.settings.activeMenuEntries, ns.settingsMenuEntry) then
 		-- Add settings button
-		if ns.settings.showMissionTypeIcons then
+		if ns.settings.showLandingPageIcons then
 			filename, width, height, txLeft, txRight, txTop, txBottom = util.GetAtlasInfo("Warfronts-BaseMapIcons-Empty-Workshop-Minimap");
 		end
 		local info = UIDropDownMenu_CreateInfo()
 		info.notCheckable = true
 		info.text = SETTINGS  --> WoW global string
 		info.colorCode = NORMAL_FONT_COLOR:GenerateHexColorMarkup()
-		if ns.settings.showMissionTypeIcons then
+		if ns.settings.showLandingPageIcons then
 			info.icon = filename
 			info.tSizeX = width
 			info.tSizeY = height
@@ -1646,7 +1646,7 @@ end
 local function GetExpansionHintIcon(expansionInfo)
 	if (expansionInfo.ID < util.expansion.data.Dragonflight.ID) then
 		return ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID) and util.CreateInlineIcon("QuestNormal")
-	else
+	elseif ns.settings.showReputationRewardPendingHint then
 		return util.garrison.HasMajorFactionReputationReward(expansionInfo.ID) and util.CreateInlineIcon("Levelup-Icon-Bag", 14, 16)
 	end
 end
@@ -2168,7 +2168,7 @@ local function ShowMenuTooltip(parent)
 	for _, expansionInfo in ipairs(expansionList) do
 		local garrisonInfo = MRBP_GARRISON_TYPE_INFOS[expansionInfo.garrisonTypeID]
 		expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or garrisonInfo.title
-		expansionInfo.minimapIcon = ns.settings.showMissionTypeIcons and util.CreateInlineIcon(garrisonInfo.minimapIcon)
+		expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and util.CreateInlineIcon(garrisonInfo.minimapIcon)
 		expansionInfo.disabled = not MRBP_IsGarrisonRequirementMet(expansionInfo.garrisonTypeID)
 		expansionInfo.iconString = GetExpansionHintIcon(expansionInfo)
 		expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID) end
