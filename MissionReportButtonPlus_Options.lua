@@ -40,8 +40,10 @@ local util = ns.utilities;
 
 local _, addonTitle, addonNotes = C_AddOns.GetAddOnInfo(AddonID);
 
+local strjoin = strjoin;
+local LIST_DELIMITER = LIST_DELIMITER;
 local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
-local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
+-- local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
 
 local GRAY = function(txt) return GRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
 
@@ -209,7 +211,8 @@ end
 -- Return a list of expansions which the user owns.
 local function GetOwnedExpansionInfoList()
 	local infoList = {};
-	local expansionList = util.expansion.GetExpansionsWithLandingPage();
+	local sortFunc = ns.settings.reverseSortorder and util.expansion.SortAscending or util.expansion.SortDescending;
+	local expansionList = util.expansion.GetExpansionsWithLandingPage(sortFunc);
 	for _, expansionInfo in ipairs(expansionList) do
 		local ownsExpansion = util.expansion.DoesPlayerOwnExpansion(expansionInfo.ID);
 		if ownsExpansion then
@@ -884,8 +887,8 @@ function MRBP_Settings_Register()
 		},
 		{
 			variable = "showMinimapButton",
-			name = strjoin(" ", L.CFG_MINIMAPBUTTON_SHOWBUTTON_TEXT, GRAY(L.WORK_IS_EXPERIMENTAL)),
-			tooltip = strjoin("|n|n", L.CFG_MINIMAPBUTTON_SHOWBUTTON_TOOLTIP, L.WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION),
+			name = L.CFG_MINIMAPBUTTON_SHOWBUTTON_TEXT,
+			tooltip = L.CFG_MINIMAPBUTTON_SHOWBUTTON_TOOLTIP,
 			modifyPredicate = function()
 				local result =  ns.MRBP_IsAnyGarrisonRequirementMet();
 				if not result then
@@ -929,7 +932,7 @@ function MRBP_Settings_Register()
 		local OnMenuTooltipButtonClick = function()
 			MRBP_Settings_OpenToAddonCategory(AddonID.."MenuTooltipSettings");
 		end
-		local menuTooltipButtonLabel = WARDROBE_TOOLTIP_ENCOUNTER_SOURCE:format(L.CFG_DDMENU_ENTRYSELECTION_LABEL, L.CFG_DDMENU_SEPARATOR_HEADING)
+		local menuTooltipButtonLabel = strjoin(LIST_DELIMITER, L.CFG_DDMENU_ENTRYSELECTION_LABEL, L.CFG_DDMENU_SEPARATOR_HEADING);
 		local menuTooltipButtonInitializer = CreateSettingsButtonInitializer(menuTooltipButtonLabel, L.CFG_DDMENU_SEPARATOR_HEADING, OnMenuTooltipButtonClick, L.CFG_DDMENU_ENTRYSELECTION_TOOLTIP, addSearchTags);
 		mainLayout:AddInitializer(menuTooltipButtonInitializer);
 	end
@@ -963,7 +966,7 @@ function MRBP_Settings_Register()
 		local OnAboutButtonClick = function()
 			MRBP_Settings_OpenToAddonCategory(AddonID.."AboutFrame");
 		end
-		local aboutButtonLabel = WARDROBE_TOOLTIP_ENCOUNTER_SOURCE:format(L.CFG_ADDONINFOS_VERSION, L.CFG_ABOUT_SLASHCMD_LABEL)
+		local aboutButtonLabel = strjoin(LIST_DELIMITER, L.CFG_ADDONINFOS_VERSION, L.CFG_ABOUT_SLASHCMD_LABEL);
 		local aboutButtonInitializer = CreateSettingsButtonInitializer(aboutButtonLabel, L.CFG_ABOUT_ADDON_LABEL, OnAboutButtonClick, L.CFG_ABOUT_ADDON_LABEL, addSearchTags);
 		mainLayout:AddInitializer(aboutButtonInitializer);
 	end

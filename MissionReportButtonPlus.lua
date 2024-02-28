@@ -829,7 +829,6 @@ end
 local function AddTooltipCovenantRenownText(tooltipText, covenantInfo)
 	local renownInfo = util.covenant.GetRenownData(covenantInfo.ID);
 	if renownInfo then
-		local fontColor = ns.settings.applyCovenantColors and covenantInfo.color or nil;
 		local lineText = covenantInfo.name;
 		local progressText = MAJOR_FACTION_RENOWN_CURRENT_PROGRESS:format(renownInfo.currentRenownLevel, renownInfo.maximumRenownLevel);
 		if renownInfo.hasMaximumRenown then
@@ -838,7 +837,7 @@ local function AddTooltipCovenantRenownText(tooltipText, covenantInfo)
 			lineText = lineText.." "..HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(PARENS_TEMPLATE:format(renownLevelText));
 			progressText = COVENANT_SANCTUM_RENOWN_REWARD_TITLE_COMPLETE;
 		end
-		tooltipText = TooltipText_AddObjectiveLine(tooltipText, lineText, covenantInfo.isCompleted, fontColor, true, covenantInfo.atlasName, covenantInfo.isCompleted);
+		tooltipText = TooltipText_AddObjectiveLine(tooltipText, lineText, covenantInfo.isCompleted, ns.settings.applyCovenantColors and covenantInfo.color, true, covenantInfo.atlasName, covenantInfo.isCompleted);
 		tooltipText = TooltipText_AddObjectiveLine(tooltipText, progressText, renownInfo.hasMaximumRenown);
 	end
 
@@ -1127,18 +1126,18 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 			local legionAssaultsAreaPoiInfo = util.poi.GetLegionAssaultsInfo();
 			if legionAssaultsAreaPoiInfo then
 				tooltipText = TooltipText_AddHeaderLine(tooltipText, legionAssaultsAreaPoiInfo.name)
-				tooltipText = TooltipText_AddIconLine(tooltipText, legionAssaultsAreaPoiInfo.parentMapInfo.name, legionAssaultsAreaPoiInfo.atlasName, legionAssaultsAreaPoiInfo.color);
+				tooltipText = TooltipText_AddIconLine(tooltipText, legionAssaultsAreaPoiInfo.parentMapInfo.name, legionAssaultsAreaPoiInfo.atlasName, ns.settings.applyInvasionColors and legionAssaultsAreaPoiInfo.color);
 				tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, legionAssaultsAreaPoiInfo.timeString);
 				tooltipText = TooltipText_AddObjectiveLine(tooltipText, legionAssaultsAreaPoiInfo.description, legionAssaultsAreaPoiInfo.isCompleted, nil, nil, nil, legionAssaultsAreaPoiInfo.isCompleted);
 			end
 		end
-		-- Demon Invasions (Broken Shores)
+		-- Demon Invasions (Broken Shore)
 		if ns.settings.showBrokenShoreInvasionInfo then
 			local demonAreaPoiInfos = util.poi.GetBrokenShoreInvasionInfo();
 			if util.TableHasAnyEntries(demonAreaPoiInfos) then
 				tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showBrokenShoreInvasionInfo"]);
 				for _, demonPoi in ipairs(demonAreaPoiInfos) do
-					tooltipText = TooltipText_AddIconLine(tooltipText, demonPoi.name, demonPoi.atlasName, demonPoi.color);
+					tooltipText = TooltipText_AddIconLine(tooltipText, demonPoi.name, demonPoi.atlasName, ns.settings.applyInvasionColors and demonPoi.color);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, demonPoi.timeString);
 				end
 			end
@@ -1150,7 +1149,7 @@ local function BuildMenuEntryTooltip(garrInfo, activeThreats)
 				tooltipText = TooltipText_AddHeaderLine(tooltipText, L["showArgusInvasionInfo"]);
 				for _, riftPoi in ipairs(riftAreaPoiInfos) do
 					local appendCompleteIcon = true;
-					tooltipText = TooltipText_AddObjectiveLine(tooltipText, riftPoi.description, riftPoi.isCompleted, riftPoi.color, appendCompleteIcon, riftPoi.atlasName, riftPoi.isCompleted);
+					tooltipText = TooltipText_AddObjectiveLine(tooltipText, riftPoi.description, riftPoi.isCompleted, ns.settings.applyInvasionColors and riftPoi.color, appendCompleteIcon, riftPoi.atlasName, riftPoi.isCompleted);
 					tooltipText = TooltipText_AddObjectiveLine(tooltipText, riftPoi.mapInfo.name);
 					tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, riftPoi.timeString);
 				end
@@ -1822,7 +1821,7 @@ local function MenuLine_OnEnter(...)
 			local legionAssaultsAreaPoiInfo = util.poi.GetLegionAssaultsInfo()
 			if legionAssaultsAreaPoiInfo then
 				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, legionAssaultsAreaPoiInfo.name)
-				LocalTooltipUtil:AddIconLine(ExpansionTooltip, legionAssaultsAreaPoiInfo.parentMapInfo.name, legionAssaultsAreaPoiInfo.atlasName, legionAssaultsAreaPoiInfo.color)
+				LocalTooltipUtil:AddIconLine(ExpansionTooltip, legionAssaultsAreaPoiInfo.parentMapInfo.name, legionAssaultsAreaPoiInfo.atlasName, ns.settings.applyInvasionColors and legionAssaultsAreaPoiInfo.color)
 				LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, legionAssaultsAreaPoiInfo.timeString)
 				LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, legionAssaultsAreaPoiInfo.description, TOOLTIP_DASH_ICON_ID, nil, legionAssaultsAreaPoiInfo.isCompleted)
 			end
@@ -1833,7 +1832,7 @@ local function MenuLine_OnEnter(...)
 			if (#demonAreaPoiInfos > 0) then
 				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showBrokenShoreInvasionInfo"])
 				for _, demonPoi in ipairs(demonAreaPoiInfos) do
-					LocalTooltipUtil:AddIconLine(ExpansionTooltip, demonPoi.name, demonPoi.atlasName, demonPoi.color)
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, demonPoi.name, demonPoi.atlasName, ns.settings.applyInvasionColors and demonPoi.color)
 					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, demonPoi.timeString)
 				end
 			end
@@ -1844,7 +1843,7 @@ local function MenuLine_OnEnter(...)
 			if (#riftAreaPoiInfos > 0) then
 				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showArgusInvasionInfo"])
 				for _, riftPoi in ipairs(riftAreaPoiInfos) do
-					LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, riftPoi.description, riftPoi.atlasName, riftPoi.color, riftPoi.isCompleted)
+					LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, riftPoi.description, riftPoi.atlasName, ns.settings.applyInvasionColors and riftPoi.color, riftPoi.isCompleted)
 					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, riftPoi.mapInfo.name)
 					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, riftPoi.timeString)
 				end
@@ -1864,9 +1863,13 @@ local function MenuLine_OnEnter(...)
 				threatData[1].mapInfo.name or  --> for future (yet uncovered) expansions
 				UNKNOWN  --> just in case
 			)
+			local showColor = (
+				isForBattleForAzeroth and ns.settings.applyBfAFactionColors or
+				isForShadowlands and ns.settings.applyCovenantColors
+			)
 			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, headerName)
 			for i, threatInfo in ipairs(threatData) do 							--> TODO - Add major-minor assault type icon for N'Zoth Assaults
-				LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, threatInfo.questName, threatInfo.atlasName, threatInfo.color, threatInfo.isCompleted)
+				LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, threatInfo.questName, threatInfo.atlasName, showColor and threatInfo.color, threatInfo.isCompleted)
 				LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, threatInfo.mapInfo.name)
 				LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, threatInfo.timeLeftString)
 			end
@@ -1879,9 +1882,8 @@ local function MenuLine_OnEnter(...)
 		if (ns.settings.showBfAWorldMapEvents and ns.settings.showBfAFactionAssaultsInfo) then
 			local factionAssaultsAreaPoiInfo = util.poi.GetBfAFactionAssaultsInfo()
 			if factionAssaultsAreaPoiInfo then
-				local FontColor = ns.settings.applyBfAFactionColors and factionAssaultsAreaPoiInfo.color or nil
 				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showBfAFactionAssaultsInfo"])
-				LocalTooltipUtil:AddIconLine(ExpansionTooltip, factionAssaultsAreaPoiInfo.parentMapInfo.name, factionAssaultsAreaPoiInfo.atlasName, FontColor)
+				LocalTooltipUtil:AddIconLine(ExpansionTooltip, factionAssaultsAreaPoiInfo.parentMapInfo.name, factionAssaultsAreaPoiInfo.atlasName, ns.settings.applyBfAFactionColors and factionAssaultsAreaPoiInfo.color)
 				LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, factionAssaultsAreaPoiInfo.timeString)
 				LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, factionAssaultsAreaPoiInfo.description, TOOLTIP_DASH_ICON_ID, nil, factionAssaultsAreaPoiInfo.isCompleted)
 			end
@@ -1906,7 +1908,6 @@ local function MenuLine_OnEnter(...)
 			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showCovenantRenownLevel"])
 			local renownInfo = util.covenant.GetRenownData(covenantInfo.ID)
 			if renownInfo then
-				local FontColor = ns.settings.applyCovenantColors and covenantInfo.color or nil
 				local lineText = covenantInfo.name
 				local progressText = MAJOR_FACTION_RENOWN_CURRENT_PROGRESS:format(renownInfo.currentRenownLevel, renownInfo.maximumRenownLevel)
 				if renownInfo.hasMaximumRenown then
@@ -1915,7 +1916,7 @@ local function MenuLine_OnEnter(...)
 					lineText = lineText..TEXT_DELIMITER..DISABLED_FONT_COLOR:WrapTextInColorCode(PARENS_TEMPLATE:format(renownLevelText))
 					progressText = COVENANT_SANCTUM_RENOWN_REWARD_TITLE_COMPLETE
 				end
-				LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, lineText, covenantInfo.atlasName, FontColor, covenantInfo.isCompleted)
+				LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, lineText, covenantInfo.atlasName, ns.settings.applyCovenantColors and covenantInfo.color, covenantInfo.isCompleted)
 				LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, progressText, renownInfo.hasMaximumRenown)
 			end
 		end

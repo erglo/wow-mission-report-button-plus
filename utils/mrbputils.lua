@@ -1923,7 +1923,7 @@ LegionAssaultsData.achievementID = DEFENDER_OF_THE_BROKEN_ISLES_ID;
 function util.poi.GetLegionAssaultsInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(LegionAssaultsData);
 	if poiInfo then
-		data:SaveLabel("showLegionAssaultsInfo", poiInfo.name)
+		data:SaveLabel("showLegionAssaultsInfo", poiInfo.name);
 		poiInfo.parentMapInfo = LocalMapUtil.GetMapInfo(poiInfo.mapInfo.parentMapID);
 		poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
 		LocalAchievementUtil.AddAchievementData(LegionAssaultsData.achievementID, poiInfo);
@@ -1942,12 +1942,15 @@ BrokenShoreInvasionData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasNa
 BrokenShoreInvasionData.SortingFunction = LocalPoiUtil.SortPoiIDsAscending;
 
 function util.poi.GetBrokenShoreInvasionInfo()
-	local poiInfo = LocalPoiUtil.SingleArea.GetMultipleAreaPoiInfos(BrokenShoreInvasionData)
-	if poiInfo then
-		poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)]
-		local areaName = BrokenShoreInvasionData.mapInfo.name
-		data:SaveLabel("showBrokenShoreInvasionInfo", areaName..HEADER_COLON.." "..SPLASH_LEGION_PREPATCH_FEATURE1_TITLE)
-		return poiInfo
+	local poiInfoTable = LocalPoiUtil.SingleArea.GetMultipleAreaPoiInfos(BrokenShoreInvasionData);
+	if util.TableHasAnyEntries(poiInfoTable) then
+		local InvasionColor = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
+		for _, poiInfo in ipairs(poiInfoTable) do
+			poiInfo.color = InvasionColor;
+		end
+		local areaName = BrokenShoreInvasionData.mapInfo.name;
+		data:SaveLabel("showBrokenShoreInvasionInfo", areaName..HEADER_COLON.." "..SPLASH_LEGION_PREPATCH_FEATURE1_TITLE);
+		return poiInfoTable;
 	end
 end
 
@@ -1965,13 +1968,14 @@ ArgusInvasionData.achievementID = INVASION_OBLITERATION_ID;  -- Invasion Point G
 function util.poi.GetArgusInvasionPointsInfo()
 	local poiInfoTable = LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(ArgusInvasionData);
 	if util.TableHasAnyEntries(poiInfoTable) then
+		local InvasionColor = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
 		for _, poiInfo in ipairs(poiInfoTable) do
-			poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
+			poiInfo.color = InvasionColor;
 			LocalAchievementUtil.AddAchievementData(ArgusInvasionData.achievementID, poiInfo);
 		end
-		local areaName = ArgusInvasionData.continentMapInfo.name
-		data:SaveLabel("showArgusInvasionInfo",  areaName..HEADER_COLON.." "..poiInfoTable[1].name)
-		return poiInfoTable
+		local areaName = ArgusInvasionData.continentMapInfo.name;
+		data:SaveLabel("showArgusInvasionInfo",  areaName..HEADER_COLON.." "..poiInfoTable[1].name);
+		return poiInfoTable;
 	end
 end
 
