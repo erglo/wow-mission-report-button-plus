@@ -67,7 +67,6 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showMissionCompletedHint"] = true,
 	["showMissionCompletedHintOnlyForAll"] = false,
 	["showReputationRewardPendingHint"] = true,
-	["menuStyleID"] = "1",
 	-- Menu entries
 	["activeMenuEntries"] = {"5", "6", "7", "8", "9", "99"},
 	-- Menu entries tooltip
@@ -422,47 +421,6 @@ local function CreateMenuTooltipSettings(category, layout)
 	};
 
 	CheckBox_CreateFromList(category, checkBoxList_DropDownMenuSettings);
-
-	----- Menu style selection -----											--> TODO - Remove later	
-
-	local styleMenu = {
-		name = L.CFG_DDMENU_STYLESELECTION_LABEL,
-		tooltip =   L.CFG_DDMENU_STYLESELECTION_TOOLTIP,
-		variable = "menuStyleID",
-		defaultValue = ns.settings.menuStyleID,
-	};
-	-- @Translators: Do NOT translate this section! It will be removed soon.
-	local deprecationWarning = "|n|n"..GRAY(format("Note:|nThe options marked with '%s' will be removed in a future release. Their tooltip content will NOT be updated any more.", ADDON_INTERFACE_VERSION));
-	function styleMenu.GetOptions()
-		local container = Settings.CreateControlTextContainer();
-		local optionText1 = L.CFG_DDMENU_STYLESELECTION_VALUE1_TEXT..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(ADDON_INTERFACE_VERSION));
-		local optionText2 = L.CFG_DDMENU_STYLESELECTION_VALUE2_TEXT..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(ADDON_INTERFACE_VERSION));
-		local optionText3 = "New Tooltip";
-		container:Add("1", optionText3, "The new LibQTip Tooltip. This style is more flexible and highly customizable.");
-		container:Add("2", optionText1, L.CFG_DDMENU_STYLESELECTION_VALUE1_TOOLTIP);
-		container:Add("3", optionText2, L.CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP..deprecationWarning);
-		return container:GetData();
-	end
-	function styleMenu.OnValueChanged(owner, setting, value)
-		SaveSingleSetting("menuStyleID", value);
-		ns.MRBP_ReloadDropdown();
-		if ns.settings.showChatNotifications then
-			local data = styleMenu.GetOptions();
-			for i, option in ipairs(data) do
-				if (value == option.value) then
-					printOption(format("%s - %s", setting.name, option.label), Settings.Default.True);
-					--> always true for each selected style
-				end
-			end
-		end
-	end
-	-- REF.: Settings.RegisterAddOnSetting(categoryTbl, name, variable, variableType, defaultValue)
-	-- REF.: Settings.CreateDropDown(categoryTbl, setting, options, tooltip)
-	local styleMenuSetting = Settings.RegisterAddOnSetting(category, styleMenu.name, styleMenu.variable, Settings.VarType.String, styleMenu.defaultValue);
-	local styleMenuInitializer = Settings.CreateDropDown(category, styleMenuSetting, styleMenu.GetOptions, styleMenu.tooltip);
-	styleMenuSetting:SetNewTagShown(Settings.Default.True);
-	-- Keep track of value changes
-	Settings.SetOnValueChangedCallback(styleMenu.variable, styleMenu.OnValueChanged, styleMenuSetting);
 end
 
 local function CreateMenuEntriesSelection(category, layout)
