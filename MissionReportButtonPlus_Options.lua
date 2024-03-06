@@ -38,6 +38,8 @@ local L = ns.L;
 local _log = ns.dbg_logger;
 local util = ns.utilities;
 
+local ExpansionInfo = ns.ExpansionInfo;
+
 local _, addonTitle, addonNotes = C_AddOns.GetAddOnInfo(AddonID);
 
 local strjoin = strjoin;
@@ -212,10 +214,10 @@ end
 -- Return a list of expansions which the user owns.
 local function GetOwnedExpansionInfoList()
 	local infoList = {};
-	local sortFunc = ns.settings.reverseSortorder and util.expansion.SortAscending or util.expansion.SortDescending;
-	local expansionList = util.expansion.GetExpansionsWithLandingPage(sortFunc);
+	local sortFunc = ns.settings.reverseSortorder and ExpansionInfo.SortAscending or ExpansionInfo.SortDescending;
+	local expansionList = ExpansionInfo:GetExpansionsWithLandingPage(sortFunc);
 	for _, expansionInfo in ipairs(expansionList) do
-		local ownsExpansion = util.expansion.DoesPlayerOwnExpansion(expansionInfo.ID);
+		local ownsExpansion = ExpansionInfo:DoesPlayerOwnExpansion(expansionInfo.ID);
 		if ownsExpansion then
 			tinsert(infoList, expansionInfo);
 		end
@@ -464,10 +466,10 @@ local function CreateMenuTooltipSettings(category, layout)
 end
 
 local function CreateMenuEntriesSelection(category, layout)
-	local sortFunc = ns.settings.reverseSortorder and util.expansion.SortAscending or util.expansion.SortDescending;
+	local sortFunc = ns.settings.reverseSortorder and ExpansionInfo.SortAscending or ExpansionInfo.SortDescending;
 
 	local menuEntries = {};
-	menuEntries.expansionList = util.expansion.GetExpansionsWithLandingPage(sortFunc);
+	menuEntries.expansionList = ExpansionInfo:GetExpansionsWithLandingPage(sortFunc);
 	menuEntries.settingsCB = {  --> Additional "Settings" menu entry
 		ID = 99,
 		name = "[ "..SETTINGS.." ]"
@@ -477,9 +479,9 @@ local function CreateMenuEntriesSelection(category, layout)
 
 	local function getMenuEntryTooltip(expansionID, playerOwnsExpansion)
 		local featuresString = '';
-		local displayInfo = util.expansion.GetDisplayInfo(expansionID);
+		local displayInfo = ExpansionInfo:GetDisplayInfo(expansionID);
 		if displayInfo then
-			local expansion = util.expansion.GetExpansionData(expansionID);
+			local expansion = ExpansionInfo:GetExpansionData(expansionID);
 			local _, width, height = util.GetAtlasInfo(displayInfo.banner);
 			local bannerString = util.CreateInlineIcon(displayInfo.banner, width, height, 8, -16);
 			featuresString = featuresString..bannerString.."|n";
@@ -499,7 +501,7 @@ local function CreateMenuEntriesSelection(category, layout)
 	menuEntries.checkBoxList_MenuEntriesSettings = {};
 
 	for _, expansion in ipairs(menuEntries.expansionList) do
-		local ownsExpansion = util.expansion.DoesPlayerOwnExpansion(expansion.ID);
+		local ownsExpansion = ExpansionInfo:DoesPlayerOwnExpansion(expansion.ID);
 		tinsert(menuEntries.checkBoxList_MenuEntriesSettings, {
 			variable = "activeMenuEntries#"..tostring(expansion.ID),
 			name = ownsExpansion and expansion.name or DISABLED_FONT_COLOR:WrapTextInColorCode(expansion.name),
@@ -550,7 +552,7 @@ end
 
 local ExpansionTooltipSettings = {};
 
-ExpansionTooltipSettings[util.expansion.data.WarlordsOfDraenor.ID] = {
+ExpansionTooltipSettings[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
 	{
 		variable = "showWoDMissionInfo",
 		name = L["showWoDMissionInfo"],
@@ -587,7 +589,7 @@ ExpansionTooltipSettings[util.expansion.data.WarlordsOfDraenor.ID] = {
 	},
 };
 
-ExpansionTooltipSettings[util.expansion.data.Legion.ID] = {
+ExpansionTooltipSettings[ExpansionInfo.data.LEGION.ID] = {
 	{
 		variable = "showLegionMissionInfo",
 		name = L["showLegionMissionInfo"],
@@ -635,7 +637,7 @@ ExpansionTooltipSettings[util.expansion.data.Legion.ID] = {
 	},
 };
 
-ExpansionTooltipSettings[util.expansion.data.BattleForAzeroth.ID] = {
+ExpansionTooltipSettings[ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = {
 	{
 		variable = "showBfAMissionInfo",
 		name = L["showBfAMissionInfo"],
@@ -674,7 +676,7 @@ ExpansionTooltipSettings[util.expansion.data.BattleForAzeroth.ID] = {
 	},
 };
 
-ExpansionTooltipSettings[util.expansion.data.Shadowlands.ID] = {
+ExpansionTooltipSettings[ExpansionInfo.data.SHADOWLANDS.ID] = {
 	{
 		variable = "showCovenantMissionInfo",
 		name = L["showCovenantMissionInfo"],
@@ -702,7 +704,7 @@ ExpansionTooltipSettings[util.expansion.data.Shadowlands.ID] = {
 	},
 };
 
-ExpansionTooltipSettings[util.expansion.data.Dragonflight.ID] = {
+ExpansionTooltipSettings[ExpansionInfo.data.DRAGONFLIGHT.ID] = {
 	{
 		variable = "showMajorFactionRenownLevel",
 		name = L["showMajorFactionRenownLevel"],
