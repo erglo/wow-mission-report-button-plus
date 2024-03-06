@@ -412,6 +412,7 @@ local function MRBP_GetGarrisonTypeUnlockQuestInfo(garrTypeID, tagName)
 
 	return questInfo
 end
+ns.MRBP_GetGarrisonTypeUnlockQuestInfo = MRBP_GetGarrisonTypeUnlockQuestInfo;
 
 -- Check if given garrison type is unlocked for given tag.
 ---@param garrTypeID number

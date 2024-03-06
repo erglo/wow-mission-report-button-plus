@@ -3,5 +3,6 @@
 	<!-- <Script file="labels.lua"/> -->
 	<Include file="player.lua"/>
 	<Include file="expansion.lua"/>
+	<Include file="landingpage.lua"/>
 	<Include file="labels.lua"/>
 </Ui>
