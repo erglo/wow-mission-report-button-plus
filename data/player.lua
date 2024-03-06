@@ -1,4 +1,4 @@
-----------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 --[[ player.lua - Utilities handling player related data. ]]--
 --
 -- by erglo <erglo.coder+MRBP@gmail.com>
@@ -27,7 +27,7 @@ local UnitClass = UnitClass;
 local C_Covenants = C_Covenants;
 
 local PlayerInfo = {};
-ns.playerInfo = PlayerInfo;
+ns.PlayerInfo = PlayerInfo;
 
 ----- Faction Group ------------------------------------------------------------
 
