@@ -124,7 +124,7 @@ end
 ---@param b table  ExpansionInfo.data type
 ---@return boolean
 --
-function ExpansionInfo:SortAscending(a, b)
+function ExpansionInfo.SortAscending(a, b)
 	return a.ID < b.ID;  --> 0-9
 end
 
@@ -133,7 +133,7 @@ end
 ---@param b table  ExpansionInfo.data type
 ---@return boolean
 --
-function ExpansionInfo:SortDescending(a, b)
+function ExpansionInfo.SortDescending(a, b)
 	return a.ID > b.ID;  --> 9-0 (default)
 end
 
