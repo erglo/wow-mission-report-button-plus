@@ -24,6 +24,8 @@ local AddonID, ns = ...;
 local L = ns.L;
 local data = ns.data
 
+local ExpansionInfo = ns.ExpansionInfo;
+
 -- Backwards compatibility
 ns.GetAddOnMetadata = C_AddOns.GetAddOnMetadata;
 
@@ -575,188 +577,6 @@ function LocalMapUtil.GetAreaInfo(areaID)
 end
 
 --------------------------------------------------------------------------------
------ Expansion utilities ------------------------------------------------------
---------------------------------------------------------------------------------
--- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/ExpansionDocumentation.lua>
--- REF.: <FrameXML/AccountUtil.lua>
--- RER.: <https://wowpedia.fandom.com/wiki/World_of_Warcraft_API#Expansions>
-
--- A collection of expansion related handler.
-util.expansion = {};
-
--- Set most basic infos about each expansion.
---> **Note:** Expansions prior to Warlords Of Draenor are of no use to this add-on since
---  they don't have world quests nor a landing page for mission reports.
-util.expansion.data = {
-	-- ["Classic"] = {
-	-- 	["ID"] = LE_EXPANSION_CLASSIC,  -- 0
-	-- 	["name"] = EXPANSION_NAME0,
-	-- },
-	-- ["BurningCrusade"] = {
-	-- 	["ID"] = LE_EXPANSION_BURNING_CRUSADE,  -- 1
-	-- 	["name"] = EXPANSION_NAME1,
-	-- },
-	-- ["WrathOfTheLichKing"] = {
-	-- 	["ID"] = LE_EXPANSION_WRATH_OF_THE_LICH_KING,  -- 2
-	-- 	["name"] = EXPANSION_NAME2,
-	-- },
-	-- ["Cataclysm"] = {
-	-- 	["ID"] = LE_EXPANSION_CATACLYSM,  -- 3
-	-- 	["name"] = EXPANSION_NAME3,
-	-- },
-	-- ["MistsOfPandaria"] = {
-	-- 	["ID"] = LE_EXPANSION_MISTS_OF_PANDARIA,  -- 4
-	-- 	["name"] = EXPANSION_NAME4,
-	-- },
-	["WarlordsOfDraenor"] = {
-		["ID"] = LE_EXPANSION_WARLORDS_OF_DRAENOR,  -- 5
-		["name"] = EXPANSION_NAME5,
-		["garrisonTypeID"] = Enum.GarrisonType.Type_6_0_Garrison,
-		["continents"] = {572}  --> Draenor
-		-- **Note:** No bounties in Draenor; only available since Legion.
-	},
-	["Legion"] = {
-		["ID"] = LE_EXPANSION_LEGION,  -- 6
-		["name"] = EXPANSION_NAME6,
-		["garrisonTypeID"] = Enum.GarrisonType.Type_7_0_Garrison,
-		["continents"] = {619, 905},  --> Broken Isles + Argus
-	},
-	["BattleForAzeroth"] = {
-		["ID"] = LE_EXPANSION_BATTLE_FOR_AZEROTH,  -- 7
-		["name"] = EXPANSION_NAME7,
-		["garrisonTypeID"] = Enum.GarrisonType.Type_8_0_Garrison,
-		["continents"] = {875, 876},  -- Zandalar, Kul Tiras
-		["poiZones"] = {1355, 62, 14, 81},  -- Nazjatar, Darkshore, Arathi Highlands, Silithus
-	},
-	["Shadowlands"] = {
-		["ID"] = LE_EXPANSION_SHADOWLANDS,  -- 8
-		["name"] = EXPANSION_NAME8,
-		["garrisonTypeID"] = Enum.GarrisonType.Type_9_0_Garrison,
-		["continents"] = {1550},  --> Shadowlands
-	},
-	["Dragonflight"] = {
-		["ID"] = LE_EXPANSION_DRAGONFLIGHT,  -- 9
-		["name"] = EXPANSION_NAME9,
-		["garrisonTypeID"] = Enum.ExpansionLandingPageType.Dragonflight,
-		["continents"] = {1978},  --> Dragon Isles
-	},
-};
-
----Return the expansion data of given expansion ID.
----@param expansionID number  The expansion level 
----@return table ExpansionData
----
-function util.expansion.GetExpansionData(expansionID)
-	for _, expansion in pairs(util.expansion.data) do
-		if (expansion.ID == expansionID) then
-			return expansion;
-		end
-	end
-	return {};																	--> TODO - Add default table for new expansions
-end
-
----Return the expansion data of given expansion ID.
----@param garrisonTypeID number  A landing page garrison type ID
----@return table|nil ExpansionData
----
-function util.expansion.GetExpansionDataByGarrisonType(garrisonTypeID)
-	for _, expansion in pairs(util.expansion.data) do
-		if (expansion.garrisonTypeID == garrisonTypeID) then
-			return expansion;
-		end
-	end
-	-- return {};
-end
-
----Comparison function: sort expansion list by ID in *ascending* order.
----@param a table  ExpansionData
----@param b table  ExpansionData
----@return boolean
----
-function util.expansion.SortAscending(a, b)
-	return a.ID < b.ID;  --> 0-9
-end
-
----Comparison function: sort expansion list by ID in *descending* order.
----@param a table  ExpansionData
----@param b table  ExpansionData
----@return boolean
----
-function util.expansion.SortDescending(a, b)
-	return a.ID > b.ID;  --> 9-0 (default)
-end
-
----Return the expansion data of those which have a landing page.
----@param compFunc function|nil  The function which handles the expansion sorting order. By default sort order is ascending.
----@return table expansionData
----
-function util.expansion.GetExpansionsWithLandingPage(compFunc)
-	local expansionTable = {};
-	for name, expansion in pairs(util.expansion.data) do
-		-- if (expansion.ID >= util.expansion.data.WarlordsOfDraenor.ID) then
-		tinsert(expansionTable, expansion);
-		-- end
-	end
-	local sortFunc = compFunc or util.expansion.SortAscending;
-	table.sort(expansionTable, sortFunc);
-
-	return expansionTable;
-end
-
----Return the given expansion's advertising display infos.
----@param expansionID number  The expansion level 
----@return ExpansionDisplayInfo table
----
-function util.expansion.GetDisplayInfo(expansionID)
-	return GetExpansionDisplayInfo(expansionID);
-end
-
------ Expansion ID handler -----
-
--- Return the expansion ID which corresponds to the given player level.
----@param playerLevel number  A number wich represents a player level. Defaults to the current player level. 
----@return number expansionID  The expansion level
---
-function util.expansion.GetExpansionForPlayerLevel(playerLevel)
-	local level = playerLevel or UnitLevel("player");
-	return GetExpansionForLevel(level);
-end
-
--- Return the ID of the most recent available expansion.
----@return number expansionID  The expansion level
---
-function util.expansion.GetMaximumExpansionLevel()
-	return GetMaximumExpansionLevel();
-end
-
--- Return the ID of the player's most lowest expansion.
----@return number expansionID  The expansion level
---
-function util.expansion.GetMinimumExpansionLevel()
-	return GetMinimumExpansionLevel();
-end
-
------ Player level handler -----
-
--- Return the maximal level the player can reach in the current expansion.
----@return number maxPlayerLevel
---
-function util.expansion.GetMaxPlayerLevel()
-	return GetMaxLevelForPlayerExpansion();
-end
-
--- Check if the given expansion is owned by the player.
----@param expansionID number  The expansion level 
----@return boolean playerOwnsExpansion
---
-function util.expansion.DoesPlayerOwnExpansion(expansionID)						--> TODO - Not good enough, refine this - Needed ???
-	local maxLevelForExpansion = GetMaxLevelForExpansionLevel(expansionID);
-	local maxLevelForCurrentExpansion = util.expansion.GetMaxPlayerLevel();
-	local playerOwnsExpansion = maxLevelForExpansion <= maxLevelForCurrentExpansion;
-	return playerOwnsExpansion;
-end
-
---------------------------------------------------------------------------------
 ----- Garrison utilities -------------------------------------------------------
 --------------------------------------------------------------------------------
 -- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/GarrisonInfoDocumentation.lua>
@@ -795,8 +615,8 @@ end
 
 
 -- function IsExpansionLandingPageUnlocked(garrisonTypeID)
--- 	local expansion = util.expansion.GetExpansionDataByGarrisonType(garrisonTypeID);
--- 	if (expansion and expansion.ID >= util.expansion.data.Dragonflight.ID)
+-- 	local expansion = ExpansionInfo:GetExpansionDataByGarrisonType(garrisonTypeID);
+-- 	if (expansion and expansion.ID >= ExpansionInfo.data.DRAGONFLIGHT.ID)
 -- 		return C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(expansion.ID);
 -- 	end
 -- end
@@ -978,7 +798,7 @@ end
 ---@return string majorFactionIcon
 --
 function util.garrison.GetMajorFactionInlineIcon(majorFactionData)
-	if (majorFactionData.expansionID == util.expansion.data.Dragonflight.ID) then
+	if (majorFactionData.expansionID == ExpansionInfo.data.DRAGONFLIGHT.ID) then
 		return util.CreateInlineIcon("MajorFactions_MapIcons_"..majorFactionData.textureKit.."64", 16, 16, 0, 0);
 	end
 	return '';
@@ -990,7 +810,7 @@ end
 --
 function util.garrison.GetMajorFactionColor(majorFactionData, fallbackColor)
 	local normalColor = fallbackColor or NORMAL_FONT_COLOR;
-	if(majorFactionData.expansionID == util.expansion.data.Dragonflight.ID) then
+	if(majorFactionData.expansionID == ExpansionInfo.data.DRAGONFLIGHT.ID) then
 		return _G[strupper(majorFactionData.textureKit).."_MAJOR_FACTION_COLOR"] or normalColor;
 	end
 	return normalColor;
@@ -1261,7 +1081,7 @@ function util.threats.GetActiveThreats()
 				local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(questID);
 				local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString;
 				local questExpansionLevel = GetQuestExpansion(questID);
-				local isShadowlandsThreat = questExpansionLevel == util.expansion.data.Shadowlands.ID;
+				local isShadowlandsThreat = questExpansionLevel == ExpansionInfo.data.SHADOWLANDS.ID;
 				-- print(questExpansionLevel, isShadowlandsThreat and questID or mapID);
 				local threatColor = LocalThreatUtil.GetExpansionThreatColor(questExpansionLevel, isShadowlandsThreat and questID or mapID);
 				if questExpansionLevel then
@@ -1874,7 +1694,7 @@ BfAFactionAssaultsData.atlasNames = {"AllianceAssaultsMapBanner", "HordeAssaults
 BfAFactionAssaultsData.mapInfos = {LocalMapUtil.GetMapInfo(875),  LocalMapUtil.GetMapInfo(876)};  --> Zandalar, Kul Tiras
 BfAFactionAssaultsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
 BfAFactionAssaultsData.ignorePrimaryMapForPOI = true;
-local expansionIDstringBfA = tostring(util.expansion.data.BattleForAzeroth.ID);
+local expansionIDstringBfA = tostring(ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID);
 local playerFactionGroup = UnitFactionGroup("player");  --> Needed to index: {1:Horde, 2:Alliance}
 BfAFactionAssaultsData.playerFactionIndex = playerFactionGroup == 'Horde' and 1 or 2;
 BfAFactionAssaultsData.achievementIDs = {FRONTLINE_WARRIOR_HORDE_ASSAULTS_ID, FRONTLINE_WARRIOR_ALLIANCE_ASSAULTS_ID};
@@ -1925,7 +1745,7 @@ function util.poi.GetLegionAssaultsInfo()
 	if poiInfo then
 		data:SaveLabel("showLegionAssaultsInfo", poiInfo.name);
 		poiInfo.parentMapInfo = LocalMapUtil.GetMapInfo(poiInfo.mapInfo.parentMapID);
-		poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
+		poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(ExpansionInfo.data.LEGION.ID)];
 		LocalAchievementUtil.AddAchievementData(LegionAssaultsData.achievementID, poiInfo);
 		return poiInfo;
 	end
@@ -1944,7 +1764,7 @@ BrokenShoreInvasionData.SortingFunction = LocalPoiUtil.SortPoiIDsAscending;
 function util.poi.GetBrokenShoreInvasionInfo()
 	local poiInfoTable = LocalPoiUtil.SingleArea.GetMultipleAreaPoiInfos(BrokenShoreInvasionData);
 	if util.TableHasAnyEntries(poiInfoTable) then
-		local InvasionColor = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
+		local InvasionColor = LocalThreatUtil.TYPE_COLORS[tostring(ExpansionInfo.data.LEGION.ID)];
 		for _, poiInfo in ipairs(poiInfoTable) do
 			poiInfo.color = InvasionColor;
 		end
@@ -1968,7 +1788,7 @@ ArgusInvasionData.achievementID = INVASION_OBLITERATION_ID;  -- Invasion Point G
 function util.poi.GetArgusInvasionPointsInfo()
 	local poiInfoTable = LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(ArgusInvasionData);
 	if util.TableHasAnyEntries(poiInfoTable) then
-		local InvasionColor = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
+		local InvasionColor = LocalThreatUtil.TYPE_COLORS[tostring(ExpansionInfo.data.LEGION.ID)];
 		for _, poiInfo in ipairs(poiInfoTable) do
 			poiInfo.color = InvasionColor;
 			LocalAchievementUtil.AddAchievementData(ArgusInvasionData.achievementID, poiInfo);
@@ -1989,7 +1809,7 @@ GreaterInvasionPointData.achievementID = INVASION_OBLITERATION_ID;  -- Invasion 
 function util.poi.GetGreaterInvasionPointDataInfo()
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(GreaterInvasionPointData);
 	if poiInfo then
-		poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(util.expansion.data.Legion.ID)];
+		poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(ExpansionInfo.data.LEGION.ID)];
 		LocalAchievementUtil.AddAchievementData(GreaterInvasionPointData.achievementID, poiInfo);
 		return poiInfo;
 	end
@@ -2006,10 +1826,10 @@ function util.poi.FindTimewalkingVendor(expansionInfo)
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(TimewalkingVendorData);
 	if poiInfo then
 		poiInfo.timeString = util.GetTimeStringUntilWeeklyReset();
-		if (expansionInfo.ID == util.expansion.data.WarlordsOfDraenor.ID and poiInfo.areaPoiID == 6985) then
+		if (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID and poiInfo.areaPoiID == 6985) then
 			return poiInfo
 		end
-		if (expansionInfo.ID == util.expansion.data.Legion.ID and poiInfo.areaPoiID == 7018) then
+		if (expansionInfo.ID == ExpansionInfo.data.LEGION.ID and poiInfo.areaPoiID == 7018) then
 			return poiInfo
 		end
 	end

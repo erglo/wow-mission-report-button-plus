@@ -25,6 +25,8 @@ local ShortAddonID = "MRBP"
 local L = ns.L
 local util = ns.utilities
 
+local ExpansionInfo = ns.ExpansionInfo
+
 local LocalTooltipUtil = {}  --> Handler from this file
 ns.utilities.tooltip = LocalTooltipUtil
 
@@ -158,12 +160,12 @@ end
 ----- MRBP content -----
 
 local function GetMajorFactionIcon(majorFactionData)
-	if (majorFactionData.expansionID == util.expansion.data.Dragonflight.ID) then
+	if (majorFactionData.expansionID == ExpansionInfo.data.DRAGONFLIGHT.ID) then
 		return "MajorFactions_MapIcons_"..majorFactionData.textureKit.."64"
 	end
 end
 
--- Requires expansionInfo, eg. util.expansion.data.Dragonflight
+-- Requires expansionInfo, eg. ExpansionInfo.data.DRAGONFLIGHT
 function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 	local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansionInfo.ID)
 	if (#majorFactionData > 0) then
@@ -268,7 +270,7 @@ end
 ----- Bounty board -----
 
 function LocalTooltipUtil:AddBountyBoardLines(tooltip, garrisonInfo)
-	local isForShadowlands = garrisonInfo.garrisonTypeID == util.expansion.data.Shadowlands.garrisonTypeID
+	local isForShadowlands = garrisonInfo.garrisonTypeID == ExpansionInfo.data.SHADOWLANDS.garrisonTypeID
 
     -- Only available since Legion (WoW 7.x); no longer useful in Dragonflight (WoW 10.x)
 	local bountyBoard = garrisonInfo.bountyBoard
