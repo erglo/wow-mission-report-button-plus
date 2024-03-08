@@ -25,6 +25,10 @@
 * Legion + BfA: refined bounty data retrieval.
 * Tooltip (new): moved expansion unlocking requirements to in-progress missions; expansion tooltips are no longer completely locked.
 * Tooltip: converted content to the new tooltip format.
+
+### Removed
+
+* Tooltip: removed legacy text tooltip.
 &nbsp;  
 
 ## Previous changes
@@ -33,4 +37,4 @@
 &nbsp;  
 ⚠️**Note:** _This is an pre-release version and still in development._  
 ![CurseForge Game Version](https://img.shields.io/badge/WoW--retail-10.2.5-%23F16436?logo=curseforge "Game Version")
-!["tag-latest"](https://img.shields.io/badge/tag-v0.22.0-informational?logo=GitHub "Pre-Release Version")
+!["tag-latest"](https://img.shields.io/badge/tag-v1.0.0-informational?logo=GitHub "Pre-Release Version")
