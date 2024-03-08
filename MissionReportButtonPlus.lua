@@ -59,15 +59,13 @@ local MRBP_MAJOR_FACTIONS_QUEST_ID_ALLIANCE = 67700;  --> "To the Dragon Isles!"
 -- Backwards compatibility 
 local IsAddOnLoaded = C_AddOns.IsAddOnLoaded
 local LoadAddOn = C_AddOns.LoadAddOn
-local C_CovenantCallings = C_CovenantCallings
-local MapUtil = MapUtil
 local CreateAtlasMarkup = CreateAtlasMarkup
 local C_QuestLog = C_QuestLog;
+local GarrisonFollowerOptions = GarrisonFollowerOptions;
 
 local DIM_RED_FONT_COLOR = DIM_RED_FONT_COLOR
 local DISABLED_FONT_COLOR = DISABLED_FONT_COLOR
 local HIGHLIGHT_FONT_COLOR = HIGHLIGHT_FONT_COLOR
-local LIGHTGRAY_FONT_COLOR = LIGHTGRAY_FONT_COLOR
 local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR
 local RED_FONT_COLOR = RED_FONT_COLOR
 local WARNING_FONT_COLOR = WARNING_FONT_COLOR
@@ -94,7 +92,6 @@ FrameUtil.RegisterFrameForEvents(MRBP, {
 	-- "GARRISON_MISSION_STARTED",  	--> TODO - Track twinks' missions
 	"QUEST_TURNED_IN",
 	-- "QUEST_AUTOCOMPLETE",
-	-- "ACHIEVEMENT_EARNED",  --> achievementID, alreadyEarned
 	"COVENANT_CHOSEN",
 	"COVENANT_SANCTUM_RENOWN_LEVEL_CHANGED",
 	"COVENANT_CALLINGS_UPDATED",
@@ -164,11 +161,11 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 
 		elseif (event == "GARRISON_MISSION_FINISHED") then
 			-- REF.: <FrameXML/Blizzard_GarrisonUI/Blizzard_GarrisonMissionUI.lua>
-			local followerTypeID, missionID = ...
-			local eventMsg = GarrisonFollowerOptions[followerTypeID].strings.ALERT_FRAME_TITLE
-			-- local instructionMsg = GarrisonFollowerOptions[followerTypeID].strings.LANDING_COMPLETE
-			local garrisonTypeID = GarrisonFollowerOptions[followerTypeID].garrisonType
-			local missionInfo = C_Garrison.GetBasicMissionInfo(missionID)
+			local followerTypeID, missionID = ...;
+			local eventMsg = GarrisonFollowerOptions[followerTypeID].strings.ALERT_FRAME_TITLE;
+			local onlyGarrisonTypeID = true;
+			local garrisonTypeID = LandingPageInfo:GetGarrisonInfoByFollowerType(followerTypeID, onlyGarrisonTypeID);
+			local missionInfo = C_Garrison.GetBasicMissionInfo(missionID);
 			if missionInfo then
 				local missionLink = C_Garrison.GetMissionLink(missionID)
 				local missionIcon = missionInfo.typeTextureKit and missionInfo.typeTextureKit.."-Map" or missionInfo.typeAtlas

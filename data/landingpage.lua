@@ -26,9 +26,10 @@ local AddonID, ns = ...;
 local format = string.format;
 local MapUtil = MapUtil;
 local C_CovenantCallings = C_CovenantCallings;
+local GarrisonFollowerOptions = GarrisonFollowerOptions;
 
 local PlayerInfo = ns.PlayerInfo;
-local ExpansionData = ns.ExpansionInfo.data;
+local ExpansionInfo = ns.ExpansionInfo;
 
 ----- Helper Functions ---------------------------------------------------------
 
@@ -48,15 +49,28 @@ local LandingPageInfo = {};
 ns.LandingPageInfo = LandingPageInfo;
 
 function LandingPageInfo:Initialize()
-    self[ExpansionData.WARLORDS_OF_DRAENOR.garrisonTypeID] = self:Load_Warlords_of_Draenor();
-    self[ExpansionData.LEGION.garrisonTypeID] = self:Load_Legion();
-    self[ExpansionData.BATTLE_FOR_AZEROTH.garrisonTypeID] = self:Load_Battle_for_Azeroth();
-    self[ExpansionData.SHADOWLANDS.garrisonTypeID] = self:Load_Shadowlands();
-    self[ExpansionData.DRAGONFLIGHT.garrisonTypeID] = self:Load_Dragonflight();
+    self[ExpansionInfo.data.WARLORDS_OF_DRAENOR.garrisonTypeID] = self:Load_Warlords_of_Draenor();
+    self[ExpansionInfo.data.LEGION.garrisonTypeID] = self:Load_Legion();
+    self[ExpansionInfo.data.BATTLE_FOR_AZEROTH.garrisonTypeID] = self:Load_Battle_for_Azeroth();
+    self[ExpansionInfo.data.SHADOWLANDS.garrisonTypeID] = self:Load_Shadowlands();
+    self[ExpansionInfo.data.DRAGONFLIGHT.garrisonTypeID] = self:Load_Dragonflight();
 end
 
 function LandingPageInfo:GetGarrisonInfo(garrisonTypeID)
     return self[garrisonTypeID];
+end
+
+function LandingPageInfo:GetGarrisonInfoByExpansion(expansionID)
+    local expansionData = ExpansionInfo:GetExpansionData(expansionID);
+    return self:GetGarrisonInfo(expansionData.garrisonTypeID);
+end
+
+function LandingPageInfo:GetGarrisonInfoByFollowerType(followerTypeID, onlyGarrisonTypeID)
+    local garrisonTypeID =  GarrisonFollowerOptions[followerTypeID].garrisonType;
+    if onlyGarrisonTypeID then
+        return garrisonTypeID;
+    end
+    return self:GetGarrisonInfo(garrisonTypeID);
 end
 
 function LandingPageInfo:Load_Warlords_of_Draenor()
@@ -64,23 +78,25 @@ function LandingPageInfo:Load_Warlords_of_Draenor()
     local garrisonFollowerTypeID = Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower;
     local garrisonTypeID = Enum.GarrisonType.Type_6_0_Garrison;
     return {
-			["tagName"] = playerFactionGroupTag,
-			["title"] = GARRISON_LANDING_PAGE_TITLE,
-			["description"] = MINIMAP_GARRISON_LANDING_PAGE_TOOLTIP,
-			["minimapIcon"] = format("GarrLanding-MinimapIcon-%s-Up", playerFactionGroupTag),
-			["bannerAtlas"] = "accountupgradebanner-wod",  -- 199x117
-			["msg"] = {  --> menu entry tooltip messages
-				["missionsTitle"] = GARRISON_MISSIONS_TITLE,
-				["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,  --> "%d/%d Ready for pickup"
-				["missionsEmptyProgress"] = GARRISON_EMPTY_IN_PROGRESS_LIST,
-				["missionsComplete"] = GarrisonFollowerOptions[garrisonFollowerTypeID].strings.LANDING_COMPLETE or '???',
-				["requirementText"] = ns.MRBP_GetGarrisonTypeUnlockQuestInfo(garrisonTypeID, playerFactionGroupTag).requirementText,
-			},
-			["expansionID"] = ExpansionData.WARLORDS_OF_DRAENOR.ID,
-			["continents"] = { 572 },  -- Draenor
-			-- ["poiZones"] = {525, 534, 535, 539, 542, 543, 550, 588},  -- Frostfire Ridge, Tanaan Jungle, Taladoor, Shadowmoon Valley, Spires of Arak, Gorgrond, Nagrand, Ashran
-			-- No bounties in Draenor; only available since Legion.
-		};
+        ["garrisonTypeID"] = garrisonTypeID,
+        ["garrisonFollowerTypeID"] = garrisonFollowerTypeID,
+        ["tagName"] = playerFactionGroupTag,
+        ["title"] = GARRISON_LANDING_PAGE_TITLE,
+        ["description"] = MINIMAP_GARRISON_LANDING_PAGE_TOOLTIP,
+        ["minimapIcon"] = format("GarrLanding-MinimapIcon-%s-Up", playerFactionGroupTag),
+        ["bannerAtlas"] = "accountupgradebanner-wod",  -- 199x117
+        ["msg"] = {  --> menu entry tooltip messages
+            ["missionsTitle"] = GARRISON_MISSIONS_TITLE,
+            ["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,  --> "%d/%d Ready for pickup"
+            ["missionsEmptyProgress"] = GARRISON_EMPTY_IN_PROGRESS_LIST,
+            ["missionsComplete"] = GarrisonFollowerOptions[garrisonFollowerTypeID].strings.LANDING_COMPLETE or '???',
+            ["requirementText"] = ns.MRBP_GetGarrisonTypeUnlockQuestInfo(garrisonTypeID, playerFactionGroupTag).requirementText,
+        },
+        ["expansionID"] = ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID,
+        ["continents"] = { 572 },  -- Draenor
+        -- ["poiZones"] = {525, 534, 535, 539, 542, 543, 550, 588},  -- Frostfire Ridge, Tanaan Jungle, Taladoor, Shadowmoon Valley, Spires of Arak, Gorgrond, Nagrand, Ashran
+        -- No bounties in Draenor; only available since Legion.
+    };
 end
 
 function LandingPageInfo:Load_Legion()
@@ -89,32 +105,34 @@ function LandingPageInfo:Load_Legion()
     local garrisonTypeID = Enum.GarrisonType.Type_7_0_Garrison;
     local mapID = 650;  -- Highmountain
     return {
-			["tagName"] = playerClassTag,
-			["title"] = ORDER_HALL_LANDING_PAGE_TITLE,
-			["description"] = MINIMAP_ORDER_HALL_LANDING_PAGE_TOOLTIP,
-			["minimapIcon"] = playerClassTag == "EVOKER" and "UF-Essence-Icon-Active" or format("legionmission-landingbutton-%s-up", playerClassTag),
-			["bannerAtlas"] = "accountupgradebanner-legion",  -- 199x117
-			["msg"] = {
-				["missionsTitle"] = GARRISON_MISSIONS,
-				["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
-				["missionsEmptyProgress"] = GARRISON_EMPTY_IN_PROGRESS_LIST,
-				["missionsComplete"] = GarrisonFollowerOptions[garrisonFollowerTypeID].strings.LANDING_COMPLETE,
-				["requirementText"] = ns.MRBP_GetGarrisonTypeUnlockQuestInfo(garrisonTypeID, playerClassTag).requirementText,
-			},
-			["expansionID"] = ExpansionData.LEGION.ID,
-			["continents"] = { 619, 905 },  -- Broken Isles + Argus
-			-- ["poiZones"] = {
-			-- 	630, 634, 641, 646, 650, 680, 790,  -- Azsuna, Stormheim, Val'sharah, Broken Shore, Highmountain, Suramar, Eye of Azshara
-			-- 	830, 882, 885, -- Krokuun, Eredath, Antoran Wastes
-			-- },
-			["bountyBoard"] = {
-				["title"] = BOUNTY_BOARD_LOCKED_TITLE,
-				["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
-				["isCompleteMessage"] = BOUNTY_TUTORIAL_BOUNTY_FINISHED,
-				["GetBounties"] = function() return GetBountiesForMapID(mapID) end,  --> any child zone from "continents" in Legion seems to work
-				["AreBountiesUnlocked"] = function() return MapUtil.MapHasUnlockedBounties(mapID) end,
-			},
-		}
+        ["garrisonTypeID"] = garrisonTypeID,
+        ["garrisonFollowerTypeID"] = garrisonFollowerTypeID,
+        ["tagName"] = playerClassTag,
+        ["title"] = ORDER_HALL_LANDING_PAGE_TITLE,
+        ["description"] = MINIMAP_ORDER_HALL_LANDING_PAGE_TOOLTIP,
+        ["minimapIcon"] = playerClassTag == "EVOKER" and "UF-Essence-Icon-Active" or format("legionmission-landingbutton-%s-up", playerClassTag),
+        ["bannerAtlas"] = "accountupgradebanner-legion",  -- 199x117
+        ["msg"] = {
+            ["missionsTitle"] = GARRISON_MISSIONS,
+            ["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
+            ["missionsEmptyProgress"] = GARRISON_EMPTY_IN_PROGRESS_LIST,
+            ["missionsComplete"] = GarrisonFollowerOptions[garrisonFollowerTypeID].strings.LANDING_COMPLETE,
+            ["requirementText"] = ns.MRBP_GetGarrisonTypeUnlockQuestInfo(garrisonTypeID, playerClassTag).requirementText,
+        },
+        ["expansionID"] = ExpansionInfo.data.LEGION.ID,
+        ["continents"] = { 619, 905 },  -- Broken Isles + Argus
+        -- ["poiZones"] = {
+        -- 	630, 634, 641, 646, 650, 680, 790,  -- Azsuna, Stormheim, Val'sharah, Broken Shore, Highmountain, Suramar, Eye of Azshara
+        -- 	830, 882, 885, -- Krokuun, Eredath, Antoran Wastes
+        -- },
+        ["bountyBoard"] = {
+            ["title"] = BOUNTY_BOARD_LOCKED_TITLE,
+            ["noBountiesMessage"] = BOUNTY_BOARD_NO_BOUNTIES_DAYS_1,
+            ["isCompleteMessage"] = BOUNTY_TUTORIAL_BOUNTY_FINISHED,
+            ["GetBounties"] = function() return GetBountiesForMapID(mapID) end,  --> any child zone from "continents" in Legion seems to work
+            ["AreBountiesUnlocked"] = function() return MapUtil.MapHasUnlockedBounties(mapID) end,
+        },
+    };
 end
 
 function LandingPageInfo:Load_Battle_for_Azeroth()
@@ -123,6 +141,8 @@ function LandingPageInfo:Load_Battle_for_Azeroth()
     local garrisonTypeID = Enum.GarrisonType.Type_8_0_Garrison;
     local mapID = playerFactionGroupTag == "Horde" and 875 or 876;
     return {
+        ["garrisonTypeID"] = garrisonTypeID,
+        ["garrisonFollowerTypeID"] = garrisonFollowerTypeID,
         ["tagName"] = playerFactionGroupTag,
         ["title"] = GARRISON_TYPE_8_0_LANDING_PAGE_TITLE,
         ["description"] = GARRISON_TYPE_8_0_LANDING_PAGE_TOOLTIP,
@@ -135,7 +155,7 @@ function LandingPageInfo:Load_Battle_for_Azeroth()
             ["missionsComplete"] = GarrisonFollowerOptions[garrisonFollowerTypeID].strings.LANDING_COMPLETE,
             ["requirementText"] = ns.MRBP_GetGarrisonTypeUnlockQuestInfo(garrisonTypeID, playerFactionGroupTag).requirementText,
         },
-        ["expansionID"] = ExpansionData.BATTLE_FOR_AZEROTH.ID,
+        ["expansionID"] = ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID,
         ["continents"] = { 875, 876 },  -- Zandalar + Kul Tiras
         ["poiZones"] = {
             62, 14, 1355, 1462, -- Arathi Highlands, Darkshore, Nazjatar, Mechagon
@@ -157,6 +177,8 @@ function LandingPageInfo:Load_Shadowlands()
     local garrisonFollowerTypeID = Enum.GarrisonFollowerType.FollowerType_9_0_GarrisonFollower;
     local garrisonTypeID = Enum.GarrisonType.Type_9_0_Garrison;
     return {
+        ["garrisonTypeID"] = garrisonTypeID,
+        ["garrisonFollowerTypeID"] = garrisonFollowerTypeID,
         ["tagName"] = PlayerInfo.activeCovenantID,
         ["title"] = GARRISON_TYPE_9_0_LANDING_PAGE_TITLE,
         ["description"] = GARRISON_TYPE_9_0_LANDING_PAGE_TOOLTIP,
@@ -169,7 +191,7 @@ function LandingPageInfo:Load_Shadowlands()
             ["missionsComplete"] = GarrisonFollowerOptions[garrisonFollowerTypeID].strings.LANDING_COMPLETE,
             ["requirementText"] = ns.MRBP_GetGarrisonTypeUnlockQuestInfo(garrisonTypeID, PlayerInfo.activeCovenantID).requirementText,
         },
-        ["expansionID"] = ExpansionData.SHADOWLANDS.ID,
+        ["expansionID"] = ExpansionInfo.data.SHADOWLANDS.ID,
         ["continents"] = { 1550 },  -- Shadowlands
         ["poiZones"] = {
             -- 1525, 1533, 1536, 1565, 1543,  -- Revendreth, Bastion, Maldraxxus, Ardenweald, The Maw
@@ -189,6 +211,7 @@ function LandingPageInfo:Load_Dragonflight()
     local playerFactionGroupTag = PlayerInfo:GetFactionGroupData("tag");
     local garrisonTypeID = Enum.ExpansionLandingPageType.Dragonflight;
     return {
+        ["garrisonTypeID"] = garrisonTypeID,
         ["tagName"] = playerFactionGroupTag,
         ["title"] = DRAGONFLIGHT_LANDING_PAGE_TITLE,
         ["description"] = DRAGONFLIGHT_LANDING_PAGE_TOOLTIP,
@@ -197,7 +220,7 @@ function LandingPageInfo:Load_Dragonflight()
         ["msg"] = {
             ["requirementText"] = ns.MRBP_GetGarrisonTypeUnlockQuestInfo(garrisonTypeID, playerFactionGroupTag).requirementText,
         },
-        ["expansionID"] = ExpansionData.DRAGONFLIGHT.ID,
+        ["expansionID"] = ExpansionInfo.data.DRAGONFLIGHT.ID,
         ["continents"] = { 1978 },  -- Dragon Isles
         ["poiZones"] = {
             -- 2022, 2023, 2024, 2025, 2118,  -- Waking Shores, Ohn'ahran Plains, Azure Span, Thaldraszus, The Forbidden Reach
