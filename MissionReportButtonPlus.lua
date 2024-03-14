@@ -1041,6 +1041,10 @@ local function MenuLine_OnLeave()
 	if ( ExpansionTooltip.slider and ExpansionTooltip.slider:IsShown() ) then
 		ReleaseTooltip(ExpansionTooltip)
 		MenuLine_CreateExpansionTooltip(MenuTooltip)
+		if ReputationTooltip then
+			ReleaseTooltip(ReputationTooltip)
+			MenuLine_CreateReputationTooltip(MenuTooltip)
+		end
 		return
 	end
 	if (ExpansionTooltip:GetLineCount() > 0) then
@@ -1058,6 +1062,9 @@ local function MenuLine_OnEnter(...)
 	local lineFrame, expansionInfo, _ = ...
 	ExpansionTooltip:SetCellMarginV(0)  --> needs to be set every time, since it has been reset by ":Clear()".
 	ReputationTooltip:SetCellMarginV(0)
+	-- if (ReputationTooltip:GetLineCount() == 0) then
+	-- 	ReputationTooltip:SetCellMarginV(0)
+	-- end
 	-- Tooltip header (title + description)
 	local garrisonInfo = LandingPageInfo:GetGarrisonInfo(expansionInfo.garrisonTypeID);
 	local isSettingsLine = expansionInfo.ID == nil
