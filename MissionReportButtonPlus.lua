@@ -1117,9 +1117,6 @@ local function MenuLine_OnEnter(...)
 	if ShouldShowTimewalkingVendorText(expansionInfo) then
 		local vendorAreaPoiInfo = util.poi.FindTimewalkingVendor(expansionInfo);
 		if vendorAreaPoiInfo then
-			-- tooltipText = TooltipText_AddHeaderLine(tooltipText, vendorAreaPoiInfo.name);
-			-- tooltipText = TooltipText_AddIconLine(tooltipText, vendorAreaPoiInfo.mapInfo.name, vendorAreaPoiInfo.atlasName);
-			-- tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, vendorAreaPoiInfo.timeString);
 			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, vendorAreaPoiInfo.name)
 			LocalTooltipUtil:AddIconLine(ExpansionTooltip, vendorAreaPoiInfo.mapInfo.name, vendorAreaPoiInfo.atlasName)
 			LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, vendorAreaPoiInfo.timeString)

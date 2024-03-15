@@ -1857,7 +1857,9 @@ end
 ----- Timewalking Vendor -----
 
 local TimewalkingVendorData = {};
-TimewalkingVendorData.areaPoiIDs = {6985, 7018};  --> Draenor, Legion
+TimewalkingVendorData.VENDOR_DRAENOR = 6985;
+TimewalkingVendorData.VENDOR_LEGION = 7018;
+TimewalkingVendorData.areaPoiIDs = {TimewalkingVendorData.VENDOR_DRAENOR, TimewalkingVendorData.VENDOR_LEGION};
 TimewalkingVendorData.mapInfos = {LocalMapUtil.GetMapInfo(588), LocalMapUtil.GetMapInfo(627)};
 TimewalkingVendorData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
 
@@ -1865,10 +1867,10 @@ function util.poi.FindTimewalkingVendor(expansionInfo)
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(TimewalkingVendorData);
 	if poiInfo then
 		poiInfo.timeString = util.GetTimeStringUntilWeeklyReset();
-		if (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID and poiInfo.areaPoiID == 6985) then
+		if (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID and poiInfo.areaPoiID == TimewalkingVendorData.VENDOR_DRAENOR) then
 			return poiInfo
 		end
-		if (expansionInfo.ID == ExpansionInfo.data.LEGION.ID and poiInfo.areaPoiID == 7018) then
+		if (expansionInfo.ID == ExpansionInfo.data.LEGION.ID and poiInfo.areaPoiID == TimewalkingVendorData.VENDOR_LEGION) then
 			return poiInfo
 		end
 	end
@@ -1906,6 +1908,9 @@ function util.poi.FindDraenorTreasures()
 				if not tContains(TestPoiUtil.separatedAreaPoiIDs, tostring(poiInfo.areaPoiID)) then
 					tinsert(TestPoiUtil.separatedAreaPoiIDs, tostring(poiInfo.areaPoiID));
 				end
+			end
+			if tContains(TimewalkingVendorData.areaPoiIDs, poiInfo.areaPoiID) then
+				break;
 			end
 			if not areas[poiInfo.mapInfo.name] then
 				areas[poiInfo.mapInfo.name] = {};
