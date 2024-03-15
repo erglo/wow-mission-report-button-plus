@@ -1625,12 +1625,37 @@ SuperbloomData.GetTimeLeft = function(self)
 	if (secondsLeft >= 0) then
 		local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(nil, secondsLeft)
 		local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString
-		return timeLeftString
+		local isActive = (3600-secondsLeft) <= 900  -- event lasts for about 15 minutes
+		return timeLeftString, isActive
 	end
+end
+-- When in Emerald Dream zone, this is not an area POI anymore, it's a World Map vignette instead.
+SuperbloomData.vignetteID = 5813
+-- C_VignetteInfo.GetVignetteInfo("Vignette-0-3894-2548-10996-5813-0000736EC8")
+-- C_VignetteInfo.GetVignettes()
+-- REF.: [Blizzard_APIDocumentationGenerated/VignetteInfoDocumentation.lua](https://www.townlong-yak.com/framexml/live/Blizzard_APIDocumentationGenerated/VignetteInfoDocumentation.lua)
+SuperbloomData.GetVignetteInfo = function(self)
+	local vignettes = C_VignetteInfo.GetVignettes()
+	if #vignettes > 0 then
+		for i, vignetteGUID in ipairs(vignettes) do
+			local vignetteInfo = C_VignetteInfo.GetVignetteInfo(vignetteGUID)
+			if (vignetteInfo and vignetteInfo.vignetteID == self.vignetteID) then
+				return vignetteInfo
+			end
+		end
+	end
+end
+SuperbloomData.GetVignettePositionMapInfo = function(self, vignetteGUID)
+	local vignettePosition, vignetteFacing = C_VignetteInfo.GetVignettePosition(vignetteGUID, self.mapInfo.mapID)
+	local positionMapInfo = C_Map.GetMapInfoAtPosition(self.mapInfo.mapID, vignettePosition:GetXY())
+	-- print("positionMapInfo:", positionMapInfo and positionMapInfo.mapID, positionMapInfo and positionMapInfo.name)
+	-- Note: does NOT seem to work, but why?
+	return positionMapInfo
 end
 
 function util.poi.GetSuperbloomInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(SuperbloomData)
+	local uiMapID = C_Map.GetBestMapForUnit("player")
 	if poiInfo then
 		data:SaveLabel("showSuperbloomInfo", poiInfo.name)
 		if L:StringIsEmpty(poiInfo.timeString) then
@@ -1639,6 +1664,20 @@ function util.poi.GetSuperbloomInfo()
 			poiInfo.timeString = poiInfo.timeString.." "..GREEN_FONT_COLOR:WrapTextInColorCode(SPEC_ACTIVE)
 		end
 		return poiInfo
+	elseif (uiMapID == SuperbloomData.mapID) then
+		local vignetteInfo = SuperbloomData:GetVignetteInfo()
+		if vignetteInfo then
+			data:SaveLabel("showSuperbloomInfo", vignetteInfo.name)
+			local timeString, isActive = SuperbloomData:GetTimeLeft()
+			vignetteInfo.timeString = timeString
+			if isActive then
+				vignetteInfo.timeString = vignetteInfo.timeString.." "..GREEN_FONT_COLOR:WrapTextInColorCode(SPEC_ACTIVE)
+			end
+			local mapInfo, areaMapInfo = SuperbloomData:GetVignettePositionMapInfo(vignetteInfo.vignetteGUID)
+			vignetteInfo.mapInfo = SuperbloomData.mapInfo
+			vignetteInfo.areaName = areaMapInfo and areaMapInfo.name -- or mapInfo.name
+			return vignetteInfo
+		end
 	end
 end
 

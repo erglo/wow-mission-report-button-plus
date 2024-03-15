@@ -26,9 +26,13 @@
 * Tooltip (new): moved expansion unlocking requirements to in-progress missions; expansion tooltips are no longer completely locked.
 * Tooltip: converted content to the new tooltip format.
 
+### Fixed
+
+* Dragonflight: Superbloom event details didn't appear while in Emerald Dream zone; only worked outside the zone.
+
 ### Removed
 
-* Tooltip: removed legacy text tooltip.
+* Tooltip: removed legacy tooltip.
 &nbsp;  
 
 ## Previous changes
