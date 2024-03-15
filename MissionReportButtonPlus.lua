@@ -982,7 +982,12 @@ end
 -- Return a suitable atlas name for given expansion.
 local function GetExpansionHintIcon(expansionInfo)
 	if (expansionInfo.ID < ExpansionInfo.data.DRAGONFLIGHT.ID) then
-		return ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID) and util.CreateInlineIcon("QuestNormal")
+		local offsetX = -9;
+		local shouldShowTimewalkingVendor = expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID and ns.settings.showWoDTimewalkingVendor or expansionInfo.ID == ExpansionInfo.data.LEGION.ID and ns.settings.showLegionTimewalkingVendor;
+		local timeWalkingVendorIcon = (shouldShowTimewalkingVendor and util.poi.HasTimewalkingVendor(expansionInfo.ID)) and util.CreateInlineIcon("TimewalkingVendor-32x32") or '';
+		local missionsCompletedIcon = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID) and util.CreateInlineIcon("QuestNormal", 16, 16, timeWalkingVendorIcon and offsetX) or '';
+		local hintIcon = timeWalkingVendorIcon..missionsCompletedIcon;
+		return hintIcon;
 	elseif ns.settings.showReputationRewardPendingHint then
 		return util.garrison.HasMajorFactionReputationReward(expansionInfo.ID) and util.CreateInlineIcon("Levelup-Icon-Bag", 14, 16)
 	end
@@ -1062,9 +1067,6 @@ local function MenuLine_OnEnter(...)
 	local lineFrame, expansionInfo, _ = ...
 	ExpansionTooltip:SetCellMarginV(0)  --> needs to be set every time, since it has been reset by ":Clear()".
 	ReputationTooltip:SetCellMarginV(0)
-	-- if (ReputationTooltip:GetLineCount() == 0) then
-	-- 	ReputationTooltip:SetCellMarginV(0)
-	-- end
 	-- Tooltip header (title + description)
 	local garrisonInfo = LandingPageInfo:GetGarrisonInfo(expansionInfo.garrisonTypeID);
 	local isSettingsLine = expansionInfo.ID == nil

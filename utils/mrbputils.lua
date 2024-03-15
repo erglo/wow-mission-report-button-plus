@@ -1876,6 +1876,10 @@ function util.poi.FindTimewalkingVendor(expansionInfo)
 	end
 end
 
+function util.poi.HasTimewalkingVendor(expansionID)
+	local expansionInfo = ExpansionInfo:GetExpansionData(expansionID);
+	return util.poi.FindTimewalkingVendor(expansionInfo) ~= nil;
+end
 
 ----- Draenor Treasures -----
 
