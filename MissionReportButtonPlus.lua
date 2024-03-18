@@ -982,11 +982,9 @@ end
 -- Return a suitable atlas name for given expansion.
 local function GetExpansionHintIcon(expansionInfo)
 	if (expansionInfo.ID < ExpansionInfo.data.DRAGONFLIGHT.ID) then
-		local offsetX = -9;
-		local shouldShowTimewalkingVendor = expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID and ns.settings.showWoDTimewalkingVendor or expansionInfo.ID == ExpansionInfo.data.LEGION.ID and ns.settings.showLegionTimewalkingVendor;
-		local timeWalkingVendorIcon = (shouldShowTimewalkingVendor and util.poi.HasTimewalkingVendor(expansionInfo.ID)) and util.CreateInlineIcon("TimewalkingVendor-32x32") or '';
-		local missionsCompletedIcon = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID) and util.CreateInlineIcon("QuestNormal", 16, 16, timeWalkingVendorIcon and offsetX) or '';
-		local hintIcon = timeWalkingVendorIcon..missionsCompletedIcon;
+		local timeWalkingVendorIcon =  (ns.settings.showTimewalkingVendorHint and util.poi.HasTimewalkingVendor(expansionInfo.ID)) and util.CreateInlineIcon("TimewalkingVendor-32x32");
+		local missionsCompletedIcon = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID) and util.CreateInlineIcon("QuestNormal");
+		local hintIcon = timeWalkingVendorIcon or missionsCompletedIcon;
 		return hintIcon;
 	elseif ns.settings.showReputationRewardPendingHint then
 		return util.garrison.HasMajorFactionReputationReward(expansionInfo.ID) and util.CreateInlineIcon("Levelup-Icon-Bag", 14, 16)
@@ -1499,15 +1497,15 @@ local function ShowMenuTooltip(parent)
 	local sortFunc = ns.settings.reverseSortorder and ExpansionInfo.SortAscending or ExpansionInfo.SortDescending
 	local expansionList = ExpansionInfo:GetExpansionsWithLandingPage(sortFunc)
 	for _, expansionInfo in ipairs(expansionList) do
-		local garrisonInfo = LandingPageInfo:GetGarrisonInfo(expansionInfo.garrisonTypeID);
-		expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or garrisonInfo.title
-		expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and util.CreateInlineIcon(garrisonInfo.minimapIcon)
-		expansionInfo.disabled = not MRBP_IsGarrisonRequirementMet(expansionInfo.garrisonTypeID)
-		expansionInfo.iconString = GetExpansionHintIcon(expansionInfo)
-		expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID) end
 		local playerOwnsExpansion = ExpansionInfo:DoesPlayerOwnExpansion(expansionInfo.ID)
 		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(expansionInfo.ID))  --> user option
 		if (playerOwnsExpansion and isActiveEntry) then
+			local garrisonInfo = LandingPageInfo:GetGarrisonInfo(expansionInfo.garrisonTypeID);
+			expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or garrisonInfo.title
+			expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and util.CreateInlineIcon(garrisonInfo.minimapIcon)
+			expansionInfo.disabled = not MRBP_IsGarrisonRequirementMet(expansionInfo.garrisonTypeID)
+			expansionInfo.iconString = GetExpansionHintIcon(expansionInfo)
+			expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID) end
 			AddMenuTooltipLine(expansionInfo)
 		end
 	end

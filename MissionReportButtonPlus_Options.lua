@@ -67,6 +67,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showMissionCompletedHint"] = true,
 	["showMissionCompletedHintOnlyForAll"] = false,
 	["showReputationRewardPendingHint"] = true,
+	["showTimewalkingVendorHint"] = true,
 	-- Menu entries
 	["activeMenuEntries"] = {"5", "6", "7", "8", "9", "99"},
 	-- Menu entries tooltip
@@ -403,19 +404,25 @@ local function CreateMenuTooltipSettings(category, layout)
 		},
 		{
 			variable = "showMissionCompletedHint",
-			name = L.CFG_DDMENU_ICONHINT_TEXT,
-			tooltip = L.CFG_DDMENU_ICONHINT_TOOLTIP,
+			name = L.CFG_DDMENU_HINT_MISSIONS_TEXT,
+			tooltip = L.CFG_DDMENU_HINT_MISSIONS_TOOLTIP,
 		},
 		{
 			variable = "showMissionCompletedHintOnlyForAll",
-			name = L.CFG_DDMENU_ICONHINTALL_TEXT,
-			tooltip = L.CFG_DDMENU_ICONHINTALL_TOOLTIP,
+			name = L.CFG_DDMENU_HINT_MISSIONS_ALL_TEXT,
+			tooltip = L.CFG_DDMENU_HINT_MISSIONS_ALL_TOOLTIP,
 			parentVariable = "showMissionCompletedHint",
 		},
 		{
 			variable = "showReputationRewardPendingHint",
-			name = L.CFG_DDMENU_REPUTATION_HINT_TEXT,
-			tooltip = L.CFG_DDMENU_REPUTATION_HINT_TOOLTIP,
+			name = L.CFG_DDMENU_HINT_REPUTATION_TEXT,
+			tooltip = L.CFG_DDMENU_HINT_REPUTATION_TOOLTIP,
+			tag = Settings.Default.True,
+		},
+		{
+			variable = "showTimewalkingVendorHint",
+			name = L.CFG_DDMENU_HINT_TIMEWALKING_VENDOR_TEXT,
+			tooltip = L.CFG_DDMENU_HINT_TIMEWALKING_VENDOR_TOOLTIP,
 			tag = Settings.Default.True,
 		},
 	};
