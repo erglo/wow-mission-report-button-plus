@@ -20,6 +20,7 @@
 
 ### Changed
 
+* Updated TOC file version to `WoW 10.2.6`.
 * L10n: updated locale files.
 * Settings: reorganized addon settings into multiple subcategories.
 * Minimap Button: right-clicking the minimap button now toggles the menu.
