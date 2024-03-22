@@ -979,16 +979,16 @@ local function ShouldShowMissionCompletedHint(garrisonTypeID)
 	return hasCompletedAllMissions
 end
 
--- Return a suitable atlas name for given expansion.
-local function GetExpansionHintIcon(expansionInfo)
+-- Return suitable information about eg. mission hints for given expansion.
+local function GetExpansionHintIconInfo(expansionInfo)
+	local missionsAvailable, reputationRewardPending, timeWalkingVendorAvailable = false, false, false;
 	if (expansionInfo.ID < ExpansionInfo.data.DRAGONFLIGHT.ID) then
-		local timeWalkingVendorIcon =  (ns.settings.showTimewalkingVendorHint and util.poi.HasTimewalkingVendor(expansionInfo.ID)) and util.CreateInlineIcon("TimewalkingVendor-32x32");
-		local missionsCompletedIcon = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID) and util.CreateInlineIcon("QuestNormal");
-		local hintIcon = timeWalkingVendorIcon or missionsCompletedIcon;
-		return hintIcon;
+		missionsAvailable = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID);
+		timeWalkingVendorAvailable = ns.settings.showTimewalkingVendorHint and util.poi.HasTimewalkingVendor(expansionInfo.ID);
 	elseif ns.settings.showReputationRewardPendingHint then
-		return util.garrison.HasMajorFactionReputationReward(expansionInfo.ID) and util.CreateInlineIcon("Levelup-Icon-Bag", 14, 16)
+		reputationRewardPending = util.garrison.HasMajorFactionReputationReward(expansionInfo.ID);
 	end
+	return {missionsAvailable, reputationRewardPending, timeWalkingVendorAvailable};
 end
 
 ----- LibQTip -----
@@ -1461,9 +1461,12 @@ local MenuTooltip_GetCellStyle = function()
 end
 
 local function AddMenuTooltipLine(info)
+	local isSettingsLine = info.ID == nil
 	local name = info.color and info.color:WrapTextInColorCode(info.label) or info.label
-	local lineIndex = MenuTooltip:AddLine(info.iconString or '', '', info.minimapIcon or '')
+	local lineIndex = MenuTooltip:AddLine('', '', '')
+	MenuTooltip:SetCell(lineIndex, 1, info.hintIconInfo, nil, nil, nil, isSettingsLine and ns.TextureCellProvider or ns.HintIconCellProvider)
 	MenuTooltip:SetCell(lineIndex, 2, name, MenuTooltip_GetCellStyle())
+	MenuTooltip:SetCell(lineIndex, 3, info.minimapIcon, nil, nil, nil, ns.TextureCellProvider)
 	if ns.settings.showEntryTooltip then
 		MenuTooltip:SetLineScript(lineIndex, "OnEnter", MenuLine_OnEnter, info)
 		MenuTooltip:SetLineScript(lineIndex, "OnLeave", MenuLine_OnLeave)
@@ -1479,7 +1482,7 @@ local settingsInfo = {
 	label = SETTINGS,
 	description = BASIC_OPTIONS_TOOLTIP,
 	color = NORMAL_FONT_COLOR,
-	iconString = CreateAtlasMarkup("Warfronts-BaseMapIcons-Empty-Workshop-Minimap", 16, 16),  --, 17, 15),
+	hintIconInfo = "Warfronts-BaseMapIcons-Empty-Workshop-Minimap",
 	func = function() MRBP_Settings_OpenToAddonCategory(AddonID) end
 }
 
@@ -1502,9 +1505,9 @@ local function ShowMenuTooltip(parent)
 		if (playerOwnsExpansion and isActiveEntry) then
 			local garrisonInfo = LandingPageInfo:GetGarrisonInfo(expansionInfo.garrisonTypeID);
 			expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or garrisonInfo.title
-			expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and util.CreateInlineIcon(garrisonInfo.minimapIcon)
+			expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and garrisonInfo.minimapIcon or ''
 			expansionInfo.disabled = not MRBP_IsGarrisonRequirementMet(expansionInfo.garrisonTypeID)
-			expansionInfo.iconString = GetExpansionHintIcon(expansionInfo)
+			expansionInfo.hintIconInfo = GetExpansionHintIconInfo(expansionInfo)
 			expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID) end
 			AddMenuTooltipLine(expansionInfo)
 		end

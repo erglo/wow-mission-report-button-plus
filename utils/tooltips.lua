@@ -157,7 +157,103 @@ function LocalTooltipUtil:AddTimeRemainingLine(tooltip, timeString, ...)
 	return self:AddTextLine(tooltip, iconString..TEXT_DELIMITER..text, ...)
 end
 
------ MRBP content -----
+----- LibQTip - Cell Provider -----
+--
+-- REF.: <https://www.wowace.com/projects/libqtip-1-0/pages/api-reference>
+-- REF.: <https://www.wowace.com/projects/libqtip-1-0/pages/standard-cell-provider-api>
+-- REF.: <https://warcraft.wiki.gg/wiki/API_Frame_CreateTexture>
+-- REF.: <https://warcraft.wiki.gg/wiki/Layer>
+-- REF.: <https://warcraft.wiki.gg/wiki/API_TextureBase_SetAtlas>
+
+local TextureCellProvider, TextureCellPrototype = LibQTip:CreateCellProvider()
+ns.TextureCellProvider = TextureCellProvider
+
+function TextureCellPrototype:InitializeCell()
+	if not self.texture then
+		self.texture = self:CreateTexture(nil, 'ARTWORK')
+		self.texture:SetSize(16, 16)
+		self.texture:SetPoint("CENTER", self)
+		self.texture:Show()
+	end
+end
+
+function TextureCellPrototype:SetupCell(tooltip, atlasName, ...)
+	self.texture.name = atlasName
+	self.texture:SetAtlas(atlasName)
+	return self.texture:GetSize()
+end
+
+function TextureCellPrototype:ReleaseCell()
+	self.texture:SetAtlas('')
+end
+
+local HintIconCellProvider, HintIconCellPrototype = LibQTip:CreateCellProvider()
+ns.HintIconCellProvider = HintIconCellProvider
+
+function HintIconCellPrototype:InitializeCell()
+	if not self.missionsHintTexture then
+		-- When missions are completed, show this hint icon.
+		self.missionsHintTexture = self:CreateTexture("MissionsHintTexture", "OVERLAY", nil, 5)
+		self.missionsHintTexture:SetAtlas("QuestNormal")
+		self.missionsHintTexture:SetSize(16, 16)
+		self.missionsHintTexture:Hide()
+	end
+	if not self.reputationHintTexture then
+		-- When reputation reward is pending, show this hint icon.
+		self.reputationHintTexture = self:CreateTexture("ReputationHintTexture", "OVERLAY", nil, 3)
+		self.reputationHintTexture:SetAtlas("ParagonReputation_Bag")
+		self.reputationHintTexture:SetSize(13, 16)
+		self.reputationHintTexture:Hide()
+	end
+	if not self.timewalkingVendorHintTexture then
+		-- When the Timewalking Vendor is available, show this hint icon.
+		self.timewalkingVendorHintTexture = self:CreateTexture("TimewalkingVendorHintTexture", "OVERLAY", nil, 1)
+		self.timewalkingVendorHintTexture:SetAtlas("TimewalkingVendor-32x32")
+		self.timewalkingVendorHintTexture:SetSize(16, 16)
+		self.timewalkingVendorHintTexture:Hide()
+	end
+end
+
+function HintIconCellPrototype:SetupCell(parent, hints, ...)
+	local missionsAvailable, reputationRewardPending, timeWalkingVendorAvailable = SafeUnpack(hints)
+	if missionsAvailable then
+		local offsetX = (reputationRewardPending or timeWalkingVendorAvailable) and 8 or 0
+		self.missionsHintTexture:SetPoint("CENTER", self, offsetX, 0)
+		self.missionsHintTexture:Show()
+	end
+	if reputationRewardPending then
+		local offsetX = (missionsAvailable and timeWalkingVendorAvailable) and 2 or 0
+		if missionsAvailable then
+			offsetX = -2
+		end
+		if timeWalkingVendorAvailable then
+			offsetX = 6
+		end
+		self.reputationHintTexture:SetPoint("CENTER", self, offsetX, 0)
+		self.reputationHintTexture:Show()
+	end
+	if timeWalkingVendorAvailable then
+		local offsetX = reputationRewardPending and -2 or 0
+		if (missionsAvailable and reputationRewardPending) then
+			offsetX = -4
+		end
+		self.timewalkingVendorHintTexture:SetPoint("CENTER", self, offsetX, 0)
+		self.timewalkingVendorHintTexture:Show()
+	end
+
+	return self.missionsHintTexture:GetSize()
+end
+
+function HintIconCellPrototype:ReleaseCell()
+	self.missionsHintTexture:ClearAllPoints()
+	self.missionsHintTexture:Hide()
+	self.reputationHintTexture:ClearAllPoints()
+	self.reputationHintTexture:Hide()
+	self.timewalkingVendorHintTexture:ClearAllPoints()
+	self.timewalkingVendorHintTexture:Hide()
+end
+
+----- MRBP content -------------------------------------------------------------
 
 local function GetMajorFactionIcon(majorFactionData)
 	if (majorFactionData.expansionID == ExpansionInfo.data.DRAGONFLIGHT.ID) then
