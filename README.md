@@ -3,7 +3,7 @@
 Adds a right-click menu to the mission report button on the minimap (aka. `Garrison-/ExpansionLandingPageMinimapButton`) for selecting mission reports and summaries of current and previous expansions.  
 *(See full feature list [below](#features))*
 
-![Button tooltip and right-click menu with expansion names](https://raw.githubusercontent.com/erglo/wow-mission-report-button-plus/main/.screenshots/mbrp_tooltip-dropdown_df-winter.jpg "Button tooltip and right-click menu with expansion names")
+![Button tooltip and right-click menu with expansion names](https://raw.githubusercontent.com/erglo/wow-mission-report-button-plus/main/.screenshots/mbrp_tooltip-dropdown_v1.jpg "Button tooltip and right-click menu with expansion names")
 ![Button tooltip and right-click menu with expansion names](https://raw.githubusercontent.com/erglo/wow-mission-report-button-plus/main/.screenshots/mrbp_menu-tooltip_df-summary.jpg "The MRBP Dragon Isles Summary tooltip")  
 (More images can be found on this addon's [screenshots page](https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots) on CurseForge.)
 
