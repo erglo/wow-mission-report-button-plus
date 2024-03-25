@@ -42,5 +42,5 @@
 * For a complete history of changes see the [changelog file on GitHub](https://github.com/erglo/mission-report-button-plus/blob/main/CHANGELOG.md "CHANGELOG.md").
 &nbsp;  
 ⚠️**Note:** _This is an pre-release version and still in development._  
-![CurseForge Game Version](https://img.shields.io/badge/WoW--retail-10.2.5-%23F16436?logo=curseforge "Game Version")
+![CurseForge Game Version](https://img.shields.io/badge/WoW--retail-10.2.6-%23F16436?logo=curseforge "Game Version")
 !["tag-latest"](https://img.shields.io/badge/tag-v1.0.0-informational?logo=GitHub "Pre-Release Version")
