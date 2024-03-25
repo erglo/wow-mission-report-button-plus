@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CF_API_KEY: ${{ secrets.CF_API_KEY }},
+      CF_API_KEY: ${{ secrets.CF_API_KEY }}
       # Needed for locale files
       GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
       # "GITHUB_TOKEN" is a secret always provided to the workflow
@@ -20,7 +20,7 @@ jobs:
     steps:
 
       - name: Clone project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Package w/o release
         uses: BigWigsMods/packager@v2

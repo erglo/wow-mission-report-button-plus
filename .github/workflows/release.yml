@@ -3,7 +3,7 @@ name: Package and release
 on:
   push:
     tags:
-      # Start actions with version '1.0.0'; allow up to 'v1.99.999+'
+      # Start actions with version 'v1.0.0'; allow up to 'v1.99.999+'
       - 'v1.[0-9][0-9].[0-9]+'
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
     steps:
 
       - name: Clone project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Package and release
         uses: BigWigsMods/packager@v2
