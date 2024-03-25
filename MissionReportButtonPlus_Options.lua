@@ -43,8 +43,11 @@ local ExpansionInfo = ns.ExpansionInfo;
 local _, addonTitle, addonNotes = C_AddOns.GetAddOnInfo(AddonID);
 
 local strjoin = strjoin;
+local NEWLINE = "|n";
+local NEW_PARAGRAPH = "|n|n";
+local HEADER_COLON = HEADER_COLON;
 local LIST_DELIMITER = LIST_DELIMITER;
-local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
+-- local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
 -- local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
 
 local GRAY = function(txt) return GRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
@@ -416,7 +419,7 @@ local function CreateMenuTooltipSettings(category, layout)
 		{
 			variable = "showReputationRewardPendingHint",
 			name = L.CFG_DDMENU_HINT_REPUTATION_TEXT,
-			tooltip = L.CFG_DDMENU_HINT_REPUTATION_TOOLTIP,
+			tooltip = L.CFG_DDMENU_HINT_REPUTATION_TOOLTIP..NEW_PARAGRAPH..GRAY(L.WORKS_ONLY_FOR_EXPANSION_S:format(ExpansionInfo.data.DRAGONFLIGHT.name)),
 			tag = Settings.Default.True,
 		},
 		{
@@ -449,14 +452,14 @@ local function CreateMenuEntriesSelection(category, layout)
 			local expansion = ExpansionInfo:GetExpansionData(expansionID);
 			local _, width, height = util.GetAtlasInfo(displayInfo.banner);
 			local bannerString = util.CreateInlineIcon(displayInfo.banner, width, height, 8, -16);
-			featuresString = featuresString..bannerString.."|n";
+			featuresString = featuresString..bannerString..NEWLINE;
 			if not playerOwnsExpansion then
-				featuresString = "|n"..ERROR_COLOR_CODE..featuresString..ERR_REQUIRES_EXPANSION_S:format(expansion.name)..FONT_COLOR_CODE_CLOSE.."|n|n";
+				featuresString = NEWLINE..ERROR_COLOR_CODE..featuresString..ERR_REQUIRES_EXPANSION_S:format(expansion.name)..FONT_COLOR_CODE_CLOSE..NEW_PARAGRAPH;
 			end
-			featuresString = featuresString..HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(FEATURES_LABEL).."|n|n";
+			featuresString = featuresString..HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(FEATURES_LABEL)..NEW_PARAGRAPH;
 			for _, feature in ipairs(displayInfo.features) do
 				local iconString = util.CreateInlineIcon(feature.icon);
-				featuresString = featuresString..iconString.." "..feature.text.."|n";
+				featuresString = featuresString..iconString.." "..feature.text..NEWLINE;
 			end
 		end
 		return featuresString;
@@ -755,7 +758,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.DRAGONFLIGHT.ID] = {
 	{
 		variable = "showResearchersUnderFireInfo",
 		name = L["showResearchersUnderFireInfo"],
-		tooltip = FormatTooltipTemplate("showResearchersUnderFireInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE, "|n|n"..L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN),
+		tooltip = FormatTooltipTemplate("showResearchersUnderFireInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE, NEW_PARAGRAPH..L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN),
 		parentVariable = "showDragonflightWorldMapEvents",
 	},
 	{

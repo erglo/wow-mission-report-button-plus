@@ -129,7 +129,8 @@ ns.L = {
 	TOOLTIP_CLICKTEXT_MINIMAPBUTTON = "右键选择资料片",
 	TOOLTIP_REQUIREMENTS_TEXT_S = "完成任务“%s”以解锁此资料片的内容",
 	WORK_IS_EXPERIMENTAL = "（实验性功能）",
-	WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION = "（实验性功能尚未开发完成，功能可能不完整，甚至可能无法正常运作。）"
+	WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION = "（实验性功能尚未开发完成，功能可能不完整，甚至可能无法正常运作。）",
+	WORKS_ONLY_FOR_EXPANSION_S = "(Currently only supported for %s)",
 };
 --------------------------------------------------------------------------------
 --@end-do-not-package@

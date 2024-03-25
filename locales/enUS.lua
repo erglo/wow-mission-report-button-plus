@@ -129,4 +129,5 @@ ns.L = {
 	--[[ Testing ]]--
 	WORK_IS_EXPERIMENTAL = "(Experimental)",
 	WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION = "(This function is experimental and under development. It might deliver incomplete information or might even not work properly.)",
+	WORKS_ONLY_FOR_EXPANSION_S = "(Currently only supported for %s)",
 };

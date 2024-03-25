@@ -138,6 +138,7 @@ ns.L = {
 	--[[ Testing ]]--
 	WORK_IS_EXPERIMENTAL = "（實驗性功能）",
 	WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION = "（實驗性功能尚未開發完成，功能可能不完整，甚至可能無法正常運作。）",
+	WORKS_ONLY_FOR_EXPANSION_S = "(Currently only supported for %s)",
 };
 --------------------------------------------------------------------------------
 --@end-do-not-package@

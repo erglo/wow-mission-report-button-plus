@@ -143,6 +143,7 @@ ns.L = {
 	--[[ Testing ]]--
 	WORK_IS_EXPERIMENTAL = "(Experimentell)",
 	WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION = "(Diese Funktion befindet sich in einer experimentellen Entwicklungsphase und kann unvollständige Informationen liefern oder nicht ordnungsgemäß funktionieren.)",
+	WORKS_ONLY_FOR_EXPANSION_S = "(Funktioniert z.Z. nur für %s)",
 };
 --------------------------------------------------------------------------------
 --@end-do-not-package@
