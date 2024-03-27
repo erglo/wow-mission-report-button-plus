@@ -1008,7 +1008,6 @@ local screenHeight = GetScreenHeight() * uiScale
 --
 local function ReleaseTooltip(tooltip)
 	if tooltip then
-		-- tooltip:SetFrameStrata("TOOLTIP")
 		LibQTip:Release(tooltip)
 		tooltip = nil
 	end
@@ -1016,7 +1015,7 @@ end
 
 local function MenuLine_ShowTooltips()
 	if (ExpansionTooltip and ExpansionTooltip:GetLineCount() > 0) then
-		-- Compare tooltip height with screen height								--> TODO - Increase height of scrollable tip
+		-- Compare tooltip height with screen height							--> TODO - Increase height of scrollable tip
 		local tooltipHeight = ExpansionTooltip:GetHeight() * uiScale
 		-- print("uiScale:", tooltipHeight, screenHeight, (screenHeight * 0.95))
 		-- print("height:", ExpansionTooltip:GetHeight(), GetScreenHeight(), (GetScreenHeight() * 0.95))
@@ -1037,14 +1036,15 @@ local function MenuLine_CreateExpansionTooltip(parentFrame)
 	ExpansionTooltip:SetPoint("LEFT", parentFrame, "RIGHT", -5, 0)
 	ExpansionTooltip.OnRelease = ReleaseTooltip
 	ExpansionTooltip:SetScrollStep(50)
+	ExpansionTooltip:SetFrameLevel(parentFrame:GetFrameLevel() + 10)			--> TODO - add to style options
 end
 
 -- Create (major) faction reputation summary content tooltip
-local function MenuLine_CreateReputationTooltip(parentFrame, ...)
+local function MenuLine_CreateReputationTooltip(parentFrame)
 	ReputationTooltip = LibQTip:Acquire(ShortAddonID.."LibQTipReputationTooltip", 1, "LEFT")
-	-- ReputationTooltip:SetPoint("RIGHT", parentFrame, "LEFT", 0, 0)
 	ReputationTooltip:SetPoint("BOTTOMRIGHT", ExpansionTooltip, "BOTTOMLEFT", 1, 0)
 	ReputationTooltip.OnRelease = ReleaseTooltip
+	ReputationTooltip:SetFrameLevel(parentFrame:GetFrameLevel() + 10)
 end
 
 local function MenuLine_OnLeave()
@@ -1071,7 +1071,7 @@ end
 local function MenuLine_OnEnter(...)
 	local lineFrame, expansionInfo, _ = ...
 	ExpansionTooltip:SetCellMarginV(0)  --> needs to be set every time, since it has been reset by ":Clear()".
-	ReputationTooltip:SetCellMarginV(0)
+	ReputationTooltip:SetCellMarginV(0)											--> TODO - add to style options ???
 	-- Tooltip header (title + description)
 	local garrisonInfo = LandingPageInfo:GetGarrisonInfo(expansionInfo.garrisonTypeID);
 	local isSettingsLine = expansionInfo.ID == nil
@@ -1493,7 +1493,6 @@ local function ShowMenuTooltip(parent)
 	else
 		MenuTooltip:SetPoint("TOPLEFT", parent, "BOTTOM", -18, 4)
 	end
-	MenuTooltip:SetFrameStrata("MEDIUM")
 	MenuTooltip:SetAutoHideDelay(0.25, parent)
 	MenuTooltip.OnRelease = function(self)
 		ReleaseTooltip(self)
