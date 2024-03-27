@@ -165,10 +165,11 @@ end
 -- REF.: <https://warcraft.wiki.gg/wiki/Layer>
 -- REF.: <https://warcraft.wiki.gg/wiki/API_TextureBase_SetAtlas>
 
-local TextureCellProvider, TextureCellPrototype = LibQTip:CreateCellProvider()
+local TextureCellProvider, TextureCellPrototype = LibQTip:CreateCellProvider(LibQTip.LabelProvider)
 ns.TextureCellProvider = TextureCellProvider
 
 function TextureCellPrototype:InitializeCell()
+	LibQTip.LabelPrototype.InitializeCell(self)
 	if not self.texture then
 		self.texture = self:CreateTexture(nil, 'ARTWORK')
 		self.texture:SetSize(16, 16)
@@ -177,9 +178,11 @@ function TextureCellPrototype:InitializeCell()
 	end
 end
 
-function TextureCellPrototype:SetupCell(tooltip, atlasName, ...)
+function TextureCellPrototype:SetupCell(tooltip, value, ...)
+	local atlasName = value
 	self.texture.name = atlasName
 	self.texture:SetAtlas(atlasName)
+
 	return self.texture:GetSize()
 end
 
@@ -187,10 +190,11 @@ function TextureCellPrototype:ReleaseCell()
 	self.texture:SetAtlas('')
 end
 
-local HintIconCellProvider, HintIconCellPrototype = LibQTip:CreateCellProvider()
+local HintIconCellProvider, HintIconCellPrototype = LibQTip:CreateCellProvider(LibQTip.LabelProvider)
 ns.HintIconCellProvider = HintIconCellProvider
 
 function HintIconCellPrototype:InitializeCell()
+	LibQTip.LabelPrototype.InitializeCell(self)
 	if not self.missionsHintTexture then
 		-- When missions are completed, show this hint icon.
 		self.missionsHintTexture = self:CreateTexture("MissionsHintTexture", "OVERLAY", nil, 5)
