@@ -203,25 +203,26 @@ function HintIconCellPrototype:InitializeCell()
 		self.missionsHintTexture = self:CreateTexture("MissionsHintTexture", "OVERLAY", nil, 5)
 		self.missionsHintTexture:SetAtlas("QuestNormal")
 		self.missionsHintTexture:SetSize(16, 16)
-		self.missionsHintTexture:Hide()
 	end
 	if not self.reputationHintTexture then
 		-- When reputation reward is pending, show this hint icon.
 		self.reputationHintTexture = self:CreateTexture("ReputationHintTexture", "OVERLAY", nil, 3)
 		self.reputationHintTexture:SetAtlas("ParagonReputation_Bag")
 		self.reputationHintTexture:SetSize(13, 16)
-		self.reputationHintTexture:Hide()
 	end
 	if not self.timewalkingVendorHintTexture then
 		-- When the Timewalking Vendor is available, show this hint icon.
 		self.timewalkingVendorHintTexture = self:CreateTexture("TimewalkingVendorHintTexture", "OVERLAY", nil, 1)
 		self.timewalkingVendorHintTexture:SetAtlas("TimewalkingVendor-32x32")
 		self.timewalkingVendorHintTexture:SetSize(16, 16)
-		self.timewalkingVendorHintTexture:Hide()
 	end
 end
 
 function HintIconCellPrototype:SetupCell(parent, hints, ...)
+	if (type(hints) ~= "table") then
+		return 0, 0
+	end
+
 	local missionsAvailable, reputationRewardPending, timeWalkingVendorAvailable = SafeUnpack(hints)
 	if missionsAvailable then
 		local offsetX = (reputationRewardPending or timeWalkingVendorAvailable) and 8 or 0

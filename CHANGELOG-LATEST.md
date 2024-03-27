@@ -4,7 +4,8 @@
 
 ### Changed
 
-* Tooltip: hiding the optional expansion icons now hides the whole column.
+* Tooltip: deactivating ALL optional hint icons now hides the whole column.
+* Tooltip: deactivating the optional expansion icons now hides the whole column.
 
 ### Fixed
 

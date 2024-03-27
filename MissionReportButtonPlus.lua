@@ -991,6 +991,13 @@ local function GetExpansionHintIconInfo(expansionInfo)
 	return {missionsAvailable, reputationRewardPending, timeWalkingVendorAvailable};
 end
 
+local function ShouldShowHintColumn()
+	local show = ns.settings.showMissionCompletedHint or ns.settings.showReputationRewardPendingHint or ns.settings.showTimewalkingVendorHint
+	return show
+end
+
+local settingsAtlasName = "Warfronts-BaseMapIcons-Empty-Workshop-Minimap"
+
 ----- LibQTip -----
 
 local uiScale = UIParent:GetEffectiveScale()
@@ -1478,14 +1485,6 @@ local function AddMenuTooltipLine(info)
 	end
 end
 
-local settingsInfo = {
-	label = SETTINGS,
-	description = BASIC_OPTIONS_TOOLTIP,
-	color = NORMAL_FONT_COLOR,
-	hintIconInfo = "Warfronts-BaseMapIcons-Empty-Workshop-Minimap",
-	func = function() MRBP_Settings_OpenToAddonCategory(AddonID) end
-}
-
 local function ShowMenuTooltip(parent)
 	-- Create tooltip and display as dropdown menu 
 	MenuTooltip = LibQTip:Acquire(ShortAddonID.."LibQTipMenuTooltip", 3, "CENTER", "LEFT", "CENTER")
@@ -1503,11 +1502,12 @@ local function ShowMenuTooltip(parent)
 		local playerOwnsExpansion = ExpansionInfo:DoesPlayerOwnExpansion(expansionInfo.ID)
 		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(expansionInfo.ID))  --> user option
 		if (playerOwnsExpansion and isActiveEntry) then
-			local garrisonInfo = LandingPageInfo:GetGarrisonInfo(expansionInfo.garrisonTypeID);
+			local garrisonInfo = LandingPageInfo:GetGarrisonInfo(expansionInfo.garrisonTypeID)
+			local hints = GetExpansionHintIconInfo(expansionInfo)
 			expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or garrisonInfo.title
 			expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and garrisonInfo.minimapIcon or ''
 			expansionInfo.disabled = not MRBP_IsGarrisonRequirementMet(expansionInfo.garrisonTypeID)
-			expansionInfo.hintIconInfo = GetExpansionHintIconInfo(expansionInfo)
+			expansionInfo.hintIconInfo = ShouldShowHintColumn() and hints
 			expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID) end
 			AddMenuTooltipLine(expansionInfo)
 		end
@@ -1517,6 +1517,14 @@ local function ShowMenuTooltip(parent)
 		if (#ns.settings.activeMenuEntries > 1) then
 			MenuTooltip:AddSeparator()
 		end
+		local settingsInfo = {
+			label = (not ShouldShowHintColumn() and not ns.settings.showLandingPageIcons) and SETTINGS..util.CreateInlineIcon(settingsAtlasName, 16, 16, 2, -1) or SETTINGS,
+			minimapIcon = (not ShouldShowHintColumn() and ns.settings.showLandingPageIcons) and settingsAtlasName or '',
+			description = BASIC_OPTIONS_TOOLTIP,
+			color = NORMAL_FONT_COLOR,
+			hintIconInfo = ShouldShowHintColumn() and settingsAtlasName or '',
+			func = function() MRBP_Settings_OpenToAddonCategory(AddonID) end
+		}
 		AddMenuTooltipLine(settingsInfo)
 	end
 	-- Content tooltip
