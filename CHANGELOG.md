@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file (or linked t
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2024-03-27
+
+### Changed
+
+* ExpansionTooltip: raised frame level by 10 in order to avoid overlapping with the dropdown menu.
+* MenuTooltip: reset frame strata.
+* MenuTooltip: deactivating ALL optional hint icons now hides the whole column.
+* MenuTooltip: deactivating the optional expansion icons now hides the whole column.
+
+### Fixed
+
+* [Issue #21] MenuTooltip: the dropdown menu is now clamped to the screen.
+* MenuTooltip: expansion icons didn't hide when deactivating their settings option, only after reloading the UI.
+* [Issue #22] MenuTooltip: line color couldn't be changed since some cells didn't have a font string layer.
+
 ## [1.0.0+100206] - 2024-03-25
 
 ### Added
@@ -11,11 +26,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * Dragonflight: added `Paragon reputation progress` to major factions.
 * Legion: added pseudo-requirement quest "Aiding Khadgar" for Evoker.
 * Warlords of Draenor: added an optional list of yet uncollected `treasures` in Draenor.
-* Tooltip: added optional icon hint for pending reputation reward from major factions.
-* Tooltip: added optional icon hint for when the Timewalking Vendor is visiting.
-* Tooltip: Dragonflight major factions can be `separated` into its own tooltip.
-* Tooltip: expansion content tooltips are now `scrollable`.
-* Tooltip: added `new tooltip handler` [LibQTip](https://www.curseforge.com/wow/addons/libqtip-1-0) for better organizing and displaying the tooltip content.
+* MenuTooltip: added optional icon hint for pending reputation reward from major factions.
+* MenuTooltip: added optional icon hint for when the Timewalking Vendor is visiting.
+* ReputationTooltip: Dragonflight major factions can be `separated` into its own tooltip.
+* ExpansionTooltip: expansion content tooltips are now `scrollable`.
+* Tooltips: added `new tooltip handler` [LibQTip](https://www.curseforge.com/wow/addons/libqtip-1-0) for better organizing and displaying the tooltip content.
 
 ### Changed
 
@@ -24,8 +39,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * Settings: reorganized addon settings into multiple subcategories.
 * Minimap Button: right-clicking the minimap button now toggles the menu.
 * Legion + BfA: refined bounty data retrieval.
-* Tooltip (new): moved expansion unlocking requirements to in-progress missions; expansion tooltips are no longer completely locked.
-* Tooltip: converted content to the new tooltip format.
+* ExpansionTooltip: moved expansion unlocking requirements to in-progress missions; expansion tooltips are no longer completely locked.
+* Tooltips: converted content to the new tooltip format.
 
 ### Fixed
 
@@ -33,7 +48,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Removed
 
-* Tooltip: removed legacy tooltip.
+* Tooltips: removed legacy tooltip.
 
 ## [v0.21.1+100205] - 2024-01-23
 
