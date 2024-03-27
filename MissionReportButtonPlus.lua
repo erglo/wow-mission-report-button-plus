@@ -1448,7 +1448,7 @@ end
 
 -- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
 local MenuTooltip_GetCellStyle = function()
-	return SafeUnpack({
+	return SafeUnpack({ 														--> TODO - add to style options
 		nil,	--> font 
 		"LEFT",	--> justification 
 		nil,	--> colSpan 
@@ -1456,7 +1456,7 @@ local MenuTooltip_GetCellStyle = function()
 		nil,	--> leftPadding 
 		nil,	--> rightPadding 
 		nil,	--> maxWidth 
-		150,	--> minWidth 
+		nil,  -- 150, --> minWidth
 	})
 end
 
