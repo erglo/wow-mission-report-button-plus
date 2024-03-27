@@ -174,20 +174,23 @@ function TextureCellPrototype:InitializeCell()
 		self.texture = self:CreateTexture(nil, 'ARTWORK')
 		self.texture:SetSize(16, 16)
 		self.texture:SetPoint("CENTER", self)
-		self.texture:Show()
 	end
 end
 
-function TextureCellPrototype:SetupCell(tooltip, value, ...)
-	local atlasName = value
+function TextureCellPrototype:SetupCell(tooltip, atlasName, ...)
+	if L:StringIsEmpty(atlasName) then
+		return 0, 0
+	end
+
 	self.texture.name = atlasName
 	self.texture:SetAtlas(atlasName)
+	self.texture:Show()
 
 	return self.texture:GetSize()
 end
 
 function TextureCellPrototype:ReleaseCell()
-	self.texture:SetAtlas('')
+	self.texture:Hide()
 end
 
 local HintIconCellProvider, HintIconCellPrototype = LibQTip:CreateCellProvider(LibQTip.LabelProvider)
