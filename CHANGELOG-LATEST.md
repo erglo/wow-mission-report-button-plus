@@ -4,13 +4,14 @@
 
 ### Changed
 
-* Tooltip: deactivating ALL optional hint icons now hides the whole column.
-* Tooltip: deactivating the optional expansion icons now hides the whole column.
+* MenuTooltip: clamped to screen.
+* MenuTooltip: deactivating ALL optional hint icons now hides the whole column.
+* MenuTooltip: deactivating the optional expansion icons now hides the whole column.
 
 ### Fixed
 
-* Tooltip: expansion icons didn't hide when deactivating their settings option, only after reloading the UI.
-* [Issue #22] Tooltip: line color couldn't be changed since some cells didn't have a font string layer.
+* MenuTooltip: expansion icons didn't hide when deactivating their settings option, only after reloading the UI.
+* [Issue #22] MenuTooltip: line color couldn't be changed since some cells didn't have a font string layer.
 &nbsp;
 
 ## Previous Changes

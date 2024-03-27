@@ -1532,6 +1532,7 @@ local function ShowMenuTooltip(parent)
 		MenuLine_CreateExpansionTooltip(MenuTooltip)
 		MenuLine_CreateReputationTooltip(MenuTooltip)
 	end
+	MenuTooltip:SetClampedToScreen(true)
 	MenuTooltip:Show()
 end
 
