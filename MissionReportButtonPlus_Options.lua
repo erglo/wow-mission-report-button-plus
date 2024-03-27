@@ -131,6 +131,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showWoDTimewalkingVendor"] = true,
 	-- Tests
 	-- ["disableShowMinimapButtonSetting"] = false,   --> temp. solution for beta2
+	["anchorMenuTooltip"] = "TOPLEFT",
 };
 
 ---Loads the saved variables for the current game character.
@@ -204,6 +205,7 @@ local function SaveSingleSetting(varName, value)
 		MRBP_PerCharSettings[varName] = nil;
 	end
 end
+ns.SaveSingleSetting = SaveSingleSetting;
 
 ---Print a user-friendly chat message about the currently selected setting.
 ---@param text string  The name of a given option

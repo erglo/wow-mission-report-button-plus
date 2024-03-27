@@ -1488,7 +1488,11 @@ end
 local function ShowMenuTooltip(parent)
 	-- Create tooltip and display as dropdown menu 
 	MenuTooltip = LibQTip:Acquire(ShortAddonID.."LibQTipMenuTooltip", 3, "CENTER", "LEFT", "CENTER")
-	MenuTooltip:SetPoint("TOPRIGHT", parent, "BOTTOM", 12, 5)
+	if (ns.settings.anchorMenuTooltip == ns.defaultSettings.anchorMenuTooltip) then
+		MenuTooltip:SetPoint("TOPRIGHT", parent, "BOTTOM", 18, 4)
+	else
+		MenuTooltip:SetPoint("TOPLEFT", parent, "BOTTOM", -18, 4)
+	end
 	MenuTooltip:SetFrameStrata("MEDIUM")
 	MenuTooltip:SetAutoHideDelay(0.25, parent)
 	MenuTooltip.OnRelease = function(self)
@@ -1684,6 +1688,14 @@ function MRBP:RegisterSlashCommands()
 			elseif (msg == 'hook') then
 				local informUser = true
 				MRBP:RedoButtonHooks(informUser)
+
+			elseif (msg == 'anchor') then
+				if (ns.settings.anchorMenuTooltip == ns.defaultSettings.anchorMenuTooltip) then
+					ns.SaveSingleSetting("anchorMenuTooltip", "TOPRIGHT");
+				else
+					ns.SaveSingleSetting("anchorMenuTooltip", "TOPLEFT");
+				end
+				ns.cprint("Anchor is set to:", ns.settings.anchorMenuTooltip);
 
 			----- Tests -----
 			elseif (msg == 'garrtest') then
