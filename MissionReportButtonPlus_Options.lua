@@ -393,6 +393,26 @@ local function FormatTooltipTemplate(categoryName, tooltipText, additionalText)
 	return formattedText;
 end
 
+local function Slider_Create(category, variableName, minValue, maxValue, step, label, tooltip, formatter)
+	local setting = Settings.RegisterAddOnSetting(category, label, variableName, Settings.VarType.Number, ns.defaultSettings[variableName]);
+
+	local options = Settings.CreateSliderOptions(minValue, maxValue, step);
+	options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, formatter);
+	-- REF.: Settings.CreateSlider(category, setting, options, tooltip) --> initializer
+	local initializer = Settings.CreateSlider(category, setting, options, tooltip);
+
+	-- Track and display user changes
+	if (ns.settings[variableName] ~= ns.defaultSettings[variableName]) then
+		setting:SetValue(ns.settings[variableName]);
+	end
+	local function OnValueChanged(owner, setting, value)
+		SaveSingleSetting(setting.variable, value);
+	end
+	Settings.SetOnValueChangedCallback(variableName, OnValueChanged);
+
+	return setting, initializer;
+end
+
 ----- OpenToCategory -----
 
 function MRBP_Settings_OpenToAddonCategory(categoryID)
@@ -993,23 +1013,8 @@ function MRBP_Settings_Register()
 
 	-- MenuTooltip: Width
 	do
-		local menuWidthVarname = "widthMenuTooltip";
-		local menuWidthSetting = Settings.RegisterAddOnSetting(appearanceCategory, HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH, menuWidthVarname, Settings.VarType.Number, ns.defaultSettings[menuWidthVarname]);
-
 		local minValue, maxValue, step = 50, floor(GetScreenWidth() / 3), 5;
-		local menuWidthOptions = Settings.CreateSliderOptions(minValue, maxValue, step);
-		menuWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, nil);
-		-- REF.: Settings.CreateSlider(category, setting, options, tooltip) --> initializer
-		Settings.CreateSlider(appearanceCategory, menuWidthSetting, menuWidthOptions, "Mindestbreite festlegen");  --> TODO - L10n
-
-		-- Track and display user changes
-		if (ns.settings[menuWidthVarname] ~= ns.defaultSettings[menuWidthVarname]) then
-			menuWidthSetting:SetValue(ns.settings[menuWidthVarname]);
-		end
-		local function OnValueChanged(owner, setting, value)
-			SaveSingleSetting(setting.variable, value);
-		end
-		Settings.SetOnValueChangedCallback(menuWidthVarname, OnValueChanged);
+		Slider_Create(appearanceCategory, "widthMenuTooltip", minValue, maxValue, step, HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH, "Mindestbreite festlegen");  --> TODO - L10n
 	end
 
 	-- MenuTooltip: Text Alignment
@@ -1048,24 +1053,9 @@ function MRBP_Settings_Register()
 
 	-- MenuTooltip: Text Padding (Left)
 	do
-		local padLeftMenuTextVarname = "padTextLeftMenuTooltip";
-		local padLeftMenuTextLabel = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT);
-		local padLeftMenuTextSetting = Settings.RegisterAddOnSetting(appearanceCategory, padLeftMenuTextLabel, padLeftMenuTextVarname, Settings.VarType.Number, ns.defaultSettings[padLeftMenuTextVarname]);
-
 		local minValue, maxValue, step = 0, 50, 1;
-		local padLeftMenuTextOptions = Settings.CreateSliderOptions(minValue, maxValue, step);
-		padLeftMenuTextOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, nil);
-		-- REF.: Settings.CreateSlider(category, setting, options, tooltip) --> initializer
-		Settings.CreateSlider(appearanceCategory, padLeftMenuTextSetting, padLeftMenuTextOptions, "Textabstand links festlegen.");  --> TODO - L10n
-
-		-- Track and display user changes
-		if (ns.settings[padLeftMenuTextVarname] ~= ns.defaultSettings[padLeftMenuTextVarname]) then
-			padLeftMenuTextSetting:SetValue(ns.settings[padLeftMenuTextVarname]);
-		end
-		local function OnValueChanged(owner, setting, value)
-			SaveSingleSetting(setting.variable, value);
-		end
-		Settings.SetOnValueChangedCallback(padLeftMenuTextVarname, OnValueChanged);
+		local label = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT);
+		Slider_Create(appearanceCategory, "padTextLeftMenuTooltip", minValue, maxValue, step, label, "Textabstand links festlegen.");  --> TODO - L10n
 	end
 	----------------------------------------------------------------------------
 	----- About this addon -----------------------------------------------------
