@@ -77,7 +77,6 @@ ns.defaultSettings = {  --> default + fallback settings
 	-- ["showBountyRequirements"] = true,
 	-- ["showThreatsTimeRemaining"] = true,
 	-- ["showEntryRequirements"] = true,
-	["justifyMenuTooltipText"] = "LEFT",
 	-- Dragonflight
 	["showMajorFactionRenownLevel"] = true,
 	["applyMajorFactionColors"] = true,
@@ -131,6 +130,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showWoDTimewalkingVendor"] = true,
 	-- Appearance
 	["widthMenuTooltip"] = 50,
+	["alignTextMenuTooltip"] = "LEFT",
 	["anchorMenuTooltip"] = "TOPLEFT",
 };
 
@@ -990,7 +990,7 @@ function MRBP_Settings_Register()
 
 	appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_SEPARATOR_HEADING));
 
-	-- MenuTooltip width
+	-- MenuTooltip: Width
 	do
 		local menuWidthVarname = "widthMenuTooltip"
 		local menuWidthSetting = Settings.RegisterAddOnSetting(appearanceCategory, HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH, menuWidthVarname, Settings.VarType.Number, ns.defaultSettings[menuWidthVarname]);
@@ -1001,15 +1001,48 @@ function MRBP_Settings_Register()
 		-- REF.: Settings.CreateSlider(category, setting, options, tooltip) --> initializer
 		Settings.CreateSlider(appearanceCategory, menuWidthSetting, menuWidthOptions, "Mindestbreite festlegen");  --> TODO - L10n
 
-		-- Display user value
+		-- Track and display user changes
 		if (ns.settings[menuWidthVarname] ~= ns.defaultSettings[menuWidthVarname]) then
 			menuWidthSetting:SetValue(ns.settings[menuWidthVarname]);
 		end
-		-- Track user settings
 		local function OnValueChanged(owner, setting, value)
 			SaveSingleSetting(setting.variable, value);
 		end
 		Settings.SetOnValueChangedCallback(menuWidthVarname, OnValueChanged);
+	end
+
+	-- MenuTooltip: Text Alignment
+	do
+		local alignMenuTextVarname = "alignTextMenuTooltip"
+		local alignMenuTextLabel = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION;
+		local alignMenuTextSetting = Settings.RegisterAddOnSetting(appearanceCategory, alignMenuTextLabel, alignMenuTextVarname, Settings.VarType.String, ns.defaultSettings[alignMenuTextVarname]);
+
+		local alignMenuTextValues = {
+			["LEFT"] = HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT,
+			["CENTER"] = "Center",												--> TODO - L10n
+			["RIGHT"] = HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT,
+		};
+		local function GetOptions()
+			local container = Settings.CreateControlTextContainer();
+			for key, label in pairs(alignMenuTextValues) do
+				if (key == ns.defaultSettings[alignMenuTextVarname]) then
+					label = label..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(DEFAULT))
+				end
+				container:Add(key, label, nil);
+			end
+			return container:GetData();
+		end
+		-- REF.: Settings.CreateDropDown(category, setting, options, tooltip) --> initializer
+		Settings.CreateDropDown(appearanceCategory, alignMenuTextSetting, GetOptions, "Align names to this side.");  --> TODO - L10n
+
+		-- Track and display user changes
+		if (ns.settings[alignMenuTextVarname] ~= ns.defaultSettings[alignMenuTextVarname]) then
+			alignMenuTextSetting:SetValue(ns.settings[alignMenuTextVarname]);
+		end
+		local function OnValueChanged(owner, setting, value)
+			SaveSingleSetting(setting.variable, value);
+		end
+		Settings.SetOnValueChangedCallback(alignMenuTextVarname, OnValueChanged);
 	end
 
 	----------------------------------------------------------------------------
@@ -1177,25 +1210,6 @@ end
 	-- layout:AddInitializer(infoButtonInitializer);
 
 --[[
-	-- MenuTooltip text alignment
-	do
-		local justifyMenuTextValues = {
-			["LEFT"] = HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT,
-			["CENTER"] = "Center",												--> TODO - L10n
-			["RIGHT"] = HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT,
-		};
-		local function GetOptions()
-			local container = Settings.CreateControlTextContainer();
-			for key, label in pairs(justifyMenuTextValues) do
-				container:Add(key, label, nil);
-			end
-			return container:GetData();
-		end
-		local justifyMenuTextLabel = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION;
-		local justifyMenuTextSetting = Settings.RegisterAddOnSetting(appearanceCategory, justifyMenuTextLabel, "justifyMenuTooltipText", Settings.VarType.String, ns.defaultSettings["justifyMenuTooltipText"]);
-		-- REF.: Settings.CreateDropDown(category, setting, options, tooltip) --> initializer
-		Settings.CreateDropDown(appearanceCategory, justifyMenuTextSetting, GetOptions, "Align names to this side.");  --> TODO - L10n
-	end
 
 	-- TEXTURES_SUBHEADER = "Texturen";
 	-- BACKGROUND = "Hintergrund";
@@ -1225,8 +1239,8 @@ GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AV
 	-- 	"LEFT",	--> justification 
 	-- 	nil,	--> leftPadding 
 	-- 	nil,	--> rightPadding 
-	-- 	nil,	--> maxWidth 
-	-- 	150,	--> minWidth
+	-- 	nil,	--> maxWidth 		OK
+	-- 	150,	--> minWidth		OK
 	-- 	lineHeight
 	-- 	menuTextColor
 	-- 	menuHighlightTexture
