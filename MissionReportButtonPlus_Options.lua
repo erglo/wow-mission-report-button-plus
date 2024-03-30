@@ -131,6 +131,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	-- Appearance
 	["widthMenuTooltip"] = 50,
 	["alignTextMenuTooltip"] = "LEFT",
+	["padTextLeftMenuTooltip"] = 0,
 	["anchorMenuTooltip"] = "TOPLEFT",
 };
 
@@ -992,7 +993,7 @@ function MRBP_Settings_Register()
 
 	-- MenuTooltip: Width
 	do
-		local menuWidthVarname = "widthMenuTooltip"
+		local menuWidthVarname = "widthMenuTooltip";
 		local menuWidthSetting = Settings.RegisterAddOnSetting(appearanceCategory, HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH, menuWidthVarname, Settings.VarType.Number, ns.defaultSettings[menuWidthVarname]);
 
 		local minValue, maxValue, step = 50, floor(GetScreenWidth() / 3), 5;
@@ -1013,7 +1014,7 @@ function MRBP_Settings_Register()
 
 	-- MenuTooltip: Text Alignment
 	do
-		local alignMenuTextVarname = "alignTextMenuTooltip"
+		local alignMenuTextVarname = "alignTextMenuTooltip";
 		local alignMenuTextLabel = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION;
 		local alignMenuTextSetting = Settings.RegisterAddOnSetting(appearanceCategory, alignMenuTextLabel, alignMenuTextVarname, Settings.VarType.String, ns.defaultSettings[alignMenuTextVarname]);
 
@@ -1045,6 +1046,27 @@ function MRBP_Settings_Register()
 		Settings.SetOnValueChangedCallback(alignMenuTextVarname, OnValueChanged);
 	end
 
+	-- MenuTooltip: Text Padding (Left)
+	do
+		local padLeftMenuTextVarname = "padTextLeftMenuTooltip";
+		local padLeftMenuTextLabel = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT);
+		local padLeftMenuTextSetting = Settings.RegisterAddOnSetting(appearanceCategory, padLeftMenuTextLabel, padLeftMenuTextVarname, Settings.VarType.Number, ns.defaultSettings[padLeftMenuTextVarname]);
+
+		local minValue, maxValue, step = 0, 50, 1;
+		local padLeftMenuTextOptions = Settings.CreateSliderOptions(minValue, maxValue, step);
+		padLeftMenuTextOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, nil);
+		-- REF.: Settings.CreateSlider(category, setting, options, tooltip) --> initializer
+		Settings.CreateSlider(appearanceCategory, padLeftMenuTextSetting, padLeftMenuTextOptions, "Textabstand links festlegen.");  --> TODO - L10n
+
+		-- Track and display user changes
+		if (ns.settings[padLeftMenuTextVarname] ~= ns.defaultSettings[padLeftMenuTextVarname]) then
+			padLeftMenuTextSetting:SetValue(ns.settings[padLeftMenuTextVarname]);
+		end
+		local function OnValueChanged(owner, setting, value)
+			SaveSingleSetting(setting.variable, value);
+		end
+		Settings.SetOnValueChangedCallback(padLeftMenuTextVarname, OnValueChanged);
+	end
 	----------------------------------------------------------------------------
 	----- About this addon -----------------------------------------------------
 	----------------------------------------------------------------------------
@@ -1220,7 +1242,6 @@ end
 	-- COMPACT_UNIT_FRAME_PROFILE_FRAMEWIDTH = "Fensterbreite";
 	-- FONT_SIZE = "Schriftgröße";
 	-- FONT_SIZE_TEMPLATE = "%d Pt.";
-	-- HUD_EDIT_MODE_SETTING_ACTION_BAR_ORIENTATION = "Ausrichtung";
 	-- COLOR = "Farbe";
 	-- COLORS = "Farben";
 	-- HUD_EDIT_MODE_SETTING_ACTION_BAR_ICON_SIZE = "Symbolgröße";
@@ -1236,10 +1257,9 @@ GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AV
 
 	--> TODO - (see below)
 	-- 	nil,	--> font 
-	-- 	"LEFT",	--> justification 
+	-- 	"LEFT",	--> justification	OK
 	-- 	nil,	--> leftPadding 
 	-- 	nil,	--> rightPadding 
-	-- 	nil,	--> maxWidth 		OK
 	-- 	150,	--> minWidth		OK
 	-- 	lineHeight
 	-- 	menuTextColor
@@ -1250,6 +1270,9 @@ GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AV
 	-- 	tipHeaderTextJustify
 	-- 	tipHeaderTextColor
 	-- 	tipHeaderBackgroundColor
+
+	-- show border for settings
+	-- add defaults to tooltip
 ]]--
 --------------------------------------------------------------------------------
 --@end-do-not-package@

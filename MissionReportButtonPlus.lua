@@ -1460,7 +1460,7 @@ local MenuTooltip_GetCellStyle = function()
 		ns.settings.alignTextMenuTooltip,	--> justification 
 		nil,	--> colSpan 
 		nil,	--> provider 
-		nil,	--> leftPadding 
+		ns.settings.padTextLeftMenuTooltip,	--> leftPadding 
 		nil,	--> rightPadding 
 		floor(GetScreenWidth()),			--> maxWidth 
 		ns.settings.widthMenuTooltip,		--> minWidth
