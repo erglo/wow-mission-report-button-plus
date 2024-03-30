@@ -129,8 +129,8 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showDraenorTreasures"] = true,
 	["showWoDWorldMapEvents"] = true,
 	["showWoDTimewalkingVendor"] = true,
-	-- Tests
-	-- ["disableShowMinimapButtonSetting"] = false,   --> temp. solution for beta2
+	-- Appearance
+	["widthMenuTooltip"] = 50,
 	["anchorMenuTooltip"] = "TOPLEFT",
 };
 
@@ -990,6 +990,28 @@ function MRBP_Settings_Register()
 
 	appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_SEPARATOR_HEADING));
 
+	-- MenuTooltip width
+	do
+		local menuWidthVarname = "widthMenuTooltip"
+		local menuWidthSetting = Settings.RegisterAddOnSetting(appearanceCategory, HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH, menuWidthVarname, Settings.VarType.Number, ns.defaultSettings[menuWidthVarname]);
+
+		local minValue, maxValue, step = 50, floor(GetScreenWidth() / 3), 5;
+		local menuWidthOptions = Settings.CreateSliderOptions(minValue, maxValue, step);
+		menuWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, nil);
+		-- REF.: Settings.CreateSlider(category, setting, options, tooltip) --> initializer
+		Settings.CreateSlider(appearanceCategory, menuWidthSetting, menuWidthOptions, "Mindestbreite festlegen");  --> TODO - L10n
+
+		-- Display user value
+		if (ns.settings[menuWidthVarname] ~= ns.defaultSettings[menuWidthVarname]) then
+			menuWidthSetting:SetValue(ns.settings[menuWidthVarname]);
+		end
+		-- Track user settings
+		local function OnValueChanged(owner, setting, value)
+			SaveSingleSetting(setting.variable, value);
+		end
+		Settings.SetOnValueChangedCallback(menuWidthVarname, OnValueChanged);
+	end
+
 	----------------------------------------------------------------------------
 	----- About this addon -----------------------------------------------------
 	----------------------------------------------------------------------------
@@ -1214,30 +1236,6 @@ GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AV
 	-- 	tipHeaderTextJustify
 	-- 	tipHeaderTextColor
 	-- 	tipHeaderBackgroundColor
-
-
-	-- -- MenuTooltip width
-	-- do
-	-- 	local menuWidthVarname = "widthMenuTooltip"
-	-- 	local menuWidthSetting = Settings.RegisterAddOnSetting(appearanceCategory, HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH, menuWidthVarname, Settings.VarType.Number, ns.defaultSettings[menuWidthVarname]);
-
-	-- 	local minValue, maxValue, step = 50, floor(GetScreenWidth() / 3), 5;
-	-- 	local menuWidthOptions = Settings.CreateSliderOptions(minValue, maxValue, step);
-	-- 	menuWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, nil);
-	-- 	-- REF.: Settings.CreateSlider(category, setting, options, tooltip) --> initializer
-	-- 	Settings.CreateSlider(appearanceCategory, menuWidthSetting, menuWidthOptions, "Mindestbreite festlegen");  --> TODO - L10n
-
-	-- 	-- Display user value
-	-- 	if (ns.settings[menuWidthVarname] ~= ns.defaultSettings[menuWidthVarname]) then
-	-- 		menuWidthSetting:SetValue(ns.settings[menuWidthVarname]);
-	-- 	end
-	-- 	-- Track user settings
-	-- 	local function OnValueChanged(owner, setting, value)
-	-- 		SaveSingleSetting(setting.variable, value);
-	-- 	end
-	-- 	Settings.SetOnValueChangedCallback(menuWidthVarname, OnValueChanged);
-	-- end
-
 ]]--
 --------------------------------------------------------------------------------
 --@end-do-not-package@
