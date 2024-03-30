@@ -132,6 +132,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["widthMenuTooltip"] = 50,
 	["alignTextMenuTooltip"] = "LEFT",
 	["padTextLeftMenuTooltip"] = 0,
+	["padTextRightMenuTooltip"] = 0,
 	["anchorMenuTooltip"] = "TOPLEFT",
 };
 
@@ -1052,11 +1053,19 @@ function MRBP_Settings_Register()
 	end
 
 	-- MenuTooltip: Text Padding (Left)
-	do
+	do																			--> TODO - L10n
 		local minValue, maxValue, step = 0, 50, 1;
 		local label = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT);
-		Slider_Create(appearanceCategory, "padTextLeftMenuTooltip", minValue, maxValue, step, label, "Textabstand links festlegen.");  --> TODO - L10n
+		Slider_Create(appearanceCategory, "padTextLeftMenuTooltip", minValue, maxValue, step, label, "Textabstand links festlegen.");
 	end
+
+	-- MenuTooltip: Text Padding (Right)
+	do																			--> TODO - L10n
+		local minValue, maxValue, step = 0, 50, 1;
+		local label = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT);
+		Slider_Create(appearanceCategory, "padTextRightMenuTooltip", minValue, maxValue, step, label, "Textabstand rechts festlegen.");
+	end
+
 	----------------------------------------------------------------------------
 	----- About this addon -----------------------------------------------------
 	----------------------------------------------------------------------------
@@ -1248,8 +1257,8 @@ GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AV
 	--> TODO - (see below)
 	-- 	nil,	--> font 
 	-- 	"LEFT",	--> justification	OK
-	-- 	nil,	--> leftPadding 
-	-- 	nil,	--> rightPadding 
+	-- 	nil,	--> leftPadding		OK
+	-- 	nil,	--> rightPadding	OK
 	-- 	150,	--> minWidth		OK
 	-- 	lineHeight
 	-- 	menuTextColor

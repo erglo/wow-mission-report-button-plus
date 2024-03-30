@@ -1457,13 +1457,13 @@ end
 local MenuTooltip_GetCellStyle = function()
 	return SafeUnpack({ 														--> TODO - add to style options
 		nil,	--> font 
-		ns.settings.alignTextMenuTooltip,	--> justification 
+		ns.settings.alignTextMenuTooltip,		--> justification 
 		nil,	--> colSpan 
 		nil,	--> provider 
-		ns.settings.padTextLeftMenuTooltip,	--> leftPadding 
-		nil,	--> rightPadding 
-		floor(GetScreenWidth()),			--> maxWidth 
-		ns.settings.widthMenuTooltip,		--> minWidth
+		ns.settings.padTextLeftMenuTooltip,		--> leftPadding 
+		ns.settings.padTextRightMenuTooltip,	--> rightPadding 
+		floor(GetScreenWidth()),				--> maxWidth 
+		ns.settings.widthMenuTooltip,			--> minWidth
 	})
 end
 
