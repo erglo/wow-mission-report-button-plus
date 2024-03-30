@@ -47,7 +47,7 @@ local NEWLINE = "|n";
 local NEW_PARAGRAPH = "|n|n";
 local HEADER_COLON = HEADER_COLON;
 local LIST_DELIMITER = LIST_DELIMITER;
--- local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
+local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
 -- local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
 
 local GRAY = function(txt) return GRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
@@ -383,6 +383,48 @@ local function CheckBox_CreateFromList(category, checkBoxList)
 	end
 end
 
+local function FormatTooltipTemplate(categoryName, tooltipText, additionalText)
+	local needsReloadText = format("|n|n- %s (%s)", HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(REQUIRES_RELOAD), SLASH_RELOAD1);
+	local needsUIReload = (not L:IsEnglishLocale(L.currentLocale) and L.defaultLabels[categoryName] == L[categoryName]);
+	local formattedText = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(tooltipText or '');
+	formattedText = additionalText and formattedText..additionalText or formattedText;
+	formattedText = needsUIReload and formattedText..needsReloadText or formattedText;
+	return formattedText;
+end
+
+----- OpenToCategory -----
+
+function MRBP_Settings_OpenToAddonCategory(categoryID)
+	local SettingsPanel = SettingsPanel;
+	-- Try Blizzard's way; works usually for addons in main category
+	local successful = SettingsPanel:OpenToCategory(categoryID);
+	if successful then
+		return;
+	end
+	local function FindCategory(categoryID, categories)
+		local categoryList = categories or SettingsPanel:GetAllCategories();
+		for _, category in ipairs(categoryList) do
+			-- Ignore categories from game settings; subcategories don't seem to have a category set
+			if (category.categorySet == Settings.CategorySet.AddOns or category.categorySet == nil) then
+				if (category.ID == categoryID) then
+					return category;
+				end
+				-- No luck in main categories, go check subcategories
+				if category:HasSubcategories() then
+					local categoryTbl = FindCategory(categoryID, category:GetSubcategories());
+					if categoryTbl then
+						return categoryTbl;
+					end
+				end
+			end
+		end
+	end
+	local categoryTbl = FindCategory(categoryID);
+	if categoryTbl then
+		SettingsPanel:SelectCategory(categoryTbl);
+	end
+end
+
 ----- Controls -----
 
 local function CreateMenuTooltipSettings(category, layout)
@@ -509,16 +551,7 @@ local function CreateMenuEntriesSelection(category, layout)
 	layout:AddInitializer(unCheckAllInitializer);
 end
 
--- local entryTooltipSubcategoryLabel = GRAY(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL..HEADER_COLON.." ");
-
-local function FormatTooltipTemplate(categoryName, tooltipText, additionalText)
-	local needsReloadText = format("|n|n- %s (%s)", HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(REQUIRES_RELOAD), SLASH_RELOAD1);
-	local needsUIReload = (not L:IsEnglishLocale(L.currentLocale) and L.defaultLabels[categoryName] == L[categoryName]);
-	local formattedText = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP:format(tooltipText or '');
-	formattedText = additionalText and formattedText..additionalText or formattedText;
-	formattedText = needsUIReload and formattedText..needsReloadText or formattedText;
-	return formattedText;
-end
+----- Expansion-specific Settings -----
 
 local ExpansionTooltipSettings = {};
 
@@ -803,39 +836,6 @@ local function CreateExpansionTooltipSettings(category, expansionInfo)
 	end
 end
 
------ OpenToCategory -----
-
-function MRBP_Settings_OpenToAddonCategory(categoryID)
-	local SettingsPanel = SettingsPanel;
-	-- Try Blizzard's way; works usually for addons in main category
-	local successful = SettingsPanel:OpenToCategory(categoryID);
-	if successful then
-		return;
-	end
-	local function FindCategory(categoryID, categories)
-		local categoryList = categories or SettingsPanel:GetAllCategories();
-		for _, category in ipairs(categoryList) do
-			-- Ignore categories from game settings; subcategories don't seem to have a category set
-			if (category.categorySet == Settings.CategorySet.AddOns or category.categorySet == nil) then
-				if (category.ID == categoryID) then
-					return category;
-				end
-				-- No luck in main categories, go check subcategories
-				if category:HasSubcategories() then
-					local categoryTbl = FindCategory(categoryID, category:GetSubcategories());
-					if categoryTbl then
-						return categoryTbl;
-					end
-				end
-			end
-		end
-	end
-	local categoryTbl = FindCategory(categoryID);
-	if categoryTbl then
-		SettingsPanel:SelectCategory(categoryTbl);
-	end
-end
-
 --------------------------------------------------------------------------------
 ----- Settings panel -----------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -917,14 +917,16 @@ function MRBP_Settings_Register()
 		mainLayout:AddInitializer(menuTooltipButtonInitializer);
 	end
 
-	-- -- Appearance button
-	-- do
-	-- 	local OnAppearanceButtonClick = function()
-	-- 		MRBP_Settings_OpenToAddonCategory(AddonID.."AppearanceSettings");
-	-- 	end
-	-- 	local appearanceButtonInitializer = CreateSettingsButtonInitializer(APPEARANCE_LABEL, SETTINGS..TEXT_DASH_SEPARATOR..APPEARANCE_LABEL, OnAppearanceButtonClick, FEATURE_NOT_YET_AVAILABLE, addSearchTags);
-	-- 	mainLayout:AddInitializer(appearanceButtonInitializer);
-	-- end
+	-- Appearance button
+	do
+		local OnAppearanceButtonClick = function()
+			MRBP_Settings_OpenToAddonCategory(AddonID.."AppearanceSettings");
+		end
+		local appearanceButtonLabel = strjoin(LIST_DELIMITER, HUD_EDIT_MODE_SETTING_MICRO_MENU_SIZE, FONT_SIZE);
+		local appearanceButtonInitializer = CreateSettingsButtonInitializer(appearanceButtonLabel, APPEARANCE_LABEL, OnAppearanceButtonClick, FEATURE_NOT_YET_AVAILABLE, addSearchTags);
+		mainLayout:AddInitializer(appearanceButtonInitializer);
+		appearanceButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
+	end
 
 	-- Details tooltip option shortcuts (Expansion buttons)
 	do
@@ -965,7 +967,7 @@ function MRBP_Settings_Register()
 	menuTooltipLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYSELECTION_LABEL));
 	CreateMenuEntriesSelection(menuTooltipCategory, menuTooltipLayout);
 
-	----- Expansion tooltip settings -----
+	----- Expansion tooltip settings (separate subcategories) -----
 	if ns.settings.showEntryTooltip then
 		for _, expansionInfo in ipairs(GetOwnedExpansionInfoList()) do
 			-- Register expansion in its own subcategory
@@ -979,67 +981,14 @@ function MRBP_Settings_Register()
 
 	----------------------------------------------------------------------------
 	----- Tooltip appearance ---------------------------------------------------
-	------------------------------------------------------------------------------> TODO - L10n
+	----------------------------------------------------------------------------
 
-	-- local appearanceHeaderText = GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AVAILABLE))
-	-- local appearanceCategory, appearanceLayout = Settings.RegisterVerticalLayoutSubcategory(mainCategory, appearanceHeaderText);
-	-- appearanceCategory.ID = AddonID.."AppearanceSettings";
+	local appearanceCategory, appearanceLayout = Settings.RegisterVerticalLayoutSubcategory(mainCategory, APPEARANCE_LABEL);
+	appearanceCategory.ID = AddonID.."AppearanceSettings";
 
-	-- --> TODO - (see below)
-	-- -- --[[
-	-- -- 	nil,	--> font 
-	-- -- 	"LEFT",	--> justification 
-	-- -- 	nil,	--> leftPadding 
-	-- -- 	nil,	--> rightPadding 
-	-- -- 	nil,	--> maxWidth 
-	-- -- 	150,	--> minWidth
-	-- -- 	lineHeight
-	-- -- 	menuTextColor
-	-- -- 	menuHighlightTexture
+	----- MenuTooltip appearance -----
 
-	-- -- 	tipScrollStep
-	-- -- 	tipSeparatorLineColor
-	-- -- 	tipHeaderTextJustify
-	-- -- 	tipHeaderTextColor
-	-- -- 	tipHeaderBackgroundColor
-	-- -- ]]
-
-	-- ----- MenuTooltip appearance -----
-	-- appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_SEPARATOR_HEADING));
-
-	-- -- MenuTooltip width
-	-- do
-	-- 	local menuWidthSetting = Settings.RegisterAddOnSetting(appearanceCategory, HUD_EDIT_MODE_SETTING_CHAT_FRAME_WIDTH, "widthMenuTooltip", Settings.VarType.Number, 150);
-	-- 	local minValue, maxValue, step = 50, floor(GetScreenWidth() / 3), 5;
-	-- 	local menuWidthOptions = Settings.CreateSliderOptions(minValue, maxValue, step);
-	-- 	menuWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, nil);
-	-- 	-- REF.: Settings.CreateSlider(category, setting, options, tooltip)
-	-- 	local menuWidthInitializer = Settings.CreateSlider(appearanceCategory, menuWidthSetting, menuWidthOptions, "Transparenz des Rechtsklick-Menüs festlegen.");
-	-- 	local function OnValueChanged(owner, setting, value)
-	-- 		print("-->", setting.name, value)
-	-- 	end
-	-- 	Settings.SetOnValueChangedCallback("maxWidthMenuTooltip", OnValueChanged);
-	-- 	menuWidthInitializer:AddModifyPredicate(function() return Settings.Default.False; end);
-	-- end
-
-	-- -- MenuTooltip text alignment
-	-- do
-	-- 	local justifyValues = {
-	-- 		["LEFT"] = HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT,
-	-- 		["CENTER"] = "Center",
-	-- 		["RIGHT"] = HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT,
-	-- 	};
-	-- 	local function GetOptions()
-	-- 		local container = Settings.CreateControlTextContainer();
-	-- 		for key, label in pairs(justifyValues) do
-	-- 			container:Add(key, label, '');
-	-- 		end
-	-- 		return container:GetData();
-	-- 	end
-	-- 	local justifyMenuTextSetting = Settings.RegisterAddOnSetting(appearanceCategory, "Text Alignment", "justifyMenuTooltipText", Settings.VarType.String, ns.defaultSettings["justifyMenuTooltipText"]);
-	-- 	local justifyMenuTextInitializer = Settings.CreateDropDown(appearanceCategory, justifyMenuTextSetting, GetOptions, "Align names to this side. (NYI)");
-	-- 	justifyMenuTextInitializer:AddModifyPredicate(function() return Settings.Default.False; end);
-	-- end
+	appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_SEPARATOR_HEADING));
 
 	----------------------------------------------------------------------------
 	----- About this addon -----------------------------------------------------
@@ -1204,5 +1153,91 @@ end
 	-- end
 	-- local infoButtonInitializer = CreateSettingsButtonInitializer("Add-on Infos", "Anzeigen", OnButtonClick, "Infos zu diesem Add-on anzeigen.");
 	-- layout:AddInitializer(infoButtonInitializer);
+
+--[[
+	-- MenuTooltip text alignment
+	do
+		local justifyMenuTextValues = {
+			["LEFT"] = HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT,
+			["CENTER"] = "Center",												--> TODO - L10n
+			["RIGHT"] = HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT,
+		};
+		local function GetOptions()
+			local container = Settings.CreateControlTextContainer();
+			for key, label in pairs(justifyMenuTextValues) do
+				container:Add(key, label, nil);
+			end
+			return container:GetData();
+		end
+		local justifyMenuTextLabel = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION;
+		local justifyMenuTextSetting = Settings.RegisterAddOnSetting(appearanceCategory, justifyMenuTextLabel, "justifyMenuTooltipText", Settings.VarType.String, ns.defaultSettings["justifyMenuTooltipText"]);
+		-- REF.: Settings.CreateDropDown(category, setting, options, tooltip) --> initializer
+		Settings.CreateDropDown(appearanceCategory, justifyMenuTextSetting, GetOptions, "Align names to this side.");  --> TODO - L10n
+	end
+
+	-- TEXTURES_SUBHEADER = "Texturen";
+	-- BACKGROUND = "Hintergrund";
+	-- HUD_EDIT_MODE_SETTING_UNIT_FRAME_ROW_SIZE = "Zeilengröße";
+	-- HUD_EDIT_MODE_SETTING_UNIT_FRAME_HEIGHT = "Fensterhöhe";
+	-- HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH = "Fensterbreite";
+	-- COMPACT_UNIT_FRAME_PROFILE_FRAMEHEIGHT = "Fensterhöhe";
+	-- COMPACT_UNIT_FRAME_PROFILE_FRAMEWIDTH = "Fensterbreite";
+	-- FONT_SIZE = "Schriftgröße";
+	-- FONT_SIZE_TEMPLATE = "%d Pt.";
+	-- HUD_EDIT_MODE_SETTING_ACTION_BAR_ORIENTATION = "Ausrichtung";
+	-- COLOR = "Farbe";
+	-- COLORS = "Farben";
+	-- HUD_EDIT_MODE_SETTING_ACTION_BAR_ICON_SIZE = "Symbolgröße";
+	-- HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_DOWN = "Unten";
+	-- HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT = "Links";
+	-- HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT = "Rechts";
+	-- HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_UP = "Oben";
+	-- 
+	-- MAXIMUM = "Maximum";
+	-- MINIMUM = "Minimum";
+
+GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AVAILABLE))
+
+	--> TODO - (see below)
+	-- 	nil,	--> font 
+	-- 	"LEFT",	--> justification 
+	-- 	nil,	--> leftPadding 
+	-- 	nil,	--> rightPadding 
+	-- 	nil,	--> maxWidth 
+	-- 	150,	--> minWidth
+	-- 	lineHeight
+	-- 	menuTextColor
+	-- 	menuHighlightTexture
+
+	-- 	tipScrollStep
+	-- 	tipSeparatorLineColor
+	-- 	tipHeaderTextJustify
+	-- 	tipHeaderTextColor
+	-- 	tipHeaderBackgroundColor
+
+
+	-- -- MenuTooltip width
+	-- do
+	-- 	local menuWidthVarname = "widthMenuTooltip"
+	-- 	local menuWidthSetting = Settings.RegisterAddOnSetting(appearanceCategory, HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH, menuWidthVarname, Settings.VarType.Number, ns.defaultSettings[menuWidthVarname]);
+
+	-- 	local minValue, maxValue, step = 50, floor(GetScreenWidth() / 3), 5;
+	-- 	local menuWidthOptions = Settings.CreateSliderOptions(minValue, maxValue, step);
+	-- 	menuWidthOptions:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, nil);
+	-- 	-- REF.: Settings.CreateSlider(category, setting, options, tooltip) --> initializer
+	-- 	Settings.CreateSlider(appearanceCategory, menuWidthSetting, menuWidthOptions, "Mindestbreite festlegen");  --> TODO - L10n
+
+	-- 	-- Display user value
+	-- 	if (ns.settings[menuWidthVarname] ~= ns.defaultSettings[menuWidthVarname]) then
+	-- 		menuWidthSetting:SetValue(ns.settings[menuWidthVarname]);
+	-- 	end
+	-- 	-- Track user settings
+	-- 	local function OnValueChanged(owner, setting, value)
+	-- 		SaveSingleSetting(setting.variable, value);
+	-- 	end
+	-- 	Settings.SetOnValueChangedCallback(menuWidthVarname, OnValueChanged);
+	-- end
+
+]]--
 --------------------------------------------------------------------------------
 --@end-do-not-package@

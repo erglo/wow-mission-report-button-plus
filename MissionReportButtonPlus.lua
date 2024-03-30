@@ -1462,8 +1462,8 @@ local MenuTooltip_GetCellStyle = function()
 		nil,	--> provider 
 		nil,	--> leftPadding 
 		nil,	--> rightPadding 
-		nil,	--> maxWidth 
-		nil,  -- 150, --> minWidth
+		floor(GetScreenWidth()),		--> maxWidth 
+		ns.settings.widthMenuTooltip,	--> minWidth
 	})
 end
 
