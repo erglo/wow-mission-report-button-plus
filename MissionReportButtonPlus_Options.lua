@@ -414,6 +414,42 @@ local function Slider_Create(category, variableName, minValue, maxValue, step, l
 	return setting, initializer;
 end
 
+-- valueList: {{key, label, description}, ...}
+-- allowed keyType: see Settings.VarType
+local function DropDown_Create(category, variableName, valueList, label, tooltip)
+	local defaultValue = ns.defaultSettings[variableName];
+	local currentValue = ns.settings[variableName];
+	local varType = type(valueList[1][1])  -- eg. Settings.VarType.String;
+	print("varType:", varType);
+
+	local setting = Settings.RegisterAddOnSetting(category, label, variableName, varType, defaultValue);
+
+	local function GetOptions()
+		local container = Settings.CreateControlTextContainer();
+		for i, item in ipairs(valueList) do
+			local key, name, description = SafeUnpack(item);
+			if (key == defaultValue) then
+				name = name..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(DEFAULT))
+			end
+			container:Add(key, name, description);  -- description appears in tooltip
+		end
+		return container:GetData();
+	end
+	-- REF.: Settings.CreateDropDown(category, setting, options, tooltip) --> initializer
+	local initializer = Settings.CreateDropDown(category, setting, GetOptions, tooltip);
+
+	-- Track and display user changes
+	if (currentValue ~= defaultValue) then
+		setting:SetValue(currentValue);
+	end
+	local function OnValueChanged(owner, settingInfo, value)
+		SaveSingleSetting(settingInfo.variable, value);
+	end
+	Settings.SetOnValueChangedCallback(variableName, OnValueChanged);
+
+	return setting, initializer;
+end
+
 ----- OpenToCategory -----
 
 function MRBP_Settings_OpenToAddonCategory(categoryID)
@@ -1015,41 +1051,19 @@ function MRBP_Settings_Register()
 	-- MenuTooltip: Width
 	do
 		local minValue, maxValue, step = 64, 320, 1;
-		Slider_Create(appearanceCategory, "menuMinWidth", minValue, maxValue, step, HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH, "Mindestbreite festlegen");  --> TODO - L10n
+		local label = HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH;
+		Slider_Create(appearanceCategory, "menuMinWidth", minValue, maxValue, step, label, "Mindestbreite festlegen");  --> TODO - L10n
 	end
 
 	-- MenuTooltip: Text Alignment
-	do
-		local alignMenuTextVarname = "menuTextAlignment";
-		local alignMenuTextLabel = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION;
-		local alignMenuTextSetting = Settings.RegisterAddOnSetting(appearanceCategory, alignMenuTextLabel, alignMenuTextVarname, Settings.VarType.String, ns.defaultSettings[alignMenuTextVarname]);
-
-		local alignMenuTextValues = {
-			["LEFT"] = HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT,
-			["CENTER"] = "Center",												--> TODO - L10n
-			["RIGHT"] = HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT,
+	do																			--> TODO - L10n
+		local values = {
+			{"LEFT", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT, nil},
+			{"CENTER", "Center", nil},
+			{"RIGHT", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT, nil},
 		};
-		local function GetOptions()
-			local container = Settings.CreateControlTextContainer();
-			for key, label in pairs(alignMenuTextValues) do
-				if (key == ns.defaultSettings[alignMenuTextVarname]) then
-					label = label..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(DEFAULT))
-				end
-				container:Add(key, label, nil);
-			end
-			return container:GetData();
-		end
-		-- REF.: Settings.CreateDropDown(category, setting, options, tooltip) --> initializer
-		Settings.CreateDropDown(appearanceCategory, alignMenuTextSetting, GetOptions, "Align names to this side.");  --> TODO - L10n
-
-		-- Track and display user changes
-		if (ns.settings[alignMenuTextVarname] ~= ns.defaultSettings[alignMenuTextVarname]) then
-			alignMenuTextSetting:SetValue(ns.settings[alignMenuTextVarname]);
-		end
-		local function OnValueChanged(owner, setting, value)
-			SaveSingleSetting(setting.variable, value);
-		end
-		Settings.SetOnValueChangedCallback(alignMenuTextVarname, OnValueChanged);
+		local label = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION;
+		DropDown_Create(appearanceCategory, "menuTextAlignment", values, label, "Align names to this side.");
 	end
 
 	-- MenuTooltip: Text Padding (Left)
