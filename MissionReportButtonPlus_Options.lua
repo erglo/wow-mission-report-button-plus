@@ -133,7 +133,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["menuTextAlignment"] = "LEFT",
 	["menuTextPaddingLeft"] = 0,
 	["menuTextPaddingRight"] = 0,
-	["menuLineHeight"] = 0,
+	["menuLineHeight"] = 3,
 	["menuAnchorPoint"] = "TOPLEFT",
 };
 
@@ -336,7 +336,6 @@ local function CheckBox_Create(category, variableName, name, tooltip)
 	-- Create checkbox
 	local setting = Settings.RegisterAddOnSetting(category, name, varName, Settings.VarType.Boolean, defaultValue);
 	local initializer = Settings.CreateCheckBox(category, setting, tooltip);
-	-- setting:SetCommitFlags(Settings.CommitFlag.Apply, Settings.CommitFlag.Revertable);
 	-- Handling "activeMenuEntries" vs. normal checkboxes
 	if indexString then
 		setting.defaultValue = defaultMenuEntryValue;
@@ -1015,7 +1014,7 @@ function MRBP_Settings_Register()
 
 	-- MenuTooltip: Width
 	do
-		local minValue, maxValue, step = 50, floor(GetScreenWidth() / 3), 5;
+		local minValue, maxValue, step = 64, 320, 1;
 		Slider_Create(appearanceCategory, "menuMinWidth", minValue, maxValue, step, HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH, "Mindestbreite festlegen");  --> TODO - L10n
 	end
 
@@ -1055,22 +1054,24 @@ function MRBP_Settings_Register()
 
 	-- MenuTooltip: Text Padding (Left)
 	do																			--> TODO - L10n
-		local minValue, maxValue, step = 0, 50, 1;
+		local minValue, maxValue, step = 0, 64, 1;
 		local label = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT);
 		Slider_Create(appearanceCategory, "menuTextPaddingLeft", minValue, maxValue, step, label, "Textabstand links festlegen.");
 	end
 
 	-- MenuTooltip: Text Padding (Right)
 	do																			--> TODO - L10n
-		local minValue, maxValue, step = 0, 50, 1;
+		local minValue, maxValue, step = 0, 64, 1;
 		local label = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT);
 		Slider_Create(appearanceCategory, "menuTextPaddingRight", minValue, maxValue, step, label, "Textabstand rechts festlegen.");
 	end
 
 	-- MenuTooltip: Line Height
-	-- do
-	-- 	-- "menuLineHeight"
-	-- end
+	do																			--> TODO - L10n
+		local minValue, maxValue, step = 0, 32, 1;
+		local label = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER.."Line Height";
+		Slider_Create(appearanceCategory, "menuLineHeight", minValue, maxValue, step, label, "Zeilenhöhe festlegen.");
+	end
 
 	----------------------------------------------------------------------------
 	----- About this addon -----------------------------------------------------
@@ -1261,7 +1262,7 @@ end
 GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AVAILABLE))
 
 	--> TODO - (see below)
-	--  menuFont
+	--  menuTextFont
 	-- 	menuTextColor
 	-- 	menuHighlightTexture
 

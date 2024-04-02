@@ -1485,8 +1485,8 @@ local function AddMenuTooltipLine(info)
 	end
 end
 
+-- Create tooltip and display as dropdown menu
 local function ShowMenuTooltip(parent)
-	-- Create tooltip and display as dropdown menu 
 	MenuTooltip = LibQTip:Acquire(ShortAddonID.."LibQTipMenuTooltip", 3, "CENTER", "LEFT", "CENTER")
 	if (ns.settings.menuAnchorPoint == ns.defaultSettings.menuAnchorPoint) then
 		MenuTooltip:SetPoint("TOPRIGHT", parent, "BOTTOM", 18, 4)
@@ -1498,6 +1498,7 @@ local function ShowMenuTooltip(parent)
 		ReleaseTooltip(self)
 		ReleaseTooltip(ExpansionTooltip)
 	end
+	MenuTooltip:SetCellMarginV(ns.settings.menuLineHeight)
 	-- Expansion list
 	local sortFunc = ns.settings.reverseSortorder and ExpansionInfo.SortAscending or ExpansionInfo.SortDescending
 	local expansionList = ExpansionInfo:GetExpansionsWithLandingPage(sortFunc)
