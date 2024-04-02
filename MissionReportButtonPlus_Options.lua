@@ -134,7 +134,10 @@ ns.defaultSettings = {  --> default + fallback settings
 	["menuTextPaddingLeft"] = 0,
 	["menuTextPaddingRight"] = 0,
 	["menuLineHeight"] = 3,
-	["menuAnchorPoint"] = "TOPLEFT",
+	["menuAnchorPoint"] = "TOPRIGHT",
+	["menuAnchorPointParent"] = "BOTTOM",
+	["menuAnchorOffsetX"] = 18,
+	["menuAnchorOffsetY"] = 4,
 };
 
 ---Loads the saved variables for the current game character.
@@ -419,8 +422,7 @@ end
 local function DropDown_Create(category, variableName, valueList, label, tooltip)
 	local defaultValue = ns.defaultSettings[variableName];
 	local currentValue = ns.settings[variableName];
-	local varType = type(valueList[1][1])  -- eg. Settings.VarType.String;
-	print("varType:", varType);
+	local varType = type(valueList[1][1])  --> eg. Settings.VarType.String;
 
 	local setting = Settings.RegisterAddOnSetting(category, label, variableName, varType, defaultValue);
 
@@ -1046,7 +1048,8 @@ function MRBP_Settings_Register()
 
 	----- MenuTooltip appearance -----
 
-	appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_SEPARATOR_HEADING));
+	local menuNameTemplate = GRAY(L.CFG_DDMENU_SEPARATOR_HEADING..HEADER_COLON)..TEXT_DELIMITER.."%s";
+	appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format("Dimensionen")));
 
 	-- MenuTooltip: Width
 	do
@@ -1055,36 +1058,69 @@ function MRBP_Settings_Register()
 		Slider_Create(appearanceCategory, "menuMinWidth", minValue, maxValue, step, label, "Mindestbreite festlegen");  --> TODO - L10n
 	end
 
-	-- MenuTooltip: Text Alignment
+	-- MenuTooltip: Line Height
 	do																			--> TODO - L10n
-		local values = {
+		local minValue, maxValue, step = 0, 32, 1;
+		Slider_Create(appearanceCategory, "menuLineHeight", minValue, maxValue, step, "Line Height", "Zeilenhöhe festlegen.");
+	end
+
+	----- MenuTooltip: Text -----
+	do																			--> TODO - L10n
+		appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format(LOCALE_TEXT_LABEL)));
+
+		-- Alignment
+		local alignValues = {
 			{"LEFT", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT, nil},
 			{"CENTER", "Center", nil},
 			{"RIGHT", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT, nil},
 		};
-		local label = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION;
-		DropDown_Create(appearanceCategory, "menuTextAlignment", values, label, "Align names to this side.");
+		local alignLabel = HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION;
+		DropDown_Create(appearanceCategory, "menuTextAlignment", alignValues, alignLabel, "Align names to this side.");
+
+		-- Padding (Left)
+		local padLeftMinValue, padLeftMaxValue, padLeftStep = 0, 64, 1;
+		local padLeftLabel = format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT);
+		Slider_Create(appearanceCategory, "menuTextPaddingLeft", padLeftMinValue, padLeftMaxValue, padLeftStep, padLeftLabel, "Textabstand links festlegen.");
+
+		-- Padding (Right)
+		local padRightMinValue, padRightMaxValue, padRightStep = 0, 64, 1;
+		local padRightLabel = format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT);
+		Slider_Create(appearanceCategory, "menuTextPaddingRight", padRightMinValue, padRightMaxValue, padRightStep, padRightLabel, "Textabstand rechts festlegen.");
 	end
 
-	-- MenuTooltip: Text Padding (Left)
+	------- MenuTooltip: Anchor -----
 	do																			--> TODO - L10n
-		local minValue, maxValue, step = 0, 64, 1;
-		local label = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT);
-		Slider_Create(appearanceCategory, "menuTextPaddingLeft", minValue, maxValue, step, label, "Textabstand links festlegen.");
-	end
+		appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format("Ankerpunkt")));
+		-- REF.: frame:SetPoint(point [, relativeTo [, relativePoint]] [, offsetX, offsetY])
 
-	-- MenuTooltip: Text Padding (Right)
-	do																			--> TODO - L10n
-		local minValue, maxValue, step = 0, 64, 1;
-		local label = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT);
-		Slider_Create(appearanceCategory, "menuTextPaddingRight", minValue, maxValue, step, label, "Textabstand rechts festlegen.");
-	end
+		-- Point
+		local pointValues = {
+			{"TOPLEFT", "TOPLEFT", nil},
+			{"TOPRIGHT", "TOPRIGHT", nil},
+			{"BOTTOMLEFT", "BOTTOMLEFT", nil},
+			{"BOTTOMRIGHT", "BOTTOMRIGHT", nil},
+			{"TOP", "TOP", nil},
+			{"BOTTOM", "BOTTOM", nil},
+			{"LEFT", "LEFT", nil},
+			{"RIGHT", "RIGHT", nil},
+			{"CENTER", "CENTER", nil},
+		};
+		local pointLabel = "Anchor Point"..HEADER_COLON..TEXT_DELIMITER..L.CFG_DDMENU_SEPARATOR_HEADING;
+		DropDown_Create(appearanceCategory, "menuAnchorPoint", pointValues, pointLabel, "The right-click menu's anchor point.");
 
-	-- MenuTooltip: Line Height
-	do																			--> TODO - L10n
-		local minValue, maxValue, step = 0, 32, 1;
-		local label = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER.."Line Height";
-		Slider_Create(appearanceCategory, "menuLineHeight", minValue, maxValue, step, label, "Zeilenhöhe festlegen.");
+		-- relativePoint
+		local parentPointLabel = "Anchor Point"..HEADER_COLON..TEXT_DELIMITER.."Minimap Button";
+		DropDown_Create(appearanceCategory, "menuAnchorPointParent", pointValues, parentPointLabel, "The minimap button's anchor point.");
+
+		-- offsetX
+		local minOffsetXValue, maxOffsetXValue, offsetXStep = -64, 64, 1;
+		local offsetXLabel = "Distance (H)";  -- "Anchor Point"..HEADER_COLON..TEXT_DELIMITER.."Distance (H)";
+		Slider_Create(appearanceCategory, "menuAnchorOffsetX", minOffsetXValue, maxOffsetXValue, offsetXStep, offsetXLabel, "Horizontaler Abstand zum Minikarten-Button.");
+
+		-- offsetY
+		local minOffsetYValue, maxOffsetYValue, offsetYStep = -64, 64, 1;
+		local offsetYLabel = "Distance (V)";  -- "Anchor Point"..HEADER_COLON..TEXT_DELIMITER.."Distance (V)";
+		Slider_Create(appearanceCategory, "menuAnchorOffsetY", minOffsetYValue, maxOffsetYValue, offsetYStep, offsetYLabel, "Vertikaler Abstand zum Minikarten-Button.");
 	end
 
 	----------------------------------------------------------------------------
