@@ -1455,15 +1455,15 @@ end
 
 -- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
 local MenuTooltip_GetCellStyle = function()
-	return SafeUnpack({ 														--> TODO - add to style options
-		nil,	--> font 
-		ns.settings.alignTextMenuTooltip,		--> justification 
-		nil,	--> colSpan 
-		nil,	--> provider 
-		ns.settings.padTextLeftMenuTooltip,		--> leftPadding 
-		ns.settings.padTextRightMenuTooltip,	--> rightPadding 
-		floor(GetScreenWidth()),				--> maxWidth 
-		ns.settings.widthMenuTooltip,			--> minWidth
+	return SafeUnpack({                                                         --> TODO - add to style options
+		nil,                               --> font
+		ns.settings.menuTextAlignment,     --> justification
+		nil,  --> colSpan
+		nil,  --> provider
+		ns.settings.menuTextPaddingLeft,   --> leftPadding
+		ns.settings.menuTextPaddingRight,  --> rightPadding
+		floor(GetScreenWidth()),           --> maxWidth
+		ns.settings.menuMinWidth,          --> minWidth
 	})
 end
 
@@ -1488,7 +1488,7 @@ end
 local function ShowMenuTooltip(parent)
 	-- Create tooltip and display as dropdown menu 
 	MenuTooltip = LibQTip:Acquire(ShortAddonID.."LibQTipMenuTooltip", 3, "CENTER", "LEFT", "CENTER")
-	if (ns.settings.anchorMenuTooltip == ns.defaultSettings.anchorMenuTooltip) then
+	if (ns.settings.menuAnchorPoint == ns.defaultSettings.menuAnchorPoint) then
 		MenuTooltip:SetPoint("TOPRIGHT", parent, "BOTTOM", 18, 4)
 	else
 		MenuTooltip:SetPoint("TOPLEFT", parent, "BOTTOM", -18, 4)
@@ -1689,12 +1689,12 @@ function MRBP:RegisterSlashCommands()
 				MRBP:RedoButtonHooks(informUser)
 
 			elseif (msg == 'anchor') then
-				if (ns.settings.anchorMenuTooltip == ns.defaultSettings.anchorMenuTooltip) then
-					ns.SaveSingleSetting("anchorMenuTooltip", "TOPRIGHT");
+				if (ns.settings.menuAnchorPoint == ns.defaultSettings.menuAnchorPoint) then
+					ns.SaveSingleSetting("menuAnchorPoint", "TOPRIGHT");
 				else
-					ns.SaveSingleSetting("anchorMenuTooltip", "TOPLEFT");
+					ns.SaveSingleSetting("menuAnchorPoint", "TOPLEFT");
 				end
-				ns.cprint("Anchor is set to:", ns.settings.anchorMenuTooltip);
+				ns.cprint("Anchor has been set to:", ns.settings.menuAnchorPoint);
 
 			----- Tests -----
 			elseif (msg == 'garrtest') then

@@ -129,11 +129,12 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showWoDWorldMapEvents"] = true,
 	["showWoDTimewalkingVendor"] = true,
 	-- Appearance
-	["widthMenuTooltip"] = 50,
-	["alignTextMenuTooltip"] = "LEFT",
-	["padTextLeftMenuTooltip"] = 0,
-	["padTextRightMenuTooltip"] = 0,
-	["anchorMenuTooltip"] = "TOPLEFT",
+	["menuMinWidth"] = 50,
+	["menuTextAlignment"] = "LEFT",
+	["menuTextPaddingLeft"] = 0,
+	["menuTextPaddingRight"] = 0,
+	["menuLineHeight"] = 0,
+	["menuAnchorPoint"] = "TOPLEFT",
 };
 
 ---Loads the saved variables for the current game character.
@@ -1015,12 +1016,12 @@ function MRBP_Settings_Register()
 	-- MenuTooltip: Width
 	do
 		local minValue, maxValue, step = 50, floor(GetScreenWidth() / 3), 5;
-		Slider_Create(appearanceCategory, "widthMenuTooltip", minValue, maxValue, step, HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH, "Mindestbreite festlegen");  --> TODO - L10n
+		Slider_Create(appearanceCategory, "menuMinWidth", minValue, maxValue, step, HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH, "Mindestbreite festlegen");  --> TODO - L10n
 	end
 
 	-- MenuTooltip: Text Alignment
 	do
-		local alignMenuTextVarname = "alignTextMenuTooltip";
+		local alignMenuTextVarname = "menuTextAlignment";
 		local alignMenuTextLabel = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION;
 		local alignMenuTextSetting = Settings.RegisterAddOnSetting(appearanceCategory, alignMenuTextLabel, alignMenuTextVarname, Settings.VarType.String, ns.defaultSettings[alignMenuTextVarname]);
 
@@ -1056,15 +1057,20 @@ function MRBP_Settings_Register()
 	do																			--> TODO - L10n
 		local minValue, maxValue, step = 0, 50, 1;
 		local label = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT);
-		Slider_Create(appearanceCategory, "padTextLeftMenuTooltip", minValue, maxValue, step, label, "Textabstand links festlegen.");
+		Slider_Create(appearanceCategory, "menuTextPaddingLeft", minValue, maxValue, step, label, "Textabstand links festlegen.");
 	end
 
 	-- MenuTooltip: Text Padding (Right)
 	do																			--> TODO - L10n
 		local minValue, maxValue, step = 0, 50, 1;
 		local label = LOCALE_TEXT_LABEL..HEADER_COLON..TEXT_DELIMITER..format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT);
-		Slider_Create(appearanceCategory, "padTextRightMenuTooltip", minValue, maxValue, step, label, "Textabstand rechts festlegen.");
+		Slider_Create(appearanceCategory, "menuTextPaddingRight", minValue, maxValue, step, label, "Textabstand rechts festlegen.");
 	end
+
+	-- MenuTooltip: Line Height
+	-- do
+	-- 	-- "menuLineHeight"
+	-- end
 
 	----------------------------------------------------------------------------
 	----- About this addon -----------------------------------------------------
@@ -1255,12 +1261,7 @@ end
 GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AVAILABLE))
 
 	--> TODO - (see below)
-	-- 	nil,	--> font 
-	-- 	"LEFT",	--> justification	OK
-	-- 	nil,	--> leftPadding		OK
-	-- 	nil,	--> rightPadding	OK
-	-- 	150,	--> minWidth		OK
-	-- 	lineHeight
+	--  menuFont
 	-- 	menuTextColor
 	-- 	menuHighlightTexture
 
