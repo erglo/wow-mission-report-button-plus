@@ -51,6 +51,7 @@ local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
 -- local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
 
 local GRAY = function(txt) return GRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
+local LIGHT_GRAY = function(txt) return LIGHTGRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
 
 ----- User settings ------------------------------------------------------------
 
@@ -129,7 +130,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showWoDWorldMapEvents"] = true,
 	["showWoDTimewalkingVendor"] = true,
 	-- Appearance
-	["menuMinWidth"] = 50,
+	["menuMinWidth"] = 64,
 	["menuTextAlignment"] = "LEFT",
 	["menuTextPaddingLeft"] = 0,
 	["menuTextPaddingRight"] = 0,
@@ -397,13 +398,20 @@ local function FormatTooltipTemplate(categoryName, tooltipText, additionalText)
 	return formattedText;
 end
 
+local function AppendDefaultValueText(varName)
+    local textTemplate = LIGHT_GRAY(NEW_PARAGRAPH..DEFAULT..HEADER_COLON)..TEXT_DELIMITER.."%s";
+    local valueString = tostring(ns.defaultSettings[varName]);
+    return textTemplate:format(valueString);
+end
+
 local function Slider_Create(category, variableName, minValue, maxValue, step, label, tooltip, formatter)
 	local setting = Settings.RegisterAddOnSetting(category, label, variableName, Settings.VarType.Number, ns.defaultSettings[variableName]);
 
 	local options = Settings.CreateSliderOptions(minValue, maxValue, step);
 	options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, formatter);
+	local defaultValueTooltip = tooltip..AppendDefaultValueText(variableName);
 	-- REF.: Settings.CreateSlider(category, setting, options, tooltip) --> initializer
-	local initializer = Settings.CreateSlider(category, setting, options, tooltip);
+	local initializer = Settings.CreateSlider(category, setting, options, defaultValueTooltip);
 
 	-- Track and display user changes
 	if (ns.settings[variableName] ~= ns.defaultSettings[variableName]) then
@@ -437,8 +445,9 @@ local function DropDown_Create(category, variableName, valueList, label, tooltip
 		end
 		return container:GetData();
 	end
+	local defaultValueTooltip = tooltip..AppendDefaultValueText(variableName);
 	-- REF.: Settings.CreateDropDown(category, setting, options, tooltip) --> initializer
-	local initializer = Settings.CreateDropDown(category, setting, GetOptions, tooltip);
+	local initializer = Settings.CreateDropDown(category, setting, GetOptions, defaultValueTooltip);
 
 	-- Track and display user changes
 	if (currentValue ~= defaultValue) then
