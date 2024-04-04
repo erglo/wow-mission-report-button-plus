@@ -134,6 +134,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["menuTextAlignment"] = "LEFT",
 	["menuTextPaddingLeft"] = 0,
 	["menuTextPaddingRight"] = 0,
+	["menuTextColor"] = HIGHLIGHT_FONT_COLOR:GenerateHexColor(),
 	["menuLineHeight"] = 3,
 	["menuAnchorPoint"] = "TOPRIGHT",
 	["menuAnchorPointParent"] = "BOTTOM",
@@ -198,7 +199,7 @@ end
 
 ---Save a given value for a given variable name.
 ---@param varName string  The name of the variable
----@param value boolean|table  The new value of the given variable
+---@param value any  The new value of the given variable
 ---
 local function SaveSingleSetting(varName, value)
 	-- Save project-wide (namespace) settings
@@ -212,7 +213,6 @@ local function SaveSingleSetting(varName, value)
 		MRBP_PerCharSettings[varName] = nil;
 	end
 end
-ns.SaveSingleSetting = SaveSingleSetting;
 
 ---Print a user-friendly chat message about the currently selected setting.
 ---@param text string  The name of a given option
@@ -402,6 +402,20 @@ local function AppendDefaultValueText(varName)
     local textTemplate = LIGHT_GRAY(NEW_PARAGRAPH..DEFAULT..HEADER_COLON)..TEXT_DELIMITER.."%s";
     local valueString = tostring(ns.defaultSettings[varName]);
     return textTemplate:format(valueString);
+end
+
+local function AppendDefaultColorTextLine(varName)
+    local TextColor = CreateColorFromHexString(ns.defaultSettings[varName]);
+	local textTemplate = NEWLINE.."%s"..TEXT_DELIMITER..LIGHT_GRAY(PARENS_TEMPLATE:format(DEFAULT));
+	local exampleText = TextColor:WrapTextInColorCode(PREVIEW);
+    return textTemplate:format(exampleText);
+end
+
+local function AppendCurrentColorTextLine(varName)
+	local TextColor = CreateColorFromHexString(ns.settings[varName]);
+    local textTemplate = NEWLINE.."%s"..TEXT_DELIMITER..LIGHT_GRAY(PARENS_TEMPLATE:format(REFORGE_CURRENT));
+	local exampleText = TextColor:WrapTextInColorCode(PREVIEW);
+    return textTemplate:format(exampleText);
 end
 
 local function Slider_Create(category, variableName, minValue, maxValue, step, label, tooltip, formatter)
@@ -1095,6 +1109,42 @@ function MRBP_Settings_Register()
 		local padRightMinValue, padRightMaxValue, padRightStep = 0, 64, 1;
 		local padRightLabel = format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT);
 		Slider_Create(appearanceCategory, "menuTextPaddingRight", padRightMinValue, padRightMaxValue, padRightStep, padRightLabel, "Textabstand rechts festlegen.");
+
+		-- Text Color
+		do
+			local menuTextColorVarName = "menuTextColor";
+
+			ColorPickerFrame.Footer.OkayButton:HookScript("OnClick", function()
+				local r, g, b = ColorPickerFrame:GetColorRGB();
+				local UserColor = CreateColor(r, g, b, ColorPickerFrame.previousValues.a or 1);
+				local hexColorString = UserColor:GenerateHexColor();
+				SaveSingleSetting(menuTextColorVarName, hexColorString);
+			end);
+
+			local menuTextColorButton_OnClick = function()
+				-- REF.: <https://www.townlong-yak.com/framexml/live/ColorPickerFrame.lua>
+				-- REF.: <https://www.townlong-yak.com/framexml/live/Color.lua>
+				local TextColor = CreateColorFromHexString(ns.settings[menuTextColorVarName]);
+				local r, g, b, a = TextColor:GetRGBA();
+				ColorPickerFrame.hasOpacity = Settings.Default.False;
+				ColorPickerFrame.previousValues = {r = r, g = g, b = b, a = a};
+				ColorPickerFrame.swatchFunc = function()
+					-- **Note:** The ColorPickerFrame needs this function, but we will ignore it.
+					-- The current ColorPickerFrame setup triggers too many calls to it!
+					-- We're going to use the "OnClick" hook above instead.
+				end
+				ColorPickerFrame.cancelFunc = function(previousValues)
+					local PreviousColor = CreateColor( ColorPickerFrame:GetPreviousValues() );
+					SaveSingleSetting(menuTextColorVarName, PreviousColor:GenerateHexColor());
+				end
+				ColorPickerFrame.Content.ColorPicker:SetColorRGB(r, g, b);
+				ColorPickerFrame:Show();
+			end
+			local menuTextColorLabel = "Text Color";
+			local menuTextColorTooltip = "Choose a font color."..NEWLINE..AppendDefaultColorTextLine(menuTextColorVarName)..AppendCurrentColorTextLine(menuTextColorVarName);
+			local menuTextColorButtonInitializer = CreateSettingsButtonInitializer(menuTextColorLabel, "Choose a color...", menuTextColorButton_OnClick, menuTextColorTooltip, addSearchTags);
+			appearanceLayout:AddInitializer(menuTextColorButtonInitializer);
+		end
 	end
 
 	------- MenuTooltip: Anchor -----
@@ -1322,7 +1372,6 @@ GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AV
 
 	--> TODO - (see below)
 	--  menuTextFont
-	-- 	menuTextColor
 	-- 	menuHighlightTexture
 
 	-- 	tipScrollStep

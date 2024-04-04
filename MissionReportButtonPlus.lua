@@ -1508,6 +1508,7 @@ local function ShowMenuTooltip(parent)
 			expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and garrisonInfo.minimapIcon or ''
 			expansionInfo.disabled = not MRBP_IsGarrisonRequirementMet(expansionInfo.garrisonTypeID)
 			expansionInfo.hintIconInfo = ShouldShowHintColumn() and hints
+			expansionInfo.color = CreateColorFromHexString(ns.settings["menuTextColor"])
 			expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID) end
 			AddMenuTooltipLine(expansionInfo)
 		end
