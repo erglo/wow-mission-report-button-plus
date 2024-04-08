@@ -42,6 +42,7 @@ local ExpansionInfo = ns.ExpansionInfo;
 
 local _, addonTitle, addonNotes = C_AddOns.GetAddOnInfo(AddonID);
 
+local sort = table.sort;
 local strjoin = strjoin;
 local NEWLINE = "|n";
 local NEW_PARAGRAPH = "|n|n";
@@ -135,6 +136,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["menuTextPaddingLeft"] = 0,
 	["menuTextPaddingRight"] = 0,
 	["menuTextColor"] = HIGHLIGHT_FONT_COLOR:GenerateHexColor(),
+	["menuTextFont"] = "GameTooltipText",
 	["menuLineHeight"] = 3,
 	["menuAnchorPoint"] = "TOPRIGHT",
 	["menuAnchorPointParent"] = "BOTTOM",
@@ -440,13 +442,34 @@ local function Slider_Create(category, variableName, minValue, maxValue, step, l
 end
 
 -- valueList: {{key, label, description}, ...}
--- allowed keyType: see Settings.VarType
+-- allowed key types: see Settings.VarType
 local function DropDown_Create(category, variableName, valueList, label, tooltip)
 	local defaultValue = ns.defaultSettings[variableName];
 	local currentValue = ns.settings[variableName];
 	local varType = type(valueList[1][1])  --> eg. Settings.VarType.String;
 
 	local setting = Settings.RegisterAddOnSetting(category, label, variableName, varType, defaultValue);
+	if (variableName == "menuTextFont") then
+		local fontString = SettingsPanel.QuestTextPreview.BodyText;
+		local originalFontFile, originalFontHeight, originalFontFlags = fontString:GetFont();
+		local originalText = fontString:GetText();
+		local exampleText = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, [...]";  -- sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.";
+		local function OnShow()
+			SettingsPanel.QuestTextPreview:Show();
+			-- Prepare preview
+			local selectedFont = _G[ns.settings[variableName]];
+			fontString:SetFontObject(selectedFont);
+			fontString:SetText(exampleText);
+		end
+		local function OnHide()
+			SettingsPanel.QuestTextPreview:Hide();
+			-- Restore original
+			fontString:SetFont(originalFontFile, originalFontHeight, originalFontFlags);
+			fontString:SetText(originalText);
+		end
+		setting.OnShow = OnShow;
+		setting.OnHide = OnHide;
+	end
 
 	local function GetOptions()
 		local container = Settings.CreateControlTextContainer();
@@ -457,6 +480,17 @@ local function DropDown_Create(category, variableName, valueList, label, tooltip
 			end
 			container:Add(key, name, description);  -- description appears in tooltip
 		end
+		if (variableName == "menuTextFont") then
+			local fontString = SettingsPanel.QuestTextPreview.BodyText;
+			local function OnEntryEnter(value)
+				local selectedFontObject = _G[value];
+				fontString:SetFontObject(selectedFontObject);
+			end
+			local data = container:GetData();
+			for index, entryData in ipairs(data) do
+				entryData.OnEnter = OnEntryEnter;
+			end
+		end
 		return container:GetData();
 	end
 	local defaultValueTooltip = tooltip..AppendDefaultValueText(variableName);
@@ -464,9 +498,7 @@ local function DropDown_Create(category, variableName, valueList, label, tooltip
 	local initializer = Settings.CreateDropDown(category, setting, GetOptions, defaultValueTooltip);
 
 	-- Track and display user changes
-	if (currentValue ~= defaultValue) then
-		setting:SetValue(currentValue);
-	end
+	setting:SetValue(currentValue);
 	local function OnValueChanged(owner, settingInfo, value)
 		SaveSingleSetting(settingInfo.variable, value);
 	end
@@ -1145,6 +1177,19 @@ function MRBP_Settings_Register()
 			local menuTextColorButtonInitializer = CreateSettingsButtonInitializer(menuTextColorLabel, "Choose a color...", menuTextColorButton_OnClick, menuTextColorTooltip, addSearchTags);
 			appearanceLayout:AddInitializer(menuTextColorButtonInitializer);
 		end
+
+		-- Font
+		-- REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_APIDocumentationGenerated/FontDocumentation.lua>
+		local menuTextFontVarName = "menuTextFont";
+
+		local menuTextFontValues = {};
+		local fontNames = GetFonts();
+		sort(fontNames)
+		for i, name in ipairs(fontNames) do
+			local line = {name, name, nil};
+			tinsert(menuTextFontValues, line);
+		end
+		DropDown_Create(appearanceCategory, menuTextFontVarName, menuTextFontValues, "Schriftart", "Choose the font of your liking.");
 	end
 
 	------- MenuTooltip: Anchor -----
@@ -1371,7 +1416,6 @@ end
 GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AVAILABLE))
 
 	--> TODO - (see below)
-	--  menuTextFont
 	-- 	menuHighlightTexture
 
 	-- 	tipScrollStep

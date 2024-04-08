@@ -1453,10 +1453,23 @@ local function MenuLine_OnEnter(...)
 	MenuLine_ShowTooltips()
 end
 
+-- REF.: <https://warcraft.wiki.gg/wiki/UIOBJECT_Font>
+local function GetCustomFont()
+	-- local fontObject = CreateFont(ns.settings.menuTextFont)
+	-- fontObject:CopyFontObject(_G["GameTooltipText"])
+
+	-- local newFontFile = Media:Fetch(Media.MediaType.FONT, ns.settings.menuTextFont)
+	-- local fontFile, fontHeight, fontFlags = fontObject:GetFont()				--> TODO - add to style options
+	-- fontObject:SetFont(newFontFile, fontHeight, fontFlags)
+
+	local fontObject = _G[ns.settings.menuTextFont]
+	return fontObject
+end
+
 -- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
 local MenuTooltip_GetCellStyle = function()
-	return SafeUnpack({                                                         --> TODO - add to style options
-		nil,                               --> font
+	return SafeUnpack({
+		GetCustomFont(),                   --> font
 		ns.settings.menuTextAlignment,     --> justification
 		nil,  --> colSpan
 		nil,  --> provider
