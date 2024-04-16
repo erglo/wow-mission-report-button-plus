@@ -448,6 +448,12 @@ local originalFontObject = previewFontString:GetFontObject();
 local originalText = previewFontString:GetText();
 local exampleText = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, [...]";  -- sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.";
 
+local function trimTextLength(text, length)
+	if (strlen(text) <= length) then return text; end
+
+	return strsub(text, 1, length);
+end
+
 -- Show preview of hovered font entry
 local function OnEntryEnter_SetFontPreview(value)
 	local selectedFontObject = _G[value];
@@ -487,6 +493,7 @@ local function DropDown_Create(category, variableName, valueList, label, tooltip
 			local data = container:Add(key, name, tooltip_description);
 			if (variableName == "menuTextFont") then
 				data.OnEnter = OnEntryEnter_SetFontPreview;
+				data.label = trimTextLength(data.label, 15);
 			end
 			if (data.value == defaultValue) then
 				-- data.label = GREEN(data.label)
