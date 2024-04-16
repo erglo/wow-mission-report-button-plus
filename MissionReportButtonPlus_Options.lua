@@ -52,6 +52,7 @@ local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
 -- local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
 
 local GRAY = function(txt) return GRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
+-- local GREEN = function(txt) return GREEN_FONT_COLOR:WrapTextInColorCode(txt) end;
 local LIGHT_GRAY = function(txt) return LIGHTGRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
 
 ----- User settings ------------------------------------------------------------
@@ -441,7 +442,19 @@ local function Slider_Create(category, variableName, minValue, maxValue, step, l
 	return setting, initializer;
 end
 
--- valueList: {{key, label, description}, ...}
+local QuestTextPreviewFrame = SettingsPanel.QuestTextPreview;
+local previewFontString = QuestTextPreviewFrame.BodyText;
+local originalFontObject = previewFontString:GetFontObject();
+local originalText = previewFontString:GetText();
+local exampleText = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, [...]";  -- sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.";
+
+-- Show preview of hovered font entry
+local function OnEntryEnter_SetFontPreview(value)
+	local selectedFontObject = _G[value];
+	previewFontString:SetFontObject(selectedFontObject);
+end
+
+-- valueList: {{key, label, tooltip_description}, ...}
 -- allowed key types: see Settings.VarType
 local function DropDown_Create(category, variableName, valueList, label, tooltip)
 	local defaultValue = ns.defaultSettings[variableName];
@@ -450,22 +463,18 @@ local function DropDown_Create(category, variableName, valueList, label, tooltip
 
 	local setting = Settings.RegisterAddOnSetting(category, label, variableName, varType, defaultValue);
 	if (variableName == "menuTextFont") then
-		local fontString = SettingsPanel.QuestTextPreview.BodyText;
-		local originalFontFile, originalFontHeight, originalFontFlags = fontString:GetFont();
-		local originalText = fontString:GetText();
-		local exampleText = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, [...]";  -- sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.";
 		local function OnShow()
-			SettingsPanel.QuestTextPreview:Show();
+			QuestTextPreviewFrame:Show();
 			-- Prepare preview
-			local selectedFont = _G[ns.settings[variableName]];
-			fontString:SetFontObject(selectedFont);
-			fontString:SetText(exampleText);
+			local selectedFontObject = _G[ns.settings[variableName]];
+			previewFontString:SetFontObject(selectedFontObject);
+			previewFontString:SetText(exampleText);
 		end
 		local function OnHide()
-			SettingsPanel.QuestTextPreview:Hide();
+			QuestTextPreviewFrame:Hide();
 			-- Restore original
-			fontString:SetFont(originalFontFile, originalFontHeight, originalFontFlags);
-			fontString:SetText(originalText);
+			previewFontString:SetFontObject(originalFontObject);
+			previewFontString:SetText(originalText);
 		end
 		setting.OnShow = OnShow;
 		setting.OnHide = OnHide;
@@ -474,25 +483,22 @@ local function DropDown_Create(category, variableName, valueList, label, tooltip
 	local function GetOptions()
 		local container = Settings.CreateControlTextContainer();
 		for i, item in ipairs(valueList) do
-			local key, name, description = SafeUnpack(item);
-			if (key == defaultValue) then
-				name = name..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(DEFAULT))
+			local key, name, tooltip_description = SafeUnpack(item);
+			local data = container:Add(key, name, tooltip_description);
+			if (variableName == "menuTextFont") then
+				data.OnEnter = OnEntryEnter_SetFontPreview;
 			end
-			container:Add(key, name, description);  -- description appears in tooltip
-		end
-		if (variableName == "menuTextFont") then
-			local fontString = SettingsPanel.QuestTextPreview.BodyText;
-			local function OnEntryEnter(value)
-				local selectedFontObject = _G[value];
-				fontString:SetFontObject(selectedFontObject);
-			end
-			local data = container:GetData();
-			for index, entryData in ipairs(data) do
-				entryData.OnEnter = OnEntryEnter;
+			if (data.value == defaultValue) then
+				-- data.label = GREEN(data.label)
+				data.label = data.label..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(DEFAULT))
+				-- data.recommend = Settings.Default.True
+				-- data.disabled = "Disabled text."  -- Settings.Default.True
+				-- data.warning = "Warning text."
 			end
 		end
 		return container:GetData();
 	end
+
 	local defaultValueTooltip = tooltip..AppendDefaultValueText(variableName);
 	-- REF.: Settings.CreateDropDown(category, setting, options, tooltip) --> initializer
 	local initializer = Settings.CreateDropDown(category, setting, GetOptions, defaultValueTooltip);
