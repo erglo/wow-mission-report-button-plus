@@ -442,17 +442,39 @@ local function Slider_Create(category, variableName, minValue, maxValue, step, l
 	return setting, initializer;
 end
 
+-- local MRBP_SettingsFontDropDownControlTemplate = CreateFrame("MRBPSettingsFontDropDownControlTemplate", SettingsPanel, ["SettingsTextDropDownControlTemplate", "ScrollBoxListViewMixin"]);
+-- local MRBP_SettingsFontSelectionPopoutWithButtonsTemplate = FrameUtil.CreateFrame("MRBPSettingsFontSelectionPopoutWithButtonsTemplate", MRBP_SettingsFontDropDownControlTemplate, "SettingsSelectionPopoutWithButtonsTemplate");
+-- _G["MRBPSettingsFontDropDownControlTemplate"] = MRBP_SettingsFontDropDownControlTemplate;
+-- MRBP_SettingsFontDropDownControlTemplate.dropDownTemplate = "MRBPSettingsFontSelectionPopoutWithButtonsTemplate";
+-- MRBP_SettingsFontSelectionPopoutWithButtonsTemplate.Button.SelectionDetails.AdjustWidth = function(multipleColumns, defaultWidth)
+-- 	print("AdjustWidth:", multipleColumns, defaultWidth);
+-- 	SettingsSelectionPopoutDetailsMixin.AdjustWidth(false, defaultWidth);
+-- end
+-- -- print("-->", MRBP_SettingsFontSelectionPopoutWithButtonsTemplate.AdjustWidth);
+-- print("-->", MRBP_SettingsFontSelectionPopoutWithButtonsTemplate.Button);
+-- for k,v in pairs(MRBP_SettingsFontSelectionPopoutWithButtonsTemplate.Button.SelectionDetails) do
+-- 	print(k, "-->", v);
+-- end
+-- local function LocalCreateDropDown(category, setting, options, tooltip)
+-- 	assert(options ~= nil);
+-- 	local initializer = Settings.CreateDropDownInitializer(setting, options, tooltip);
+-- 	-- local initializer = Settings.CreateControlInitializer("MRBPSettingsFontDropDownControlTemplate", setting, options, tooltip);
+-- 	local layout = SettingsPanel:GetLayout(category);
+-- 	layout:AddInitializer(initializer);
+-- 	return initializer;
+-- end
+
 local QuestTextPreviewFrame = SettingsPanel.QuestTextPreview;
 local previewFontString = QuestTextPreviewFrame.BodyText;
 local originalFontObject = previewFontString:GetFontObject();
 local originalText = previewFontString:GetText();
 local exampleText = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, [...]";  -- sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.";
 
-local function trimTextLength(text, length)
-	if (strlen(text) <= length) then return text; end
+-- local function trimTextLength(text, length)
+-- 	if (strlen(text) <= length) then return text; end
 
-	return strsub(text, 1, length);
-end
+-- 	return strsub(text, 1, length);
+-- end
 
 -- Show preview of hovered font entry
 local function OnEntryEnter_SetFontPreview(value)
@@ -493,7 +515,7 @@ local function DropDown_Create(category, variableName, valueList, label, tooltip
 			local data = container:Add(key, name, tooltip_description);
 			if (variableName == "menuTextFont") then
 				data.OnEnter = OnEntryEnter_SetFontPreview;
-				data.label = trimTextLength(data.label, 15);
+				-- data.label = trimTextLength(data.label, 15);
 			end
 			if (data.value == defaultValue) then
 				-- data.label = GREEN(data.label)
@@ -506,9 +528,15 @@ local function DropDown_Create(category, variableName, valueList, label, tooltip
 		return container:GetData();
 	end
 
+	-- if (variableName == "menuTextFont") then
+	-- 	print("-->", SettingsSelectionPopoutDetailsMixin.AdjustWidth)
+	-- 	SettingsSelectionPopoutDetailsMixin:AdjustWidth(false, 200);
+	-- end
+
 	local defaultValueTooltip = tooltip..AppendDefaultValueText(variableName);
 	-- REF.: Settings.CreateDropDown(category, setting, options, tooltip) --> initializer
 	local initializer = Settings.CreateDropDown(category, setting, GetOptions, defaultValueTooltip);
+	-- local initializer = LocalCreateDropDown(category, setting, GetOptions, defaultValueTooltip);
 
 	-- Track and display user changes
 	setting:SetValue(currentValue);
@@ -1196,9 +1224,16 @@ function MRBP_Settings_Register()
 		local menuTextFontVarName = "menuTextFont";
 
 		local menuTextFontValues = {};
-		local fontNames = GetFonts();
-		sort(fontNames)
-		for i, name in ipairs(fontNames) do
+		local GetFontNames = function()
+			local fonts = GetFonts();
+			local newFonts = {};
+			for i = 1, 10 do
+				tinsert(newFonts, fonts[i]);
+			end
+			sort(newFonts);
+			return newFonts;
+		end
+		for i, name in ipairs(GetFontNames()) do
 			local line = {name, name, nil};
 			tinsert(menuTextFontValues, line);
 		end
