@@ -24,8 +24,6 @@
 -- REF.: <FrameXML/InterfaceOptionsFrame.lua>	--> deprecated since WoW 10.x
 -- REF.: <FrameXML/InterfaceOptionsPanels.lua>	--> deprecated since WoW 10.x
 -- REF.: <FrameXML/OptionsPanelTemplates.lua>
--- REF.: <FrameXML/UIDropDownMenuTemplates.lua>
--- REF.: <FrameXML/UIDropDownMenu.lua>
 -- REF.: <FrameXML/Settings/Blizzard_Deprecated.lua>
 -- REF.: <FrameXML/Settings/Blizzard_ImplementationReadme.lua>
 -- REF.: <FrameXML/GlobalColors.lua>
@@ -466,9 +464,9 @@ end
 -- for k,v in pairs(MRBP_SettingsFontSelectionPopoutWithButtonsTemplate.Button.SelectionDetails) do
 -- 	print(k, "-->", v);
 -- end
--- local function LocalCreateDropDown(category, setting, options, tooltip)
+-- local function LocalCreateDropdown(category, setting, options, tooltip)
 -- 	assert(options ~= nil);
--- 	local initializer = Settings.CreateDropDownInitializer(setting, options, tooltip);
+-- 	local initializer = Settings.CreateDropdownInitializer(setting, options, tooltip);
 -- 	-- local initializer = Settings.CreateControlInitializer("MRBPSettingsFontDropDownControlTemplate", setting, options, tooltip);
 -- 	local layout = SettingsPanel:GetLayout(category);
 -- 	layout:AddInitializer(initializer);
@@ -495,12 +493,12 @@ end
 
 -- valueList: {{key, label, tooltip_description}, ...}
 -- allowed key types: see Settings.VarType
-local function DropDown_Create(category, variableName, valueList, label, tooltip)
+local function DropDown_Create(category, variableName, valueList, defaultText, tooltip)
 	local defaultValue = ns.defaultSettings[variableName];
 	local currentValue = ns.settings[variableName];
 	local varType = type(valueList[1][1])  --> eg. Settings.VarType.String;
 
-	local setting = Settings.RegisterAddOnSetting(category, label, variableName, varType, defaultValue);
+	local setting = Settings.RegisterAddOnSetting(category, defaultText, variableName, varType, defaultValue);
 	if (variableName == "menuTextFont") then
 		local function OnShow()
 			QuestTextPreviewFrame:Show();
@@ -545,9 +543,9 @@ local function DropDown_Create(category, variableName, valueList, label, tooltip
 	-- end
 
 	local defaultValueTooltip = tooltip..AppendDefaultValueText(variableName);
-	-- REF.: Settings.CreateDropDown(category, setting, options, tooltip) --> initializer
-	local initializer = Settings.CreateDropDown(category, setting, GetOptions, defaultValueTooltip);
-	-- local initializer = LocalCreateDropDown(category, setting, GetOptions, defaultValueTooltip);
+	-- REF.: Settings.CreateDropdown(category, setting, options, tooltip) --> initializer
+	local initializer = Settings.CreateDropdown(category, setting, GetOptions, defaultValueTooltip);
+	-- local initializer = LocalCreateDropdown(category, setting, GetOptions, defaultValueTooltip);
 
 	-- Track and display user changes
 	setting:SetValue(currentValue);
