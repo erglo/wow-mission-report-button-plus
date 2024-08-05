@@ -320,6 +320,16 @@ local function Checkbox_OnInterceptActiveMenuEntries(value)
 	return false;
 end
 
+local settingMixin = {};
+
+function settingMixin:SetNewTagShown(state)
+	self.newTagShown = state;
+end
+
+function settingMixin:IsNewTagShown()
+	return self.newTagShown;
+end
+
 ---Create a checkbox control and register it's setting and add it to the given category.
 ---@param category table  Add and register checkbox to this category.
 ---@param variableName string  The name of this checkbox' variable.
@@ -342,7 +352,8 @@ local function CheckBox_Create(category, variableName, name, tooltip)
 	end
 	-- Create checkbox
 	local setting = Settings.RegisterAddOnSetting(category, name, varName, Settings.VarType.Boolean, defaultValue);
-	local initializer = Settings.CreateCheckBox(category, setting, tooltip);
+	Mixin(setting, settingMixin);
+	local initializer = (Settings.CreateCheckBox or Settings.CreateCheckbox)(category, setting, tooltip);
 	-- Handling "activeMenuEntries" vs. normal checkboxes
 	if indexString then
 		setting.defaultValue = defaultMenuEntryValue;
