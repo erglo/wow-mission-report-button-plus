@@ -3,7 +3,7 @@
 --
 -- by erglo <erglo.coder+MRBP@gmail.com>
 --
--- Copyright (C) 2024  Erwin D. Glockner (aka ergloCoder)
+-- Copyright (C) 2021  Erwin D. Glockner (aka erglo or ergloCoder)
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -50,7 +50,6 @@ local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
 -- local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
 
 local GRAY = function(txt) return GRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
--- local GREEN = function(txt) return GREEN_FONT_COLOR:WrapTextInColorCode(txt) end;
 local LIGHT_GRAY = function(txt) return LIGHTGRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
 
 ----- User settings ------------------------------------------------------------
@@ -74,10 +73,6 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showTimewalkingVendorHint"] = true,
 	-- Menu entries
 	["activeMenuEntries"] = {"5", "6", "7", "8", "9", "99"},
-	-- Menu entries tooltip
-	-- ["showBountyRequirements"] = true,
-	-- ["showThreatsTimeRemaining"] = true,
-	-- ["showEntryRequirements"] = true,
 	-- Dragonflight
 	["showMajorFactionRenownLevel"] = true,
 	["applyMajorFactionColors"] = true,
@@ -187,7 +182,7 @@ local function LoadSettings(verbose)
 		end
 	end
 
-	-- -- Prepare account-wide (global) settings
+	-- -- Prepare account-wide (global) settings								--> TODO - See feature request (issue #11)
 	-- if (MRBP_GlobalSettings == nil) then
 	-- 	_log:debug(".. initializing account-wide (global) settings");
 	-- 	MRBP_GlobalSettings = {};
@@ -255,19 +250,16 @@ local function CheckBox_OnValueChanged(owner, setting, value)
 			printOption(setting.name, value);
 		end
 	elseif ns.settings.showChatNotifications then
-		-- Print user feedback on selected setting to chat
 		printOption(setting.name, value);
 	end
 	if (setting.variable == "showMinimapButton") then
-		-- Manually set by user
 		if value then
-			ns:ShowMinimapButton_User()
+			ns:ShowMinimapButton_User();
 		else
 			ns:HideMinimapButton();
 		end
 	end
 	if (setting.variable == "showInAddonCompartment") then
-		-- Toggle Addon Compartment entry
 		if value then
 			util.AddonCompartment.RegisterAddon();
 		else
@@ -451,28 +443,6 @@ local function Slider_Create(category, variableName, minValue, maxValue, step, l
 	return setting, initializer;
 end
 
--- local MRBP_SettingsFontDropDownControlTemplate = CreateFrame("MRBPSettingsFontDropDownControlTemplate", SettingsPanel, ["SettingsTextDropDownControlTemplate", "ScrollBoxListViewMixin"]);
--- local MRBP_SettingsFontSelectionPopoutWithButtonsTemplate = FrameUtil.CreateFrame("MRBPSettingsFontSelectionPopoutWithButtonsTemplate", MRBP_SettingsFontDropDownControlTemplate, "SettingsSelectionPopoutWithButtonsTemplate");
--- _G["MRBPSettingsFontDropDownControlTemplate"] = MRBP_SettingsFontDropDownControlTemplate;
--- MRBP_SettingsFontDropDownControlTemplate.dropDownTemplate = "MRBPSettingsFontSelectionPopoutWithButtonsTemplate";
--- MRBP_SettingsFontSelectionPopoutWithButtonsTemplate.Button.SelectionDetails.AdjustWidth = function(multipleColumns, defaultWidth)
--- 	print("AdjustWidth:", multipleColumns, defaultWidth);
--- 	SettingsSelectionPopoutDetailsMixin.AdjustWidth(false, defaultWidth);
--- end
--- -- print("-->", MRBP_SettingsFontSelectionPopoutWithButtonsTemplate.AdjustWidth);
--- print("-->", MRBP_SettingsFontSelectionPopoutWithButtonsTemplate.Button);
--- for k,v in pairs(MRBP_SettingsFontSelectionPopoutWithButtonsTemplate.Button.SelectionDetails) do
--- 	print(k, "-->", v);
--- end
--- local function LocalCreateDropdown(category, setting, options, tooltip)
--- 	assert(options ~= nil);
--- 	local initializer = Settings.CreateDropdownInitializer(setting, options, tooltip);
--- 	-- local initializer = Settings.CreateControlInitializer("MRBPSettingsFontDropDownControlTemplate", setting, options, tooltip);
--- 	local layout = SettingsPanel:GetLayout(category);
--- 	layout:AddInitializer(initializer);
--- 	return initializer;
--- end
-
 local QuestTextPreviewFrame = SettingsPanel.QuestTextPreview;
 local previewFontString = QuestTextPreviewFrame.BodyText;
 local originalFontObject = previewFontString:GetFontObject();
@@ -485,9 +455,9 @@ local exampleText = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, [.
 -- 	return strsub(text, 1, length);
 -- end
 
--- Show preview of hovered font entry
-local function OnEntryEnter_SetFontPreview(value)
-	local selectedFontObject = _G[value];
+-- Show preview of hovered font entry (option)
+local function OnEntryEnter_SetFontPreview(optionData)
+	local selectedFontObject = _G[optionData.value];
 	previewFontString:SetFontObject(selectedFontObject);
 end
 
@@ -499,6 +469,46 @@ local function DropDown_Create(category, variableName, valueList, defaultText, t
 	local varType = type(valueList[1][1])  --> eg. Settings.VarType.String;
 
 	local setting = Settings.RegisterAddOnSetting(category, defaultText, variableName, varType, defaultValue);
+
+	local function GetOptions()
+		local container = Settings.CreateControlTextContainer();
+		local key, name, tooltip_description;
+		for i, item in ipairs(valueList) do
+			key, name, tooltip_description = SafeUnpack(item);
+			container:Add(key, name, tooltip_description);
+		end
+		local data = container:GetData();
+		for index, optionData in ipairs(data) do
+			if (variableName == "menuTextFont") then
+				optionData.onEnter = OnEntryEnter_SetFontPreview;
+			end
+			if (optionData.value == defaultValue) then
+				optionData.label = optionData.label..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(DEFAULT));
+				-- optionData.recommend = Settings.Default.True;
+				-- optionData.disabled = "Disabled text.";
+				-- optionData.warning = "Warning text.";
+			end
+		end
+		return data;
+	end
+
+	-- if (variableName == "menuTextFont") then
+	-- 	print("-->", SettingsSelectionPopoutDetailsMixin.AdjustWidth)
+	-- 	SettingsSelectionPopoutDetailsMixin:AdjustWidth(false, 200);
+	-- end
+
+	local defaultValueTooltip = tooltip..AppendDefaultValueText(variableName);
+	-- REF.: Settings.CreateDropdown(category, setting, options, tooltip) --> initializer
+	local initializer = Settings.CreateDropdown(category, setting, GetOptions, defaultValueTooltip);
+
+	-- Track and display user changes
+	setting:SetValue(currentValue);
+	local function OnValueChanged(owner, settingInfo, value)
+		SaveSingleSetting(settingInfo.variable, value);
+	end
+	Settings.SetOnValueChangedCallback(variableName, OnValueChanged);
+
+	-- Add a font preview frame, but only for the font selection
 	if (variableName == "menuTextFont") then
 		local function OnShow()
 			QuestTextPreviewFrame:Show();
@@ -513,46 +523,9 @@ local function DropDown_Create(category, variableName, valueList, defaultText, t
 			previewFontString:SetFontObject(originalFontObject);
 			previewFontString:SetText(originalText);
 		end
-		setting.OnShow = OnShow;
-		setting.OnHide = OnHide;
+		initializer.OnShow = OnShow;
+		initializer.OnHide = OnHide;
 	end
-
-	local function GetOptions()
-		local container = Settings.CreateControlTextContainer();
-		for i, item in ipairs(valueList) do
-			local key, name, tooltip_description = SafeUnpack(item);
-			local data = container:Add(key, name, tooltip_description);
-			if (variableName == "menuTextFont") then
-				data.OnEnter = OnEntryEnter_SetFontPreview;
-				-- data.label = trimTextLength(data.label, 15);
-			end
-			if (data.value == defaultValue) then
-				-- data.label = GREEN(data.label)
-				data.label = data.label..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(DEFAULT))
-				-- data.recommend = Settings.Default.True
-				-- data.disabled = "Disabled text."  -- Settings.Default.True
-				-- data.warning = "Warning text."
-			end
-		end
-		return container:GetData();
-	end
-
-	-- if (variableName == "menuTextFont") then
-	-- 	print("-->", SettingsSelectionPopoutDetailsMixin.AdjustWidth)
-	-- 	SettingsSelectionPopoutDetailsMixin:AdjustWidth(false, 200);
-	-- end
-
-	local defaultValueTooltip = tooltip..AppendDefaultValueText(variableName);
-	-- REF.: Settings.CreateDropdown(category, setting, options, tooltip) --> initializer
-	local initializer = Settings.CreateDropdown(category, setting, GetOptions, defaultValueTooltip);
-	-- local initializer = LocalCreateDropdown(category, setting, GetOptions, defaultValueTooltip);
-
-	-- Track and display user changes
-	setting:SetValue(currentValue);
-	local function OnValueChanged(owner, settingInfo, value)
-		SaveSingleSetting(settingInfo.variable, value);
-	end
-	Settings.SetOnValueChangedCallback(variableName, OnValueChanged);
 
 	return setting, initializer;
 end
@@ -1228,7 +1201,7 @@ function MRBP_Settings_Register()
 			appearanceLayout:AddInitializer(menuTextColorButtonInitializer);
 		end
 
-		-- Font
+		-- Font selection dropdown
 		-- REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_APIDocumentationGenerated/FontDocumentation.lua>
 		local menuTextFontVarName = "menuTextFont";
 
