@@ -48,6 +48,8 @@ local HEADER_COLON = HEADER_COLON;
 local LIST_DELIMITER = LIST_DELIMITER;
 local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
 -- local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
+local DEFAULT = DEFAULT;
+local REFORGE_CURRENT = REFORGE_CURRENT;
 
 local GRAY = function(txt) return GRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
 local LIGHT_GRAY = function(txt) return LIGHTGRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
@@ -408,16 +410,11 @@ local function AppendDefaultValueText(varName)
     return textTemplate:format(valueString);
 end
 
-local function AppendDefaultColorTextLine(varName)
-    local TextColor = CreateColorFromHexString(ns.defaultSettings[varName]);
-	local textTemplate = NEWLINE.."%s"..TEXT_DELIMITER..LIGHT_GRAY(PARENS_TEMPLATE:format(DEFAULT));
-	local exampleText = TextColor:WrapTextInColorCode(PREVIEW);
-    return textTemplate:format(exampleText);
-end
-
-local function AppendCurrentColorTextLine(varName)
-	local TextColor = CreateColorFromHexString(ns.settings[varName]);
-    local textTemplate = NEWLINE.."%s"..TEXT_DELIMITER..LIGHT_GRAY(PARENS_TEMPLATE:format(REFORGE_CURRENT));
+local function AppendColorPreviewText(varName, isDefault)
+	local text = isDefault and DEFAULT or REFORGE_CURRENT;
+	local value = isDefault and ns.defaultSettings[varName] or ns.settings[varName];
+	local TextColor = CreateColorFromHexString(value);
+    local textTemplate = NEWLINE.."%s"..TEXT_DELIMITER..LIGHT_GRAY(PARENS_TEMPLATE:format(text));
 	local exampleText = TextColor:WrapTextInColorCode(PREVIEW);
     return textTemplate:format(exampleText);
 end
@@ -991,7 +988,6 @@ function MRBP_Settings_Register()
 	Settings.RegisterAddOnCategory(mainCategory);
 
 	LoadSettings();
-	--> TODO - Check need for 'ns.settings'; is maybe .GetVariableValue() better?
 
 	----- General settings -----
 
@@ -1127,43 +1123,43 @@ function MRBP_Settings_Register()
 	----- MenuTooltip appearance -----
 
 	local menuNameTemplate = GRAY(L.CFG_DDMENU_SEPARATOR_HEADING..HEADER_COLON)..TEXT_DELIMITER.."%s";
-	appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format("Dimensionen")));
+	appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format(L.CFG_APPEARANCE_DIMENSIONS_LABEL)));
 
-	-- MenuTooltip: Width
+	-- MenuTooltip: Frame Width
 	do
-		local minValue, maxValue, step = 64, 320, 1;
+		local minValue, maxValue, step = 64, floor(GetScreenWidth()/3), 1;
 		local label = HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH;
-		Slider_Create(appearanceCategory, "menuMinWidth", minValue, maxValue, step, label, "Mindestbreite festlegen");  --> TODO - L10n
+		Slider_Create(appearanceCategory, "menuMinWidth", minValue, maxValue, step, label, L.CFG_APPEARANCE_DIMENSIONS_FRAME_WIDTH_TOOLTIP);
 	end
 
 	-- MenuTooltip: Line Height
-	do																			--> TODO - L10n
-		local minValue, maxValue, step = 0, 32, 1;
-		Slider_Create(appearanceCategory, "menuLineHeight", minValue, maxValue, step, "Line Height", "Zeilenhöhe festlegen.");
+	do
+		local minValue, maxValue, step = 0, 64, 1;
+		Slider_Create(appearanceCategory, "menuLineHeight", minValue, maxValue, step, L.CFG_APPEARANCE_DIMENSIONS_LINE_HEIGHT_TEXT, L.CFG_APPEARANCE_DIMENSIONS_LINE_HEIGHT_TOOLTIP);
 	end
 
 	----- MenuTooltip: Text -----
-	do																			--> TODO - L10n
+	do
 		appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format(LOCALE_TEXT_LABEL)));
 
 		-- Alignment
+		local alignLabel = HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION;
 		local alignValues = {
 			{"LEFT", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT, nil},
-			{"CENTER", "Center", nil},
+			{"CENTER", L.CFG_APPEARANCE_TEXT_ALIGNMENT_CENTERED_TEXT, nil},
 			{"RIGHT", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT, nil},
 		};
-		local alignLabel = HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION;
-		DropDown_Create(appearanceCategory, "menuTextAlignment", alignValues, alignLabel, "Align names to this side.");
+		DropDown_Create(appearanceCategory, "menuTextAlignment", alignValues, alignLabel, L.CFG_APPEARANCE_TEXT_ALIGNMENT_TOOLTIP);
 
 		-- Padding (Left)
 		local padLeftMinValue, padLeftMaxValue, padLeftStep = 0, 64, 1;
-		local padLeftLabel = format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT);
-		Slider_Create(appearanceCategory, "menuTextPaddingLeft", padLeftMinValue, padLeftMaxValue, padLeftStep, padLeftLabel, "Textabstand links festlegen.");
+		local padLeftLabel = L.CFG_APPEARANCE_TEXT_PADDING_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT);
+		Slider_Create(appearanceCategory, "menuTextPaddingLeft", padLeftMinValue, padLeftMaxValue, padLeftStep, padLeftLabel, L.CFG_APPEARANCE_TEXT_PADDING_TOOLTIP);
 
 		-- Padding (Right)
 		local padRightMinValue, padRightMaxValue, padRightStep = 0, 64, 1;
-		local padRightLabel = format("Padding (%s)", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT);
-		Slider_Create(appearanceCategory, "menuTextPaddingRight", padRightMinValue, padRightMaxValue, padRightStep, padRightLabel, "Textabstand rechts festlegen.");
+		local padRightLabel = L.CFG_APPEARANCE_TEXT_PADDING_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT);
+		Slider_Create(appearanceCategory, "menuTextPaddingRight", padRightMinValue, padRightMaxValue, padRightStep, padRightLabel, L.CFG_APPEARANCE_TEXT_PADDING_TOOLTIP);
 
 		-- Text Color
 		do
@@ -1195,9 +1191,8 @@ function MRBP_Settings_Register()
 				ColorPickerFrame.Content.ColorPicker:SetColorRGB(r, g, b);
 				ColorPickerFrame:Show();
 			end
-			local menuTextColorLabel = "Text Color";
-			local menuTextColorTooltip = "Choose a font color."..NEWLINE..AppendDefaultColorTextLine(menuTextColorVarName)..AppendCurrentColorTextLine(menuTextColorVarName);
-			local menuTextColorButtonInitializer = CreateSettingsButtonInitializer(menuTextColorLabel, "Choose a color...", menuTextColorButton_OnClick, menuTextColorTooltip, addSearchTags);
+			local menuTextColorTooltip = L.CFG_APPEARANCE_TEXT_COLOR_TOOLTIP..NEWLINE..AppendColorPreviewText(menuTextColorVarName, Settings.Default.True)..AppendColorPreviewText(menuTextColorVarName);
+			local menuTextColorButtonInitializer = CreateSettingsButtonInitializer(L.CFG_APPEARANCE_TEXT_COLOR_TEXT, L.CFG_APPEARANCE_COLOR_BUTTON_TEXT, menuTextColorButton_OnClick, menuTextColorTooltip, addSearchTags);
 			appearanceLayout:AddInitializer(menuTextColorButtonInitializer);
 		end
 
@@ -1206,25 +1201,36 @@ function MRBP_Settings_Register()
 		local menuTextFontVarName = "menuTextFont";
 
 		local menuTextFontValues = {};
-		local GetFontNames = function()
-			local fonts = GetFonts();
-			local newFonts = {};
-			for i = 1, 10 do
-				tinsert(newFonts, fonts[i]);
-			end
-			sort(newFonts);
-			return newFonts;
-		end
-		for i, name in ipairs(GetFontNames()) do
+		local menuTextFontValues2 = {};
+		local menuTextFontValues3 = {};
+		local menuTextFontValues4 = {};
+		local menuTextFontValueList = {menuTextFontValues, menuTextFontValues2, menuTextFontValues3, menuTextFontValues4};
+		local fontNames = GetFonts();
+		sort(fontNames)
+		for i, name in ipairs(fontNames) do										--> TODO - Find a more elegant solution. Maybe an external font library?
 			local line = {name, name, nil};
-			tinsert(menuTextFontValues, line);
+			if (i <= 100) then
+				tinsert(menuTextFontValues, line);
+			end
+			if (i > 100 and i <= 200) then
+				tinsert(menuTextFontValues2, line);
+			end
+			if (i > 200 and i <= 300) then
+				tinsert(menuTextFontValues3, line);
+			end
+			if (i > 300 and i <= 382) then
+				tinsert(menuTextFontValues4, line);
+			end
 		end
-		DropDown_Create(appearanceCategory, menuTextFontVarName, menuTextFontValues, "Schriftart", "Choose the font of your liking.");
+		local menuTextFontLabel = L.CFG_APPEARANCE_FONT_SELECTION_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(L.SELECTION_PART_NUM_D);
+		for i = 1, #menuTextFontValueList do
+			DropDown_Create(appearanceCategory, menuTextFontVarName, menuTextFontValueList[i],  menuTextFontLabel:format(i), L.CFG_APPEARANCE_FONT_SELECTION_TOOLTIP);
+		end
 	end
 
 	------- MenuTooltip: Anchor -----
-	do																			--> TODO - L10n
-		appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format("Ankerpunkt")));
+	do
+		appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format(L.CFG_APPEARANCE_ANCHOR_LABEL)));
 		-- REF.: frame:SetPoint(point [, relativeTo [, relativePoint]] [, offsetX, offsetY])
 
 		-- Point
@@ -1239,22 +1245,22 @@ function MRBP_Settings_Register()
 			{"RIGHT", "RIGHT", nil},
 			{"CENTER", "CENTER", nil},
 		};
-		local pointLabel = "Anchor Point"..HEADER_COLON..TEXT_DELIMITER..L.CFG_DDMENU_SEPARATOR_HEADING;
-		DropDown_Create(appearanceCategory, "menuAnchorPoint", pointValues, pointLabel, "The right-click menu's anchor point.");
+		local pointLabel = L.CFG_APPEARANCE_ANCHOR_LABEL..HEADER_COLON..TEXT_DELIMITER..L.CFG_DDMENU_SEPARATOR_HEADING;
+		DropDown_Create(appearanceCategory, "menuAnchorPoint", pointValues, pointLabel, L.CFG_APPEARANCE_ANCHOR_POINT_MENU_TOOLTIP);
 
 		-- relativePoint
-		local parentPointLabel = "Anchor Point"..HEADER_COLON..TEXT_DELIMITER.."Minimap Button";
-		DropDown_Create(appearanceCategory, "menuAnchorPointParent", pointValues, parentPointLabel, "The minimap button's anchor point.");
+		local parentPointLabel = L.CFG_APPEARANCE_ANCHOR_LABEL..HEADER_COLON..TEXT_DELIMITER..L.CFG_APPEARANCE_ANCHOR_POINT_BUTTON_TEXT;
+		DropDown_Create(appearanceCategory, "menuAnchorPointParent", pointValues, parentPointLabel, L.CFG_APPEARANCE_ANCHOR_POINT_BUTTON_TOOLTIP);
 
 		-- offsetX
 		local minOffsetXValue, maxOffsetXValue, offsetXStep = -64, 64, 1;
-		local offsetXLabel = "Distance (H)";  -- "Anchor Point"..HEADER_COLON..TEXT_DELIMITER.."Distance (H)";
-		Slider_Create(appearanceCategory, "menuAnchorOffsetX", minOffsetXValue, maxOffsetXValue, offsetXStep, offsetXLabel, "Horizontaler Abstand zum Minikarten-Button.");
+		local offsetXLabel = L.CFG_APPEARANCE_ANCHOR_DISTANCE_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ORIENTATION_HORIZONTAL);
+		Slider_Create(appearanceCategory, "menuAnchorOffsetX", minOffsetXValue, maxOffsetXValue, offsetXStep, offsetXLabel, L.CFG_APPEARANCE_ANCHOR_DISTANCE_TOOLTIP);
 
 		-- offsetY
 		local minOffsetYValue, maxOffsetYValue, offsetYStep = -64, 64, 1;
-		local offsetYLabel = "Distance (V)";  -- "Anchor Point"..HEADER_COLON..TEXT_DELIMITER.."Distance (V)";
-		Slider_Create(appearanceCategory, "menuAnchorOffsetY", minOffsetYValue, maxOffsetYValue, offsetYStep, offsetYLabel, "Vertikaler Abstand zum Minikarten-Button.");
+		local offsetYLabel = L.CFG_APPEARANCE_ANCHOR_DISTANCE_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ORIENTATION_VERTICAL);
+		Slider_Create(appearanceCategory, "menuAnchorOffsetY", minOffsetYValue, maxOffsetYValue, offsetYStep, offsetYLabel, L.CFG_APPEARANCE_ANCHOR_DISTANCE_TOOLTIP);
 	end
 
 	----------------------------------------------------------------------------
