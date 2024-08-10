@@ -154,6 +154,7 @@ ns.L = {
 	CFG_APPEARANCE_FONT_SELECTION_TEXT = "Schriftart",
 	SELECTION_PART_NUM_D = "Teil %d",
 	CFG_APPEARANCE_FONT_SELECTION_TOOLTIP = "Blizzard stellt einen umfangreichen Satz vorgefertigter Schriften zur Verfügung.|nWählt hier eure Lieblingsschrift aus.",
+	CFG_APPEARANCE_FONT_SIZE_TOOLTIP = "Passt die Schriftgröße an.",
 	CFG_APPEARANCE_ANCHOR_LABEL = "Ankerpunkt",
 	CFG_APPEARANCE_ANCHOR_POINT_MENU_TOOLTIP = "Wählt den Ankerpunkt für das Dropdownmenü.",
 	CFG_APPEARANCE_ANCHOR_POINT_BUTTON_TEXT = "Minikarten-Button",

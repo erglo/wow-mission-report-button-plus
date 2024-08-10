@@ -140,6 +140,7 @@ ns.L = {
 	CFG_APPEARANCE_FONT_SELECTION_TEXT = "Font",
 	SELECTION_PART_NUM_D = "Part %d",
 	CFG_APPEARANCE_FONT_SELECTION_TOOLTIP = "Blizzard provides a huge amount of predefined fonts.|nChoose here the font of your liking.",
+	CFG_APPEARANCE_FONT_SIZE_TOOLTIP = "Change the font size.",
 	CFG_APPEARANCE_ANCHOR_LABEL = "Anchor Point",
 	CFG_APPEARANCE_ANCHOR_POINT_MENU_TOOLTIP = "Set the menu frame's anchor point.",
 	CFG_APPEARANCE_ANCHOR_POINT_BUTTON_TEXT = "Minimap Button",

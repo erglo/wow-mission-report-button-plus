@@ -1242,6 +1242,7 @@ function MRBP_Settings_Register()
 			local menuTextColorTooltip = L.CFG_APPEARANCE_TEXT_COLOR_TOOLTIP..NEWLINE..AppendColorPreviewText(menuTextColorVarName, Settings.Default.True)..AppendColorPreviewText(menuTextColorVarName);
 			local menuTextColorButtonInitializer = CreateSettingsButtonInitializer(L.CFG_APPEARANCE_TEXT_COLOR_TEXT, L.CFG_APPEARANCE_COLOR_BUTTON_TEXT, menuTextColorButton_OnClick, menuTextColorTooltip, addSearchTags);
 			appearanceLayout:AddInitializer(menuTextColorButtonInitializer);
+			-- local setting = Settings.RegisterAddOnSetting(category, defaultText, variableName, varType, defaultValue);
 		end
 
 		-- Font selection dropdown
@@ -1280,9 +1281,9 @@ function MRBP_Settings_Register()
 			--> TODO - Apply font's built-in color as well?
 		end
 
-		-- Font size															--> TODO - L10n
+		-- Font size
 		local minFontSize, maxFontSize, fontSizeStep = 6, 64, 1;
-		Slider_Create(appearanceCategory, "menuTextFontSize", minFontSize, maxFontSize, fontSizeStep, FONT_SIZE, "Choose a font size.", FontSizeValueFormatter);
+		Slider_Create(appearanceCategory, "menuTextFontSize", minFontSize, maxFontSize, fontSizeStep, FONT_SIZE, L.CFG_APPEARANCE_FONT_SIZE_TOOLTIP, FontSizeValueFormatter);
 	end
 
 	----- MenuTooltip: Dimensions -----
