@@ -1508,6 +1508,7 @@ local function ShowMenuTooltip(parent)
 		ReleaseTooltip(ExpansionTooltip)
 	end
 	MenuTooltip:SetCellMarginV(ns.settings.menuLineHeight)
+	MenuTooltip:SetFrameLevel(parent:GetFrameLevel() + 10)
 	-- Expansion list
 	local sortFunc = ns.settings.reverseSortorder and ExpansionInfo.SortAscending or ExpansionInfo.SortDescending
 	local expansionList = ExpansionInfo:GetExpansionsWithLandingPage(sortFunc)
