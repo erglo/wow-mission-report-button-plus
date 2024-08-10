@@ -46,9 +46,10 @@ local MenuTooltip, ExpansionTooltip, ReputationTooltip
 local LocalLibQTipUtil = ns.utils.libqtip
 local LocalTooltipUtil = ns.utilities.tooltip
 
-local PlayerInfo = ns.PlayerInfo;
-local ExpansionInfo = ns.ExpansionInfo;
-local LandingPageInfo = ns.LandingPageInfo;
+local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
+local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
+local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
+local LabelUtil = ns.data;  --> <data\labels.lua>
 
 local MRBP_EventMessagesCounter = {}
 -- Tests
@@ -112,7 +113,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 
 		elseif (event == "PLAYER_QUITING") then
 			-- Do some variables clean-up
-			ns.data:CleanUpLabels()
+			LabelUtil:CleanUpLabels()
 
 		elseif (event == "GARRISON_BUILDING_ACTIVATABLE") then
 			-- REF. <FrameXML/Blizzard_GarrisonUI/Blizzard_GarrisonLandingPage.lua>
@@ -320,7 +321,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 -- Load this add-on's functions when the MR minimap button is ready.
 function MRBP:OnLoad()
 	-- Load data and their handler
-	ns.data:LoadInGameLabels()
+	LabelUtil:LoadInGameLabels()
 	LandingPageInfo:Initialize();
 	-- Prepare quest data for the unlocking requirements
 	self:RequestLoadData();
