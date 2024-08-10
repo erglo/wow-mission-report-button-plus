@@ -637,13 +637,12 @@ local function CreateMenuTooltipSettings(category, layout)
 			variable = "showReputationRewardPendingHint",
 			name = L.CFG_DDMENU_HINT_REPUTATION_TEXT,
 			tooltip = L.CFG_DDMENU_HINT_REPUTATION_TOOLTIP..NEW_PARAGRAPH..GRAY(L.WORKS_ONLY_FOR_EXPANSION_S:format(ExpansionInfo.data.DRAGONFLIGHT.name)),
-			tag = Settings.Default.True,
 		},
 		{
 			variable = "showTimewalkingVendorHint",
 			name = L.CFG_DDMENU_HINT_TIMEWALKING_VENDOR_TEXT,
 			tooltip = L.CFG_DDMENU_HINT_TIMEWALKING_VENDOR_TOOLTIP,
-			tag = Settings.Default.True,
+			-- tag = Settings.Default.True,
 		},
 	};
 
@@ -761,7 +760,6 @@ ExpansionTooltipSettings[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
 		name = L["showDraenorTreasures"],
 		tooltip = L.CFG_WOD_SHOW_DRAENOR_TREASURES_TOOLTIP,
 		parentVariable = "showWoDWorldMapEvents",
-		tag = Settings.Default.True,
 	},
 };
 
@@ -903,7 +901,6 @@ ExpansionTooltipSettings[ExpansionInfo.data.DRAGONFLIGHT.ID] = {
 		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
 		tooltip = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TOOLTIP,
 		parentVariable = "showMajorFactionRenownLevel",
-		tag = Settings.Default.True,
 	},
 	{
 		variable = "showDragonGlyphs",
@@ -1280,6 +1277,7 @@ function MRBP_Settings_Register()
 				local setting, initializer = DropDown_Create(appearanceCategory, menuTextFontVarName, menuTextFontValueList[i],  menuTextFontLabel:format(i), L.CFG_APPEARANCE_FONT_SELECTION_TOOLTIP);
 				tinsert(LocalFontUtil.fontSettings, setting);
 			end
+			--> TODO - Apply font's built-in color as well?
 		end
 
 		-- Font size															--> TODO - L10n

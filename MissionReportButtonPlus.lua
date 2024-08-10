@@ -1455,15 +1455,13 @@ end
 
 -- REF.: <https://warcraft.wiki.gg/wiki/UIOBJECT_Font>
 local function GetCustomFont()
-	-- local fontObject = CreateFont(ns.settings.menuTextFont)
-	-- fontObject:CopyFontObject(_G["GameTooltipText"])
+	local fontObject = CreateFont("Custom"..ns.settings.menuTextFont);
+	fontObject:CopyFontObject(_G[ns.settings.menuTextFont]);
 
-	-- local newFontFile = Media:Fetch(Media.MediaType.FONT, ns.settings.menuTextFont)
-	-- local fontFile, fontHeight, fontFlags = fontObject:GetFont()				--> TODO - add to style options
-	-- fontObject:SetFont(newFontFile, fontHeight, fontFlags)
+	local fontFile, fontHeight, fontFlags = fontObject:GetFont();
+	fontObject:SetFont(fontFile, ns.settings.menuTextFontSize, fontFlags);
 
-	local fontObject = _G[ns.settings.menuTextFont]
-	return fontObject
+	return fontObject;
 end
 
 -- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
