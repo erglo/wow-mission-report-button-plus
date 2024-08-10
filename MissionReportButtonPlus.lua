@@ -1455,7 +1455,8 @@ end
 
 -- REF.: <https://warcraft.wiki.gg/wiki/UIOBJECT_Font>
 local function GetCustomFont()
-	local fontObject = CreateFont("Custom"..ns.settings.menuTextFont);
+	local newFontName = "Custom"..ns.settings.menuTextFont;
+	local fontObject = _G[newFontName] or CreateFont(newFontName);
 	fontObject:CopyFontObject(_G[ns.settings.menuTextFont]);
 
 	local fontFile, fontHeight, fontFlags = fontObject:GetFont();

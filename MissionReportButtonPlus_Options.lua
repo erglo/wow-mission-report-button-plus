@@ -252,8 +252,9 @@ LocalFontUtil.TEXT_ALIGN_VALUES = {
 };
 
 function LocalFontUtil:GetCurrentFontSize()
-	local fontInfo = GetFontInfo(ns.settings.menuTextFont);
-	return fontInfo and fontInfo.height or ns.defaultSettings.menuTextFontSize;
+	local fontObject = _G["Custom"..ns.settings.menuTextFont] or _G[ns.settings.menuTextFont] or _G[ns.defaultSettings.menuTextFont];
+	local fontFile, fontHeight, fontFlags = fontObject:GetFont();
+	return fontHeight;
 end
 
 local FontSizeValueFormatter = function(value)
@@ -528,15 +529,17 @@ local function DropDown_Create(category, variableName, valueList, defaultText, t
 	-- Track and display user changes
 	setting:SetValue(currentValue);
 	local function OnValueChanged(owner, settingInfo, value)
-		-- Update font size slider
-		local fontSizeSetting = Settings.GetSetting("menuTextFontSize");
-		if (variableName == "menuTextFont" and fontSizeSetting) then
-			fontSizeSetting:SetValue(LocalFontUtil:GetCurrentFontSize());
-		end
-		-- Update all but current font dropdowns
-		for i, otherSetting in ipairs(LocalFontUtil.fontSettings) do
-			if (setting ~= otherSetting) then
-				otherSetting:SetValue(value);
+		if (variableName == "menuTextFont") then
+			-- Update font size slider
+			local fontSizeSetting = Settings.GetSetting("menuTextFontSize");
+			if fontSizeSetting then
+				fontSizeSetting:SetValue(LocalFontUtil:GetCurrentFontSize());
+			end
+			-- Update all but current font dropdowns
+			for i, otherSetting in ipairs(LocalFontUtil.fontSettings) do
+				if (setting ~= otherSetting) then
+					otherSetting:SetValue(value);
+				end
 			end
 		end
 		SaveSingleSetting(settingInfo.variable, value);
