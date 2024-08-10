@@ -242,26 +242,16 @@ end
 
 ----- Text -----
 
-local TEXT_ALIGN_VALUES = {
+local LocalFontUtil = {};
+LocalFontUtil.fontSettings = {};
+
+LocalFontUtil.TEXT_ALIGN_VALUES = {
 	{"LEFT", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT, nil},
 	{"CENTER", L.CFG_APPEARANCE_TEXT_ALIGNMENT_CENTERED_TEXT, nil},
 	{"RIGHT", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT, nil},
 };
 
--- REF.: <https://warcraft.wiki.gg/wiki/UIOBJECT_Font>
-local function GetCustomFont()
-	-- local fontObject = CreateFont(ns.settings.menuTextFont)
-	-- fontObject:CopyFontObject(_G["GameTooltipText"])
-	local fontObject = _G[ns.settings.menuTextFont]
-
-	-- local newFontFile = Media:Fetch(Media.MediaType.FONT, ns.settings.menuTextFont)
-	-- local fontFile, fontHeight, fontFlags = fontObject:GetFont()				--> TODO - add to style options
-	fontObject:SetFont(newFontFile, fontHeight, fontFlags)
-
-	return fontObject
-end
-
-local function GetCurrentFontSize()
+function LocalFontUtil:GetCurrentFontSize()
 	local fontInfo = GetFontInfo(ns.settings.menuTextFont);
 	return fontInfo and fontInfo.height or ns.defaultSettings.menuTextFontSize;
 end
@@ -442,10 +432,10 @@ local function AppendDefaultValueText(varName)
     local valueString = tostring(ns.defaultSettings[varName]);
 	-- Exceptions
 	if (varName == "menuTextFontSize") then
-		valueString = FontSizeValueFormatter(GetCurrentFontSize());
+		valueString = FontSizeValueFormatter(LocalFontUtil:GetCurrentFontSize());
 	end
 	if (varName == "menuTextAlignment") then
-		local defaultValueString = TEXT_ALIGN_VALUES[1][2];
+		local defaultValueString = LocalFontUtil.TEXT_ALIGN_VALUES[1][2];
 		valueString = defaultValueString;
 	end
     return textTemplate:format(valueString);
@@ -473,7 +463,7 @@ local function Slider_Create(category, variableName, minValue, maxValue, step, l
 	if (ns.settings[variableName] ~= ns.defaultSettings[variableName]) then
 		setting:SetValue(ns.settings[variableName]);
 	elseif (variableName == "menuTextFontSize" and ns.settings.menuTextFont ~= ns.defaultSettings.menuTextFont) then
-		setting:SetValue(GetCurrentFontSize());
+		setting:SetValue(LocalFontUtil:GetCurrentFontSize());
 	end
 	local function OnValueChanged(owner, setting, value)
 		SaveSingleSetting(setting.variable, value);
@@ -538,6 +528,17 @@ local function DropDown_Create(category, variableName, valueList, defaultText, t
 	-- Track and display user changes
 	setting:SetValue(currentValue);
 	local function OnValueChanged(owner, settingInfo, value)
+		-- Update font size slider
+		local fontSizeSetting = Settings.GetSetting("menuTextFontSize");
+		if (variableName == "menuTextFont" and fontSizeSetting) then
+			fontSizeSetting:SetValue(LocalFontUtil:GetCurrentFontSize());
+		end
+		-- Update all but current font dropdowns
+		for i, otherSetting in ipairs(LocalFontUtil.fontSettings) do
+			if (setting ~= otherSetting) then
+				otherSetting:SetValue(value);
+			end
+		end
 		SaveSingleSetting(settingInfo.variable, value);
 	end
 	Settings.SetOnValueChangedCallback(variableName, OnValueChanged);
@@ -1199,7 +1200,7 @@ function MRBP_Settings_Register()
 		appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format(LOCALE_TEXT_LABEL)));
 
 		-- Alignment
-		DropDown_Create(appearanceCategory, "menuTextAlignment", TEXT_ALIGN_VALUES, HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION, L.CFG_APPEARANCE_TEXT_ALIGNMENT_TOOLTIP);
+		DropDown_Create(appearanceCategory, "menuTextAlignment", LocalFontUtil.TEXT_ALIGN_VALUES, HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION, L.CFG_APPEARANCE_TEXT_ALIGNMENT_TOOLTIP);
 
 		-- Padding (Left)
 		local padLeftMinValue, padLeftMaxValue, padLeftStep = 0, 64, 1;
@@ -1276,13 +1277,13 @@ function MRBP_Settings_Register()
 
 			local menuTextFontLabel = L.CFG_APPEARANCE_FONT_SELECTION_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(L.SELECTION_PART_NUM_D);
 			for i = 1, #menuTextFontValueList do
-				DropDown_Create(appearanceCategory, menuTextFontVarName, menuTextFontValueList[i],  menuTextFontLabel:format(i), L.CFG_APPEARANCE_FONT_SELECTION_TOOLTIP);
+				local setting, initializer = DropDown_Create(appearanceCategory, menuTextFontVarName, menuTextFontValueList[i],  menuTextFontLabel:format(i), L.CFG_APPEARANCE_FONT_SELECTION_TOOLTIP);
+				tinsert(LocalFontUtil.fontSettings, setting);
 			end
 		end
 
 		-- Font size															--> TODO - L10n
 		local minFontSize, maxFontSize, fontSizeStep = 6, 64, 1;
-		-- print("font size:", ns.settings.menuTextFont, "-->", GetCurrentFontSize());
 		Slider_Create(appearanceCategory, "menuTextFontSize", minFontSize, maxFontSize, fontSizeStep, FONT_SIZE, "Choose a font size.", FontSizeValueFormatter);
 	end
 
