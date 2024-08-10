@@ -240,6 +240,14 @@ local function GetOwnedExpansionInfoList()
 	return infoList;
 end
 
+----- Text -----
+
+local TEXT_ALIGN_VALUES = {
+	{"LEFT", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT, nil},
+	{"CENTER", L.CFG_APPEARANCE_TEXT_ALIGNMENT_CENTERED_TEXT, nil},
+	{"RIGHT", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT, nil},
+};
+
 -- REF.: <https://warcraft.wiki.gg/wiki/UIOBJECT_Font>
 local function GetCustomFont()
 	-- local fontObject = CreateFont(ns.settings.menuTextFont)
@@ -432,6 +440,14 @@ end
 local function AppendDefaultValueText(varName)
     local textTemplate = LIGHT_GRAY(NEW_PARAGRAPH..DEFAULT..HEADER_COLON)..TEXT_DELIMITER.."%s";
     local valueString = tostring(ns.defaultSettings[varName]);
+	-- Exceptions
+	if (varName == "menuTextFontSize") then
+		valueString = FontSizeValueFormatter(GetCurrentFontSize());
+	end
+	if (varName == "menuTextAlignment") then
+		local defaultValueString = TEXT_ALIGN_VALUES[1][2];
+		valueString = defaultValueString;
+	end
     return textTemplate:format(valueString);
 end
 
@@ -1183,13 +1199,7 @@ function MRBP_Settings_Register()
 		appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format(LOCALE_TEXT_LABEL)));
 
 		-- Alignment
-		local alignLabel = HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION;
-		local alignValues = {
-			{"LEFT", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT, nil},
-			{"CENTER", L.CFG_APPEARANCE_TEXT_ALIGNMENT_CENTERED_TEXT, nil},
-			{"RIGHT", HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT, nil},
-		};
-		DropDown_Create(appearanceCategory, "menuTextAlignment", alignValues, alignLabel, L.CFG_APPEARANCE_TEXT_ALIGNMENT_TOOLTIP);
+		DropDown_Create(appearanceCategory, "menuTextAlignment", TEXT_ALIGN_VALUES, HUD_EDIT_MODE_SETTING_MICRO_MENU_ORIENTATION, L.CFG_APPEARANCE_TEXT_ALIGNMENT_TOOLTIP);
 
 		-- Padding (Left)
 		local padLeftMinValue, padLeftMaxValue, padLeftStep = 0, 64, 1;
