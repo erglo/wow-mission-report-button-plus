@@ -1120,22 +1120,41 @@ function MRBP_Settings_Register()
 	local appearanceCategory, appearanceLayout = Settings.RegisterVerticalLayoutSubcategory(mainCategory, APPEARANCE_LABEL);
 	appearanceCategory.ID = AddonID.."AppearanceSettings";
 
-	----- MenuTooltip appearance -----
-
 	local menuNameTemplate = GRAY(L.CFG_DDMENU_SEPARATOR_HEADING..HEADER_COLON)..TEXT_DELIMITER.."%s";
-	appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format(L.CFG_APPEARANCE_DIMENSIONS_LABEL)));
 
-	-- MenuTooltip: Frame Width
+	------- MenuTooltip: Anchor -----
 	do
-		local minValue, maxValue, step = 64, floor(GetScreenWidth()/3), 1;
-		local label = HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH;
-		Slider_Create(appearanceCategory, "menuMinWidth", minValue, maxValue, step, label, L.CFG_APPEARANCE_DIMENSIONS_FRAME_WIDTH_TOOLTIP);
-	end
+		appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format(L.CFG_APPEARANCE_ANCHOR_LABEL)));
+		-- REF.: frame:SetPoint(point [, relativeTo [, relativePoint]] [, offsetX, offsetY])
 
-	-- MenuTooltip: Line Height
-	do
-		local minValue, maxValue, step = 0, 64, 1;
-		Slider_Create(appearanceCategory, "menuLineHeight", minValue, maxValue, step, L.CFG_APPEARANCE_DIMENSIONS_LINE_HEIGHT_TEXT, L.CFG_APPEARANCE_DIMENSIONS_LINE_HEIGHT_TOOLTIP);
+		-- Point
+		local pointValues = {
+			{"TOPLEFT", "TOPLEFT", nil},
+			{"TOPRIGHT", "TOPRIGHT", nil},
+			{"BOTTOMLEFT", "BOTTOMLEFT", nil},
+			{"BOTTOMRIGHT", "BOTTOMRIGHT", nil},
+			{"TOP", "TOP", nil},
+			{"BOTTOM", "BOTTOM", nil},
+			{"LEFT", "LEFT", nil},
+			{"RIGHT", "RIGHT", nil},
+			{"CENTER", "CENTER", nil},
+		};
+		local pointLabel = L.CFG_APPEARANCE_ANCHOR_LABEL..HEADER_COLON..TEXT_DELIMITER..L.CFG_DDMENU_SEPARATOR_HEADING;
+		DropDown_Create(appearanceCategory, "menuAnchorPoint", pointValues, pointLabel, L.CFG_APPEARANCE_ANCHOR_POINT_MENU_TOOLTIP);
+
+		-- relativePoint
+		local parentPointLabel = L.CFG_APPEARANCE_ANCHOR_LABEL..HEADER_COLON..TEXT_DELIMITER..L.CFG_APPEARANCE_ANCHOR_POINT_BUTTON_TEXT;
+		DropDown_Create(appearanceCategory, "menuAnchorPointParent", pointValues, parentPointLabel, L.CFG_APPEARANCE_ANCHOR_POINT_BUTTON_TOOLTIP);
+
+		-- offsetX
+		local minOffsetXValue, maxOffsetXValue, offsetXStep = -64, 64, 1;
+		local offsetXLabel = L.CFG_APPEARANCE_ANCHOR_DISTANCE_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ORIENTATION_HORIZONTAL);
+		Slider_Create(appearanceCategory, "menuAnchorOffsetX", minOffsetXValue, maxOffsetXValue, offsetXStep, offsetXLabel, L.CFG_APPEARANCE_ANCHOR_DISTANCE_TOOLTIP);
+
+		-- offsetY
+		local minOffsetYValue, maxOffsetYValue, offsetYStep = -64, 64, 1;
+		local offsetYLabel = L.CFG_APPEARANCE_ANCHOR_DISTANCE_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ORIENTATION_VERTICAL);
+		Slider_Create(appearanceCategory, "menuAnchorOffsetY", minOffsetYValue, maxOffsetYValue, offsetYStep, offsetYLabel, L.CFG_APPEARANCE_ANCHOR_DISTANCE_TOOLTIP);
 	end
 
 	----- MenuTooltip: Text -----
@@ -1198,69 +1217,51 @@ function MRBP_Settings_Register()
 
 		-- Font selection dropdown
 		-- REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_APIDocumentationGenerated/FontDocumentation.lua>
-		local menuTextFontVarName = "menuTextFont";
+		do
+			local menuTextFontVarName = "menuTextFont";
 
-		local menuTextFontValues = {};
-		local menuTextFontValues2 = {};
-		local menuTextFontValues3 = {};
-		local menuTextFontValues4 = {};
-		local menuTextFontValueList = {menuTextFontValues, menuTextFontValues2, menuTextFontValues3, menuTextFontValues4};
-		local fontNames = GetFonts();
-		sort(fontNames)
-		for i, name in ipairs(fontNames) do										--> TODO - Find a more elegant solution. Maybe an external font library?
-			local line = {name, name, nil};
-			if (i <= 100) then
-				tinsert(menuTextFontValues, line);
+			local menuTextFontValues = {};
+			local menuTextFontValues2 = {};
+			local menuTextFontValues3 = {};
+			local menuTextFontValues4 = {};
+			local menuTextFontValueList = {menuTextFontValues, menuTextFontValues2, menuTextFontValues3, menuTextFontValues4};
+			local fontNames = GetFonts();
+			sort(fontNames)
+			for i, name in ipairs(fontNames) do										--> TODO - Find a more elegant solution. Maybe an external font library?
+				local line = {name, name, nil};
+				if (i <= 100) then
+					tinsert(menuTextFontValues, line);
+				end
+				if (i > 100 and i <= 200) then
+					tinsert(menuTextFontValues2, line);
+				end
+				if (i > 200 and i <= 300) then
+					tinsert(menuTextFontValues3, line);
+				end
+				if (i > 300 and i <= 382) then
+					tinsert(menuTextFontValues4, line);
+				end
 			end
-			if (i > 100 and i <= 200) then
-				tinsert(menuTextFontValues2, line);
+
+			local menuTextFontLabel = L.CFG_APPEARANCE_FONT_SELECTION_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(L.SELECTION_PART_NUM_D);
+			for i = 1, #menuTextFontValueList do
+				DropDown_Create(appearanceCategory, menuTextFontVarName, menuTextFontValueList[i],  menuTextFontLabel:format(i), L.CFG_APPEARANCE_FONT_SELECTION_TOOLTIP);
 			end
-			if (i > 200 and i <= 300) then
-				tinsert(menuTextFontValues3, line);
-			end
-			if (i > 300 and i <= 382) then
-				tinsert(menuTextFontValues4, line);
-			end
-		end
-		local menuTextFontLabel = L.CFG_APPEARANCE_FONT_SELECTION_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(L.SELECTION_PART_NUM_D);
-		for i = 1, #menuTextFontValueList do
-			DropDown_Create(appearanceCategory, menuTextFontVarName, menuTextFontValueList[i],  menuTextFontLabel:format(i), L.CFG_APPEARANCE_FONT_SELECTION_TOOLTIP);
 		end
 	end
 
-	------- MenuTooltip: Anchor -----
+	----- MenuTooltip: Dimensions -----
 	do
-		appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format(L.CFG_APPEARANCE_ANCHOR_LABEL)));
-		-- REF.: frame:SetPoint(point [, relativeTo [, relativePoint]] [, offsetX, offsetY])
+		appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format(L.CFG_APPEARANCE_DIMENSIONS_LABEL)));
 
-		-- Point
-		local pointValues = {
-			{"TOPLEFT", "TOPLEFT", nil},
-			{"TOPRIGHT", "TOPRIGHT", nil},
-			{"BOTTOMLEFT", "BOTTOMLEFT", nil},
-			{"BOTTOMRIGHT", "BOTTOMRIGHT", nil},
-			{"TOP", "TOP", nil},
-			{"BOTTOM", "BOTTOM", nil},
-			{"LEFT", "LEFT", nil},
-			{"RIGHT", "RIGHT", nil},
-			{"CENTER", "CENTER", nil},
-		};
-		local pointLabel = L.CFG_APPEARANCE_ANCHOR_LABEL..HEADER_COLON..TEXT_DELIMITER..L.CFG_DDMENU_SEPARATOR_HEADING;
-		DropDown_Create(appearanceCategory, "menuAnchorPoint", pointValues, pointLabel, L.CFG_APPEARANCE_ANCHOR_POINT_MENU_TOOLTIP);
+		-- MenuTooltip: Frame Width
+		local minValue, maxValue, step = 64, floor(GetScreenWidth()/3), 1;
+		local label = HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH;
+		Slider_Create(appearanceCategory, "menuMinWidth", minValue, maxValue, step, label, L.CFG_APPEARANCE_DIMENSIONS_FRAME_WIDTH_TOOLTIP);
 
-		-- relativePoint
-		local parentPointLabel = L.CFG_APPEARANCE_ANCHOR_LABEL..HEADER_COLON..TEXT_DELIMITER..L.CFG_APPEARANCE_ANCHOR_POINT_BUTTON_TEXT;
-		DropDown_Create(appearanceCategory, "menuAnchorPointParent", pointValues, parentPointLabel, L.CFG_APPEARANCE_ANCHOR_POINT_BUTTON_TOOLTIP);
-
-		-- offsetX
-		local minOffsetXValue, maxOffsetXValue, offsetXStep = -64, 64, 1;
-		local offsetXLabel = L.CFG_APPEARANCE_ANCHOR_DISTANCE_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ORIENTATION_HORIZONTAL);
-		Slider_Create(appearanceCategory, "menuAnchorOffsetX", minOffsetXValue, maxOffsetXValue, offsetXStep, offsetXLabel, L.CFG_APPEARANCE_ANCHOR_DISTANCE_TOOLTIP);
-
-		-- offsetY
-		local minOffsetYValue, maxOffsetYValue, offsetYStep = -64, 64, 1;
-		local offsetYLabel = L.CFG_APPEARANCE_ANCHOR_DISTANCE_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ORIENTATION_VERTICAL);
-		Slider_Create(appearanceCategory, "menuAnchorOffsetY", minOffsetYValue, maxOffsetYValue, offsetYStep, offsetYLabel, L.CFG_APPEARANCE_ANCHOR_DISTANCE_TOOLTIP);
+		-- MenuTooltip: Line Height
+		local minValue, maxValue, step = 0, 64, 1;
+		Slider_Create(appearanceCategory, "menuLineHeight", minValue, maxValue, step, L.CFG_APPEARANCE_DIMENSIONS_LINE_HEIGHT_TEXT, L.CFG_APPEARANCE_DIMENSIONS_LINE_HEIGHT_TOOLTIP);
 	end
 
 	----------------------------------------------------------------------------
