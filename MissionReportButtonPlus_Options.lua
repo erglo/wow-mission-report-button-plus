@@ -50,6 +50,8 @@ local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
 -- local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
 local DEFAULT = DEFAULT;
 local REFORGE_CURRENT = REFORGE_CURRENT;
+local FONT_SIZE = FONT_SIZE;
+local FONT_SIZE_TEMPLATE = FONT_SIZE_TEMPLATE;
 
 local GRAY = function(txt) return GRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
 local LIGHT_GRAY = function(txt) return LIGHTGRAY_FONT_COLOR:WrapTextInColorCode(txt) end;
@@ -133,6 +135,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["menuTextPaddingRight"] = 0,
 	["menuTextColor"] = HIGHLIGHT_FONT_COLOR:GenerateHexColor(),
 	["menuTextFont"] = "GameTooltipText",
+	["menuTextFontSize"] = 12,
 	["menuLineHeight"] = 3,
 	["menuAnchorPoint"] = "TOPRIGHT",
 	["menuAnchorPointParent"] = "BOTTOM",
@@ -221,6 +224,8 @@ local function printOption(text, isEnabled)
 	ns.cprint(text, "-", NORMAL_FONT_COLOR:WrapTextInColorCode(msg));
 end
 
+----- Control utilities --------------------------------------------------------
+
 -- Return a list of expansions which the user owns.
 local function GetOwnedExpansionInfoList()
 	local infoList = {};
@@ -235,7 +240,27 @@ local function GetOwnedExpansionInfoList()
 	return infoList;
 end
 
------ Control utilities --------------------------------------------------------
+-- REF.: <https://warcraft.wiki.gg/wiki/UIOBJECT_Font>
+local function GetCustomFont()
+	-- local fontObject = CreateFont(ns.settings.menuTextFont)
+	-- fontObject:CopyFontObject(_G["GameTooltipText"])
+	local fontObject = _G[ns.settings.menuTextFont]
+
+	-- local newFontFile = Media:Fetch(Media.MediaType.FONT, ns.settings.menuTextFont)
+	-- local fontFile, fontHeight, fontFlags = fontObject:GetFont()				--> TODO - add to style options
+	fontObject:SetFont(newFontFile, fontHeight, fontFlags)
+
+	return fontObject
+end
+
+local function GetCurrentFontSize()
+	local fontInfo = GetFontInfo(ns.settings.menuTextFont);
+	return fontInfo and fontInfo.height or ns.defaultSettings.menuTextFontSize;
+end
+
+local FontSizeValueFormatter = function(value)
+	return FONT_SIZE_TEMPLATE:format(value);
+end
 
 ---Handle the value of given setting control.
 ---@param owner table  The owner of given control (ignorable)
@@ -420,7 +445,7 @@ local function AppendColorPreviewText(varName, isDefault)
 end
 
 local function Slider_Create(category, variableName, minValue, maxValue, step, label, tooltip, formatter)
-	local setting = Settings.RegisterAddOnSetting(category, label, variableName, Settings.VarType.Number, ns.defaultSettings[variableName]);
+	local setting = Settings.RegisterAddOnSetting(category, label, variableName, Settings.VarType.Number, ns.defaultSettings[variableName] or 0);
 
 	local options = Settings.CreateSliderOptions(minValue, maxValue, step);
 	options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, formatter);
@@ -431,6 +456,8 @@ local function Slider_Create(category, variableName, minValue, maxValue, step, l
 	-- Track and display user changes
 	if (ns.settings[variableName] ~= ns.defaultSettings[variableName]) then
 		setting:SetValue(ns.settings[variableName]);
+	elseif (variableName == "menuTextFontSize" and ns.settings.menuTextFont ~= ns.defaultSettings.menuTextFont) then
+		setting:SetValue(GetCurrentFontSize());
 	end
 	local function OnValueChanged(owner, setting, value)
 		SaveSingleSetting(setting.variable, value);
@@ -445,12 +472,6 @@ local previewFontString = QuestTextPreviewFrame.BodyText;
 local originalFontObject = previewFontString:GetFontObject();
 local originalText = previewFontString:GetText();
 local exampleText = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, [...]";  -- sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.";
-
--- local function trimTextLength(text, length)
--- 	if (strlen(text) <= length) then return text; end
-
--- 	return strsub(text, 1, length);
--- end
 
 -- Show preview of hovered font entry (option)
 local function OnEntryEnter_SetFontPreview(optionData)
@@ -1248,6 +1269,11 @@ function MRBP_Settings_Register()
 				DropDown_Create(appearanceCategory, menuTextFontVarName, menuTextFontValueList[i],  menuTextFontLabel:format(i), L.CFG_APPEARANCE_FONT_SELECTION_TOOLTIP);
 			end
 		end
+
+		-- Font size															--> TODO - L10n
+		local minFontSize, maxFontSize, fontSizeStep = 6, 64, 1;
+		-- print("font size:", ns.settings.menuTextFont, "-->", GetCurrentFontSize());
+		Slider_Create(appearanceCategory, "menuTextFontSize", minFontSize, maxFontSize, fontSizeStep, FONT_SIZE, "Choose a font size.", FontSizeValueFormatter);
 	end
 
 	----- MenuTooltip: Dimensions -----
@@ -1255,13 +1281,12 @@ function MRBP_Settings_Register()
 		appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format(L.CFG_APPEARANCE_DIMENSIONS_LABEL)));
 
 		-- MenuTooltip: Frame Width
-		local minValue, maxValue, step = 64, floor(GetScreenWidth()/3), 1;
-		local label = HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH;
-		Slider_Create(appearanceCategory, "menuMinWidth", minValue, maxValue, step, label, L.CFG_APPEARANCE_DIMENSIONS_FRAME_WIDTH_TOOLTIP);
+		local minWidth, maxWidth, widthStep = 64, floor(GetScreenWidth()/3), 1;
+		Slider_Create(appearanceCategory, "menuMinWidth", minWidth, maxWidth, widthStep, HUD_EDIT_MODE_SETTING_UNIT_FRAME_WIDTH, L.CFG_APPEARANCE_DIMENSIONS_FRAME_WIDTH_TOOLTIP);
 
 		-- MenuTooltip: Line Height
-		local minValue, maxValue, step = 0, 64, 1;
-		Slider_Create(appearanceCategory, "menuLineHeight", minValue, maxValue, step, L.CFG_APPEARANCE_DIMENSIONS_LINE_HEIGHT_TEXT, L.CFG_APPEARANCE_DIMENSIONS_LINE_HEIGHT_TOOLTIP);
+		local minHeight, maxHeight, heightStep = 0, 64, 1;
+		Slider_Create(appearanceCategory, "menuLineHeight", minHeight, maxHeight, heightStep, L.CFG_APPEARANCE_DIMENSIONS_LINE_HEIGHT_TEXT, L.CFG_APPEARANCE_DIMENSIONS_LINE_HEIGHT_TOOLTIP);
 	end
 
 	----------------------------------------------------------------------------
