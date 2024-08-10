@@ -1215,12 +1215,13 @@ function MRBP_Settings_Register()
 		-- Text Color
 		do
 			local menuTextColorVarName = "menuTextColor";
+			local menuTextColorSetting = Settings.RegisterAddOnSetting(appearanceCategory, L.CFG_APPEARANCE_TEXT_COLOR_TEXT, menuTextColorVarName, Settings.VarType.String, ns.defaultSettings[menuTextColorVarName]);
 
 			ColorPickerFrame.Footer.OkayButton:HookScript("OnClick", function()
 				local r, g, b = ColorPickerFrame:GetColorRGB();
 				local UserColor = CreateColor(r, g, b, ColorPickerFrame.previousValues.a or 1);
 				local hexColorString = UserColor:GenerateHexColor();
-				SaveSingleSetting(menuTextColorVarName, hexColorString);
+				menuTextColorSetting:SetValue(hexColorString);
 			end);
 
 			local menuTextColorButton_OnClick = function()
@@ -1237,15 +1238,21 @@ function MRBP_Settings_Register()
 				end
 				ColorPickerFrame.cancelFunc = function(previousValues)
 					local PreviousColor = CreateColor( ColorPickerFrame:GetPreviousValues() );
-					SaveSingleSetting(menuTextColorVarName, PreviousColor:GenerateHexColor());
+					local previousHexColorString = PreviousColor:GenerateHexColor();
+					menuTextColorSetting:SetValue(previousHexColorString);
 				end
 				ColorPickerFrame.Content.ColorPicker:SetColorRGB(r, g, b);
 				ColorPickerFrame:Show();
 			end
+
+			local function OnValueChanged(owner, setting, value)
+				SaveSingleSetting(setting.variable, value);
+			end
+			Settings.SetOnValueChangedCallback(menuTextColorVarName, OnValueChanged);
+
 			local menuTextColorTooltip = L.CFG_APPEARANCE_TEXT_COLOR_TOOLTIP..NEWLINE..AppendColorPreviewText(menuTextColorVarName, Settings.Default.True)..AppendColorPreviewText(menuTextColorVarName);
 			local menuTextColorButtonInitializer = CreateSettingsButtonInitializer(L.CFG_APPEARANCE_TEXT_COLOR_TEXT, L.CFG_APPEARANCE_COLOR_BUTTON_TEXT, menuTextColorButton_OnClick, menuTextColorTooltip, addSearchTags);
 			appearanceLayout:AddInitializer(menuTextColorButtonInitializer);
-			-- local setting = Settings.RegisterAddOnSetting(category, defaultText, variableName, varType, defaultValue);
 		end
 
 		-- Font selection dropdown
