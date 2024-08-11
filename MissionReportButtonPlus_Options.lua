@@ -221,6 +221,9 @@ end
 ---
 local function printOption(text, isEnabled)
 	local msg = isEnabled and VIDEO_OPTIONS_ENABLED or VIDEO_OPTIONS_DISABLED;
+	if (type(isEnabled) ~= "boolean") then
+		msg = tostring(isEnabled);  --> print value instead
+	end
 	ns.cprint(text, "-", NORMAL_FONT_COLOR:WrapTextInColorCode(msg));
 end
 
@@ -254,7 +257,7 @@ LocalFontUtil.TEXT_ALIGN_VALUES = {
 function LocalFontUtil:GetCurrentFontSize()
 	local fontObject = _G["Custom"..ns.settings.menuTextFont] or _G[ns.settings.menuTextFont] or _G[ns.defaultSettings.menuTextFont];
 	local fontFile, fontHeight, fontFlags = fontObject:GetFont();
-	return fontHeight;
+	return floor(fontHeight);
 end
 
 local FontSizeValueFormatter = function(value)
@@ -467,6 +470,7 @@ local function Slider_Create(category, variableName, minValue, maxValue, step, l
 		setting:SetValue(LocalFontUtil:GetCurrentFontSize());
 	end
 	local function OnValueChanged(owner, setting, value)
+		printOption(setting.name, value);
 		SaveSingleSetting(setting.variable, value);
 	end
 	Settings.SetOnValueChangedCallback(variableName, OnValueChanged);
@@ -517,11 +521,6 @@ local function DropDown_Create(category, variableName, valueList, defaultText, t
 		return data;
 	end
 
-	-- if (variableName == "menuTextFont") then
-	-- 	print("-->", SettingsSelectionPopoutDetailsMixin.AdjustWidth)
-	-- 	SettingsSelectionPopoutDetailsMixin:AdjustWidth(false, 200);
-	-- end
-
 	local defaultValueTooltip = tooltip..AppendDefaultValueText(variableName);
 	-- REF.: Settings.CreateDropdown(category, setting, options, tooltip) --> initializer
 	local initializer = Settings.CreateDropdown(category, setting, GetOptions, defaultValueTooltip);
@@ -529,20 +528,32 @@ local function DropDown_Create(category, variableName, valueList, defaultText, t
 	-- Track and display user changes
 	setting:SetValue(currentValue);
 	local function OnValueChanged(owner, settingInfo, value)
-		if (variableName == "menuTextFont") then
+		if (settingInfo.variable == "menuTextFont" and value ~= ns.settings.menuTextFont and not LocalFontUtil.changerSetting) then
 			-- Update font size slider
 			local fontSizeSetting = Settings.GetSetting("menuTextFontSize");
 			if fontSizeSetting then
 				fontSizeSetting:SetValue(LocalFontUtil:GetCurrentFontSize());
 			end
+			printOption(settingInfo.name, value);
+			SaveSingleSetting(settingInfo.variable, value);
+			LocalFontUtil.changerSetting = settingInfo;
+			return;
+		end
+		if (settingInfo.variable == "menuTextFont" and LocalFontUtil.changerSetting ~= nil) then
 			-- Update all but current font dropdowns
 			for i, otherSetting in ipairs(LocalFontUtil.fontSettings) do
-				if (setting ~= otherSetting) then
+				if (otherSetting ~= LocalFontUtil.changerSetting) then
+					LocalFontUtil.changerSetting = nil;
 					otherSetting:SetValue(value);
 				end
 			end
+			return;
+
 		end
-		SaveSingleSetting(settingInfo.variable, value);
+		if (settingInfo.variable ~= "menuTextFont") then
+			printOption(settingInfo.name, value);
+			SaveSingleSetting(settingInfo.variable, value);
+		end
 	end
 	Settings.SetOnValueChangedCallback(variableName, OnValueChanged);
 
@@ -1246,6 +1257,8 @@ function MRBP_Settings_Register()
 			end
 
 			local function OnValueChanged(owner, setting, value)
+				local TextColor = CreateColorFromHexString(value);
+				printOption(setting.name, TextColor:WrapTextInColorCode(value));
 				SaveSingleSetting(setting.variable, value);
 			end
 			Settings.SetOnValueChangedCallback(menuTextColorVarName, OnValueChanged);
