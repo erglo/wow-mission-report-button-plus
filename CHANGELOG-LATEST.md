@@ -1,8 +1,6 @@
 ## Latest Changes
 
-⚠️**Note:** _This is an pre-release version and still in development._
-
-## [Unreleased]
+## [1.1.0] - 2024-08-11
 
 ### Added
 
