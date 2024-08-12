@@ -1345,13 +1345,13 @@ local function MenuLine_OnEnter(...)
 			end
 			-- Elemental Storms
 			if ns.settings.showElementalStormsInfo then
-				local stormsAreaPoiInfos = util.poi.GetElementalStormsInfo()
+				local stormsAreaPoiInfos = ns.poi9.GetElementalStormsInfo();
 				if util.TableHasAnyEntries(stormsAreaPoiInfos) then
-					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showElementalStormsInfo"])
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showElementalStormsInfo"]);
 					for _, stormPoi in ipairs(stormsAreaPoiInfos) do
-						LocalTooltipUtil:AddIconLine(ExpansionTooltip, stormPoi.mapInfo.name, stormPoi.atlasName)
-						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, stormPoi.areaName)
-						LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, stormPoi.timeString)
+						LocalTooltipUtil:AddIconLine(ExpansionTooltip, stormPoi.mapInfo.name, stormPoi.atlasName);
+						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, stormPoi.areaName);
+						LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, stormPoi.timeString);
 					end
 				end
 			end
@@ -1888,8 +1888,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 						if util.TableHasAnyEntries(stormsAreaPoiInfos) then
 							for _, stormPoi in ipairs(stormsAreaPoiInfos) do
 								local timeLeft = stormPoi.timeString or "...";
-								local lineText = format("%s @ %s", stormPoi.name, stormPoi.mapInfo.name)..": "..timeLeft
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, stormPoi.atlasName)
+								local lineText = format("%s @ %s", stormPoi.name, stormPoi.mapInfo.name)..": "..timeLeft;
+								util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, stormPoi.atlasName);
 							end
 						end
 					end

@@ -549,6 +549,8 @@ util.map = {};
 local LocalMapUtil = {};
 ns.mapUtil = LocalMapUtil;
 
+LocalMapUtil.DRAGON_ISLES_MAP_ID = 1978;
+
 -- Return informations about given map zone.
 ---@param mapID number  A UiMapID of a location from the world map.
 ---@return UiMapDetails table MapDocumentation.UiMapDetails
@@ -1117,8 +1119,6 @@ end
 -- A collection of utility functions for handling POI events from the world map.
 util.poi = {};  --> used project-wide
 
-local DRAGON_ISLES_MAP_ID = 1978;
-
 -- Utility functions for handling custom AreaPOIInfo data structures.
 local LocalPoiUtil = {};  --> used in this file only (!)
 ns.poiUtil = LocalPoiUtil;
@@ -1286,7 +1286,7 @@ end
 
 local DragonRaceData = {};
 DragonRaceData.atlasName = "racing";
-DragonRaceData.mapID = DRAGON_ISLES_MAP_ID;
+DragonRaceData.mapID = LocalMapUtil.DRAGON_ISLES_MAP_ID;
 DragonRaceData.mapInfos = LocalMapUtil.GetMapChildrenInfo(DragonRaceData.mapID, Enum.UIMapType.Zone);
 DragonRaceData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
 DragonRaceData.includeAreaName = true;
@@ -1314,7 +1314,7 @@ end
 
 local GrandHuntsData = {};
 GrandHuntsData.widgetSetID = 712;
-GrandHuntsData.mapID = DRAGON_ISLES_MAP_ID;
+GrandHuntsData.mapID = LocalMapUtil.DRAGON_ISLES_MAP_ID;
 GrandHuntsData.mapInfo = LocalMapUtil.GetMapInfo(GrandHuntsData.mapID);
 GrandHuntsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
 GrandHuntsData.ignorePrimaryMapForPOI = true;
@@ -1344,38 +1344,11 @@ function util.poi.GetDragonbaneKeepInfo()
 	end
 end
 
------ Elemental Storms event ----- (works in 11.0.0)
-
-local ElementalStormData = {};
-ElementalStormData.atlasNames = {
-	"ElementalStorm-Lesser-Air",
-	"ElementalStorm-Lesser-Earth",
-	"ElementalStorm-Lesser-Fire",
-	"ElementalStorm-Lesser-Water",
-	"ElementalStorm-Boss-Air",
-	"ElementalStorm-Boss-Earth",
-	"ElementalStorm-Boss-Fire",
-	"ElementalStorm-Boss-Water",
-};
-ElementalStormData.mapID = DRAGON_ISLES_MAP_ID;
-ElementalStormData.mapInfos = LocalMapUtil.GetMapChildrenInfo(ElementalStormData.mapID, Enum.UIMapType.Zone);
-ElementalStormData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
-ElementalStormData.SortingFunction = LocalPoiUtil.SortMapIDsAscending;
-ElementalStormData.includeAreaName = true;
-
-function util.poi.GetElementalStormsInfo()
-	local poiInfos = LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(ElementalStormData)
-	if poiInfos and poiInfos[1] then
-		data:SaveLabel("showElementalStormsInfo", poiInfos[1].name)
-	end
-	return poiInfos
-end
-
 ----- Fyrakk Assaults ----- (works in 11.0.0)
 
 local FyrakkAssaultsData = {};
 FyrakkAssaultsData.widgetSetIDs = {779, 780};
-FyrakkAssaultsData.mapID = DRAGON_ISLES_MAP_ID;
+FyrakkAssaultsData.mapID = LocalMapUtil.DRAGON_ISLES_MAP_ID;
 FyrakkAssaultsData.mapInfos = LocalMapUtil.GetMapChildrenInfo(FyrakkAssaultsData.mapID, Enum.UIMapType.Zone);
 FyrakkAssaultsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
 FyrakkAssaultsData.includeAreaName = true;
@@ -1478,7 +1451,7 @@ end
 
 local DreamsurgeData = {}
 DreamsurgeData.atlasName = "dreamsurge_hub-icon"  -- "dreamsurge_fire-portal-icon"   "dreamsurge-world-quest-icon"
-DreamsurgeData.mapID = DRAGON_ISLES_MAP_ID
+DreamsurgeData.mapID = LocalMapUtil.DRAGON_ISLES_MAP_ID
 DreamsurgeData.mapInfos = LocalMapUtil.GetMapChildrenInfo(DreamsurgeData.mapID, Enum.UIMapType.Zone)
 DreamsurgeData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName
 DreamsurgeData.includeAreaName = true
@@ -1594,7 +1567,7 @@ end
 local TheBigDigData = {}
 -- TheBigDigData.areaPoiID = 7657
 TheBigDigData.widgetSetID = 1018
-TheBigDigData.mapID = DRAGON_ISLES_MAP_ID
+TheBigDigData.mapID = LocalMapUtil.DRAGON_ISLES_MAP_ID
 TheBigDigData.mapInfos = LocalMapUtil.GetMapChildrenInfo(TheBigDigData.mapID, Enum.UIMapType.Zone)
 TheBigDigData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID
 TheBigDigData.includeAreaName = true

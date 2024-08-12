@@ -137,3 +137,31 @@ function LocalPoiData.GetCommunityFeastInfo()
 		return poiInfo;
 	end
 end
+
+----- Elemental Storms event ----- (works in 11.0.0)
+
+local ElementalStormData = {};
+ElementalStormData.atlasNames = {
+	"ElementalStorm-Lesser-Air",
+	"ElementalStorm-Lesser-Earth",
+	"ElementalStorm-Lesser-Fire",
+	"ElementalStorm-Lesser-Water",
+	"ElementalStorm-Boss-Air",
+	"ElementalStorm-Boss-Earth",
+	"ElementalStorm-Boss-Fire",
+	"ElementalStorm-Boss-Water",
+};
+ElementalStormData.mapID = LocalMapUtil.DRAGON_ISLES_MAP_ID;
+ElementalStormData.mapInfos = LocalMapUtil.GetMapChildrenInfo(ElementalStormData.mapID, Enum.UIMapType.Zone);
+ElementalStormData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
+ElementalStormData.SortingFunction = LocalPoiUtil.SortMapIDsAscending;
+ElementalStormData.includeAreaName = true;
+
+function LocalPoiData.GetElementalStormsInfo()
+	local poiInfos = LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(ElementalStormData);
+	if poiInfos and poiInfos[1] then
+		LocalL10nUtil:SaveLabel("showElementalStormsInfo", poiInfos[1].name);
+	end
+
+	return poiInfos;
+end
