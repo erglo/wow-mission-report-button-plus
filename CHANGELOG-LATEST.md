@@ -8,6 +8,10 @@
 
 * Updated TOC file version to `WoW 11.0.2`.
 
+### Fixed
+
+* Some map events didn't appear in the tooltip, since the internal type was changed in the pre-expansion patch.
+
 &nbsp;
 
 ## Previous Changes

@@ -1222,7 +1222,7 @@ LocalPoiUtil.SingleArea = {};
 ---@return table|nil areaPoiInfo
 --
 function LocalPoiUtil.SingleArea.GetAreaPoiInfo(eventData)
-	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeAreaName);
+	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData);
 	if (activeAreaPOIs and #activeAreaPOIs > 0) then
 		for _, poiInfo in ipairs(activeAreaPOIs) do
 			if eventData.CompareFunction(eventData, poiInfo) then
@@ -1234,7 +1234,7 @@ end
 
 function LocalPoiUtil.SingleArea.GetMultipleAreaPoiInfos(eventData, ignoreSorting)
 	local events = {};
-	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData.includeAreaName);
+	local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(eventData.mapInfo, eventData);
 	if (activeAreaPOIs and #activeAreaPOIs > 0) then
 		for _, poiInfo in ipairs(activeAreaPOIs) do
 			if eventData.CompareFunction(eventData, poiInfo) then
@@ -1256,7 +1256,7 @@ LocalPoiUtil.MultipleAreas = {};
 --
 function LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(eventData)
 	for _, mapInfo in ipairs(eventData.mapInfos) do
-		local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, eventData.includeAreaName);
+		local activeAreaPOIs = LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, eventData);
 		if (activeAreaPOIs and #activeAreaPOIs > 0) then
 			for _, poiInfo in ipairs(activeAreaPOIs) do
 				if eventData.CompareFunction(eventData, poiInfo) then
@@ -1397,10 +1397,12 @@ end
 ----- Time Rifts -----
 
 local TimeRiftData = {}
-TimeRiftData.widgetSetID = 845
+-- TimeRiftData.widgetSetID = 845
+TimeRiftData.areaPoiID = 7492;
 TimeRiftData.mapID = 2025  -- Thaldraszus
 TimeRiftData.mapInfo = LocalMapUtil.GetMapInfo(TimeRiftData.mapID)
-TimeRiftData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID
+-- TimeRiftData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID
+TimeRiftData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
 TimeRiftData.GetTimeLeft = function()
 	-- The event starts every hour and lasts for 15 minutes
 	local gameTimeHour, gameTimeMinutes = GetLocalGameTime()
@@ -1413,6 +1415,7 @@ TimeRiftData.GetTimeLeft = function()
 	end
 end
 TimeRiftData.includeAreaName = true
+TimeRiftData.isMapEvent = true;
 
 function util.poi.GetTimeRiftInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(TimeRiftData)
@@ -1861,8 +1864,14 @@ end
 ---@return AreaPOIInfo[]|nil activeAreaPOIs
 ---@class AreaPOIInfo
 --
-function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeAreaName)
-	local areaPOIs = LocalMapUtil.GetAreaPOIForMap(mapInfo.mapID);
+function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, eventData)
+	local areaPOIs;
+	if (eventData and eventData.isMapEvent) then
+		local events = C_AreaPoiInfo.GetEventsForMap(mapInfo.mapID);
+		areaPOIs = events;
+	else
+		areaPOIs = LocalMapUtil.GetAreaPOIForMap(mapInfo.mapID);
+	end
 	if (areaPOIs and #areaPOIs > 0) then
 		local activeAreaPOIs = {};
 		for i, areaPoiID in ipairs(areaPOIs) do
@@ -1888,7 +1897,7 @@ function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, includeAreaName)
 					-- Needs more accurate zone infos
 					mapInfo = C_Map.GetMapInfoAtPosition(mapInfo.mapID, poiInfo.position:GetXY());
 				end
-				if includeAreaName then
+				if (eventData and eventData.includeAreaName) then
 					-- -- User map name as fallback
 					-- local areaName = MapUtil.FindBestAreaNameAtMouse(mapInfo.mapID, poiInfo.position:GetXY())
 					-- poiInfo.areaName = areaName and areaName or mapInfo.name
