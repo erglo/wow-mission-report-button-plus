@@ -1084,11 +1084,11 @@ local function MenuLine_OnEnter(...)
 			end
 			-- Grand Hunts
 			if ns.settings.showGrandHuntsInfo then
-				local huntsAreaPoiInfo = util.poi.GetGrandHuntsInfo();
+				local huntsAreaPoiInfo = ns.poi9.GetGrandHuntsInfo();
 				if huntsAreaPoiInfo then
-					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, huntsAreaPoiInfo.name)
-					LocalTooltipUtil:AddIconLine(ExpansionTooltip, huntsAreaPoiInfo.mapInfo.name, huntsAreaPoiInfo.atlasName)
-					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, huntsAreaPoiInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, huntsAreaPoiInfo.name);
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, huntsAreaPoiInfo.mapInfo.name, huntsAreaPoiInfo.atlasName);
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, huntsAreaPoiInfo.timeString);
 				end
 			end
 			-- Iskaara Community Feast
@@ -1624,11 +1624,11 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					end
 					-- Grand Hunts
 					if ns.settings.showGrandHuntsInfo then
-						local huntsAreaPoiInfo = util.poi.GetGrandHuntsInfo();
+						local huntsAreaPoiInfo = ns.poi9.GetGrandHuntsInfo();
 						if huntsAreaPoiInfo then
 							local timeLeft = huntsAreaPoiInfo.timeString or "...";
-							local lineText = format("%s @ %s", huntsAreaPoiInfo.name, huntsAreaPoiInfo.mapInfo.name)..": "..timeLeft
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, huntsAreaPoiInfo.atlasName)
+							local lineText = format("%s @ %s", huntsAreaPoiInfo.name, huntsAreaPoiInfo.mapInfo.name)..": "..timeLeft;
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, huntsAreaPoiInfo.atlasName);
 						end
 					end
 					-- Iskaara Community Feast

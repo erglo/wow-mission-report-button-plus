@@ -221,6 +221,25 @@ end
 
 ----- POI map events -----------------------------------------------------------
 
+----- Grand Hunts -----
+
+local GrandHuntsData = {};
+GrandHuntsData.widgetSetID = 712;
+GrandHuntsData.mapID = LocalMapUtil.DRAGON_ISLES_MAP_ID;
+GrandHuntsData.mapInfo = LocalMapUtil.GetMapInfo(GrandHuntsData.mapID);
+GrandHuntsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
+GrandHuntsData.ignorePrimaryMapForPOI = true;
+GrandHuntsData.isMapEvent = true;
+
+function LocalPoiData.GetGrandHuntsInfo()
+	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(GrandHuntsData);
+	if poiInfo then
+		LocalL10nUtil:SaveLabel("showGrandHuntsInfo", poiInfo.name);
+
+		return poiInfo;
+	end
+end
+
 ----- Researchers Under Fire -----
 
 local ResearchersUnderFireData = {};

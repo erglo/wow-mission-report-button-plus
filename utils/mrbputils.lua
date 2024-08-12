@@ -53,8 +53,8 @@ _log.DEBUG = 10;
 _log.NOTSET = 0;
 _log.USER = -10;
 
-_log.DEVMODE = false
-ns.isDebugActive = _log.DEVMODE
+_log.DEVMODE = false;
+ns.isDebugActive = _log.DEVMODE;
 
 -- _log.level = _log.INFO;
 -- _log.level = _log.DEBUG;
@@ -1306,23 +1306,6 @@ function util.poi.GetDragonRaceInfo()
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(DragonRaceData)
 	if poiInfo then
 		poiInfo.eventInfo = DragonRaceData:AddWorldEventInfo()
-		return poiInfo
-	end
-end
-
------ Grand Hunts -----
-
-local GrandHuntsData = {};
-GrandHuntsData.widgetSetID = 712;
-GrandHuntsData.mapID = LocalMapUtil.DRAGON_ISLES_MAP_ID;
-GrandHuntsData.mapInfo = LocalMapUtil.GetMapInfo(GrandHuntsData.mapID);
-GrandHuntsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
-GrandHuntsData.ignorePrimaryMapForPOI = true;
-
-function util.poi.GetGrandHuntsInfo()
-	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(GrandHuntsData)
-	if poiInfo then
-		data:SaveLabel("showGrandHuntsInfo", poiInfo.name)
 		return poiInfo
 	end
 end
