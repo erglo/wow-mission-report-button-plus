@@ -1290,6 +1290,7 @@ DragonRaceData.mapID = LocalMapUtil.DRAGON_ISLES_MAP_ID;
 DragonRaceData.mapInfos = LocalMapUtil.GetMapChildrenInfo(DragonRaceData.mapID, Enum.UIMapType.Zone);
 DragonRaceData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
 DragonRaceData.includeAreaName = true;
+DragonRaceData.isMapEvent = true;
 DragonRaceData.AddWorldEventInfo = function()
 	local eventInfo = util.calendar.GetHolidayInfoForEvent(util.calendar.EASTERN_KINGDOMS_CUP_EVENT_ID)
 	if eventInfo then

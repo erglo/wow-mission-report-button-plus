@@ -11,7 +11,8 @@
 
 ### Fixed
 
-* Not all World Map events appeared in the tooltip, since changes made by Blizzard in the pre-expansion patch.
+* Tooltip: fixed UI scaling of the expansion details tooltip.
+* World Map Events: not all events appeared in the tooltip, since changes made by Blizzard in the pre-expansion patch.
 
 &nbsp;
 

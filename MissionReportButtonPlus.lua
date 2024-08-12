@@ -783,7 +783,7 @@ local settingsAtlasName = "Warfronts-BaseMapIcons-Empty-Workshop-Minimap"
 ----- LibQTip -----
 
 local uiScale = UIParent:GetEffectiveScale()
-local screenHeight = GetScreenHeight() * uiScale
+-- local screenHeight = GetScreenHeight() * uiScale
 
 -- Release the given `LibQTip.Tooltip`.
 ---@param tooltip LibQTip.Tooltip
@@ -797,12 +797,14 @@ end
 
 local function MenuLine_ShowTooltips()
 	if (ExpansionTooltip and ExpansionTooltip:GetLineCount() > 0) then
-		-- Compare tooltip height with screen height							--> TODO - Increase height of scrollable tip
-		local tooltipHeight = ExpansionTooltip:GetHeight() * uiScale
-		-- print("uiScale:", tooltipHeight, screenHeight, (screenHeight * 0.95))
-		-- print("height:", ExpansionTooltip:GetHeight(), GetScreenHeight(), (GetScreenHeight() * 0.95))
+		-- Check if tooltip height fits the screen height
+		local screenHeight = GetScreenHeight() * uiScale;  --> needs to be here, not reliable at start-up
+		local tooltipHeight = ExpansionTooltip:GetHeight() * uiScale;
 		if (tooltipHeight > screenHeight) then
-			ExpansionTooltip:UpdateScrolling()
+			ExpansionTooltip:UpdateScrolling();
+			-- local TOOLTIP_PADDING = 10;										--> TODO - Add to style options
+			-- local sizeDifference = tooltipHeight - screenHeight;
+			-- ExpansionTooltip:SetHeight(2 * TOOLTIP_PADDING + ExpansionTooltip.height - sizeDifference);
 		end
 		ExpansionTooltip:SetClampedToScreen(true)
 		ExpansionTooltip:Show()
@@ -818,7 +820,7 @@ local function MenuLine_CreateExpansionTooltip(parentFrame)
 	ExpansionTooltip:SetPoint("LEFT", parentFrame, "RIGHT", -5, 0)
 	ExpansionTooltip.OnRelease = ReleaseTooltip
 	ExpansionTooltip:SetScrollStep(50)
-	ExpansionTooltip:SetFrameLevel(parentFrame:GetFrameLevel() + 10)			--> TODO - add to style options
+	ExpansionTooltip:SetFrameLevel(parentFrame:GetFrameLevel() + 10)
 end
 
 -- Create (major) faction reputation summary content tooltip
