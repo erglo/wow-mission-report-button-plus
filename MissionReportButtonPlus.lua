@@ -1321,12 +1321,12 @@ local function MenuLine_OnEnter(...)
 			end
 			-- Iskaara Community Feast
 			if ns.settings.showCommunityFeastInfo then
-				local feastAreaPoiInfo = util.poi.GetCommunityFeastInfo()
+				local feastAreaPoiInfo = ns.poi9.GetCommunityFeastInfo();
 				if feastAreaPoiInfo then
-					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showCommunityFeastInfo"])
-					LocalTooltipUtil:AddIconLine(ExpansionTooltip, feastAreaPoiInfo.mapInfo.name, feastAreaPoiInfo.atlasName)
-					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, feastAreaPoiInfo.name)
-					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, feastAreaPoiInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showCommunityFeastInfo"]);
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, feastAreaPoiInfo.mapInfo.name, feastAreaPoiInfo.atlasName);
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, feastAreaPoiInfo.name);
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, feastAreaPoiInfo.timeString);
 				end
 			end
 			-- Siege on Dragonbane Keep
@@ -1866,11 +1866,11 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					end
 					-- Iskaara Community Feast
 					if ns.settings.showCommunityFeastInfo then
-						local feastAreaPoiInfo = util.poi.GetCommunityFeastInfo()
+						local feastAreaPoiInfo = ns.poi9.GetCommunityFeastInfo();
 						if feastAreaPoiInfo then
-							local timeLeft = feastAreaPoiInfo.timeString or "..."
-							local lineText = format("%s @ %s", L["showCommunityFeastInfo"], feastAreaPoiInfo.name)..": "..timeLeft
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, feastAreaPoiInfo.atlasName)
+							local timeLeft = feastAreaPoiInfo.timeString or "...";
+							local lineText = format("%s @ %s", L["showCommunityFeastInfo"], feastAreaPoiInfo.name)..": "..timeLeft;
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, feastAreaPoiInfo.atlasName);
 						end
 					end
 					-- Siege on Dragonbane Keep
