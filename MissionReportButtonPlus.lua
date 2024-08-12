@@ -51,6 +51,8 @@ local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
 local LabelUtil = ns.data;  --> <data\labels.lua>
 
+-- ns.poi9;  --> <utils\poi-9-dragonflight.lua>
+
 local MRBP_EventMessagesCounter = {}
 -- Tests
 local MRBP_DRAGONRIDING_QUEST_ID = 68795;  --> "Dragonriding"
@@ -1295,12 +1297,12 @@ local function MenuLine_OnEnter(...)
 			end
 			-- Camp Aylaag
 			if ns.settings.showCampAylaagInfo then
-				local campAreaPoiInfo = util.poi.GetCampAylaagInfo();
+				local campAreaPoiInfo = ns.poi9.GetCampAylaagInfo();
 				if campAreaPoiInfo then
-					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, campAreaPoiInfo.name)
-					LocalTooltipUtil:AddIconLine(ExpansionTooltip, campAreaPoiInfo.mapInfo.name, campAreaPoiInfo.atlasName)
-					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, campAreaPoiInfo.areaName, campAreaPoiInfo.isCompleted)
-					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, campAreaPoiInfo.timeString and campAreaPoiInfo.timeString or campAreaPoiInfo.description)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, campAreaPoiInfo.name);
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, campAreaPoiInfo.mapInfo.name, campAreaPoiInfo.atlasName);
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, campAreaPoiInfo.areaName, campAreaPoiInfo.isCompleted);
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, campAreaPoiInfo.timeString and campAreaPoiInfo.timeString or campAreaPoiInfo.description);
 				end
 			end
 			-- Grand Hunts
@@ -1846,11 +1848,11 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					end
 					-- Camp Aylaag
 					if ns.settings.showCampAylaagInfo then
-						local campAreaPoiInfo = util.poi.GetCampAylaagInfo()
+						local campAreaPoiInfo = ns.poi9.GetCampAylaagInfo();
 						if campAreaPoiInfo then
-							local timeLeft = campAreaPoiInfo.timeString or "..."
-							local lineText = format("%s @ %s", campAreaPoiInfo.name, campAreaPoiInfo.areaName)..": "..timeLeft
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText, campAreaPoiInfo.isCompleted, wrapLine, leftOffset, campAreaPoiInfo.atlasName)
+							local timeLeft = campAreaPoiInfo.timeString or "...";
+							local lineText = format("%s @ %s", campAreaPoiInfo.name, campAreaPoiInfo.areaName)..": "..timeLeft;
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, campAreaPoiInfo.isCompleted, wrapLine, leftOffset, campAreaPoiInfo.atlasName);
 						end
 					end
 					-- Grand Hunts

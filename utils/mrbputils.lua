@@ -3,7 +3,7 @@
 --
 -- by erglo <erglo.coder+MRBP@gmail.com>
 --
--- Copyright (C) 2024  Erwin D. Glockner (aka erglo)
+-- Copyright (C) 2021  Erwin D. Glockner (aka erglo)
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 local AddonID, ns = ...;
 local L = ns.L;
-local data = ns.data
+local data = ns.data;  --> <data\labels.lua>
 
 local ExpansionInfo = ns.ExpansionInfo;
 
@@ -419,8 +419,8 @@ end
 -- REF.: <https://wowpedia.fandom.com/wiki/World_of_Warcraft_API#Achievements>
 
 -- A collection of utility functions handling achievement details.
-util.achieve = {};
 local LocalAchievementUtil = {}
+ns.achievement = LocalAchievementUtil;
 
 -- Achievements IDs
 local INVASION_OBLITERATION_ID = 12026;  -- Legion Invasion Point Generals
@@ -432,7 +432,6 @@ local UNITED_FRONT_ID = 15000;  -- Shadowlands threat in The Maw
 --> Note: The assetIDs returned for this achievement are always 0,
 --  see util.covenant.UpdateData(...) for alternative solution.
 local TEMPORAL_ACQUISITIONS_SPECIALIST_ID = 18554  -- Time Rifts				--> TODO - add this ???
-local THE_OHN_AHRAN_TRAIL_ID = 16462
 
 -- Pattern: {[areaPoi] = assetID, ...}
 local AREA_POI_ASSET_MAP = {
@@ -547,6 +546,7 @@ util.map = {};
 
 -- **Note:** Not to confuse with `MapUtil`, a WoW global class.
 local LocalMapUtil = {};
+ns.mapUtil = LocalMapUtil;
 
 -- Return informations about given map zone.
 ---@param mapID number  A UiMapID of a location from the world map.
@@ -1120,6 +1120,7 @@ local DRAGON_ISLES_MAP_ID = 1978;
 
 -- Utility functions for handling custom AreaPOIInfo data structures.
 local LocalPoiUtil = {};  --> used in this file only (!)
+ns.poiUtil = LocalPoiUtil;
 
 -- Compare given array of atlas names with that of the given POI info.
 ---@param atlasNames table
@@ -1280,7 +1281,7 @@ function LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(eventData)
 	return events;
 end
 
------ Dragonriding Race -----
+----- Dragonriding Race ----- (missing in 11.0.0)
 
 local DragonRaceData = {};
 DragonRaceData.atlasName = "racing";
@@ -1308,35 +1309,6 @@ function util.poi.GetDragonRaceInfo()
 	end
 end
 
------ Camp Aylaag -----
-
-local CampAylaagData = {};
-CampAylaagData.widgetSetIDs = {718, 719, 720};
-CampAylaagData.mapID = 2023;  --> Ohn'ahra
-CampAylaagData.mapInfo = LocalMapUtil.GetMapInfo(CampAylaagData.mapID);
-CampAylaagData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
-CampAylaagData.areaIDsMap = {
-	["7101"] = nil,    -- River Camp (east), no areaID found
-	["7102"] = 13747,  -- Aylaag Outpost
-	["7103"] = 14463,  -- Eaglewatch Outpost, Ohn'ahra
-}
-CampAylaagData.achievementID = THE_OHN_AHRAN_TRAIL_ID
-
-function util.poi.GetCampAylaagInfo()
-	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(CampAylaagData)
-	if poiInfo then
-		data:SaveLabel("showCampAylaagInfo", poiInfo.name)  -- Needed as settings label
-		if (poiInfo.areaPoiID == 7101) then
-			poiInfo.areaName = L.ENTRYTOOLTIP_DF_CAMP_AYLAAG_AREA_NAME
-		else
-			local areaID = CampAylaagData.areaIDsMap[tostring(poiInfo.areaPoiID)]
-			poiInfo.areaName = areaID and LocalMapUtil.GetAreaInfo(areaID) or poiInfo.areaName
-		end
-		LocalAchievementUtil.AddAchievementData(CampAylaagData.achievementID, poiInfo)
-		return poiInfo
-	end
-end
-
 ----- Grand Hunts -----
 
 local GrandHuntsData = {};
@@ -1354,7 +1326,7 @@ function util.poi.GetGrandHuntsInfo()
 	end
 end
 
------ Iskaara Community Feast -----
+----- Iskaara Community Feast ----- (works in 11.0.0)
 --
 -- REF.: <https://wowpedia.fandom.com/wiki/Community_Feast>
 -- REF.: <https://eu.forums.blizzard.com/en/wow/t/weekly-reset-time-changing-to-0500-cet-on-16-november/398498>
@@ -1436,7 +1408,7 @@ function util.poi.GetDragonbaneKeepInfo()
 	end
 end
 
------ Elemental Storms event -----
+----- Elemental Storms event ----- (works in 11.0.0)
 
 local ElementalStormData = {};
 ElementalStormData.atlasNames = {
@@ -1463,7 +1435,7 @@ function util.poi.GetElementalStormsInfo()
 	return poiInfos
 end
 
------ Fyrakk Assaults -----
+----- Fyrakk Assaults ----- (works in 11.0.0)
 
 local FyrakkAssaultsData = {};
 FyrakkAssaultsData.widgetSetIDs = {779, 780};
@@ -1566,7 +1538,7 @@ function util.poi.GetTimeRiftInfo()
 	end
 end
 
------ Dreamsurge -----
+----- Dreamsurge ----- (works in 11.0.0)
 
 local DreamsurgeData = {}
 DreamsurgeData.atlasName = "dreamsurge_hub-icon"  -- "dreamsurge_fire-portal-icon"   "dreamsurge-world-quest-icon"
@@ -2300,7 +2272,7 @@ function ns.GetTrackedAchievementTitles(textColor)
 		BfAFactionAssaultsData.achievementIDs[BfAFactionAssaultsData.playerFactionIndex],
 		UNITED_FRONT_ID,  --> Shadowlands, The Maw assault threat
 		-- DEAD_MEN_TELL_SOME_TALES_ID,  --> Shadowlands Covenant Campaign
-		CampAylaagData.achievementID,
+		ns.poi9.achievements.THE_OHN_AHRAN_TRAIL_ID,
 	};
 	table.sort(trackedAchievements);
 	local titles = {};

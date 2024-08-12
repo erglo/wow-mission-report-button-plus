@@ -2,4 +2,5 @@
   <Script file="mrbputils.lua"/>
   <Include file="libqtip.lua"/>
   <Include file="tooltips.lua"/>
+  <Include file="poi-9-dragonflight.lua"/>
 </Ui>
