@@ -1394,45 +1394,6 @@ function util.poi.GetResearchersUnderFireDataInfo()
 	end
 end
 
------ Time Rifts -----
-
-local TimeRiftData = {}
--- TimeRiftData.widgetSetID = 845
-TimeRiftData.areaPoiID = 7492;
-TimeRiftData.mapID = 2025  -- Thaldraszus
-TimeRiftData.mapInfo = LocalMapUtil.GetMapInfo(TimeRiftData.mapID)
--- TimeRiftData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID
-TimeRiftData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
-TimeRiftData.GetTimeLeft = function()
-	-- The event starts every hour and lasts for 15 minutes
-	local gameTimeHour, gameTimeMinutes = GetLocalGameTime()
-	local isActive = gameTimeMinutes <= 15
-	local minutesLeft = isActive and (15 - gameTimeMinutes) or (60 - gameTimeMinutes)
-	if (minutesLeft >= 0) then
-		local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(nil, MinutesToSeconds(minutesLeft))
-		local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString
-		return timeLeftString, isActive
-	end
-end
-TimeRiftData.includeAreaName = true
-TimeRiftData.isMapEvent = true;
-
-function util.poi.GetTimeRiftInfo()
-	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(TimeRiftData)
-	if poiInfo then
-		data:SaveLabel("showTimeRiftInfo", poiInfo.name)
-		if not poiInfo.isTimed then
-			local timeLeftString, isActive = TimeRiftData:GetTimeLeft()
-			if timeLeftString then
-				local activeTimeLeftString = timeLeftString.." "..GREEN_FONT_COLOR:WrapTextInColorCode(SPEC_ACTIVE)
-				poiInfo.timeString = isActive and activeTimeLeftString or timeLeftString
-				poiInfo.isTimed = true
-			end
-		end
-		return poiInfo
-	end
-end
-
 ----- Superbloom -----
 
 local SuperbloomData = {}

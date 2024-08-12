@@ -1388,15 +1388,15 @@ local function MenuLine_OnEnter(...)
 			end
 			-- Time Rifts 
 			if ns.settings.showTimeRiftInfo then
-				local dfTimeRiftsInfo = util.poi.GetTimeRiftInfo()
+				local dfTimeRiftsInfo = ns.poi9.GetTimeRiftInfo();
 				if dfTimeRiftsInfo then
-					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, dfTimeRiftsInfo.name)
-					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfTimeRiftsInfo.mapInfo.name, dfTimeRiftsInfo.atlasName)
-					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfTimeRiftsInfo.areaName)
-					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfTimeRiftsInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, dfTimeRiftsInfo.name);
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfTimeRiftsInfo.mapInfo.name, dfTimeRiftsInfo.atlasName);
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfTimeRiftsInfo.areaName);
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfTimeRiftsInfo.timeString);
 					if not L:StringIsEmpty(dfTimeRiftsInfo.description) and not ns.settings.hideEventDescriptions then
-						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfTimeRiftsInfo.description)
-						if _log.DEVMODE then print(dfTimeRiftsInfo.name, "-->", dfTimeRiftsInfo.description) end
+						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfTimeRiftsInfo.description);
+						if _log.DEVMODE then print(dfTimeRiftsInfo.name, "-->", dfTimeRiftsInfo.description); end
 					end
 				end
 			end
@@ -1913,11 +1913,11 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					end
 					-- Time Rifts 
 					if ns.settings.showTimeRiftInfo then
-						local dfTimeRiftsInfo = util.poi.GetTimeRiftInfo();
+						local dfTimeRiftsInfo = ns.poi9.GetTimeRiftInfo();
 						if dfTimeRiftsInfo then
 							local timeLeft = dfTimeRiftsInfo.timeString or "...";
-							local lineText = format("%s @ %s", dfTimeRiftsInfo.name, dfTimeRiftsInfo.mapInfo.name)..": "..timeLeft
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfTimeRiftsInfo.atlasName)
+							local lineText = format("%s @ %s", dfTimeRiftsInfo.name, dfTimeRiftsInfo.mapInfo.name)..": "..timeLeft;
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfTimeRiftsInfo.atlasName);
 						end
 					end
 					-- Dreamsurge
