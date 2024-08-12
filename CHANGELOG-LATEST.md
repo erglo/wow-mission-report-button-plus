@@ -7,10 +7,11 @@
 ### Changed
 
 * Updated TOC file version to `WoW 11.0.2`.
+* Dragonflight: updated all World Map events.
 
 ### Fixed
 
-* Some map events didn't appear in the tooltip, since the internal type was changed in the pre-expansion patch.
+* Not all World Map events appeared in the tooltip, since changes made by Blizzard in the pre-expansion patch.
 
 &nbsp;
 

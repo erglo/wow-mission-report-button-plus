@@ -1103,14 +1103,14 @@ local function MenuLine_OnEnter(...)
 			end
 			-- Siege on Dragonbane Keep
 			if ns.settings.showDragonbaneKeepInfo then
-				local siegeAreaPoiInfo = util.poi.GetDragonbaneKeepInfo()
+				local siegeAreaPoiInfo = ns.poi9.GetDragonbaneKeepInfo();
 				if siegeAreaPoiInfo then
-					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, siegeAreaPoiInfo.name)
-					LocalTooltipUtil:AddIconLine(ExpansionTooltip, siegeAreaPoiInfo.mapInfo.name, siegeAreaPoiInfo.atlasName)
-					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, siegeAreaPoiInfo.areaName)
-					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, siegeAreaPoiInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, siegeAreaPoiInfo.name);
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, siegeAreaPoiInfo.mapInfo.name, siegeAreaPoiInfo.atlasName);
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, siegeAreaPoiInfo.areaName);
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, siegeAreaPoiInfo.timeString);
 					if not L:StringIsEmpty(siegeAreaPoiInfo.description) and not ns.settings.hideEventDescriptions then
-						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, siegeAreaPoiInfo.description)
+						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, siegeAreaPoiInfo.description);
 
 					end
 				end
@@ -1642,11 +1642,11 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					end
 					-- Siege on Dragonbane Keep
 					if ns.settings.showDragonbaneKeepInfo then
-						local siegeAreaPoiInfo = util.poi.GetDragonbaneKeepInfo();
+						local siegeAreaPoiInfo = ns.poi9.GetDragonbaneKeepInfo();
 						if siegeAreaPoiInfo then
 							local timeLeft = siegeAreaPoiInfo.timeString or "...";
-							local lineText = siegeAreaPoiInfo.name..": "..timeLeft
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, siegeAreaPoiInfo.atlasName)
+							local lineText = siegeAreaPoiInfo.name..": "..timeLeft;
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, siegeAreaPoiInfo.atlasName);
 						end
 					end
 					-- Elemental Storms

@@ -1282,7 +1282,7 @@ function LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(eventData)
 	return events;
 end
 
------ Dragonriding Race ----- (missing in 11.0.0)
+----- Dragonriding Race ----- (missing in 11.0.0)								--> TODO - Check if reappeared
 
 local DragonRaceData = {};
 DragonRaceData.atlasName = "racing";
@@ -1306,23 +1306,6 @@ function util.poi.GetDragonRaceInfo()
 	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(DragonRaceData)
 	if poiInfo then
 		poiInfo.eventInfo = DragonRaceData:AddWorldEventInfo()
-		return poiInfo
-	end
-end
-
------ Siege on Dragonbane Keep event -----
-
-local DragonbaneKeepData = {};
-DragonbaneKeepData.widgetSetID = 713;
-DragonbaneKeepData.mapID = 2022;  --> Waken Shores
-DragonbaneKeepData.mapInfo = LocalMapUtil.GetMapInfo(DragonbaneKeepData.mapID);
-DragonbaneKeepData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
-DragonbaneKeepData.includeAreaName = true;
-
-function util.poi.GetDragonbaneKeepInfo()
-	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(DragonbaneKeepData)
-	if poiInfo then
-		data:SaveLabel("showDragonbaneKeepInfo", poiInfo.name)
 		return poiInfo
 	end
 end

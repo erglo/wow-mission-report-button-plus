@@ -3,7 +3,7 @@
 --
 -- by erglo <erglo.coder+MRBP@gmail.com>
 --
--- Copyright (C) 2021  Erwin D. Glockner (aka erglo, ergloCoder)
+-- Copyright (C) 2024  Erwin D. Glockner (aka erglo, ergloCoder)
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -35,6 +35,12 @@ local util = ns.utilities;
 --------------------------------------------------------------------------------
 ----- POI event handler --------------------------------------------------------
 --------------------------------------------------------------------------------
+-- Quick note on event identifier I chose:
+-- 	+ widgetSetIDs - in every area the same, but changes when event status changes
+--  + areaPoiIDs - in each area different, also changes when event status changes
+--  + areaPoiEvents - same as areaPoiIDs but clickable, stay usually in same area
+--  + atlasNames - very specific identifier, area independent
+--  + vignetteIDs - similar to areaPoiIDs but moving
 
 local LocalPoiData = {};
 ns.poi9 = LocalPoiData;  --> for project-wide use
@@ -44,7 +50,7 @@ LocalPoiData.achievements = {
 	THE_OHN_AHRAN_TRAIL_ID = 16462;
 };
 
------ Camp Aylaag -----	(works in 11.0.0)
+----- Camp Aylaag -----
 
 local CampAylaagData = {};
 CampAylaagData.widgetSetIDs = {718, 719, 720};
@@ -73,7 +79,7 @@ function LocalPoiData.GetCampAylaagInfo()
 	end
 end
 
------ Iskaara Community Feast ----- (works in 11.0.0)
+----- Iskaara Community Feast -----
 --
 -- REF.: <https://warcraft.wiki.gg/wiki/Community_Feast>
 -- REF.: <https://eu.forums.blizzard.com/en/wow/t/weekly-reset-time-changing-to-0500-cet-on-16-november/398498>
@@ -138,7 +144,7 @@ function LocalPoiData.GetCommunityFeastInfo()
 	end
 end
 
------ Elemental Storms event ----- (works in 11.0.0)
+----- Elemental Storms -----
 
 local ElementalStormData = {};
 ElementalStormData.atlasNames = {
@@ -166,7 +172,7 @@ function LocalPoiData.GetElementalStormsInfo()
 	return poiInfos;
 end
 
------ Fyrakk Assaults ----- (works in 11.0.0)
+----- Fyrakk Assaults -----
 
 local FyrakkAssaultsData = {};
 FyrakkAssaultsData.widgetSetIDs = {779, 780};
@@ -184,7 +190,7 @@ function LocalPoiData.GetFyrakkAssaultsInfo()
 	end
 end
 
------ Dreamsurge ----- (works in 11.0.0)
+----- Dreamsurge -----
 
 local DreamsurgeData = {};
 DreamsurgeData.atlasName = "dreamsurge_hub-icon";  -- "dreamsurge_fire-portal-icon"   "dreamsurge-world-quest-icon"
@@ -235,6 +241,25 @@ function LocalPoiData.GetGrandHuntsInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(GrandHuntsData);
 	if poiInfo then
 		LocalL10nUtil:SaveLabel("showGrandHuntsInfo", poiInfo.name);
+
+		return poiInfo;
+	end
+end
+
+----- Siege on Dragonbane Keep -----
+
+local DragonbaneKeepData = {};
+DragonbaneKeepData.widgetSetID = 713;
+DragonbaneKeepData.mapID = 2022;  --> Waken Shores
+DragonbaneKeepData.mapInfo = LocalMapUtil.GetMapInfo(DragonbaneKeepData.mapID);
+DragonbaneKeepData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
+DragonbaneKeepData.includeAreaName = true;
+DragonbaneKeepData.isMapEvent = true;
+
+function LocalPoiData.GetDragonbaneKeepInfo()
+	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(DragonbaneKeepData);
+	if poiInfo then
+		LocalL10nUtil:SaveLabel("showDragonbaneKeepInfo", poiInfo.name);
 
 		return poiInfo;
 	end
@@ -292,7 +317,7 @@ function LocalPoiData.GetResearchersUnderFireDataInfo()
 	end
 end
 
------ Time Rifts ----- 
+----- Time Rifts -----
 
 local TimeRiftData = {};
 TimeRiftData.areaPoiID = 7492;
