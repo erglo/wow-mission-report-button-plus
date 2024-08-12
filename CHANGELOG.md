@@ -9,9 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 * Settings: added new category "Appearance" with styling options for the right-click menu. You can now...
-    + change the `position` and `size` of the menu,
-    + change the `font` in type, color, size, and alignment.
-&nbsp;
+  + change the `position` and `size` of the menu,
+  + change the `font` in type, color, size, and alignment.
 
 ### Changed
 
