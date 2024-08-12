@@ -1423,13 +1423,13 @@ local function MenuLine_OnEnter(...)
 			end
 			-- The Big Dig
 			if ns.settings.showTheBigDigInfo then
-				local dfTheBigDigInfo = util.poi.GetTheBigDigInfo()
+				local dfTheBigDigInfo = ns.poi9.GetTheBigDigInfo();
 				if dfTheBigDigInfo then
-					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showTheBigDigInfo"])
-					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfTheBigDigInfo.name, dfTheBigDigInfo.atlasName)
-					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfTheBigDigInfo.mapInfo.name)
-					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfTheBigDigInfo.areaName)
-					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfTheBigDigInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showTheBigDigInfo"]);
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfTheBigDigInfo.name, dfTheBigDigInfo.atlasName);
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfTheBigDigInfo.mapInfo.name);
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfTheBigDigInfo.areaName);
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfTheBigDigInfo.timeString);
 				end
 			end
 		end
@@ -1940,11 +1940,11 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					end
 					-- The Big Dig
 					if ns.settings.showTheBigDigInfo then
-						local dfTheBigDigInfo = util.poi.GetTheBigDigInfo()
+						local dfTheBigDigInfo = ns.poi9.GetTheBigDigInfo();
 						if dfTheBigDigInfo then
 							local timeLeft = dfTheBigDigInfo.timeString or "...";
-							local lineText = format("%s @ %s", dfTheBigDigInfo.name, dfTheBigDigInfo.mapInfo.name)..": "..timeLeft
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfTheBigDigInfo.atlasName)
+							local lineText = format("%s @ %s", dfTheBigDigInfo.name, dfTheBigDigInfo.mapInfo.name)..": "..timeLeft;
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfTheBigDigInfo.atlasName);
 						end
 					end
 				end

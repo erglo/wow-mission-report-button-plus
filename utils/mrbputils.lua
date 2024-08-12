@@ -1394,51 +1394,6 @@ function util.poi.GetResearchersUnderFireDataInfo()
 	end
 end
 
------ The Big Dig -----
-
-local TheBigDigData = {}
--- TheBigDigData.areaPoiID = 7657
-TheBigDigData.widgetSetID = 1018
-TheBigDigData.mapID = LocalMapUtil.DRAGON_ISLES_MAP_ID
-TheBigDigData.mapInfos = LocalMapUtil.GetMapChildrenInfo(TheBigDigData.mapID, Enum.UIMapType.Zone)
-TheBigDigData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID
-TheBigDigData.includeAreaName = true
-TheBigDigData.GetNextEventTime = function(self)
-	-- The event occurs every hour on the half-hour.
-	local now = GetServerTime()
-	local waitTimeSeconds = 3600
-	local eventTime = now + C_DateAndTime.GetSecondsUntilDailyReset() + 1800
-	while eventTime > (now + waitTimeSeconds) do
-		eventTime = eventTime - waitTimeSeconds
-	end
-	return (eventTime - now)
-end
-TheBigDigData.GetTimeLeft = function(self)
-	local secondsLeft = self:GetNextEventTime()
-	if (secondsLeft >= 0) then
-		local isActive = (3600-secondsLeft) <= 600  -- event lasts for 10 minutes
-		local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(nil, isActive and 600-(3600-secondsLeft) or secondsLeft)
-		local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString
-		return timeLeftString, isActive
-	end
-end
-
-function util.poi.GetTheBigDigInfo()
-	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(TheBigDigData)
-	if poiInfo then
-		-- data:SaveLabel("showTheBigDigInfo", poiInfo.name)  --> use "Azerothian Archives" instead
-		if not poiInfo.isTimed then
-			local timeLeftString, isActive = TheBigDigData:GetTimeLeft()
-			if timeLeftString then
-				local activeTimeLeftString = timeLeftString.." "..GREEN_FONT_COLOR:WrapTextInColorCode(SPEC_ACTIVE)
-				poiInfo.timeString = isActive and activeTimeLeftString or timeLeftString
-				poiInfo.isTimed = true
-			end
-		end
-		return poiInfo
-	end
-end
-
 ----- Battle for Azeroth: Faction Assaults -----
 
 local BfAFactionAssaultsData = {};
