@@ -221,7 +221,59 @@ end
 
 ----- POI map events -----------------------------------------------------------
 
------ Time Rifts ----- (works as map event since 11.0.0)
+----- Researchers Under Fire -----
+
+local ResearchersUnderFireData = {};
+ResearchersUnderFireData.widgetSetID = 807;
+ResearchersUnderFireData.mapID = 2133;  -- Zaralek Cavern
+ResearchersUnderFireData.mapInfo = LocalMapUtil.GetMapInfo(ResearchersUnderFireData.mapID);
+ResearchersUnderFireData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
+ResearchersUnderFireData.ignorePrimaryMapForPOI = true;
+ResearchersUnderFireData.includeAreaName = true;
+ResearchersUnderFireData.isMapEvent = true;
+ResearchersUnderFireData.GetTimeLeft = function()
+	-- The event starts every hour on the half-hour (at xx:30) and lasts for 25 minutes.
+	local gameTimeHour, gameTimeMinutes = GetLocalGameTime();
+	local startTimeMinutes, endTimeMinutes = 30, 55;
+	local isActive = gameTimeMinutes >= startTimeMinutes and gameTimeMinutes <= endTimeMinutes;
+	local minutesLeft = 0;
+	if isActive then
+		minutesLeft = (endTimeMinutes - gameTimeMinutes);
+	elseif (gameTimeMinutes >= 56 and gameTimeMinutes <= 59) then
+		minutesLeft = (60 - gameTimeMinutes) + startTimeMinutes;
+	elseif (gameTimeMinutes == 0) then
+		minutesLeft = startTimeMinutes;
+	else
+		minutesLeft = (startTimeMinutes - gameTimeMinutes);
+	end
+	if (minutesLeft >= 0) then
+		local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(nil, MinutesToSeconds(minutesLeft));
+		local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString;
+		return timeLeftString, isActive;
+	end
+end
+
+-- Researchers Under Fire is a timed scenario in Zaralek Cavern that
+-- automatically starts every hour on the half-hour (at xx:30).
+--> REF.: <https://wowpedia.fandom.com/wiki/Researchers_Under_Fire>
+--
+function LocalPoiData.GetResearchersUnderFireDataInfo()
+	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(ResearchersUnderFireData);
+	if poiInfo then
+		LocalL10nUtil:SaveLabel("showResearchersUnderFireInfo", poiInfo.name);
+		if L:StringIsEmpty(poiInfo.timeString) then
+			local timeLeftString, isActive = ResearchersUnderFireData:GetTimeLeft();
+			if timeLeftString then
+				local activeTimeLeftString = timeLeftString.." "..GREEN_FONT_COLOR:WrapTextInColorCode(SPEC_ACTIVE);
+				poiInfo.timeString = isActive and activeTimeLeftString or timeLeftString;
+			end
+		end
+
+		return poiInfo;
+	end
+end
+
+----- Time Rifts ----- 
 
 local TimeRiftData = {};
 TimeRiftData.areaPoiID = 7492;

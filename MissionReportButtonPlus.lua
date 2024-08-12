@@ -1370,19 +1370,14 @@ local function MenuLine_OnEnter(...)
 			end
 			-- Researchers Under Fire
 			if ns.settings.showResearchersUnderFireInfo then
-				local dfResearchersUnderFireInfo = util.poi.GetResearchersUnderFireDataInfo();
+				local dfResearchersUnderFireInfo = ns.poi9.GetResearchersUnderFireDataInfo();
 				if dfResearchersUnderFireInfo then
-					-- tooltipText = TooltipText_AddHeaderLine(tooltipText, dfResearchersUnderFireInfo.name);
-					-- tooltipText = TooltipText_AddIconLine(tooltipText, dfResearchersUnderFireInfo.mapInfo.name, dfResearchersUnderFireInfo.atlasName);
-					-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfResearchersUnderFireInfo.areaName);
-					-- tooltipText = TooltipText_AddTimeRemainingLine(tooltipText, dfResearchersUnderFireInfo.timeString);
-					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, dfResearchersUnderFireInfo.name)
-					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfResearchersUnderFireInfo.mapInfo.name, dfResearchersUnderFireInfo.atlasName)
-					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfResearchersUnderFireInfo.areaName)
-					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfResearchersUnderFireInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, dfResearchersUnderFireInfo.name);
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfResearchersUnderFireInfo.mapInfo.name, dfResearchersUnderFireInfo.atlasName);
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfResearchersUnderFireInfo.areaName);
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfResearchersUnderFireInfo.timeString);
 					if not ns.settings.hideEventDescriptions then
-						-- tooltipText = TooltipText_AddObjectiveLine(tooltipText, dfResearchersUnderFireInfo.description);
-						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfResearchersUnderFireInfo.description)
+						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfResearchersUnderFireInfo.description);
 					end
 				end
 			end
@@ -1904,11 +1899,11 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					end
 					-- Researchers Under Fire
 					if ns.settings.showResearchersUnderFireInfo then
-						local dfResearchersUnderFireInfo = util.poi.GetResearchersUnderFireDataInfo();
+						local dfResearchersUnderFireInfo = ns.poi9.GetResearchersUnderFireDataInfo();
 						if dfResearchersUnderFireInfo then
 							local timeLeft = dfResearchersUnderFireInfo.timeString or "...";
-							local lineText = dfResearchersUnderFireInfo.name..": "..timeLeft
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfResearchersUnderFireInfo.atlasName)
+							local lineText = dfResearchersUnderFireInfo.name..": "..timeLeft;
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfResearchersUnderFireInfo.atlasName);
 						end
 					end
 					-- Time Rifts 
