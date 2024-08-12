@@ -183,3 +183,38 @@ function LocalPoiData.GetFyrakkAssaultsInfo()
 		return poiInfo;
 	end
 end
+
+----- Dreamsurge ----- (works in 11.0.0)
+
+local DreamsurgeData = {};
+DreamsurgeData.atlasName = "dreamsurge_hub-icon";  -- "dreamsurge_fire-portal-icon"   "dreamsurge-world-quest-icon"
+DreamsurgeData.mapID = LocalMapUtil.DRAGON_ISLES_MAP_ID;
+DreamsurgeData.mapInfos = LocalMapUtil.GetMapChildrenInfo(DreamsurgeData.mapID, Enum.UIMapType.Zone);
+DreamsurgeData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAtlasName;
+DreamsurgeData.includeAreaName = true;
+DreamsurgeData.GetTimeTillNextSurge = function()
+	-- A Waking Dream portal opens every 30 minutes with each surge
+	local gameTimeHour, gameTimeMinutes = GetLocalGameTime();
+	local minutesLeft = gameTimeMinutes <= 30 and (30 - gameTimeMinutes) or (60 - gameTimeMinutes);
+	if (minutesLeft >= 0) then
+		local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(nil, MinutesToSeconds(minutesLeft));
+		local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString;
+		return timeLeftString;
+	end
+end
+
+-- Appears each week in one of the four original zones in the Dragon Isles.  
+-- Every 30 minutes, a major Waking Dream portal will open in the affected zone as a group event.
+--> REF.: <https://worldofwarcraft.blizzard.com/en-us/news/23988136/unite-and-face-the-onslaught-of-the-dreamsurge>
+--
+function LocalPoiData.GetDreamsurgeInfo()
+	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(DreamsurgeData);
+	if poiInfo then
+		LocalL10nUtil:SaveLabel("showDreamsurgeInfo", poiInfo.name);
+		-- By default poiInfo.timeString holds the time until the weekly reset,
+		-- additionally we are going to show the time until the next Dreamsurge.
+		poiInfo.nextSurgeTimeString = DreamsurgeData:GetTimeTillNextSurge();
+
+		return poiInfo;
+	end
+end

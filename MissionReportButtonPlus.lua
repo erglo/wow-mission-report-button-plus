@@ -1402,13 +1402,13 @@ local function MenuLine_OnEnter(...)
 			end
 			-- Dreamsurge
 			if ns.settings.showDreamsurgeInfo then
-				local dfDreamsurgeInfo = util.poi.GetDreamsurgeInfo()
+				local dfDreamsurgeInfo = ns.poi9.GetDreamsurgeInfo();
 				if dfDreamsurgeInfo then
-					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showDreamsurgeInfo"])
-					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfDreamsurgeInfo.mapInfo.name, dfDreamsurgeInfo.atlasName)
-					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfDreamsurgeInfo.areaName)
-					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfDreamsurgeInfo.timeString)
-					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfDreamsurgeInfo.nextSurgeTimeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showDreamsurgeInfo"]);
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfDreamsurgeInfo.mapInfo.name, dfDreamsurgeInfo.atlasName);
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfDreamsurgeInfo.areaName);
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfDreamsurgeInfo.timeString);
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfDreamsurgeInfo.nextSurgeTimeString);
 				end
 			end
 			-- Superbloom
@@ -1884,7 +1884,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					end
 					-- Elemental Storms
 					if ns.settings.showElementalStormsInfo then
-						local stormsAreaPoiInfos = util.poi.GetElementalStormsInfo();
+						local stormsAreaPoiInfos = ns.poi9.GetElementalStormsInfo();
 						if util.TableHasAnyEntries(stormsAreaPoiInfos) then
 							for _, stormPoi in ipairs(stormsAreaPoiInfos) do
 								local timeLeft = stormPoi.timeString or "...";
@@ -1922,11 +1922,11 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					end
 					-- Dreamsurge
 					if ns.settings.showDreamsurgeInfo then
-						local dfDreamsurgeInfo = util.poi.GetDreamsurgeInfo()
+						local dfDreamsurgeInfo = ns.poi9.GetDreamsurgeInfo();
 						if dfDreamsurgeInfo then
 							local timeLeft = dfDreamsurgeInfo.nextSurgeTimeString or dfDreamsurgeInfo.timeString or "...";
-							local lineText = format("%s @ %s", L["showDreamsurgeInfo"], dfDreamsurgeInfo.mapInfo.name)..": "..timeLeft
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfDreamsurgeInfo.atlasName)
+							local lineText = format("%s @ %s", L["showDreamsurgeInfo"], dfDreamsurgeInfo.mapInfo.name)..": "..timeLeft;
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfDreamsurgeInfo.atlasName);
 						end
 					end
 					-- Superbloom
