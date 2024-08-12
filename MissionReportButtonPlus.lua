@@ -1413,12 +1413,12 @@ local function MenuLine_OnEnter(...)
 			end
 			-- Superbloom
 			if ns.settings.showSuperbloomInfo then
-				local dfSuperbloomInfo = util.poi.GetSuperbloomInfo()
+				local dfSuperbloomInfo = ns.poi9.GetSuperbloomInfo();
 				if dfSuperbloomInfo then
-					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, dfSuperbloomInfo.name or L["showSuperbloomInfo"])
-					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfSuperbloomInfo.mapInfo.name, dfSuperbloomInfo.atlasName)
-					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfSuperbloomInfo.areaName)
-					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfSuperbloomInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, dfSuperbloomInfo.name or L["showSuperbloomInfo"]);
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfSuperbloomInfo.mapInfo.name, dfSuperbloomInfo.atlasName);
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfSuperbloomInfo.areaName);
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfSuperbloomInfo.timeString);
 				end
 			end
 			-- The Big Dig
@@ -1931,11 +1931,11 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					end
 					-- Superbloom
 					if ns.settings.showSuperbloomInfo then
-						local dfSuperbloomInfo = util.poi.GetSuperbloomInfo()
+						local dfSuperbloomInfo = ns.poi9.GetSuperbloomInfo();
 						if dfSuperbloomInfo then
 							local timeLeft = dfSuperbloomInfo.timeString or "...";
-							local lineText = format("%s @ %s", dfSuperbloomInfo.name, dfSuperbloomInfo.mapInfo.name)..": "..timeLeft
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfSuperbloomInfo.atlasName)
+							local lineText = format("%s @ %s", dfSuperbloomInfo.name, dfSuperbloomInfo.mapInfo.name)..": "..timeLeft;
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfSuperbloomInfo.atlasName);
 						end
 					end
 					-- The Big Dig

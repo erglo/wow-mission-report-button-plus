@@ -219,6 +219,8 @@ function LocalPoiData.GetDreamsurgeInfo()
 	end
 end
 
+----- POI map events -----------------------------------------------------------
+
 ----- Time Rifts ----- (works as map event since 11.0.0)
 
 local TimeRiftData = {};
@@ -254,5 +256,86 @@ function LocalPoiData.GetTimeRiftInfo()
 		end
 
 		return poiInfo;
+	end
+end
+
+----- Superbloom -----
+
+local SuperbloomData = {};
+SuperbloomData.areaPoiIDs = {7634, 7635};  --> 7634 == active
+SuperbloomData.mapID = 2200;  -- Emerald Dream
+SuperbloomData.mapInfo = LocalMapUtil.GetMapInfo(SuperbloomData.mapID);
+SuperbloomData.CompareFunction = LocalPoiUtil.DoesEventDataMatchAreaPoiID;
+SuperbloomData.includeAreaName = true;
+SuperbloomData.ignorePrimaryMapForPOI = true;
+SuperbloomData.isMapEvent = true;
+SuperbloomData.GetNextEventTime = function(self)
+	-- The Superbloom event occurs every full hour.
+	local now = GetServerTime();
+	local waitTimeSeconds = 3600;
+	local eventTime = now + C_DateAndTime.GetSecondsUntilDailyReset();
+	while eventTime > (now + waitTimeSeconds) do
+		eventTime = eventTime - waitTimeSeconds;
+	end
+	return eventTime - now;
+end
+SuperbloomData.GetTimeLeft = function(self)
+	local secondsLeft = self:GetNextEventTime();
+	if (secondsLeft >= 0) then
+		local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(nil, secondsLeft);
+		local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString;
+		local isActive = (3600-secondsLeft) <= 900;  -- event lasts for about 15 minutes
+		return timeLeftString, isActive;
+	end
+end
+-- When in Emerald Dream zone, this is not an area POI anymore, it's a World Map vignette instead.
+-- REF.: [Blizzard_APIDocumentationGenerated/VignetteInfoDocumentation.lua](https://www.townlong-yak.com/framexml/live/Blizzard_APIDocumentationGenerated/VignetteInfoDocumentation.lua)
+SuperbloomData.vignetteID = 5813;
+SuperbloomData.GetVignetteInfo = function(self)
+	local vignettes = C_VignetteInfo.GetVignettes();
+	if #vignettes > 0 then
+		for i, vignetteGUID in ipairs(vignettes) do
+			local vignetteInfo = C_VignetteInfo.GetVignetteInfo(vignetteGUID);
+			if (vignetteInfo and vignetteInfo.vignetteID == self.vignetteID) then
+				return vignetteInfo;
+			end
+		end
+	end
+end
+SuperbloomData.GetVignettePositionMapInfo = function(self, vignetteGUID)
+	local vignettePosition, vignetteFacing = C_VignetteInfo.GetVignettePosition(vignetteGUID, self.mapInfo.mapID);
+	local positionMapInfo = C_Map.GetMapInfoAtPosition(self.mapInfo.mapID, vignettePosition:GetXY());
+	-- print("positionMapInfo:", positionMapInfo and positionMapInfo.mapID, positionMapInfo and positionMapInfo.name)
+	-- Note: does NOT seem to work, but why?
+	return positionMapInfo
+end
+
+function LocalPoiData.GetSuperbloomInfo()
+	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(SuperbloomData);
+	local uiMapID = C_Map.GetBestMapForUnit("player");
+	if poiInfo then
+		LocalL10nUtil:SaveLabel("showSuperbloomInfo", poiInfo.name);
+		if L:StringIsEmpty(poiInfo.timeString) then
+			poiInfo.timeString = SuperbloomData:GetTimeLeft();
+		else
+			poiInfo.timeString = poiInfo.timeString.." "..GREEN_FONT_COLOR:WrapTextInColorCode(SPEC_ACTIVE);
+		end
+
+		return poiInfo;
+	elseif (uiMapID == SuperbloomData.mapID) then
+		local vignetteInfo = SuperbloomData:GetVignetteInfo();
+		if vignetteInfo then
+			LocalL10nUtil:SaveLabel("showSuperbloomInfo", vignetteInfo.name);
+			local timeString, isActive = SuperbloomData:GetTimeLeft();
+			vignetteInfo.timeString = timeString;
+			if isActive then
+				vignetteInfo.timeString = vignetteInfo.timeString.." "..GREEN_FONT_COLOR:WrapTextInColorCode(SPEC_ACTIVE);
+			end
+			local mapInfo, areaMapInfo = SuperbloomData:GetVignettePositionMapInfo(vignetteInfo.vignetteGUID);
+			vignetteInfo.mapInfo = SuperbloomData.mapInfo;
+			vignetteInfo.areaName = areaMapInfo and areaMapInfo.name;  -- or mapInfo.name
+
+			return vignetteInfo;
+		end
 	end
 end
