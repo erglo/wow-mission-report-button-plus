@@ -1357,14 +1357,14 @@ local function MenuLine_OnEnter(...)
 			end
 			-- Fyrakk Assaults
 			if ns.settings.showFyrakkAssaultsInfo then
-				local dfFyrakkAssaultsAreaPoiInfo = util.poi.GetFyrakkAssaultsInfo()
+				local dfFyrakkAssaultsAreaPoiInfo = ns.poi9.GetFyrakkAssaultsInfo();
 				if dfFyrakkAssaultsAreaPoiInfo then
-					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.name)
-					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.mapInfo.name, dfFyrakkAssaultsAreaPoiInfo.atlasName)
-					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.areaName)
-					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.timeString)
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.name);
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.mapInfo.name, dfFyrakkAssaultsAreaPoiInfo.atlasName);
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.areaName);
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.timeString);
 					if not ns.settings.hideEventDescriptions then
-						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.description)
+						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, dfFyrakkAssaultsAreaPoiInfo.description);
 					end
 				end
 			end
@@ -1895,11 +1895,11 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					end
 					-- Fyrakk Assaults
 					if ns.settings.showFyrakkAssaultsInfo then
-						local dfFyrakkAssaultsAreaPoiInfo = util.poi.GetFyrakkAssaultsInfo();
+						local dfFyrakkAssaultsAreaPoiInfo = ns.poi9.GetFyrakkAssaultsInfo();
 						if dfFyrakkAssaultsAreaPoiInfo then
 							local timeLeft = dfFyrakkAssaultsAreaPoiInfo.timeString or "...";
-							local lineText = format("%s @ %s", dfFyrakkAssaultsAreaPoiInfo.name, dfFyrakkAssaultsAreaPoiInfo.mapInfo.name)..": "..timeLeft
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfFyrakkAssaultsAreaPoiInfo.atlasName)
+							local lineText = format("%s @ %s", dfFyrakkAssaultsAreaPoiInfo.name, dfFyrakkAssaultsAreaPoiInfo.mapInfo.name)..": "..timeLeft;
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, dfFyrakkAssaultsAreaPoiInfo.atlasName);
 						end
 					end
 					-- Researchers Under Fire

@@ -165,3 +165,21 @@ function LocalPoiData.GetElementalStormsInfo()
 
 	return poiInfos;
 end
+
+----- Fyrakk Assaults ----- (works in 11.0.0)
+
+local FyrakkAssaultsData = {};
+FyrakkAssaultsData.widgetSetIDs = {779, 780};
+FyrakkAssaultsData.mapID = LocalMapUtil.DRAGON_ISLES_MAP_ID;
+FyrakkAssaultsData.mapInfos = LocalMapUtil.GetMapChildrenInfo(FyrakkAssaultsData.mapID, Enum.UIMapType.Zone);
+FyrakkAssaultsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
+FyrakkAssaultsData.includeAreaName = true;
+
+function LocalPoiData.GetFyrakkAssaultsInfo()
+	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(FyrakkAssaultsData);
+	if poiInfo then
+		LocalL10nUtil:SaveLabel("showFyrakkAssaultsInfo", poiInfo.name);
+
+		return poiInfo;
+	end
+end

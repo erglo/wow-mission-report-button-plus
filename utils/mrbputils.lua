@@ -1344,23 +1344,6 @@ function util.poi.GetDragonbaneKeepInfo()
 	end
 end
 
------ Fyrakk Assaults ----- (works in 11.0.0)
-
-local FyrakkAssaultsData = {};
-FyrakkAssaultsData.widgetSetIDs = {779, 780};
-FyrakkAssaultsData.mapID = LocalMapUtil.DRAGON_ISLES_MAP_ID;
-FyrakkAssaultsData.mapInfos = LocalMapUtil.GetMapChildrenInfo(FyrakkAssaultsData.mapID, Enum.UIMapType.Zone);
-FyrakkAssaultsData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
-FyrakkAssaultsData.includeAreaName = true;
-
-function util.poi.GetFyrakkAssaultsInfo()
-	local poiInfo = LocalPoiUtil.MultipleAreas.GetAreaPoiInfo(FyrakkAssaultsData)
-	if poiInfo then
-		data:SaveLabel("showFyrakkAssaultsInfo", poiInfo.name)
-		return poiInfo
-	end
-end
-
 ----- Researchers Under Fire -----
 
 local ResearchersUnderFireData = {}
