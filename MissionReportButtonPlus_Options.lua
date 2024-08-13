@@ -36,11 +36,12 @@ local L = ns.L;
 local _log = ns.dbg_logger;
 local util = ns.utilities;
 
-local ExpansionInfo = ns.ExpansionInfo;
+local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 
 local _, addonTitle, addonNotes = C_AddOns.GetAddOnInfo(AddonID);
-
 local version, build, date, tocVersion, localizedVersion, buildType = GetBuildInfo();
+
+local SettingsPanel = SettingsPanel;
 
 local sort = table.sort;
 local strjoin = strjoin;
@@ -598,34 +599,12 @@ end
 
 ----- OpenToCategory -----
 
-function MRBP_Settings_OpenToAddonCategory(categoryID)
-	local SettingsPanel = SettingsPanel;
-	-- Try Blizzard's way; works usually for addons in main category
-	local successful = SettingsPanel:OpenToCategory(categoryID);
-	if successful then
-		return;
-	end
-	local function FindCategory(categoryID, categories)
-		local categoryList = categories or SettingsPanel:GetAllCategories();
-		for _, category in ipairs(categoryList) do
-			-- Ignore categories from game settings; subcategories don't seem to have a category set
-			if (category.categorySet == Settings.CategorySet.AddOns or category.categorySet == nil) then
-				if (category.ID == categoryID) then
-					return category;
-				end
-				-- No luck in main categories, go check subcategories
-				if category:HasSubcategories() then
-					local categoryTbl = FindCategory(categoryID, category:GetSubcategories());
-					if categoryTbl then
-						return categoryTbl;
-					end
-				end
-			end
-		end
-	end
-	local categoryTbl = FindCategory(categoryID);
-	if categoryTbl then
-		SettingsPanel:SelectCategory(categoryTbl);
+function MRBP_Settings_OpenToAddonCategory(categoryID, scrollToElementName)
+	-- Toggle settings frame
+	if SettingsPanel:IsShown() then
+		HideUIPanel(SettingsPanel);
+	else
+		return Settings.OpenToCategory(categoryID, scrollToElementName);
 	end
 end
 
@@ -1110,7 +1089,7 @@ function MRBP_Settings_Register()
 	-- Right-click menu button
 	do
 		local OnMenuTooltipButtonClick = function()
-			MRBP_Settings_OpenToAddonCategory(AddonID.."MenuTooltipSettings");
+			MRBP_Settings_OpenToAddonCategory(mainCategory.ID.."MenuTooltipSettings");
 		end
 		local menuTooltipButtonLabel = strjoin(LIST_DELIMITER, L.CFG_DDMENU_ENTRYSELECTION_LABEL, L.CFG_DDMENU_SEPARATOR_HEADING);
 		local menuTooltipButtonInitializer = CreateSettingsButtonInitializer(menuTooltipButtonLabel, L.CFG_DDMENU_SEPARATOR_HEADING, OnMenuTooltipButtonClick, L.CFG_DDMENU_ENTRYSELECTION_TOOLTIP, addSearchTags);
@@ -1120,7 +1099,7 @@ function MRBP_Settings_Register()
 	-- Appearance button
 	do
 		local OnAppearanceButtonClick = function()
-			MRBP_Settings_OpenToAddonCategory(AddonID.."AppearanceSettings");
+			MRBP_Settings_OpenToAddonCategory(mainCategory.ID.."AppearanceSettings");
 		end
 		local appearanceButtonLabel = strjoin(LIST_DELIMITER, HUD_EDIT_MODE_SETTING_MICRO_MENU_SIZE, FONT_SIZE);
 		local appearanceButtonInitializer = CreateSettingsButtonInitializer(appearanceButtonLabel, APPEARANCE_LABEL, OnAppearanceButtonClick, FEATURE_NOT_YET_AVAILABLE, addSearchTags);
@@ -1132,9 +1111,10 @@ function MRBP_Settings_Register()
 	do
 		mainLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
 		for _, expansionInfo in ipairs(GetOwnedExpansionInfoList()) do
-			local categoryID = format("%sExpansion%02dSettings", AddonID, expansionInfo.ID);
+			local categoryID = format("%sExpansion%02dSettings", mainCategory.ID, expansionInfo.ID);
 			local OnExpansionButtonClick = function()
-				MRBP_Settings_OpenToAddonCategory(AddonID.."MenuTooltipSettings");
+				mainCategory.expanded = Settings.Default.True;  --> is not properly set by default
+				MRBP_Settings_OpenToAddonCategory(mainCategory.ID.."MenuTooltipSettings");
 				MRBP_Settings_OpenToAddonCategory(categoryID);
 			end
 			local expansionButtonInitializer = CreateSettingsButtonInitializer('', expansionInfo.name, OnExpansionButtonClick, '', addSearchTags);
@@ -1146,7 +1126,7 @@ function MRBP_Settings_Register()
 	do
 		mainLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_ABOUT_ADDON_LABEL));
 		local OnAboutButtonClick = function()
-			MRBP_Settings_OpenToAddonCategory(AddonID.."AboutFrame");
+			MRBP_Settings_OpenToAddonCategory(mainCategory.ID.."AboutFrame");
 		end
 		local aboutButtonLabel = strjoin(LIST_DELIMITER, L.CFG_ADDONINFOS_VERSION, L.CFG_ABOUT_SLASHCMD_LABEL);
 		local aboutButtonInitializer = CreateSettingsButtonInitializer(aboutButtonLabel, L.CFG_ABOUT_ADDON_LABEL, OnAboutButtonClick, L.CFG_ABOUT_ADDON_LABEL, addSearchTags);
@@ -1527,7 +1507,7 @@ end
 
 GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AVAILABLE))
 
-	--> TODO - (see below)
+	--> TODO - add more appearance settings (see below)
 	-- 	menuHighlightTexture
 
 	-- 	tipScrollStep
@@ -1538,6 +1518,18 @@ GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AV
 
 	-- show border for settings
 	-- add defaults to tooltip
+
+
+	-- appearanceCategory.tutorial = {
+	-- 	tooltip = "This it a tutorial test.",
+	-- 	callback = function(buttonTbl, buttonName, isDown)
+	-- 		print("Clicked tutorial button:", buttonTbl:GetName(), buttonName, isDown);
+	-- 	end
+	-- };
+	-- appearanceCategory:SetCategoryTutorialInfo("This it a tutorial test.", function(buttonTbl, buttonName, isDown)
+	-- 	print("Clicked tutorial button:", buttonTbl:GetName(), buttonName, isDown);
+	-- end)
+
 ]]--
 --------------------------------------------------------------------------------
 --@end-do-not-package@
