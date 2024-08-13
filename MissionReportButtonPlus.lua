@@ -65,6 +65,7 @@ local LoadAddOn = C_AddOns.LoadAddOn
 local CreateAtlasMarkup = CreateAtlasMarkup
 local C_QuestLog = C_QuestLog;
 local GarrisonFollowerOptions = GarrisonFollowerOptions;
+local ExpansionLandingPageMinimapButton = ExpansionLandingPageMinimapButton;
 
 local DIM_RED_FONT_COLOR = DIM_RED_FONT_COLOR
 local DISABLED_FONT_COLOR = DISABLED_FONT_COLOR
@@ -1808,18 +1809,21 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 end
 ns.MissionReportButtonPlus_OnAddonCompartmentLeave = GameTooltip_Hide;
 
--- function nMissionReportButtonPlus_OnAddonCompartmentClick(addonName, mouseButton, button)
-function ns.MissionReportButtonPlus_OnAddonCompartmentClick(button, _, _, _, mouseButton)
-	if (mouseButton == "LeftButton") then
+-- REF.: [AddonCompartment.lua](https://www.townlong-yak.com/framexml/55818/Blizzard_Minimap/AddonCompartment.lua)
+-- 
+function ns.MissionReportButtonPlus_OnAddonCompartmentClick(data, menuInputData, menu)
+	local clickInfo = menuInputData;  --> .context=2, .buttonName
+
+	if (clickInfo.buttonName == "LeftButton") then
 		local result =  MRBP_IsAnyGarrisonRequirementMet();
 		if result then
-			MRBP_OnClick(button, mouseButton, true);
+			MRBP_OnClick(ExpansionLandingPageMinimapButton, clickInfo.buttonName, false);
 		end
 	end
-	if (mouseButton == "RightButton") then
+	if (clickInfo.buttonName == "RightButton") then
 		MRBP_Settings_OpenToAddonCategory(AddonID);
 	end
-	if (mouseButton == "MiddleButton" and MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight)) then
+	if (clickInfo.buttonName == "MiddleButton" and MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight)) then
 		DragonridingPanelSkillsButtonMixin:OnClick();
 	end
 end

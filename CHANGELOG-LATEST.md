@@ -13,6 +13,7 @@
 
 ### Fixed
 
+* Addon Compartment: the click handler's argument types have been changed in the pre-expansion patch and couldn't be processed correctly.
 * Tooltip: fixed UI scaling of the expansion details tooltip.
 * World Map Events: not all events appeared in the tooltip, since changes made by Blizzard in the pre-expansion patch.
 
