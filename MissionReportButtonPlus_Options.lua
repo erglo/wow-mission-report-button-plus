@@ -40,6 +40,8 @@ local ExpansionInfo = ns.ExpansionInfo;
 
 local _, addonTitle, addonNotes = C_AddOns.GetAddOnInfo(AddonID);
 
+local version, build, date, tocVersion, localizedVersion, buildType = GetBuildInfo();
+
 local sort = table.sort;
 local strjoin = strjoin;
 local NEWLINE = "|n";
@@ -203,8 +205,10 @@ end
 ---@param value any  The new value of the given variable
 ---
 local function SaveSingleSetting(varName, value)
-	-- Save project-wide (namespace) settings
-	ns.settings[varName] = value;
+	if (tocVersion < 110002) then
+		-- Save project-wide (namespace) settings
+		ns.settings[varName] = value;  --> not needed after WoW 11.0.2
+	end
 
 	-- Save character-specific settings
 	if (ns.defaultSettings[varName] ~= value) then
@@ -228,6 +232,19 @@ local function printOption(text, isEnabled)
 end
 
 ----- Control utilities --------------------------------------------------------
+
+-- Temp.
+local function CustomRegisterAddOnSetting(categoryTbl, name, variable, variableType, defaultValue, variableKey, variableTbl)
+	local setting;
+	if (tocVersion < 110002) then
+		setting = Settings.RegisterAddOnSetting(categoryTbl, name, variable, variableType, defaultValue);
+	else
+		-- REF.: Settings.RegisterAddOnSetting(categoryTbl, name, variable, variableKey, variableTbl, variableType, defaultValue)
+		setting = Settings.RegisterAddOnSetting(categoryTbl, variable, variable, ns.settings, variableType, name, defaultValue);
+	end
+
+	return setting;
+end
 
 -- Return a list of expansions which the user owns.
 local function GetOwnedExpansionInfoList()
@@ -370,7 +387,7 @@ local function CheckBox_Create(category, variableName, name, tooltip)
 		varName = variableName;
 	end
 	-- Create checkbox
-	local setting = Settings.RegisterAddOnSetting(category, name, varName, Settings.VarType.Boolean, defaultValue);
+	local setting = CustomRegisterAddOnSetting(category, name, varName, Settings.VarType.Boolean, defaultValue);
 	Mixin(setting, settingMixin);
 	local initializer = (Settings.CreateCheckBox or Settings.CreateCheckbox)(category, setting, tooltip);
 	-- Handling "activeMenuEntries" vs. normal checkboxes
@@ -455,7 +472,7 @@ local function AppendColorPreviewText(varName, isDefault)
 end
 
 local function Slider_Create(category, variableName, minValue, maxValue, step, label, tooltip, formatter)
-	local setting = Settings.RegisterAddOnSetting(category, label, variableName, Settings.VarType.Number, ns.defaultSettings[variableName] or 0);
+	local setting = CustomRegisterAddOnSetting(category, label, variableName, Settings.VarType.Number, ns.defaultSettings[variableName] or 0);
 
 	local options = Settings.CreateSliderOptions(minValue, maxValue, step);
 	options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right, formatter);
@@ -497,7 +514,7 @@ local function DropDown_Create(category, variableName, valueList, defaultText, t
 	local currentValue = ns.settings[variableName];
 	local varType = type(valueList[1][1])  --> eg. Settings.VarType.String;
 
-	local setting = Settings.RegisterAddOnSetting(category, defaultText, variableName, varType, defaultValue);
+	local setting = CustomRegisterAddOnSetting(category, defaultText, variableName, varType, defaultValue);
 
 	local function GetOptions()
 		local container = Settings.CreateControlTextContainer();
@@ -1226,7 +1243,7 @@ function MRBP_Settings_Register()
 		-- Text Color
 		do
 			local menuTextColorVarName = "menuTextColor";
-			local menuTextColorSetting = Settings.RegisterAddOnSetting(appearanceCategory, L.CFG_APPEARANCE_TEXT_COLOR_TEXT, menuTextColorVarName, Settings.VarType.String, ns.defaultSettings[menuTextColorVarName]);
+			local menuTextColorSetting = CustomRegisterAddOnSetting(appearanceCategory, L.CFG_APPEARANCE_TEXT_COLOR_TEXT, menuTextColorVarName, Settings.VarType.String, ns.defaultSettings[menuTextColorVarName]);
 
 			ColorPickerFrame.Footer.OkayButton:HookScript("OnClick", function()
 				local r, g, b = ColorPickerFrame:GetColorRGB();
@@ -1472,7 +1489,7 @@ end
 	-- local sep = layout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_ABOUT_ADDON_LABEL));
 
 	-- -- local warnVar = "warnVar";
-	-- -- local warnSetting = Settings.RegisterAddOnSetting(category, "Warn message", warnVar, Settings.VarType.Boolean, true);
+	-- -- local warnSetting = CustomRegisterAddOnSetting(category, "Warn message", warnVar, Settings.VarType.Boolean, true);
 	-- -- local warnData = Settings.CreateSettingInitializerData(warnSetting, nil, "Warning message tooltip.");
 	-- -- warnData.name = "Warning message"
 	-- -- local warnInitializer = Settings.CreateSettingInitializer("TwitterPanelTemplate", warnData);

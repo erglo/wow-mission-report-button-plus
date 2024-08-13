@@ -7,6 +7,7 @@
 ### Changed
 
 * Updated TOC file version to `WoW 11.0.2`.
+* Settings: addressed some changes in the new game version.
 * Dragonflight: updated all World Map events.
 
 ### Fixed
