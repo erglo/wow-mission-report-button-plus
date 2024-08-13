@@ -1385,7 +1385,7 @@ function MRBP_GetLandingPageGarrisonType()
 	local garrTypeID = MRBP_GetLandingPageGarrisonType_orig();
 	_log:debug("Got original garrison type:", garrTypeID)
 
-	if (garrTypeID > 0 and not MRBP_IsGarrisonRequirementMet(garrTypeID) ) then
+	if (garrTypeID and garrTypeID > 0 and not MRBP_IsGarrisonRequirementMet(garrTypeID) ) then
 		-- Build and return garrison type ID of previous expansion.
 		local minExpansionID = ExpansionInfo:GetMinimumExpansionLevel()  --> min. available, eg. 8 (Shadowlands)
 		-- Need last attribute of eg. 'Enum.GarrisonType.Type_8_0_Garrison'
@@ -1407,7 +1407,7 @@ function MRBP_GetLandingPageGarrisonType()
 	end
 
 	_log:debug("Returning garrison type:", garrTypeID)
-	return garrTypeID
+	return garrTypeID or 0;
 end
 
 --> TODO - Find a more secure way to pre-hook this.
