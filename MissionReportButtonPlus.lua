@@ -457,8 +457,8 @@ function MRBP_IsGarrisonRequirementMet(garrisonTypeID)
 	local garrisonInfo = LandingPageInfo:GetGarrisonInfo(garrisonTypeID);
 	if not garrisonInfo then return false end
 
-	local hasGarrison = util.garrison.HasGarrison(garrisonTypeID);
-	local isQuestCompleted = MRBP_IsGarrisonTypeUnlocked(garrisonTypeID, garrisonInfo.tagName);
+	local hasGarrison = util.garrison.HasGarrison(garrisonInfo.garrisonTypeID);
+	local isQuestCompleted = MRBP_IsGarrisonTypeUnlocked(garrisonInfo.garrisonTypeID, garrisonInfo.tagName);
 
 	if (garrisonInfo.expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
 		local isUnlocked = C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(garrisonInfo.expansionID);
@@ -873,11 +873,11 @@ local function MenuLine_OnEnter(...)
 		return
 	end
 	-- Tooltip body
-	local isForWarlordsOfDraenor = expansionInfo.garrisonTypeID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.garrisonTypeID
-	local isForLegion = expansionInfo.garrisonTypeID == ExpansionInfo.data.LEGION.garrisonTypeID
-	local isForBattleForAzeroth = expansionInfo.garrisonTypeID == ExpansionInfo.data.BATTLE_FOR_AZEROTH.garrisonTypeID
-	local isForShadowlands = expansionInfo.garrisonTypeID == ExpansionInfo.data.SHADOWLANDS.garrisonTypeID
-	local isForDragonflight = expansionInfo.garrisonTypeID == ExpansionInfo.data.DRAGONFLIGHT.garrisonTypeID
+	local isForWarlordsOfDraenor = expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID
+	local isForLegion = expansionInfo.ID == ExpansionInfo.data.LEGION.ID
+	local isForBattleForAzeroth = expansionInfo.ID == ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID
+	local isForShadowlands = expansionInfo.ID == ExpansionInfo.data.SHADOWLANDS.ID
+	local isForDragonflight = expansionInfo.ID == ExpansionInfo.data.DRAGONFLIGHT.ID
 
 	------ Unlocking requirements -----
 
@@ -1529,7 +1529,7 @@ local TOOLTIP_BAG_FULL_ICON_STRING = TOOLTIP_BAG_ICON_STRING..util.CreateInlineI
 
 -- function MissionReportButtonPlus_OnAddonCompartmentEnter(addonName, button)
 function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
-	local addonTitle = button.value;
+	local addonTitle = button.value or ns.AddonTitle;
 	local leftOffset = 1;
 	local wrapLine = false;
 	local tooltip = GameTooltip;
