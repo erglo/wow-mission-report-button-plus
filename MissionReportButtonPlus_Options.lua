@@ -600,11 +600,15 @@ end
 ----- OpenToCategory -----
 
 function MRBP_Settings_OpenToAddonCategory(categoryID, scrollToElementName)
+	return Settings.OpenToCategory(categoryID, scrollToElementName);
+end
+
+function MRBP_Settings_ToggleSettingsPanel(categoryID, scrollToElementName)
 	-- Toggle settings frame
 	if SettingsPanel:IsShown() then
 		HideUIPanel(SettingsPanel);
 	else
-		return Settings.OpenToCategory(categoryID, scrollToElementName);
+		return MRBP_Settings_OpenToAddonCategory(categoryID, scrollToElementName);
 	end
 end
 

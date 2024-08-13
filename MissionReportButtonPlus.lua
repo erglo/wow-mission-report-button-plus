@@ -1310,7 +1310,7 @@ local function ShowMenuTooltip(parent)
 			description = BASIC_OPTIONS_TOOLTIP,
 			color = NORMAL_FONT_COLOR,
 			hintIconInfo = ShouldShowHintColumn() and settingsAtlasName or '',
-			func = function() MRBP_Settings_OpenToAddonCategory(AddonID) end
+			func = function() MRBP_Settings_ToggleSettingsPanel(AddonID) end
 		}
 		AddMenuTooltipLine(settingsInfo)
 	end
@@ -1452,13 +1452,13 @@ function MRBP:RegisterSlashCommands()
 				ns.settings.showChatNotifications = not enabled
 
 			elseif (msg == 'config') then
-				MRBP_Settings_OpenToAddonCategory(AddonID);
+				MRBP_Settings_ToggleSettingsPanel(AddonID);
 
 			elseif (msg == 'tooltip' or msg == 'tip') then
-				MRBP_Settings_OpenToAddonCategory(AddonID.."MenuTooltipSettings");
+				MRBP_Settings_ToggleSettingsPanel(AddonID.."MenuTooltipSettings");
 
 			elseif (msg == 'about') then
-				MRBP_Settings_OpenToAddonCategory(AddonID.."AboutFrame");
+				MRBP_Settings_ToggleSettingsPanel(AddonID.."AboutFrame");
 
 			elseif (msg == 'show') then
 				MRBP:ShowMinimapButton_User()
@@ -1821,7 +1821,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentClick(data, menuInputData,
 		end
 	end
 	if (clickInfo.buttonName == "RightButton") then
-		MRBP_Settings_OpenToAddonCategory(AddonID);
+		MRBP_Settings_ToggleSettingsPanel(AddonID);
 	end
 	if (clickInfo.buttonName == "MiddleButton" and MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight)) then
 		DragonridingPanelSkillsButtonMixin:OnClick();
