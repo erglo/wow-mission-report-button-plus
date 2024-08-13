@@ -8,6 +8,7 @@
 
 * Updated TOC file version to `WoW 11.0.2`.
 * Settings: the settings frame can now be toggled from each source, eg. as slash command in chat, via right-click menu or addon compartment.
+* Settings: updated the tooltip for the Appearance shortcut button.
 * Settings: addressed some changes in the new game version.
 * Dragonflight: updated all World Map events.
 

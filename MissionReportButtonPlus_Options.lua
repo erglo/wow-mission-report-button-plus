@@ -1106,9 +1106,9 @@ function MRBP_Settings_Register()
 			MRBP_Settings_OpenToAddonCategory(mainCategory.ID.."AppearanceSettings");
 		end
 		local appearanceButtonLabel = strjoin(LIST_DELIMITER, HUD_EDIT_MODE_SETTING_MICRO_MENU_SIZE, FONT_SIZE);
-		local appearanceButtonInitializer = CreateSettingsButtonInitializer(appearanceButtonLabel, APPEARANCE_LABEL, OnAppearanceButtonClick, FEATURE_NOT_YET_AVAILABLE, addSearchTags);
+		local appearanceButtonInitializer = CreateSettingsButtonInitializer(appearanceButtonLabel, APPEARANCE_LABEL, OnAppearanceButtonClick, L.CFG_DDMENU_STYLESELECTION_TOOLTIP, addSearchTags);
 		mainLayout:AddInitializer(appearanceButtonInitializer);
-		appearanceButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
+		-- appearanceButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
 	end
 
 	-- Details tooltip option shortcuts (Expansion buttons)
