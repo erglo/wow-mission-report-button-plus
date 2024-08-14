@@ -1151,7 +1151,7 @@ function LocalPoiUtil.FilterPOIByAtlasName(atlasNames, poiInfo, ignorePrimaryMap
 end
 
 function LocalPoiUtil.FilterPOIByWidgetSetID(widgetSetID, poiInfo, ignorePrimaryMapForPOI)
-	if (poiInfo.widgetSetID == widgetSetID) then
+	if (poiInfo.tooltipWidgetSet == widgetSetID) then
 		if ignorePrimaryMapForPOI then
 			return poiInfo;
 		elseif poiInfo.isPrimaryMapForPOI then
@@ -1183,10 +1183,10 @@ end
 function LocalPoiUtil.DoesEventDataMatchWidgetSetID(eventData, poiInfo)
 	local doesMatch = false;
 	if eventData.widgetSetID then
-		doesMatch = poiInfo.widgetSetID == eventData.widgetSetID;
+		doesMatch = poiInfo.tooltipWidgetSet == eventData.widgetSetID;
 	end
 	if eventData.widgetSetIDs then
-		doesMatch = tContains(eventData.widgetSetIDs, poiInfo.widgetSetID);
+		doesMatch = tContains(eventData.widgetSetIDs, poiInfo.tooltipWidgetSet);
 	end
 	if doesMatch then
 		if eventData.ignorePrimaryMapForPOI then

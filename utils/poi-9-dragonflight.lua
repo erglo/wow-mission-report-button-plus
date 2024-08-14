@@ -36,7 +36,7 @@ local util = ns.utilities;
 ----- POI event handler --------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Quick note on event identifier I chose:
--- 	+ widgetSetIDs - in every area the same, but changes when event status changes
+-- 	+ widgetSetIDs - in every area the same, but changes when event status changes (renamed in 11.0.2 to '.tooltipWidgetSet')
 --  + areaPoiIDs - in each area different, also changes when event status changes
 --  + areaPoiEvents - same as areaPoiIDs but clickable, stay usually in same area
 --  + atlasNames - very specific identifier, area independent
@@ -53,7 +53,7 @@ LocalPoiData.achievements = {
 ----- Camp Aylaag -----
 
 local CampAylaagData = {};
-CampAylaagData.widgetSetIDs = {718, 719, 720};
+CampAylaagData.widgetSetIDs = {718, 719, 720};  --> '.tooltipWidgetSet' since 11.0.2
 CampAylaagData.mapID = 2023;  --> Ohn'ahra
 CampAylaagData.mapInfo = LocalMapUtil.GetMapInfo(CampAylaagData.mapID);
 CampAylaagData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
