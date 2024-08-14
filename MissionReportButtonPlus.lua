@@ -50,6 +50,7 @@ local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
 local LabelUtil = ns.data;  --> <data\labels.lua>
+local LocalDragonridingUtil = ns.DragonridingUtil  --> <utils\mrbputils.lua>
 
 -- ns.poi9;  --> <utils\poi-9-dragonflight.lua>
 
@@ -1056,7 +1057,7 @@ local function MenuLine_OnEnter(...)
 		-- Dragon Glyphs
 		if ns.settings.showDragonGlyphs then
 			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showDragonGlyphs"])
-			LocalTooltipUtil:AddDragonGlyphLines(ExpansionTooltip)
+			LocalTooltipUtil:AddDragonGlyphLines(ExpansionTooltip, expansionInfo.ID)
 		end
 		----- World Map events -----
 		if ns.settings.showDragonflightWorldMapEvents then
@@ -1598,8 +1599,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 				end
 				-- Dragon Glyphs
 				if (expansion.ID == ExpansionInfo.data.DRAGONFLIGHT.ID) then
-					local treeCurrencyInfo = util.garrison.GetDragonRidingTreeCurrencyInfo();
-					local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = util.garrison.GetDragonGlyphsCount();
+					local treeCurrencyInfo = LocalDragonridingUtil:GetDragonRidingTreeCurrencyInfo();
+					local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = LocalDragonridingUtil:GetDragonGlyphsCount(expansion.ID);
 					local collectedAmountString = WHITE_FONT_COLOR:WrapTextInColorCode(GENERIC_FRACTION_STRING:format(numGlyphsCollected, numGlyphsTotal));
 					local isCompleted = numGlyphsCollected == numGlyphsTotal;
 					util.GameTooltip_AddObjectiveLine(tooltip, L["showDragonGlyphs"]..": "..collectedAmountString, isCompleted, wrapLine, leftOffset, treeCurrencyInfo.texture);
@@ -1824,6 +1825,6 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentClick(data, menuInputData,
 		MRBP_Settings_ToggleSettingsPanel(AddonID);
 	end
 	if (clickInfo.buttonName == "MiddleButton" and MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight)) then
-		DragonridingPanelSkillsButtonMixin:OnClick();
+		LocalDragonridingUtil:ToggleDragonridingTree();
 	end
 end

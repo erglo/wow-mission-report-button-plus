@@ -23,15 +23,16 @@
 local AddonID, ns = ...
 local ShortAddonID = "MRBP"
 local L = ns.L
-local util = ns.utilities
 
-local ExpansionInfo = ns.ExpansionInfo
+local util = ns.utilities  --> <utils\mrbputils.lua>
+local ExpansionInfo = ns.ExpansionInfo  --> <data\expansion.lua>
+local LocalDragonridingUtil = ns.DragonridingUtil  --> <utils\mrbputils.lua>
 
 local LocalTooltipUtil = {}  --> Handler from this file
 ns.utilities.tooltip = LocalTooltipUtil
 
 local LibQTip = LibStub('LibQTip-1.0')
-local LocalLibQTipUtil = ns.utils.libqtip
+local LocalLibQTipUtil = ns.utils.libqtip  --> <utils\libqtip.lua>
 -- local MenuTooltip, ExpansionTooltip 
 
 ----- Upvalues -----
@@ -312,9 +313,9 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 	end
 end
 
-function LocalTooltipUtil:AddDragonGlyphLines(tooltip)
-	if util.garrison.IsDragonridingUnlocked() then
-		local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = util.garrison.GetDragonGlyphsCount()
+function LocalTooltipUtil:AddDragonGlyphLines(tooltip, expansionID)
+	if LocalDragonridingUtil:IsDragonridingUnlocked() then
+		local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = LocalDragonridingUtil:GetDragonGlyphsCount(expansionID)
 		-- Show collected glyphs per zone
 		for mapName, count in pairs(glyphsPerZone) do
 			local isComplete = count.numComplete == count.numTotal
@@ -327,7 +328,7 @@ function LocalTooltipUtil:AddDragonGlyphLines(tooltip)
 			end
 		end
 		-- Add glyph collection summary
-		local treeCurrencyInfo = util.garrison.GetDragonRidingTreeCurrencyInfo()
+		local treeCurrencyInfo = LocalDragonridingUtil:GetDragonRidingTreeCurrencyInfo()
 		local youCollectedAmountString = TRADESKILL_NAME_RANK:format(YOU_COLLECTED_LABEL, numGlyphsCollected, numGlyphsTotal)
 		local collectedAll = numGlyphsCollected == numGlyphsTotal
 		local lineColor = collectedAll and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR

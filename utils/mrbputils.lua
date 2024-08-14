@@ -664,18 +664,16 @@ end
 
 ----- Dragonflight -----
 
--- Check if the dragon riding feature in Dragonflight is unlocked.
----@return boolean isUnlocked
--- REF.: <FrameXML/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
--- REF.: <FrameXML/AchievementUtil.lua>
--- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/AchievementInfoDocumentation.lua>
--- REF.: <https://wowpedia.fandom.com/wiki/World_of_Warcraft_API#Achievements>
---
-function util.garrison.IsDragonridingUnlocked()
-	local DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID = 15794;
-	local DRAGONRIDING_INTRO_QUEST_ID = 68798;
-	local hasAccountAchievement = select(4, GetAchievementInfo(DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID));
-	return hasAccountAchievement or LocalQuestUtil.IsQuestFlaggedCompleted(DRAGONRIDING_INTRO_QUEST_ID);
+-- REF.: [DragonridingUtil.lua](https://www.townlong-yak.com/framexml/live/Blizzard_FrameXMLUtil/DragonridingUtil.lua)
+local LocalDragonridingUtil = {};
+ns.DragonridingUtil = LocalDragonridingUtil;
+
+function LocalDragonridingUtil:IsDragonridingUnlocked()
+	return DragonridingUtil.IsDragonridingUnlocked();
+end
+
+function LocalDragonridingUtil:ToggleDragonridingTree()
+	DragonridingPanelSkillsButtonMixin:OnClick();
 end
 
 -- -- Create a string with the amount and icon of given currency info.
@@ -698,24 +696,33 @@ end
 -- 	else
 -- 		currencyString = TALENT_FRAME_CURRENCY_FORMAT:format(amountString, iconString);
 -- 	end
-
+-- 
 -- 	return currencyString;
 -- end
 
+function LocalDragonridingUtil:IsDragonridingTreeOpen()
+	return DragonridingUtil.IsDragonridingTreeOpen();
+end
+
+function LocalDragonridingUtil:CanSpendDragonridingGlyphs()
+	return DragonridingUtil.CanSpendDragonridingGlyphs();
+end
+
 -- Return details about the currency used in the DF dragon riding skill tree.
 ---@return TreeCurrencyInfo table  A TreeCurrencyInfo table + glyph texture ID
--- REF.: <FrameXML/Blizzard_GenericTraitUI/Blizzard_GenericTraitFrame.lua>
--- REF.: <FrameXML/Blizzard_SharedTalentUI/Blizzard_SharedTalentFrame.lua>
--- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/SharedTraitsDocumentation.lua>
+-- REF.: <FrameXML/Blizzard_GenericTraitUI/Blizzard_GenericTraitFrame.lua><br>
+-- REF.: <FrameXML/Blizzard_SharedTalentUI/Blizzard_SharedTalentFrame.lua><br>
+-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/SharedTraitsDocumentation.lua><br>
+-- REF.: [DragonridingUtil.lua](https://www.townlong-yak.com/framexml/live/Blizzard_FrameXMLUtil/DragonridingUtil.lua)
 --
-function util.garrison.GetDragonRidingTreeCurrencyInfo()
-	local DRAGON_RIDING_TRAIT_TREE_ID = 672;  -- GenericTraitFrame:GetTalentTreeID()
+function LocalDragonridingUtil:GetDragonRidingTreeCurrencyInfo()				--> TODO - Check if really needed
 	local DRAGON_RIDING_TRAIT_CURRENCY_ID = 2563;
 	local DRAGON_RIDING_TRAIT_CURRENCY_TEXTURE = 4728198;  -- glyph
-	local DRAGON_RIDING_TRAIT_CONFIG_ID = C_Traits.GetConfigIDByTreeID(DRAGON_RIDING_TRAIT_TREE_ID);
+	local dragonridingConfigID = C_Traits.GetConfigIDBySystemID(Constants.MountDynamicFlightConsts.TRAIT_SYSTEM_ID);
 	local excludeStagedChanges = true;
+	local treeCurrencyInfos = C_Traits.GetTreeCurrencyInfo(dragonridingConfigID, Constants.MountDynamicFlightConsts.TREE_ID, excludeStagedChanges);
 	local treeCurrencyFallbackInfo = {quantity=0, maxQuantity=0, spent=0, traitCurrencyID=DRAGON_RIDING_TRAIT_CURRENCY_ID};
-	local treeCurrencyInfos = C_Traits.GetTreeCurrencyInfo(DRAGON_RIDING_TRAIT_CONFIG_ID, DRAGON_RIDING_TRAIT_TREE_ID, excludeStagedChanges);
+	-- if (#treeCurrencyInfos <= 0) then return treeCurrencyFallbackInfo; end
 	local treeCurrencyInfo = treeCurrencyInfos and treeCurrencyInfos[1] or treeCurrencyFallbackInfo;
 	treeCurrencyInfo.texture = DRAGON_RIDING_TRAIT_CURRENCY_TEXTURE;
 
@@ -727,20 +734,24 @@ end
 ---@return integer numGlyphsCollected  The number of glyphs already collected
 ---@return integer numGlyphsTotal  The number of glyphs on the Dragon Isles altogether
 --
-function util.garrison.GetDragonGlyphsCount()
+function LocalDragonridingUtil:GetDragonGlyphsCount(expansionID)
 	local DRAGONRIDING_GLYPH_HUNTER_ACHIEVEMENTS = {
-		{mapID = 2022, achievementID = 16575},  -- Waking Shores Glyph Hunter
-		{mapID = 2023, achievementID = 16576},  -- Ohn'ahran Plains Glyph Hunter
-		{mapID = 2024, achievementID = 16577},  -- Azure Span Glyph Hunter
-		{mapID = 2025, achievementID = 16578},  -- Thaldraszus Glyph Hunter
-		{mapID = 2151, achievementID = 17411},  -- Forbidden Reach Glyph Hunter
-		{mapID = 2133, achievementID = 18150},  -- Zaralek Cavern Glyph Hunter
-		{mapID = 2200, achievementID = 19306},  -- Emerald Dream Glyph Hunter
+		[tostring(ExpansionInfo.data.DRAGONFLIGHT.ID)] = {
+			{mapID = 2022, achievementID = 16575},  -- Waking Shores Glyph Hunter
+			{mapID = 2023, achievementID = 16576},  -- Ohn'ahran Plains Glyph Hunter
+			{mapID = 2024, achievementID = 16577},  -- Azure Span Glyph Hunter
+			{mapID = 2025, achievementID = 16578},  -- Thaldraszus Glyph Hunter
+			{mapID = 2151, achievementID = 17411},  -- Forbidden Reach Glyph Hunter
+			{mapID = 2133, achievementID = 18150},  -- Zaralek Cavern Glyph Hunter
+			{mapID = 2200, achievementID = 19306},  -- Emerald Dream Glyph Hunter
+		},
+		--> TODO - Add TWW IDs
 	};
+	local achievements = DRAGONRIDING_GLYPH_HUNTER_ACHIEVEMENTS[tostring(expansionID)];
 	local glyphsPerZone = {};  -- Glyph count by map ID
 	local numGlyphsTotal = 0;  -- The total number of glyphs from all zones
 	local numGlyphsCollected = 0;  -- The number of collected glyphs from all zones
-	for _, info in ipairs(DRAGONRIDING_GLYPH_HUNTER_ACHIEVEMENTS) do
+	for _, info in ipairs(achievements) do
 		local numCriteria = GetAchievementNumCriteria(info.achievementID);
 		local mapInfo = LocalMapUtil.GetMapInfo(info.mapID);
 		local numComplete = 0;
@@ -1283,6 +1294,8 @@ function LocalPoiUtil.MultipleAreas.GetMultipleAreaPoiInfos(eventData)
 end
 
 ----- Dragonriding Race ----- (missing in 11.0.0)								--> TODO - Check if reappeared
+
+--> Try: C_AreaPoiInfo.GetDragonridingRacesForMap(uiMapID);
 
 local DragonRaceData = {};
 DragonRaceData.atlasName = "racing";
