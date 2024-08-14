@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file (or linked t
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2024-08-14
+
+### Changed
+
+* Updated TOC file version to `WoW 11.0.2`.
+* Settings: the settings frame can now be toggled from each source, eg. as slash command in chat, via right-click menu or addon compartment.
+* Settings: updated the tooltip for the Appearance shortcut button.
+* Settings: addressed some changes in the new game version.
+* Dragonflight: updated all World Map events.
+
+### Fixed
+
+* Data: getting the Landing Page's garrison type can return empty values (nil) instead of zero (0) which caused an error.
+* Addon Compartment: the click handler's argument types have been changed in the pre-expansion patch and couldn't be processed correctly.
+* Tooltip: fixed UI scaling of the expansion details tooltip.
+* World Map Events: not all events appeared in the tooltip, due to the changes made by Blizzard.
+
 ## [1.1.0] - 2024-08-11
 
 ### Added

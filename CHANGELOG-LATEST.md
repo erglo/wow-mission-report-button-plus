@@ -1,8 +1,6 @@
 ## Latest Changes
 
-⚠️ **Note:** _This is a pre-release version and still in development._ ⚠️
-
-## [Unreleased]
+## [1.2.0] - 2024-08-14
 
 ### Changed
 
@@ -17,7 +15,7 @@
 * Data: getting the Landing Page's garrison type can return empty values (nil) instead of zero (0) which caused an error.
 * Addon Compartment: the click handler's argument types have been changed in the pre-expansion patch and couldn't be processed correctly.
 * Tooltip: fixed UI scaling of the expansion details tooltip.
-* World Map Events: not all events appeared in the tooltip, since changes made by Blizzard in the pre-expansion patch.
+* World Map Events: not all events appeared in the tooltip, due to the changes made by Blizzard.
 
 &nbsp;
 
