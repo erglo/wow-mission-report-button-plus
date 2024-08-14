@@ -26,7 +26,7 @@ local L = ns.L
 
 local util = ns.utilities  --> <utils\mrbputils.lua>
 local ExpansionInfo = ns.ExpansionInfo  --> <data\expansion.lua>
-local LocalDragonridingUtil = ns.DragonridingUtil  --> <utils\mrbputils.lua>
+local LocalDragonridingUtil = ns.DragonridingUtil  --> <utils\dragonriding.lua>
 
 local LocalTooltipUtil = {}  --> Handler from this file
 ns.utilities.tooltip = LocalTooltipUtil

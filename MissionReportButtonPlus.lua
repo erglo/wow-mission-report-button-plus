@@ -50,7 +50,7 @@ local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
 local LabelUtil = ns.data;  --> <data\labels.lua>
-local LocalDragonridingUtil = ns.DragonridingUtil  --> <utils\mrbputils.lua>
+local LocalDragonridingUtil = ns.DragonridingUtil  --> <utils\dragonriding.lua>
 
 -- ns.poi9;  --> <utils\poi-9-dragonflight.lua>
 

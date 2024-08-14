@@ -1,5 +1,6 @@
 --------------------------------------------------------------------------------
---[[ Mission Report Button Plus - Utility and logging functions ]]--
+--[[ poi-9-dragonflight.lua - Utility and wrapper functions for handling
+-- 							  Dragonflight World Map events in WoW. ]]--
 --
 -- by erglo <erglo.coder+MRBP@gmail.com>
 --
