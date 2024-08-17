@@ -1,21 +1,10 @@
 ## Latest Changes
 
-## [1.2.0] - 2024-08-14
-
-### Changed
-
-* Updated TOC file version to `WoW 11.0.2`.
-* Settings: the settings frame can now be toggled from each source, eg. as slash command in chat, via right-click menu or addon compartment.
-* Settings: updated the tooltip for the Appearance shortcut button.
-* Settings: addressed some changes in the new game version.
-* Dragonflight: updated all World Map events.
+## [1.2.1] - 2024-08-17
 
 ### Fixed
 
-* Data: getting the Landing Page's garrison type can return empty values (nil) instead of zero (0) which caused an error.
-* Addon Compartment: the click handler's argument types have been changed in the pre-expansion patch and couldn't be processed correctly.
-* Tooltip: fixed UI scaling of the expansion details tooltip.
-* World Map Events: not all events appeared in the tooltip, due to the changes made by Blizzard.
+* Settings: an error occurred with the multiple font dropdown menus due to the most recent hotfix from Blizzard. As of now using only 1 variable for more than 1 setting control is no longer allowed. (Thanks go to [zaphon](https://github.com/zaphon) for the hyperlink to the Blizzard changes and the others for reporting this quickly.)
 
 &nbsp;
 
