@@ -511,9 +511,12 @@ end
 -- valueList: {{key, label, tooltip_description}, ...}
 -- allowed key types: see Settings.VarType
 local function DropDown_Create(category, variableName, valueList, defaultText, tooltip)
-	local defaultValue = ns.defaultSettings[variableName];
-	local currentValue = ns.settings[variableName];
-	local varType = type(valueList[1][1])  --> eg. Settings.VarType.String;
+	-- "menuTextFont#1-4" will be handled separately
+	local varName, menuTextFontIndexString = strsplit('#', variableName);
+
+	local defaultValue = menuTextFontIndexString and ns.defaultSettings[varName] or ns.defaultSettings[variableName];
+	local currentValue = menuTextFontIndexString and ns.settings[varName] or ns.settings[variableName];
+	local varType = type(defaultValue);
 
 	local setting = CustomRegisterAddOnSetting(category, defaultText, variableName, varType, defaultValue);
 
@@ -526,7 +529,7 @@ local function DropDown_Create(category, variableName, valueList, defaultText, t
 		end
 		local data = container:GetData();
 		for index, optionData in ipairs(data) do
-			if (variableName == "menuTextFont") then
+			if menuTextFontIndexString then
 				optionData.onEnter = OnEntryEnter_SetFontPreview;
 			end
 			if (optionData.value == defaultValue) then
@@ -539,36 +542,34 @@ local function DropDown_Create(category, variableName, valueList, defaultText, t
 		return data;
 	end
 
-	local defaultValueTooltip = tooltip..AppendDefaultValueText(variableName);
+	local defaultValueTooltip = tooltip..AppendDefaultValueText(menuTextFontIndexString and varName or variableName);
 	-- REF.: Settings.CreateDropdown(category, setting, options, tooltip) --> initializer
 	local initializer = Settings.CreateDropdown(category, setting, GetOptions, defaultValueTooltip);
 
 	-- Track and display user changes
 	setting:SetValue(currentValue);
 	local function OnValueChanged(owner, settingInfo, value)
-		if (settingInfo.variable == "menuTextFont" and value ~= ns.settings.menuTextFont and not LocalFontUtil.changerSetting) then
+		local vName, ixString = strsplit('#', settingInfo.variable);
+		-- Currently only "menuTextFont#1-4" returns an index string
+		if (ixString and value ~= ns.settings.menuTextFont) then
+			-- Current value derived from "primary" value
+			ns.settings[vName] = value;  --> always update this, so 'ns.settings.menuTextFont' can be used in core.
 			-- Update font size slider
 			local fontSizeSetting = Settings.GetSetting("menuTextFontSize");
 			if fontSizeSetting then
 				fontSizeSetting:SetValue(LocalFontUtil:GetCurrentFontSize());
 			end
 			printOption(settingInfo.name, value);
-			SaveSingleSetting(settingInfo.variable, value);
-			LocalFontUtil.changerSetting = settingInfo;
-			return;
-		end
-		if (settingInfo.variable == "menuTextFont" and LocalFontUtil.changerSetting ~= nil) then
-			-- Update all but current font dropdowns
+			SaveSingleSetting(vName, value);  --> save to "primary"
+			-- Update the other font dropdown controls
 			for i, otherSetting in ipairs(LocalFontUtil.fontSettings) do
-				if (otherSetting ~= LocalFontUtil.changerSetting) then
-					LocalFontUtil.changerSetting = nil;
+				local v, iString = strsplit('#', otherSetting.variable);
+				if (ixString ~= iString) then
 					otherSetting:SetValue(value);
 				end
 			end
-			return;
-
 		end
-		if (settingInfo.variable ~= "menuTextFont") then
+		if not ixString then
 			printOption(settingInfo.name, value);
 			SaveSingleSetting(settingInfo.variable, value);
 		end
@@ -576,7 +577,7 @@ local function DropDown_Create(category, variableName, valueList, defaultText, t
 	Settings.SetOnValueChangedCallback(variableName, OnValueChanged);
 
 	-- Add a font preview frame, but only for the font selection
-	if (variableName == "menuTextFont") then
+	if menuTextFontIndexString then
 		local function OnShow()
 			QuestTextPreviewFrame:Show();
 			-- Prepare preview
@@ -1298,8 +1299,14 @@ function MRBP_Settings_Register()
 			end
 
 			local menuTextFontLabel = L.CFG_APPEARANCE_FONT_SELECTION_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(L.SELECTION_PART_NUM_D);
+			-- Note:
+			-- As of now Blizzard only allows 1 variable per each setting control. (2024-08-17)
+			-- We need to register 4 variables for each control, but only the above variable holds the current font
+			-- value. It remains the "primary" variable which will be saved/loaded by the game.
 			for i = 1, #menuTextFontValueList do
-				local setting, initializer = DropDown_Create(appearanceCategory, menuTextFontVarName, menuTextFontValueList[i],  menuTextFontLabel:format(i), L.CFG_APPEARANCE_FONT_SELECTION_TOOLTIP);
+				local varName = menuTextFontVarName.."#"..tostring(i);
+				ns.settings[varName] = ns.settings[menuTextFontVarName];
+				local setting, initializer = DropDown_Create(appearanceCategory, varName, menuTextFontValueList[i],  menuTextFontLabel:format(i), L.CFG_APPEARANCE_FONT_SELECTION_TOOLTIP);
 				tinsert(LocalFontUtil.fontSettings, setting);
 			end
 			--> TODO - Apply font's built-in color as well?
