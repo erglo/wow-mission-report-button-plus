@@ -97,9 +97,9 @@ end
 function LandingPageInfo:Load_Warlords_of_Draenor()
     local playerFactionGroupTag = PlayerInfo:GetFactionGroupData("tag");
     local garrisonFollowerTypeID = Enum.GarrisonFollowerType.FollowerType_6_0_GarrisonFollower;
-    local garrisonTypeID = ExpansionInfo.data.WARLORDS_OF_DRAENOR.garrisonTypeID;
+    local expansionID = ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID;
     return {
-        ["garrisonTypeID"] = garrisonTypeID,
+        ["garrisonTypeID"] = ExpansionInfo.data.WARLORDS_OF_DRAENOR.garrisonTypeID,
         ["garrisonFollowerTypeID"] = garrisonFollowerTypeID,
         ["tagName"] = playerFactionGroupTag,
         ["title"] = GARRISON_LANDING_PAGE_TITLE,
@@ -111,9 +111,9 @@ function LandingPageInfo:Load_Warlords_of_Draenor()
             ["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,  --> "%d/%d Ready for pickup"
             ["missionsEmptyProgress"] = GARRISON_EMPTY_IN_PROGRESS_LIST,
             ["missionsComplete"] = GarrisonFollowerOptions[garrisonFollowerTypeID].strings.LANDING_COMPLETE or '???',
-            ["requirementText"] = ns.MRBP_GetGarrisonTypeUnlockQuestInfo(garrisonTypeID, playerFactionGroupTag).requirementText,
+            ["requirementText"] = ns.GetLandingPageTypeUnlockInfo(expansionID, playerFactionGroupTag).requirementText,
         },
-        ["expansionID"] = ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID,
+        ["expansionID"] = expansionID,
         ["continents"] = ExpansionInfo.data.WARLORDS_OF_DRAENOR.continents,
         -- ["poiZones"] = {525, 534, 535, 539, 542, 543, 550, 588},  -- Frostfire Ridge, Tanaan Jungle, Taladoor, Shadowmoon Valley, Spires of Arak, Gorgrond, Nagrand, Ashran
         -- No bounties in Draenor; only available since Legion.
@@ -123,10 +123,10 @@ end
 function LandingPageInfo:Load_Legion()
     local playerClassTag = PlayerInfo:GetClassData("tag");
     local garrisonFollowerTypeID = Enum.GarrisonFollowerType.FollowerType_7_0_GarrisonFollower;
-    local garrisonTypeID = ExpansionInfo.data.LEGION.garrisonTypeID;
+    local expansionID = ExpansionInfo.data.LEGION.ID;
     local mapID = 650;  -- Highmountain
     return {
-        ["garrisonTypeID"] = garrisonTypeID,
+        ["garrisonTypeID"] = ExpansionInfo.data.LEGION.garrisonTypeID,
         ["garrisonFollowerTypeID"] = garrisonFollowerTypeID,
         ["tagName"] = playerClassTag,
         ["title"] = ORDER_HALL_LANDING_PAGE_TITLE,
@@ -138,9 +138,9 @@ function LandingPageInfo:Load_Legion()
             ["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
             ["missionsEmptyProgress"] = GARRISON_EMPTY_IN_PROGRESS_LIST,
             ["missionsComplete"] = GarrisonFollowerOptions[garrisonFollowerTypeID].strings.LANDING_COMPLETE,
-            ["requirementText"] = ns.MRBP_GetGarrisonTypeUnlockQuestInfo(garrisonTypeID, playerClassTag).requirementText,
+            ["requirementText"] = ns.GetLandingPageTypeUnlockInfo(expansionID, playerClassTag).requirementText,
         },
-        ["expansionID"] = ExpansionInfo.data.LEGION.ID,
+        ["expansionID"] = expansionID,
         ["continents"] = ExpansionInfo.data.LEGION.continents,
         ["poiZones"] = {
         	630, 634, 641, 646, 650, 680, 790,  -- Azsuna, Stormheim, Val'sharah, Broken Shore, Highmountain, Suramar, Eye of Azshara
@@ -159,10 +159,10 @@ end
 function LandingPageInfo:Load_Battle_for_Azeroth()
     local playerFactionGroupTag = PlayerInfo:GetFactionGroupData("tag");
     local garrisonFollowerTypeID = Enum.GarrisonFollowerType.FollowerType_8_0_GarrisonFollower;
-    local garrisonTypeID = ExpansionInfo.data.BATTLE_FOR_AZEROTH.garrisonTypeID;
+    local expansionID = ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID;
     local mapID = playerFactionGroupTag == "Horde" and 875 or 876;
     return {
-        ["garrisonTypeID"] = garrisonTypeID,
+        ["garrisonTypeID"] = ExpansionInfo.data.BATTLE_FOR_AZEROTH.garrisonTypeID,
         ["garrisonFollowerTypeID"] = garrisonFollowerTypeID,
         ["tagName"] = playerFactionGroupTag,
         ["title"] = GARRISON_TYPE_8_0_LANDING_PAGE_TITLE,
@@ -174,9 +174,9 @@ function LandingPageInfo:Load_Battle_for_Azeroth()
             ["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
             ["missionsEmptyProgress"] = GARRISON_EMPTY_IN_PROGRESS_LIST,
             ["missionsComplete"] = GarrisonFollowerOptions[garrisonFollowerTypeID].strings.LANDING_COMPLETE,
-            ["requirementText"] = ns.MRBP_GetGarrisonTypeUnlockQuestInfo(garrisonTypeID, playerFactionGroupTag).requirementText,
+            ["requirementText"] = ns.GetLandingPageTypeUnlockInfo(expansionID, playerFactionGroupTag).requirementText,
         },
-        ["expansionID"] = ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID,
+        ["expansionID"] = expansionID,
         ["continents"] = ExpansionInfo.data.BATTLE_FOR_AZEROTH.continents,
         ["poiZones"] = {
             62, 14, 1355, 1462, -- Arathi Highlands, Darkshore, Nazjatar, Mechagon
@@ -196,9 +196,9 @@ end
 function LandingPageInfo:Load_Shadowlands()
     local playerCovenantData = PlayerInfo:GetCovenantData();  --> adds PlayerInfo.activeCovenantID
     local garrisonFollowerTypeID = Enum.GarrisonFollowerType.FollowerType_9_0_GarrisonFollower;
-    local garrisonTypeID = ExpansionInfo.data.SHADOWLANDS.garrisonTypeID;
+    local expansionID = ExpansionInfo.data.SHADOWLANDS.ID;
     return {
-        ["garrisonTypeID"] = garrisonTypeID,
+        ["garrisonTypeID"] = ExpansionInfo.data.SHADOWLANDS.garrisonTypeID,
         ["garrisonFollowerTypeID"] = garrisonFollowerTypeID,
         ["tagName"] = PlayerInfo.activeCovenantID,
         ["title"] = GARRISON_TYPE_9_0_LANDING_PAGE_TITLE,
@@ -210,9 +210,9 @@ function LandingPageInfo:Load_Shadowlands()
             ["missionsReadyCount"] = GARRISON_LANDING_COMPLETED,
             ["missionsEmptyProgress"] = COVENANT_MISSIONS_EMPTY_IN_PROGRESS,
             ["missionsComplete"] = GarrisonFollowerOptions[garrisonFollowerTypeID].strings.LANDING_COMPLETE,
-            ["requirementText"] = ns.MRBP_GetGarrisonTypeUnlockQuestInfo(garrisonTypeID, PlayerInfo.activeCovenantID).requirementText,
+            ["requirementText"] = ns.GetLandingPageTypeUnlockInfo(expansionID, PlayerInfo.activeCovenantID).requirementText,
         },
-        ["expansionID"] = ExpansionInfo.data.SHADOWLANDS.ID,
+        ["expansionID"] = expansionID,
         ["continents"] = ExpansionInfo.data.SHADOWLANDS.continents,
         ["poiZones"] = {
             -- 1525, 1533, 1536, 1565, 1543,  -- Revendreth, Bastion, Maldraxxus, Ardenweald, The Maw
@@ -230,18 +230,18 @@ end
 
 function LandingPageInfo:Load_Dragonflight()
     local playerFactionGroupTag = PlayerInfo:GetFactionGroupData("tag");
-    local garrisonTypeID = ExpansionInfo.data.DRAGONFLIGHT.garrisonTypeID;
+    local expansionID = ExpansionInfo.data.DRAGONFLIGHT.ID;
     return {
-        ["garrisonTypeID"] = garrisonTypeID,
+        ["garrisonTypeID"] = ExpansionInfo.data.DRAGONFLIGHT.garrisonTypeID,
         ["tagName"] = playerFactionGroupTag,
         ["title"] = DRAGONFLIGHT_LANDING_PAGE_TITLE,
         ["description"] = DRAGONFLIGHT_LANDING_PAGE_TOOLTIP,
         ["minimapIcon"] = "dragonflight-landingbutton-up",
         ["bannerAtlas"] = "accountupgradebanner-dragonflight",  -- 199x133
         ["msg"] = {
-            ["requirementText"] = ns.MRBP_GetGarrisonTypeUnlockQuestInfo(garrisonTypeID, playerFactionGroupTag).requirementText,
+            ["requirementText"] = ns.GetLandingPageTypeUnlockInfo(expansionID, playerFactionGroupTag).requirementText,
         },
-        ["expansionID"] = ExpansionInfo.data.DRAGONFLIGHT.ID,
+        ["expansionID"] = expansionID,
         ["continents"] = ExpansionInfo.data.DRAGONFLIGHT.continents,
         ["poiZones"] = {
             2022, 2023, 2024, 2025, 2118,  -- Waking Shores, Ohn'ahran Plains, Azure Span, Thaldraszus, The Forbidden Reach
@@ -254,21 +254,21 @@ end
 
 function LandingPageInfo:Load_The_War_Within()
     local playerFactionGroupTag = PlayerInfo:GetFactionGroupData("tag");
-    -- local playerClassTag = PlayerInfo:GetClassData("tag");
-    local garrisonTypeID = ExpansionInfo.data.WAR_WITHIN.garrisonTypeID;
+    -- local playerClassTag = PlayerInfo:GetClassData("tag");  --> New allied race: The Earthen.
+    local expansionID = ExpansionInfo.data.WAR_WITHIN.ID;
     return {
-        ["garrisonTypeID"] = garrisonTypeID,
+        ["garrisonTypeID"] = ExpansionInfo.data.WAR_WITHIN.garrisonTypeID,
         ["tagName"] = playerFactionGroupTag,
         ["title"] = WAR_WITHIN_LANDING_PAGE_TITLE,
         ["description"] = WAR_WITHIN_LANDING_PAGE_TOOLTIP,
         ["minimapIcon"] = "warwithin-landingbutton-up",
         ["bannerAtlas"] = "accountupgradebanner-thewarwithin",  -- 199x133
         ["msg"] = {
-            ["requirementText"] = ns.MRBP_GetGarrisonTypeUnlockQuestInfo(garrisonTypeID, playerFactionGroupTag).requirementText,
+            ["requirementText"] = ns.GetLandingPageTypeUnlockInfo(expansionID, playerFactionGroupTag).requirementText,
             -- ["majorFactionUnlocked"] = WAR_WITHIN_LANDING_PAGE_ALERT_MAJOR_FACTION_UNLOCKED,
             -- ["summaryUnlocked"] = WAR_WITHIN_LANDING_PAGE_ALERT_SUMMARY_UNLOCKED,
         },
-        ["expansionID"] = ExpansionInfo.data.WAR_WITHIN.ID,
+        ["expansionID"] = expansionID,
         ["continents"] = ExpansionInfo.data.WAR_WITHIN.continents,
         ["poiZones"] = nil,
 	};

@@ -344,12 +344,12 @@ end
 -- A collection of quest for (before) unlocking the command table.
 --> <questID, questName_English (fallback)>
 local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
-	[ExpansionInfo.data.WARLORDS_OF_DRAENOR.garrisonTypeID] = {
+	[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
 		-- REF.: <https://www.wowhead.com/guides/garrisons/quests-to-unlock-a-level-1-and-level-2-garrison>
 		["Horde"] = {34775, "Mission Probable"},  --> wowhead
 		["Alliance"] = {34692, "Delegating on Draenor"},  --> Companion App
 	},
-	[ExpansionInfo.data.LEGION.garrisonTypeID] = {
+	[ExpansionInfo.data.LEGION.ID] = {
 		["WARRIOR"] = {40585, "Thus Begins the War"},
 		["PALADIN"] = {39696, "Rise, Champions"},
 		["HUNTER"] = {42519, "Rise, Champions"},
@@ -364,26 +364,25 @@ local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
 		["DEMONHUNTER"] = {42670, "Rise, Champions"},
 		["EVOKER"] = {72129, "Aiding Khadgar"},  --> no Class Hall for Evoker (!); talk to Khadgar instead.
 	},
-	[ExpansionInfo.data.BATTLE_FOR_AZEROTH.garrisonTypeID] = {
+	[ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = {
 		["Horde"] = {51771, "War of Shadows"},
 		["Alliance"] = {51715, "War of Shadows"},
 	},
-	[ExpansionInfo.data.SHADOWLANDS.garrisonTypeID] = {
+	[ExpansionInfo.data.SHADOWLANDS.ID] = {
 		[Enum.CovenantType.Kyrian] = {57878, "Choosing Your Purpose"},
 		[Enum.CovenantType.Venthyr] = {57878, "Choosing Your Purpose"}, 	--> optional: 59319, "Advancing Our Efforts"
 		[Enum.CovenantType.NightFae] = {57878, "Choosing Your Purpose"},	--> optional: 61552, "The Hunt Watches"
 		[Enum.CovenantType.Necrolord] = {57878, "Choosing Your Purpose"},
 		["alt"] = {62000, "Choosing Your Purpose"},  --> when skipping story mode
 	},
-	[ExpansionInfo.data.DRAGONFLIGHT.landingPageType] = {
+	[ExpansionInfo.data.DRAGONFLIGHT.ID] = {
 		["Horde"] = {65444, "To the Dragon Isles!"},
 		["Alliance"] = {67700, "To the Dragon Isles!"},
 		-- ["alt"] = {68798, "Dragon Glyphs and You"},
 	},
-	[ExpansionInfo.data.WAR_WITHIN.landingPageType] = {						--> TODO - TWW (Note: has same ID as Draenor)
+	[ExpansionInfo.data.WAR_WITHIN.ID] = {
 		["Horde"] = {0, UNKNOWN},
 		["Alliance"] = {0, UNKNOWN},
-		--> New allied race: The Earthen.
 	},
 }
 
@@ -395,7 +394,7 @@ function MRBP:RequestLoadData()
 	local playerCovenantID = PlayerInfo:GetActiveCovenantID();
 	local playerFactionGroupTag = PlayerInfo:GetFactionGroupData("tag");
 	local tagNames = {playerFactionGroupTag, playerClassTag, playerCovenantID};
-	for garrisonTypeID, questData in pairs(MRBP_COMMAND_TABLE_UNLOCK_QUESTS) do
+	for _, questData in pairs(MRBP_COMMAND_TABLE_UNLOCK_QUESTS) do
 		-- if not questData then break; end
 		for tagName, questTable in pairs(questData) do
 			local questID = questTable[1];
@@ -415,30 +414,31 @@ end
 
 -- Get quest details of given garrison type for given tag.
 --> Returns: table  {questID, questName, requirementText}
-local function MRBP_GetGarrisonTypeUnlockQuestInfo(garrTypeID, tagName)
-	local reqMessageTemplate = L.TOOLTIP_REQUIREMENTS_TEXT_S  --> same as Companion App text
-	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID] and MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID][tagName]
-	if not questData then return {requirementText=UNKNOWN}; end
-	local questID = questData[1]
-	local questFallbackName = questData[2]  --> quest name in English
-	local questName = QuestUtils_GetQuestName(questID)
+local function MRBP_GetLandingPageTypeUnlockInfo(expansionID, tagName)
+	local reqMessageTemplate = L.TOOLTIP_REQUIREMENTS_TEXT_S;  --> same as Companion App text
+	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID] and MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID][tagName];
+	if not questData then return { requirementText = UNKNOWN }; end
 
-	local questInfo = {}
-	questInfo["questID"] = questID
-	questInfo["questName"] = strlen(questName) > 0 and questName or questFallbackName
-	questInfo["requirementText"] = reqMessageTemplate:format(questInfo.questName)
+	local questID = questData[1];
+	local questFallbackName = questData[2];  --> quest name in English
+	local questName = QuestUtils_GetQuestName(questID);
 
-	return questInfo
+	local questInfo = {};
+	questInfo["questID"] = questID;
+	questInfo["questName"] = strlen(questName) > 0 and questName or questFallbackName;
+	questInfo["requirementText"] = reqMessageTemplate:format(questInfo.questName);
+
+	return questInfo;
 end
-ns.MRBP_GetGarrisonTypeUnlockQuestInfo = MRBP_GetGarrisonTypeUnlockQuestInfo;
+ns.GetLandingPageTypeUnlockInfo = MRBP_GetLandingPageTypeUnlockInfo;
 
 -- Check if given garrison type is unlocked for given tag.
 ---@param garrTypeID number
 ---@param tagName string|number
 ---@return boolean isCompleted
 --
-local function MRBP_IsGarrisonTypeUnlocked(garrTypeID, tagName)
-	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID][tagName];
+local function MRBP_IsLandingPageTypeUnlocked(expansionID, tagName)
+	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID][tagName];
 	-- if not questData then return true; end
 
 	local questID = questData[1];
@@ -447,8 +447,8 @@ local function MRBP_IsGarrisonTypeUnlocked(garrTypeID, tagName)
 	--> FIXME - Temp. work-around (better with achievement of same name ???)
 	-- In Shadowlands if you skip the story mode you get a different quest (ID) with the same name, so
 	-- we need to check both quests.
-	if (garrTypeID == ExpansionInfo.data.SHADOWLANDS.garrisonTypeID) then
-		local questID2 = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID]["alt"][1];
+	if (expansionID == ExpansionInfo.data.SHADOWLANDS.ID) then
+		local questID2 = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID]["alt"][1];
 		return IsCompleted(questID) or IsCompleted(questID2);
 	end
 
@@ -459,7 +459,7 @@ end
 -- unlock the command table.
 -- Note: Currently only the required quest is checked for completion and
 --       nothing more. In Shadowlands there would be one more step needed, since
---       2 quest are available for this (see MRBP_IsGarrisonTypeUnlocked).
+--       2 quest are available for this (see MRBP_IsLandingPageTypeUnlocked).
 ---@param garrisonTypeID number
 ---@return boolean|nil isRequirementMet?
 ---
@@ -468,7 +468,7 @@ function MRBP_IsGarrisonRequirementMet(garrisonTypeID)
 	if not garrisonInfo then return false end
 
 	local hasGarrison = util.garrison.HasGarrison(garrisonInfo.garrisonTypeID);
-	local isQuestCompleted = MRBP_IsGarrisonTypeUnlocked(garrisonInfo.garrisonTypeID, garrisonInfo.tagName);
+	local isQuestCompleted = MRBP_IsLandingPageTypeUnlocked(garrisonInfo.expansionID, garrisonInfo.tagName);
 
 	if (garrisonInfo.expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
 		local isUnlocked = C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(garrisonInfo.expansionID);
@@ -1509,7 +1509,7 @@ function MRBP:RegisterSlashCommands()
 					local garrisonInfo = LandingPageInfo:GetGarrisonInfo(expansion.garrisonTypeID);
 				    _log:debug("HasGarrison:", util.garrison.HasGarrison(expansion.garrisonTypeID),
 							   "- req:", MRBP_IsGarrisonRequirementMet(expansion.garrisonTypeID),
-							   "- unlocked:", MRBP_IsGarrisonTypeUnlocked(expansion.garrisonTypeID, garrisonInfo.tagName));
+							   "- unlocked:", MRBP_IsLandingPageTypeUnlocked(expansion.ID, garrisonInfo.tagName));
 				end
 
 				local playerLevel = UnitLevel("player");
