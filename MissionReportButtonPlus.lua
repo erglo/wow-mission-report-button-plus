@@ -373,15 +373,15 @@ local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
 		[Enum.CovenantType.Necrolord] = {57878, "Choosing Your Purpose"},
 		["alt"] = {62000, "Choosing Your Purpose"},  --> when skipping story mode
 	},
-	[ExpansionInfo.data.DRAGONFLIGHT.ID] = {
-		["Horde"] = {65444, "To the Dragon Isles!"},
-		["Alliance"] = {67700, "To the Dragon Isles!"},
-		-- ["alt"] = {68798, "Dragon Glyphs and You"},
-	},
-	[ExpansionInfo.data.WAR_WITHIN.ID] = {
-		["Horde"] = {0, UNKNOWN},
-		["Alliance"] = {0, UNKNOWN},
-	},
+	-- [ExpansionInfo.data.DRAGONFLIGHT.ID] = {
+	-- 	["Horde"] = {65444, "To the Dragon Isles!"},
+	-- 	["Alliance"] = {67700, "To the Dragon Isles!"},
+	-- 	-- ["alt"] = {68798, "Dragon Glyphs and You"},
+	-- },
+	-- [ExpansionInfo.data.WAR_WITHIN.ID] = {
+	-- 	["Horde"] = {0, UNKNOWN},
+	-- 	["Alliance"] = {0, UNKNOWN},
+	-- },
 }
 
 -- Request data for the unlocking requirement quests; on initial log-in the
@@ -1408,34 +1408,41 @@ end
 -- **Note:** At first log-in this always returns 0 (== no garrison at all).
 --
 function MRBP_GetLandingPageGarrisonType()
-	_log:info("Starting garrison type adjustment...")
+	-- Check non-garrison types first
+	local landingPageType = ExpansionLandingPage:GetLandingPageType();
+	if (landingPageType >= ExpansionInfo.data.DRAGONFLIGHT.landingPageType) then
+		return 0;
+	end
 
-	local garrTypeID = MRBP_GetLandingPageGarrisonType_orig();
-	_log:debug("Got original garrison type:", garrTypeID)
+	-- Handle garrison types
+	local garrisonTypeID = MRBP_GetLandingPageGarrisonType_orig();
 
-	if (garrTypeID and garrTypeID > 0 and not MRBP_IsGarrisonRequirementMet(garrTypeID) ) then
+	local garrisonInfo = LandingPageInfo:GetGarrisonInfo(garrisonTypeID);
+	local isUnlocked = MRBP_IsLandingPageTypeUnlocked(garrisonInfo.expansionID, garrisonInfo.tagName);
+
+	if (garrisonTypeID and garrisonTypeID > 0 and not isUnlocked ) then
 		-- Build and return garrison type ID of previous expansion.
-		local minExpansionID = ExpansionInfo:GetMinimumExpansionLevel()  --> min. available, eg. 8 (Shadowlands)
+		local minExpansionID = ExpansionInfo:GetMinimumExpansionLevel();  --> min. available, eg. 8 (Shadowlands)
 		-- Need last attribute of eg. 'Enum.GarrisonType.Type_8_0_Garrison'
-		local garrTypeID_Minimum = Enum.GarrisonType["Type_"..tostring(minExpansionID).."_0"]
+		local garrisonTypeID_Minimum = Enum.GarrisonType["Type_"..tostring(minExpansionID).."_0_Garrison"];
 
 		if (_log.level == _log.DEBUG) then
 			-- Tests
 			local playerExpansionID = ExpansionInfo:GetExpansionForPlayerLevel()
 			local maxExpansionID = ExpansionInfo:GetMaximumExpansionLevel()  --> max. available, eg. 9 (Dragonflight)
-			local garrTypeID_Player = Enum.GarrisonType["Type_"..tostring(playerExpansionID+1).."_0"]
+			local garrisonTypeID_Player = Enum.GarrisonType["Type_"..tostring(playerExpansionID+1).."_0"]
 			_log:debug("playerExpansionID:", playerExpansionID)
 			_log:debug("maxExpansionID:", maxExpansionID)
 			_log:debug("minExpansionID:", minExpansionID)
-			_log:debug("garrTypeID_Player:", garrTypeID_Player)
-			_log:debug("garrTypeID_Minimum:", garrTypeID_Minimum)
+			_log:debug("garrisonTypeID_Player:", garrisonTypeID_Player)
+			_log:debug("garrisonTypeID_Minimum:", garrisonTypeID_Minimum)
 		end
 
-		garrTypeID = garrTypeID_Minimum
+		garrisonTypeID = garrisonTypeID_Minimum;
 	end
 
-	_log:debug("Returning garrison type:", garrTypeID)
-	return garrTypeID or 0;
+	_log:debug("Returning garrison type:", garrisonTypeID)
+	return garrisonTypeID or 0;
 end
 
 --> TODO - Find a more secure way to pre-hook this.
