@@ -723,14 +723,20 @@ end
 --
 -- REF.: <FrameXML/Minimap.xml>
 -- REF.: <FrameXML/SharedTooltipTemplates.lua>
+-- REF.: <FrameXML/Blizzard_Minimap/Minimap.lua>
+-- 
 function MRBP_OnEnter(self, button, description_only)
 	if description_only then
 		-- Needed for Addon Compartment details
 		return self.description;
 	end
 	GameTooltip:SetOwner(self, "ANCHOR_LEFT");
-	GameTooltip:SetText(self.title, 1, 1, 1);
-	GameTooltip:AddLine(self.description, nil, nil, nil, true);
+	if self:IsInMajorFactionRenownMode() then
+		RenownRewardUtil.AddMajorFactionToTooltip(GameTooltip, self.majorFactionID, GenerateClosure(self.SetTooltip, self));
+	else
+		GameTooltip:SetText(self.title, 1, 1, 1);
+		GameTooltip:AddLine(self.description, nil, nil, nil, true);
+	end
 
 	-- Add right click description
 	local tooltipAddonText = L.TOOLTIP_CLICKTEXT_MINIMAPBUTTON;
