@@ -48,27 +48,32 @@ end
 local LandingPageInfo = {};
 ns.LandingPageInfo = LandingPageInfo;
 
-function LandingPageInfo:Initialize()
-    self[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = self:Load_Warlords_of_Draenor();
-    self[ExpansionInfo.data.LEGION.ID] = self:Load_Legion();
-    self[ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = self:Load_Battle_for_Azeroth();
-    self[ExpansionInfo.data.SHADOWLANDS.ID] = self:Load_Shadowlands();
-    self[ExpansionInfo.data.DRAGONFLIGHT.ID] = self:Load_Dragonflight();
-    self[ExpansionInfo.data.WAR_WITHIN.ID] = self:Load_The_War_Within();
+function LandingPageInfo:CheckInitialize(expansionID)
+    local exampleExpansionID = ExpansionInfo.data.SHADOWLANDS.ID;
+    if not self[expansionID or exampleExpansionID] then
+        self[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = self:Load_Warlords_of_Draenor();
+        self[ExpansionInfo.data.LEGION.ID] = self:Load_Legion();
+        self[ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = self:Load_Battle_for_Azeroth();
+        self[ExpansionInfo.data.SHADOWLANDS.ID] = self:Load_Shadowlands();
+        self[ExpansionInfo.data.DRAGONFLIGHT.ID] = self:Load_Dragonflight();
+        self[ExpansionInfo.data.WAR_WITHIN.ID] = self:Load_The_War_Within();
+    end
 end
 
 function LandingPageInfo:GetGarrisonInfo(garrisonTypeID)
+    self:CheckInitialize();
+    -- Look for garrison types only
     local expansionList = ExpansionInfo:GetExpansionsWithLandingPage();
     for _, expansion in ipairs(expansionList) do
         if (expansion.ID < ExpansionInfo.data.DRAGONFLIGHT.ID and expansion.garrisonTypeID == garrisonTypeID) then
-            return self[expansion.ID];
-        elseif (expansion.landingPageType == garrisonTypeID) then
             return self[expansion.ID];
         end
     end
 end
 
 function LandingPageInfo:GetGarrisonInfoByFollowerType(followerTypeID, onlyGarrisonTypeID)
+    self:CheckInitialize();
+
     local garrisonTypeID =  GarrisonFollowerOptions[followerTypeID].garrisonType;
     if onlyGarrisonTypeID then
         return garrisonTypeID;
@@ -77,7 +82,15 @@ function LandingPageInfo:GetGarrisonInfoByFollowerType(followerTypeID, onlyGarri
 end
 
 function LandingPageInfo:GetLandingPageInfo(expansionID)
+    self:CheckInitialize();
+
     return self[expansionID];
+end
+
+----- Wrapper -----
+
+function LandingPageInfo:IsLandingPageUnlocked(expansionID)
+    return C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(expansionID);
 end
 
 ----- Landing Page Data -----

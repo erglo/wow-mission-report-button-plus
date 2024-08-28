@@ -303,9 +303,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			--> updates on opening the world map in Shadowlands.
 			local callings = ...;
 			-- _log:debug("Covenant callings received:", #callings);
-			if not LandingPageInfo[ExpansionInfo.data.SHADOWLANDS.ID] then
-				LandingPageInfo:Initialize();
-			end
+			LandingPageInfo:CheckInitialize();
 			LandingPageInfo[ExpansionInfo.data.SHADOWLANDS.ID].bountyBoard["GetBounties"] = function() return callings end;
 
 		elseif (event == "MAJOR_FACTION_UNLOCKED") then
@@ -326,7 +324,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 function MRBP:OnLoad()
 	-- Load data and their handler
 	LabelUtil:LoadInGameLabels()
-	LandingPageInfo:Initialize();
+	LandingPageInfo:CheckInitialize();
 	-- Prepare quest data for the unlocking requirements
 	self:RequestLoadData();
 
