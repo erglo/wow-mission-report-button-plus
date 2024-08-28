@@ -277,7 +277,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			else
 				-- Minimap already visible through WoW default process
 				if (not ns.settings.showMinimapButton) then
-					MRBP:HideMinimapButton()
+					self:HideMinimapButton()
 				end
 			end
 
@@ -303,10 +303,10 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			--> updates on opening the world map in Shadowlands.
 			local callings = ...;
 			-- _log:debug("Covenant callings received:", #callings);
-			if not LandingPageInfo[ExpansionInfo.data.SHADOWLANDS.garrisonTypeID] then
+			if not LandingPageInfo[ExpansionInfo.data.SHADOWLANDS.ID] then
 				LandingPageInfo:Initialize();
 			end
-			LandingPageInfo[ExpansionInfo.data.SHADOWLANDS.garrisonTypeID].bountyBoard["GetBounties"] = function() return callings end;
+			LandingPageInfo[ExpansionInfo.data.SHADOWLANDS.ID].bountyBoard["GetBounties"] = function() return callings end;
 
 		elseif (event == "MAJOR_FACTION_UNLOCKED") then
 			-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>
@@ -375,10 +375,15 @@ local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
 		[Enum.CovenantType.Necrolord] = {57878, "Choosing Your Purpose"},
 		["alt"] = {62000, "Choosing Your Purpose"},  --> when skipping story mode
 	},
-	[ExpansionInfo.data.DRAGONFLIGHT.garrisonTypeID] = {
-		["Horde"] ={65444, "To the Dragon Isles!"},
+	[ExpansionInfo.data.DRAGONFLIGHT.landingPageType] = {
+		["Horde"] = {65444, "To the Dragon Isles!"},
 		["Alliance"] = {67700, "To the Dragon Isles!"},
 		-- ["alt"] = {68798, "Dragon Glyphs and You"},
+	},
+	[ExpansionInfo.data.WAR_WITHIN.landingPageType] = {						--> TODO - TWW (Note: has same ID as Draenor)
+		["Horde"] = {0, UNKNOWN},
+		["Alliance"] = {0, UNKNOWN},
+		--> New allied race: The Earthen.
 	},
 }
 
@@ -391,6 +396,7 @@ function MRBP:RequestLoadData()
 	local playerFactionGroupTag = PlayerInfo:GetFactionGroupData("tag");
 	local tagNames = {playerFactionGroupTag, playerClassTag, playerCovenantID};
 	for garrisonTypeID, questData in pairs(MRBP_COMMAND_TABLE_UNLOCK_QUESTS) do
+		-- if not questData then break; end
 		for tagName, questTable in pairs(questData) do
 			local questID = questTable[1];
 			if (questID > 0) then
@@ -411,7 +417,8 @@ end
 --> Returns: table  {questID, questName, requirementText}
 local function MRBP_GetGarrisonTypeUnlockQuestInfo(garrTypeID, tagName)
 	local reqMessageTemplate = L.TOOLTIP_REQUIREMENTS_TEXT_S  --> same as Companion App text
-	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID][tagName]
+	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID] and MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID][tagName]
+	if not questData then return {requirementText=UNKNOWN}; end
 	local questID = questData[1]
 	local questFallbackName = questData[2]  --> quest name in English
 	local questName = QuestUtils_GetQuestName(questID)
@@ -432,6 +439,8 @@ ns.MRBP_GetGarrisonTypeUnlockQuestInfo = MRBP_GetGarrisonTypeUnlockQuestInfo;
 --
 local function MRBP_IsGarrisonTypeUnlocked(garrTypeID, tagName)
 	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[garrTypeID][tagName];
+	-- if not questData then return true; end
+
 	local questID = questData[1];
 	local IsCompleted = C_QuestLog.IsQuestFlaggedCompleted;
 
@@ -1428,6 +1437,8 @@ end
 MRBP_GetLandingPageGarrisonType_orig = C_Garrison.GetLandingPageGarrisonType
 C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType
 
+--> TODO - Try ExpansionLandingPageMixin:GetLandingPageType()
+
 ----- Slash commands -----------------------------------------------------------
 
 local SLASH_CMD_ARGLIST = {
@@ -1494,10 +1505,11 @@ function MRBP:RegisterSlashCommands()
 
 				local expansionList = ExpansionInfo:GetExpansionsWithLandingPage();
 				for _, expansion in ipairs(expansionList) do
+					_log:debug(expansion.ID, expansion.garrisonTypeID, YELLOW_FONT_COLOR:WrapTextInColorCode(expansion.name))
 					local garrisonInfo = LandingPageInfo:GetGarrisonInfo(expansion.garrisonTypeID);
-				   _log:debug("HasGarrison:", util.garrison.HasGarrison(expansion.garrisonTypeID),
-							  "- req:", MRBP_IsGarrisonRequirementMet(expansion.garrisonTypeID),
-							  "- unlocked:", MRBP_IsGarrisonTypeUnlocked(expansion.garrisonTypeID, garrisonInfo.tagName));
+				    _log:debug("HasGarrison:", util.garrison.HasGarrison(expansion.garrisonTypeID),
+							   "- req:", MRBP_IsGarrisonRequirementMet(expansion.garrisonTypeID),
+							   "- unlocked:", MRBP_IsGarrisonTypeUnlocked(expansion.garrisonTypeID, garrisonInfo.tagName));
 				end
 
 				local playerLevel = UnitLevel("player");
@@ -1505,7 +1517,7 @@ function MRBP:RegisterSlashCommands()
 				local playerMaxLevelForExpansion = ExpansionInfo:GetMaxPlayerLevel();
 				local expansion = ExpansionInfo:GetExpansionData(expansionLevelForPlayer);
 
-				_log:debug("expansionLevelForPlayer:", expansionLevelForPlayer, ",", expansion.name);
+				_log:debug("|nexpansionLevelForPlayer:", expansionLevelForPlayer, ",", expansion.name);
 				_log:debug("playerLevel:", playerLevel);
 				_log:debug("playerMaxLevelForExpansion:", playerMaxLevelForExpansion);
 
@@ -1548,18 +1560,22 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 	local wrapLine = false;
 	local tooltip = GameTooltip;
 
+	-- Title + descriptions
 	tooltip:SetOwner(button, "ANCHOR_LEFT");
 	GameTooltip_SetTitle(tooltip, addonTitle);
-	GameTooltip_AddNormalLine(tooltip, MRBP_OnEnter(ExpansionLandingPageMinimapButton, nil, true), wrapLine);
-	--> The above line doesn't show up if the ExpansionLandingPageButton doesn't exist
-	util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-leftbutton");
-	GameTooltip_AddNormalLine(tooltip, BASIC_OPTIONS_TOOLTIP);
-	util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-rightbutton");
-	if MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight) then
-		GameTooltip_AddNormalLine(tooltip, GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE..TEXT_DASH_SEPARATOR..LANDING_DRAGONRIDING_PANEL_SUBTITLE);
-		util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-middlebutton");
+	if ExpansionLandingPageMinimapButton then
+		-- The description doesn't show up if the ExpansionLandingPageButton doesn't exist
+		GameTooltip_AddNormalLine(tooltip, MRBP_OnEnter(ExpansionLandingPageMinimapButton, nil, true), wrapLine);
+		util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-leftbutton");
+		GameTooltip_AddNormalLine(tooltip, BASIC_OPTIONS_TOOLTIP);
+		util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-rightbutton");
+		-- if MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight) then
+		if (ExpansionLandingPageMinimapButton.expansionLandingPageType >= Enum.ExpansionLandingPageType.Dragonflight) then
+			GameTooltip_AddNormalLine(tooltip, GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE..TEXT_DASH_SEPARATOR..LANDING_DRAGONRIDING_PANEL_SUBTITLE);
+			util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-middlebutton");
+		end
+		-- GameTooltip_AddBlankLineToTooltip(tooltip);
 	end
-	-- GameTooltip_AddBlankLineToTooltip(tooltip);
 
 	-- Display data for each expansion
 	local sortFunc = ns.settings.reverseSortorder and ExpansionInfo.SortAscending or ExpansionInfo.SortDescending;

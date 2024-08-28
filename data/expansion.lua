@@ -86,8 +86,18 @@ ExpansionInfo.data = {
 	DRAGONFLIGHT = {
 		["ID"] = LE_EXPANSION_DRAGONFLIGHT,  -- 9
 		["name"] = EXPANSION_NAME9,
-		["garrisonTypeID"] = Enum.ExpansionLandingPageType.Dragonflight,
+		-- ["garrisonTypeID"] = Enum.ExpansionLandingPageType.Dragonflight,
+		["garrisonTypeID"] = Enum.ExpansionLandingPageType.None,  --> 0
+		["landingPageType"] = Enum.ExpansionLandingPageType.Dragonflight,
 		["continents"] = {1978},  -- Dragon Isles
+	},
+	WAR_WITHIN = {
+		["ID"] = LE_EXPANSION_WAR_WITHIN,  -- 10
+		["name"] = EXPANSION_NAME10,
+		-- ["garrisonTypeID"] = Enum.ExpansionLandingPageType.WarWithin,  --> Note: is same number as Draenor ID (!)
+		["garrisonTypeID"] = Enum.ExpansionLandingPageType.None,  --> 0
+		["landingPageType"] = Enum.ExpansionLandingPageType.WarWithin,
+		["continents"] = {},  -- Khaz Algar
 	},
 };
 
