@@ -23,6 +23,7 @@ ns.L = {
 	TOC_FILE_NOTES = "Erweitert den Missionsbericht-Button der Minikarte um eine Auswahl|nmit Berichten früherer Erweiterungen.",
 	--[[ Tooltips ]]--
 	TOOLTIP_CLICKTEXT_MINIMAPBUTTON = "Rechtsklicken, um Erweiterung auszuwählen",
+	TOOLTIP_CLICKTEXT2_MINIMAPBUTTON = "Mittlerer Mausklick öffnet Himmelsreiten-Fertigkeiten",
 	TOOLTIP_REQUIREMENTS_TEXT_S = '"%s" abschließen, um Inhalt freizuschalten',
 	--[[ Slash command descriptions ]]--
 	SLASHCMD_DESC_CHATMSG = "Chatbenachrichtigungen ein/aus",

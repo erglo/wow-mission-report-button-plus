@@ -1,10 +1,12 @@
 ## Latest Changes
 
-## [1.2.1] - 2024-08-17
+⚠️ **Note:** _This is a pre-release version and still in development._ ⚠️
 
-### Fixed
+## [Unreleased]
 
-* Settings: an error occurred with the multiple font dropdown menus due to the most recent hotfix from Blizzard. As of now using only 1 variable for more than 1 setting control is no longer allowed. (Thanks go to [zaphon](https://github.com/zaphon) for the hyperlink to the Blizzard changes and the others for reporting this quickly.)
+### Added
+
+* Minimap Button: right-clicking now toggles the Skyriding Skill Tree for supported expansions.
 
 &nbsp;
 

@@ -9,6 +9,7 @@ ns.L = {
 	TOC_FILE_NOTES = "Adds a right-click menu to the mission reports button on the minimap|nwith access to reports from current and previous expansions.",
 	--[[ Tooltips ]]--
 	TOOLTIP_CLICKTEXT_MINIMAPBUTTON = "Right-click to select expansion",
+	TOOLTIP_CLICKTEXT2_MINIMAPBUTTON = "Middle-click to open Skyriding Skill Tree",
 	TOOLTIP_REQUIREMENTS_TEXT_S = 'Complete "%s" to unlock content',
 	--[[ Slash command descriptions ]]--
 	SLASHCMD_DESC_CHATMSG = "Toggles chat notifications",

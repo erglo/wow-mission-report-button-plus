@@ -688,7 +688,7 @@ function MRBP:SetButtonHooks()
 		ExpansionLandingPageMinimapButton:HookScript("OnEnter", MRBP_OnEnter)
 
 		-- Mouse button hooks; by default only the left button is registered.
-		ExpansionLandingPageMinimapButton:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+		ExpansionLandingPageMinimapButton:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
 		ExpansionLandingPageMinimapButton:SetScript("OnClick", MRBP_OnClick)
 		-- ExpansionLandingPageMinimapButton:HookScript("OnClick", MRBP_OnClick)  --> safer, but doesn't work!
 	end
@@ -718,12 +718,13 @@ function MRBP_OnEnter(self, button, description_only)
 	GameTooltip:SetText(self.title, 1, 1, 1);
 	GameTooltip:AddLine(self.description, nil, nil, nil, true);
 
+	-- Add right click description
 	local tooltipAddonText = L.TOOLTIP_CLICKTEXT_MINIMAPBUTTON;
 	if ns.settings.showAddonNameInTooltip then
 		local addonAbbreviation = ns.AddonTitleShort..ns.AddonTitleSeparator;
 		tooltipAddonText = GRAY_FONT_COLOR:WrapTextInColorCode(addonAbbreviation).." "..tooltipAddonText;
 	end
-	_log:debug_type(_log.type.CALENDAR, "Scanning for WINTER_HOLIDAY_EVENT...")
+	-- Add special treat
 	local dayEvent = util.calendar.GetActiveDayEvent(util.calendar.WINTER_HOLIDAY_EVENT_ID);
 	if dayEvent then
 		-- Show an icon after the minimap tooltip text during the winter holiday event
@@ -731,6 +732,16 @@ function MRBP_OnEnter(self, button, description_only)
 		tooltipAddonText = tooltipAddonText.." "..util.CreateInlineIcon1(eventIcon);
 	end
 	GameTooltip_AddNormalLine(GameTooltip, tooltipAddonText);
+
+	-- Add middle click description
+	if (self.expansionLandingPageType >= Enum.ExpansionLandingPageType.Dragonflight) then --> TODO - Replace below Enum value with ExpansionInfo.data.DRAGONFLIGHT...
+		local tooltipMiddleClickText = L.TOOLTIP_CLICKTEXT2_MINIMAPBUTTON;
+		if ns.settings.showAddonNameInTooltip then
+			local addonAbbreviation = ns.AddonTitleShort..ns.AddonTitleSeparator;
+			tooltipMiddleClickText = GRAY_FONT_COLOR:WrapTextInColorCode(addonAbbreviation).." "..tooltipMiddleClickText;
+		end
+		GameTooltip_AddNormalLine(GameTooltip, tooltipMiddleClickText);
+	end
 
 	GameTooltip:Show();
 end
@@ -1342,6 +1353,8 @@ function MRBP_OnClick(self, button, isDown)
 	if (button == "RightButton") then
 		-- New style (LibQTip.Tooltip)
 		ToggleMenuTooltip(self);
+	elseif (button == "MiddleButton") then										--> TODO - Check for TWW compatibility
+		LocalDragonridingUtil:ToggleDragonridingTree();
 	else
 		-- Pass-through the button click to the original function on LeftButton
 		-- click, but hide an eventually already opened landing page frame.
