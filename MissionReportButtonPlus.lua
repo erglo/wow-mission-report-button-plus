@@ -1442,7 +1442,7 @@ end
 MRBP_GetLandingPageGarrisonType_orig = C_Garrison.GetLandingPageGarrisonType
 C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType
 
---> TODO - Try ExpansionLandingPageMixin:GetLandingPageType()
+MRBP_GetLandingPageType_orig = ExpansionLandingPage.GetLandingPageType;
 
 ----- Slash commands -----------------------------------------------------------
 
@@ -1857,7 +1857,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentClick(data, menuInputData,
 	if (clickInfo.buttonName == "RightButton") then
 		MRBP_Settings_ToggleSettingsPanel(AddonID);
 	end
-	if (clickInfo.buttonName == "MiddleButton" and MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight)) then
+	if (clickInfo.buttonName == "MiddleButton" and MRBP_GetLandingPageType_orig() >= ExpansionInfo.data.DRAGONFLIGHT.landingPageType) then
+	-- if (clickInfo.buttonName == "MiddleButton" and MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight)) then
 		LocalDragonridingUtil:ToggleDragonridingTree();
 	end
 end
