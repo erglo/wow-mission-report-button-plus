@@ -431,11 +431,17 @@ end
 ns.GetLandingPageTypeUnlockInfo = MRBP_GetLandingPageTypeUnlockInfo;
 
 -- Check if given garrison type is unlocked for given tag.
----@param garrTypeID number
+---@param expansionID number
 ---@param tagName string|number
 ---@return boolean isCompleted
 --
 local function MRBP_IsLandingPageTypeUnlocked(expansionID, tagName)
+	-- Non-garrison type landing pages
+	if (expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
+		return LandingPageInfo:IsLandingPageUnlocked(expansionID);
+	end
+
+	-- Landing pages with a garrison (Draenor -> Shadowlands)
 	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID][tagName];
 	-- if not questData then return true; end
 
@@ -453,28 +459,28 @@ local function MRBP_IsLandingPageTypeUnlocked(expansionID, tagName)
 	return IsCompleted(questID);
 end
 
--- Check if the requirement for the given garrison type is met in order to
--- unlock the command table.
--- Note: Currently only the required quest is checked for completion and
---       nothing more. In Shadowlands there would be one more step needed, since
---       2 quest are available for this (see MRBP_IsLandingPageTypeUnlocked).
----@param garrisonTypeID number
----@return boolean|nil isRequirementMet?
----
-function MRBP_IsGarrisonRequirementMet(garrisonTypeID)
-	local garrisonInfo = LandingPageInfo:GetGarrisonInfo(garrisonTypeID);
-	if not garrisonInfo then return false end
+-- -- Check if the requirement for the given garrison type is met in order to
+-- -- unlock the command table.
+-- -- Note: Currently only the required quest is checked for completion and
+-- --       nothing more. In Shadowlands there would be one more step needed, since
+-- --       2 quest are available for this (see MRBP_IsLandingPageTypeUnlocked).
+-- ---@param garrisonTypeID number
+-- ---@return boolean|nil isRequirementMet?
+-- ---
+-- function MRBP_IsGarrisonRequirementMet(garrisonTypeID)
+-- 	local garrisonInfo = LandingPageInfo:GetGarrisonInfo(garrisonTypeID);
+-- 	if not garrisonInfo then return false end
 
-	local hasGarrison = util.garrison.HasGarrison(garrisonInfo.garrisonTypeID);
-	local isQuestCompleted = MRBP_IsLandingPageTypeUnlocked(garrisonInfo.expansionID, garrisonInfo.tagName);
+-- 	local hasGarrison = util.garrison.HasGarrison(garrisonInfo.garrisonTypeID);
+-- 	local isQuestCompleted = MRBP_IsLandingPageTypeUnlocked(garrisonInfo.expansionID, garrisonInfo.tagName);
 
-	if (garrisonInfo.expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
-		local isUnlocked = C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(garrisonInfo.expansionID);
-		return isUnlocked or isQuestCompleted;
-	end
+-- 	if (garrisonInfo.expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
+-- 		local isUnlocked = C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(garrisonInfo.expansionID);
+-- 		return isUnlocked or isQuestCompleted;
+-- 	end
 
-	return hasGarrison and isQuestCompleted;
-end
+-- 	return hasGarrison and isQuestCompleted;
+-- end
 
 ---Check if at least one garrison is unlocked.
 ---@return boolean
@@ -482,8 +488,9 @@ end
 function MRBP_IsAnyGarrisonRequirementMet()
 	local expansionList = ExpansionInfo:GetExpansionsWithLandingPage();
 	for _, expansion in ipairs(expansionList) do
-		local result = MRBP_IsGarrisonRequirementMet(expansion.garrisonTypeID);
-		if result then
+		local landingPageInfo = LandingPageInfo:GetLandingPageInfo(expansion.ID);
+		local isUnlocked = MRBP_IsLandingPageTypeUnlocked(landingPageInfo.expansionID, landingPageInfo.tagName);
+		if isUnlocked then
 			return true;
 		end
 	end
@@ -1311,7 +1318,7 @@ local function ShowMenuTooltip(parent)
 			local hints = GetExpansionHintIconInfo(expansionInfo)
 			expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or landingPageInfo.title
 			expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and landingPageInfo.minimapIcon or ''
-			expansionInfo.disabled = not MRBP_IsGarrisonRequirementMet(expansionInfo.garrisonTypeID)
+			expansionInfo.disabled = not MRBP_IsLandingPageTypeUnlocked(landingPageInfo.expansionID, landingPageInfo.tagName)
 			expansionInfo.hintIconInfo = ShouldShowHintColumn() and hints
 			expansionInfo.color = CreateColorFromHexString(ns.settings["menuTextColor"])
 			expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID) end
@@ -1506,7 +1513,7 @@ function MRBP:RegisterSlashCommands()
 					_log:debug(expansion.ID, expansion.garrisonTypeID, YELLOW_FONT_COLOR:WrapTextInColorCode(expansion.name))
 					local landingPageInfo = LandingPageInfo:GetLandingPageInfo(expansion.ID);
 				    _log:debug("HasGarrison:", util.garrison.HasGarrison(expansion.garrisonTypeID),
-							   "- req:", MRBP_IsGarrisonRequirementMet(expansion.garrisonTypeID),
+							--    "- req:", MRBP_IsGarrisonRequirementMet(expansion.garrisonTypeID),
 							   "- unlocked:", MRBP_IsLandingPageTypeUnlocked(expansion.ID, landingPageInfo.tagName));
 				end
 
@@ -1567,7 +1574,6 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 		util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-leftbutton");
 		GameTooltip_AddNormalLine(tooltip, BASIC_OPTIONS_TOOLTIP);
 		util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-rightbutton");
-		-- if MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight) then
 		if (ExpansionLandingPageMinimapButton.expansionLandingPageType >= Enum.ExpansionLandingPageType.Dragonflight) then
 			GameTooltip_AddNormalLine(tooltip, GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE..TEXT_DASH_SEPARATOR..LANDING_DRAGONRIDING_PANEL_SUBTITLE);
 			util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-middlebutton");
@@ -1582,7 +1588,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 
 	for _, expansion in ipairs(expansionList) do
 		local garrisonInfo = LandingPageInfo:GetLandingPageInfo(expansion.ID);
-		garrisonInfo.shouldShowDisabled = not MRBP_IsGarrisonRequirementMet(expansion.garrisonTypeID);
+		garrisonInfo.shouldShowDisabled = not MRBP_IsLandingPageTypeUnlocked(garrisonInfo.expansionID, garrisonInfo.tagName);
 		local playerOwnsExpansion = ExpansionInfo:DoesPlayerOwnExpansion(expansion.ID);
 		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(expansion.ID)); --> user option
 		garrisonInfo.missions = {};
