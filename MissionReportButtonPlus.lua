@@ -879,7 +879,7 @@ local function MenuLine_OnEnter(...)
 	ExpansionTooltip:SetCellMarginV(0)  --> needs to be set every time, since it has been reset by ":Clear()".
 	ReputationTooltip:SetCellMarginV(0)											--> TODO - add to style options ???
 	-- Tooltip header (title + description)
-	local garrisonInfo = LandingPageInfo:GetGarrisonInfo(expansionInfo.garrisonTypeID);
+	local garrisonInfo = LandingPageInfo:GetLandingPageInfo(expansionInfo.ID);
 	local isSettingsLine = expansionInfo.ID == nil
 	local tooltipTitle = (ns.settings.preferExpansionName and not isSettingsLine) and garrisonInfo.title or expansionInfo.name
 	LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, isSettingsLine and expansionInfo.label or tooltipTitle, nil, true)
@@ -1309,10 +1309,10 @@ local function ShowMenuTooltip(parent)
 		local playerOwnsExpansion = ExpansionInfo:DoesPlayerOwnExpansion(expansionInfo.ID)
 		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(expansionInfo.ID))  --> user option
 		if (playerOwnsExpansion and isActiveEntry) then
-			local garrisonInfo = LandingPageInfo:GetGarrisonInfo(expansionInfo.garrisonTypeID)
+			local landingPageInfo = LandingPageInfo:GetLandingPageInfo(expansionInfo.ID)
 			local hints = GetExpansionHintIconInfo(expansionInfo)
-			expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or garrisonInfo.title
-			expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and garrisonInfo.minimapIcon or ''
+			expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or landingPageInfo.title
+			expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and landingPageInfo.minimapIcon or ''
 			expansionInfo.disabled = not MRBP_IsGarrisonRequirementMet(expansionInfo.garrisonTypeID)
 			expansionInfo.hintIconInfo = ShouldShowHintColumn() and hints
 			expansionInfo.color = CreateColorFromHexString(ns.settings["menuTextColor"])
@@ -1506,10 +1506,10 @@ function MRBP:RegisterSlashCommands()
 				local expansionList = ExpansionInfo:GetExpansionsWithLandingPage();
 				for _, expansion in ipairs(expansionList) do
 					_log:debug(expansion.ID, expansion.garrisonTypeID, YELLOW_FONT_COLOR:WrapTextInColorCode(expansion.name))
-					local garrisonInfo = LandingPageInfo:GetGarrisonInfo(expansion.garrisonTypeID);
+					local landingPageInfo = LandingPageInfo:GetLandingPageInfo(expansion.ID);
 				    _log:debug("HasGarrison:", util.garrison.HasGarrison(expansion.garrisonTypeID),
 							   "- req:", MRBP_IsGarrisonRequirementMet(expansion.garrisonTypeID),
-							   "- unlocked:", MRBP_IsLandingPageTypeUnlocked(expansion.ID, garrisonInfo.tagName));
+							   "- unlocked:", MRBP_IsLandingPageTypeUnlocked(expansion.ID, landingPageInfo.tagName));
 				end
 
 				local playerLevel = UnitLevel("player");
@@ -1583,7 +1583,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 	local activeThreats = util.threats.GetActiveThreats();
 
 	for _, expansion in ipairs(expansionList) do
-		local garrisonInfo = LandingPageInfo:GetGarrisonInfo(expansion.garrisonTypeID);
+		local garrisonInfo = LandingPageInfo:GetLandingPageInfo(expansion.ID);
 		garrisonInfo.shouldShowDisabled = not MRBP_IsGarrisonRequirementMet(expansion.garrisonTypeID);
 		local playerOwnsExpansion = ExpansionInfo:DoesPlayerOwnExpansion(expansion.ID);
 		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(expansion.ID)); --> user option

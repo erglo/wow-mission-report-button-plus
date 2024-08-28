@@ -48,19 +48,6 @@ end
 local LandingPageInfo = {};
 ns.LandingPageInfo = LandingPageInfo;
 
--- function LandingPageInfo:Initialize()
---     self[ExpansionInfo.data.WARLORDS_OF_DRAENOR.garrisonTypeID] = self:Load_Warlords_of_Draenor();
---     self[ExpansionInfo.data.LEGION.garrisonTypeID] = self:Load_Legion();
---     self[ExpansionInfo.data.BATTLE_FOR_AZEROTH.garrisonTypeID] = self:Load_Battle_for_Azeroth();
---     self[ExpansionInfo.data.SHADOWLANDS.garrisonTypeID] = self:Load_Shadowlands();
---     self[ExpansionInfo.data.DRAGONFLIGHT.garrisonTypeID] = self:Load_Dragonflight();
---     -- self[ExpansionInfo.data.WAR_WITHIN.garrisonTypeID] = self:Load_The_War_Within();
--- end
-
--- function LandingPageInfo:GetGarrisonInfo(garrisonTypeID)
---     return self[garrisonTypeID];
--- end
-
 function LandingPageInfo:Initialize()
     self[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = self:Load_Warlords_of_Draenor();
     self[ExpansionInfo.data.LEGION.ID] = self:Load_Legion();
@@ -81,11 +68,6 @@ function LandingPageInfo:GetGarrisonInfo(garrisonTypeID)
     end
 end
 
-function LandingPageInfo:GetGarrisonInfoByExpansion(expansionID)
-    local expansionData = ExpansionInfo:GetExpansionData(expansionID);
-    return self:GetGarrisonInfo(expansionData.garrisonTypeID);
-end
-
 function LandingPageInfo:GetGarrisonInfoByFollowerType(followerTypeID, onlyGarrisonTypeID)
     local garrisonTypeID =  GarrisonFollowerOptions[followerTypeID].garrisonType;
     if onlyGarrisonTypeID then
@@ -93,6 +75,12 @@ function LandingPageInfo:GetGarrisonInfoByFollowerType(followerTypeID, onlyGarri
     end
     return self:GetGarrisonInfo(garrisonTypeID);
 end
+
+function LandingPageInfo:GetLandingPageInfo(expansionID)
+    return self[expansionID];
+end
+
+----- Landing Page Data -----
 
 function LandingPageInfo:Load_Warlords_of_Draenor()
     local playerFactionGroupTag = PlayerInfo:GetFactionGroupData("tag");
