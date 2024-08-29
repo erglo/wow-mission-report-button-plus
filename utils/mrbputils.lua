@@ -579,6 +579,28 @@ function LocalMapUtil.GetAreaInfo(areaID)
 	return C_Map.GetAreaInfo(areaID)
 end
 
+-- Special zone IDs
+local FMP_ZID_NAZJATAR = 1355;
+
+-- Return details for the current continent.
+---@param uiMapID number
+---@return UiMapDetails mapInfo
+--> REF.: [MapUtil.lua](https://www.townlong-yak.com/framexml/live/Blizzard_FrameXMLUtil/MapUtil.lua)
+-- 
+function LocalMapUtil:GetContinentMapInfo(uiMapID)
+	local mapID = uiMapID or C_Map.GetBestMapForUnit("player");
+
+	if (mapID == FMP_ZID_NAZJATAR) then
+		-- Fallback needed since 8.2.0; returns empty result by default
+		return C_Map.GetMapInfo(mapID);  --> Enum.UIMapType.Continent
+	end
+
+	-- REF.: MapUtil.GetMapParentInfo(mapID, mapType, topMost)
+	return MapUtil.GetMapParentInfo(mapID, Enum.UIMapType.Continent);
+end
+
+Test_GetMapContinent = function(uiMapID) return LocalMapUtil:GetMapContinent(uiMapID); end
+
 --------------------------------------------------------------------------------
 ----- Garrison utilities -------------------------------------------------------
 --------------------------------------------------------------------------------

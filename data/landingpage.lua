@@ -28,8 +28,8 @@ local MapUtil = MapUtil;
 local C_CovenantCallings = C_CovenantCallings;
 local GarrisonFollowerOptions = GarrisonFollowerOptions;
 
-local PlayerInfo = ns.PlayerInfo;
-local ExpansionInfo = ns.ExpansionInfo;
+local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
+local ExpansionInfo = ns.ExpansionInfo;  --> data\expansion.lua<>
 
 ----- Helper Functions ---------------------------------------------------------
 
@@ -85,6 +85,17 @@ function LandingPageInfo:GetLandingPageInfo(expansionID)
     self:CheckInitialize();
 
     return self[expansionID];
+end
+
+function LandingPageInfo:GetLandingPageInfoByMapID(uiMapID)
+    local continentMapInfo = ns.mapUtil:GetContinentMapInfo(uiMapID);
+    local expansionList = ExpansionInfo:GetExpansionsWithLandingPage();
+    for _, expansion in ipairs(expansionList) do
+        if tContains(expansion.continents, continentMapInfo.mapID) then
+            print("Found info!")
+            return self[expansion.ID];
+        end
+    end
 end
 
 ----- Wrapper -----

@@ -97,9 +97,15 @@ ExpansionInfo.data = {
 		-- ["garrisonTypeID"] = Enum.ExpansionLandingPageType.WarWithin,  --> Note: is same number as Draenor ID (!)
 		["garrisonTypeID"] = Enum.ExpansionLandingPageType.None,  --> 0
 		["landingPageTypeID"] = Enum.ExpansionLandingPageType.WarWithin,
-		["continents"] = {},  -- Khaz Algar
+		["continents"] = {2274},  -- Khaz Algar
 	},
 };
+
+-- LocalMapUtils.KHAZ_ALGAR_MAP_ID = 2274
+-- LocalMapUtils.RINGING_DEEPS_MAP_ID = 2214
+-- LocalMapUtils.HALLOWFALL_MAP_ID = 2215
+-- LocalMapUtils.ISLE_OF_DORN_MAP_ID = 2248
+-- LocalMapUtils.AZJ_KAHET_MAP_ID = 2255
 
 ----- Data Handler -------------------------------------------------------------
 
