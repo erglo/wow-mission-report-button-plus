@@ -6,7 +6,7 @@
 
 ### Added
 
-* Minimap Button: right-clicking now toggles the Skyriding Skill Tree as soon as Skyriding has been unlocked.
+* Minimap Button: clicking the middle mouse button (_optional_) now toggles the Skyriding Skill Tree as soon as Skyriding has been unlocked.
 
 &nbsp;
 

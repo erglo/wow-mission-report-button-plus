@@ -67,6 +67,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showChatNotifications"] = true,
 	["showMinimapButton"] = true,
 	["showAddonNameInTooltip"] = true,
+	["useMiddleButton"] = true,
 	["showInAddonCompartment"] = true,
 	["showAchievementTracking"] = true,
 	-- Dropdown menu
@@ -418,6 +419,7 @@ local function CheckBox_CreateFromList(category, checkBoxList)
 		local setting, initializer = CheckBox_Create(category, cb.variable, cb.name, cb.tooltip);
 		if cb.tag then
 			setting:SetNewTagShown(Settings.Default.True);
+			initializer.IsNewTagShown = function() return Settings.Default.True end;
 		end
 		if cb.parentVariable then
 			setting.parentVariable = cb.parentVariable;
@@ -1068,6 +1070,13 @@ function MRBP_Settings_Register()
 			name = L.CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TEXT,
 			tooltip = L.CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TOOLTIP,
 			parentVariable = "showMinimapButton",
+		},
+		{
+			variable = "useMiddleButton",
+			name = L.CFG_MINIMAPBUTTON_USE_MIDDLE_BUTTON_TEXT,
+			tooltip = L.CFG_MINIMAPBUTTON_USE_MIDDLE_BUTTON_TOOLTIP,
+			parentVariable = "showMinimapButton",
+			tag = Settings.Default.True,
 		},
 		util.AddonCompartment.IsAddonCompartmentAvailable() and {
 			variable = "showInAddonCompartment",

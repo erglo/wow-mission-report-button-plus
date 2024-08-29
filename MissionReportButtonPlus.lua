@@ -755,7 +755,7 @@ function MRBP_OnEnter(self, button, description_only)
 	GameTooltip_AddNormalLine(GameTooltip, tooltipAddonText);
 
 	-- Add middle click description
-	if LocalDragonridingUtil:IsSkyridingUnlocked() then
+	if (ns.settings.useMiddleButton and LocalDragonridingUtil:IsSkyridingUnlocked()) then
 		local tooltipMiddleClickText = L.TOOLTIP_CLICKTEXT2_MINIMAPBUTTON;
 		if ns.settings.showAddonNameInTooltip then
 			local addonAbbreviation = ns.AddonTitleShort..ns.AddonTitleSeparator;
@@ -1373,7 +1373,9 @@ function MRBP_OnClick(self, button, isDown)
 	-- _log:debug(string.format("Got mouse click: %s, isDown: %s", button, tostring(isDown)))
 	if (button == "RightButton") then
 		ToggleMenuTooltip(self);  --> New style (LibQTip.Tooltip)
-	elseif (button == "MiddleButton" and LocalDragonridingUtil:IsSkyridingUnlocked()) then
+	elseif (button == "MiddleButton" and not ns.settings.useMiddleButton) then
+		return;  --> Do this instead of un-registering the mouse click.
+	elseif (button == "MiddleButton" and ns.settings.useMiddleButton and LocalDragonridingUtil:IsSkyridingUnlocked()) then
 		LocalDragonridingUtil:ToggleSkyridingSkillTree();
 	else
 		-- Pass-through the button click to the original function on LeftButton
@@ -1587,7 +1589,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 		util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-leftbutton");
 		GameTooltip_AddNormalLine(tooltip, BASIC_OPTIONS_TOOLTIP);
 		util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-rightbutton");
-		if LocalDragonridingUtil:IsSkyridingUnlocked() then
+		if (ns.settings.useMiddleButton and LocalDragonridingUtil:IsSkyridingUnlocked()) then
 			GameTooltip_AddNormalLine(tooltip, GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE..TEXT_DASH_SEPARATOR..LANDING_DRAGONRIDING_PANEL_SUBTITLE);
 			util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-middlebutton");
 		end
@@ -1870,7 +1872,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentClick(data, menuInputData,
 	if (clickInfo.buttonName == "RightButton") then
 		MRBP_Settings_ToggleSettingsPanel(AddonID);
 	end
-	if (clickInfo.buttonName == "MiddleButton" and LocalDragonridingUtil:IsSkyridingUnlocked()) then
+	if (clickInfo.buttonName == "MiddleButton" and ns.settings.useMiddleButton and LocalDragonridingUtil:IsSkyridingUnlocked()) then
 		LocalDragonridingUtil:ToggleSkyridingSkillTree();
 	end
 end
