@@ -233,6 +233,7 @@ function LandingPageInfo:Load_Dragonflight()
     local playerFactionGroupTag = PlayerInfo:GetFactionGroupData("tag");
     local expansionID = ExpansionInfo.data.DRAGONFLIGHT.ID;
     return {
+        ["landingPageTypeID"] = ExpansionInfo.data.DRAGONFLIGHT.landingPageTypeID,
         ["garrisonTypeID"] = ExpansionInfo.data.DRAGONFLIGHT.garrisonTypeID,
         ["tagName"] = playerFactionGroupTag,
         ["title"] = DRAGONFLIGHT_LANDING_PAGE_TITLE,
@@ -258,6 +259,7 @@ function LandingPageInfo:Load_The_War_Within()
     -- local playerClassTag = PlayerInfo:GetClassData("tag");  --> New allied race: The Earthen.
     local expansionID = ExpansionInfo.data.WAR_WITHIN.ID;
     return {
+        ["landingPageTypeID"] = ExpansionInfo.data.WAR_WITHIN.landingPageTypeID,
         ["garrisonTypeID"] = ExpansionInfo.data.WAR_WITHIN.garrisonTypeID,
         ["tagName"] = playerFactionGroupTag,
         ["title"] = WAR_WITHIN_LANDING_PAGE_TITLE,

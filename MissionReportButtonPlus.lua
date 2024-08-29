@@ -438,7 +438,7 @@ ns.GetLandingPageTypeUnlockInfo = MRBP_GetLandingPageTypeUnlockInfo;
 local function MRBP_IsLandingPageTypeUnlocked(expansionID, tagName)
 	-- Non-garrison type landing pages
 	if (expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
-		return LandingPageInfo:IsLandingPageUnlocked(expansionID);
+		return LandingPageInfo:IsExpansionLandingPageUnlocked(expansionID);
 	end
 
 	-- Landing pages with a garrison (Draenor -> Shadowlands)
@@ -754,7 +754,7 @@ function MRBP_OnEnter(self, button, description_only)
 	GameTooltip_AddNormalLine(GameTooltip, tooltipAddonText);
 
 	-- Add middle click description
-	if (self.expansionLandingPageType >= Enum.ExpansionLandingPageType.Dragonflight) then --> TODO - Replace below Enum value with ExpansionInfo.data.DRAGONFLIGHT...
+	if (self.expansionLandingPageType and self.expansionLandingPageType >= Enum.ExpansionLandingPageType.Dragonflight) then --> TODO - Replace below Enum value with ExpansionInfo.data.DRAGONFLIGHT...
 		local tooltipMiddleClickText = L.TOOLTIP_CLICKTEXT2_MINIMAPBUTTON;
 		if ns.settings.showAddonNameInTooltip then
 			local addonAbbreviation = ns.AddonTitleShort..ns.AddonTitleSeparator;
@@ -1587,7 +1587,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 		util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-leftbutton");
 		GameTooltip_AddNormalLine(tooltip, BASIC_OPTIONS_TOOLTIP);
 		util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-rightbutton");
-		if (ExpansionLandingPageMinimapButton.expansionLandingPageType >= Enum.ExpansionLandingPageType.Dragonflight) then
+		if (ExpansionLandingPageMinimapButton.expansionLandingPageType and ExpansionLandingPageMinimapButton.expansionLandingPageType >= Enum.ExpansionLandingPageType.Dragonflight) then
 			GameTooltip_AddNormalLine(tooltip, GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE..TEXT_DASH_SEPARATOR..LANDING_DRAGONRIDING_PANEL_SUBTITLE);
 			util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-middlebutton");
 		end
