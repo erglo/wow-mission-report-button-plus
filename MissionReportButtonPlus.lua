@@ -50,7 +50,7 @@ local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
 local LabelUtil = ns.data;  --> <data\labels.lua>
-local LocalDragonridingUtil = ns.DragonridingUtil  --> <utils\dragonriding.lua>
+local LocalDragonridingUtil = ns.DragonridingUtil  --> <utils\dragonriding.lua> --> TODO - Rename to Skyriding
 
 -- ns.poi9;  --> <utils\poi-9-dragonflight.lua>
 
@@ -755,7 +755,7 @@ function MRBP_OnEnter(self, button, description_only)
 	GameTooltip_AddNormalLine(GameTooltip, tooltipAddonText);
 
 	-- Add middle click description
-	if (self.expansionLandingPageType and self.expansionLandingPageType >= Enum.ExpansionLandingPageType.Dragonflight) then --> TODO - Replace below Enum value with ExpansionInfo.data.DRAGONFLIGHT...
+	if LocalDragonridingUtil:IsSkyridingUnlocked() then
 		local tooltipMiddleClickText = L.TOOLTIP_CLICKTEXT2_MINIMAPBUTTON;
 		if ns.settings.showAddonNameInTooltip then
 			local addonAbbreviation = ns.AddonTitleShort..ns.AddonTitleSeparator;
@@ -1372,10 +1372,9 @@ end
 function MRBP_OnClick(self, button, isDown)
 	-- _log:debug(string.format("Got mouse click: %s, isDown: %s", button, tostring(isDown)))
 	if (button == "RightButton") then
-		-- New style (LibQTip.Tooltip)
-		ToggleMenuTooltip(self);
-	elseif (button == "MiddleButton") then										--> TODO - Check for TWW compatibility
-		LocalDragonridingUtil:ToggleDragonridingTree();
+		ToggleMenuTooltip(self);  --> New style (LibQTip.Tooltip)
+	elseif (button == "MiddleButton" and LocalDragonridingUtil:IsSkyridingUnlocked()) then
+		LocalDragonridingUtil:ToggleSkyridingSkillTree();
 	else
 		-- Pass-through the button click to the original function on LeftButton
 		-- click, but hide an eventually already opened landing page frame.
@@ -1588,7 +1587,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 		util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-leftbutton");
 		GameTooltip_AddNormalLine(tooltip, BASIC_OPTIONS_TOOLTIP);
 		util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-rightbutton");
-		if (ExpansionLandingPageMinimapButton.expansionLandingPageType and ExpansionLandingPageMinimapButton.expansionLandingPageType >= Enum.ExpansionLandingPageType.Dragonflight) then
+		if LocalDragonridingUtil:IsSkyridingUnlocked() then
 			GameTooltip_AddNormalLine(tooltip, GENERIC_TRAIT_FRAME_DRAGONRIDING_TITLE..TEXT_DASH_SEPARATOR..LANDING_DRAGONRIDING_PANEL_SUBTITLE);
 			util.GameTooltip_AddAtlas(tooltip, "newplayertutorial-icon-mouse-middlebutton");
 		end
@@ -1863,16 +1862,15 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentClick(data, menuInputData,
 	local clickInfo = menuInputData;  --> .context=2, .buttonName
 
 	if (clickInfo.buttonName == "LeftButton") then
-		local result =  MRBP_IsAnyGarrisonRequirementMet();
-		if result then
+		local isAnyUnlocked =  MRBP_IsAnyGarrisonRequirementMet();
+		if isAnyUnlocked then
 			MRBP_OnClick(ExpansionLandingPageMinimapButton, clickInfo.buttonName, false);
 		end
 	end
 	if (clickInfo.buttonName == "RightButton") then
 		MRBP_Settings_ToggleSettingsPanel(AddonID);
 	end
-	if (clickInfo.buttonName == "MiddleButton" and MRBP_GetLandingPageType_orig() >= ExpansionInfo.data.DRAGONFLIGHT.landingPageTypeID) then
-	-- if (clickInfo.buttonName == "MiddleButton" and MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight)) then
-		LocalDragonridingUtil:ToggleDragonridingTree();
+	if (clickInfo.buttonName == "MiddleButton" and LocalDragonridingUtil:IsSkyridingUnlocked()) then
+		LocalDragonridingUtil:ToggleSkyridingSkillTree();
 	end
 end

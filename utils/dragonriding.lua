@@ -40,10 +40,12 @@ ns.DragonridingUtil = LocalDragonridingUtil;
 function LocalDragonridingUtil:IsDragonridingUnlocked()
 	return DragonridingUtil.IsDragonridingUnlocked();
 end
+LocalDragonridingUtil.IsSkyridingUnlocked = LocalDragonridingUtil.IsDragonridingUnlocked;
 
 function LocalDragonridingUtil:ToggleDragonridingTree()
 	DragonridingPanelSkillsButtonMixin:OnClick();
 end
+LocalDragonridingUtil.ToggleSkyridingSkillTree =  LocalDragonridingUtil.ToggleDragonridingTree;
 
 function LocalDragonridingUtil:IsDragonridingTreeOpen()
 	return DragonridingUtil.IsDragonridingTreeOpen();

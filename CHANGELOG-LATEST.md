@@ -6,7 +6,7 @@
 
 ### Added
 
-* Minimap Button: right-clicking now toggles the Skyriding Skill Tree for supported expansions.
+* Minimap Button: right-clicking now toggles the Skyriding Skill Tree as soon as Skyriding has been unlocked.
 
 &nbsp;
 
