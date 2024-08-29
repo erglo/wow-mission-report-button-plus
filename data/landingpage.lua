@@ -89,8 +89,21 @@ end
 
 ----- Wrapper -----
 
-function LandingPageInfo:IsLandingPageUnlocked(expansionID)
-    return C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(expansionID);
+function LandingPageInfo:IsExpansionLandingPageUnlocked(expansionID)
+    -- if (expansionID == ExpansionInfo.data.DRAGONFLIGHT.ID) then
+    --     local unlockInfo = {  -- "To the Dragon Isles!"
+    --     	["Horde"] = 65444,
+    --     	["Alliance"] = 67700,
+    --     };
+    --     local questID = unlockInfo[PlayerInfo:GetFactionGroupData("tag")];
+    --     return questID and C_QuestLog.IsQuestFlaggedCompleted(questID);
+    -- end
+
+    -- return C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(expansionID);
+
+    local expansionInfo = ExpansionInfo:GetExpansionData(expansionID);
+
+    return  GetCVarBitfield("unlockedExpansionLandingPages", expansionInfo.landingPageTypeID);
 end
 
 ----- Landing Page Data -----
