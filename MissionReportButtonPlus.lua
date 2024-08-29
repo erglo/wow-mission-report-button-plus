@@ -700,11 +700,12 @@ function MRBP:SetButtonHooks()
 
 		-- Minimap button tooltip hook
 		ExpansionLandingPageMinimapButton:HookScript("OnEnter", MRBP_OnEnter)
+		-- ExpansionLandingPageMinimapButton:HookScript("SetTooltip", MRBP_OnEnter)
 
 		-- Mouse button hooks; by default only the left button is registered.
 		ExpansionLandingPageMinimapButton:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
 		ExpansionLandingPageMinimapButton:SetScript("OnClick", MRBP_OnClick)
-		-- ExpansionLandingPageMinimapButton:HookScript("OnClick", MRBP_OnClick)  --> safer, but doesn't work!
+		-- ExpansionLandingPageMinimapButton:HookScript("OnClick", MRBP_OnClick)  --> safer, but doesn't work properly!
 	end
 
 	-- GarrisonLandingPage (mission report frame) post hook
@@ -1415,39 +1416,30 @@ end
 --
 function MRBP_GetLandingPageGarrisonType()
 	-- Check non-garrison types first
-	local landingPageType = ExpansionLandingPage:GetLandingPageType();
-	if (landingPageType >= ExpansionInfo.data.DRAGONFLIGHT.landingPageType) then
+	local landingPageTypeID = ExpansionLandingPage:GetLandingPageType();
+	-- print("landingPageTypeID:", landingPageTypeID)
+	if (landingPageTypeID >= ExpansionInfo.data.DRAGONFLIGHT.landingPageTypeID) then
 		return 0;
 	end
 
 	-- Handle garrison types
 	local garrisonTypeID = MRBP_GetLandingPageGarrisonType_orig();
+	-- print("garrisonTypeID:", garrisonTypeID)
 
-	local garrisonInfo = LandingPageInfo:GetGarrisonInfo(garrisonTypeID);
-	local isUnlocked = MRBP_IsLandingPageTypeUnlocked(garrisonInfo.expansionID, garrisonInfo.tagName);
+	if (garrisonTypeID and garrisonTypeID > 0) then
+		local garrisonInfo = LandingPageInfo:GetGarrisonInfo(garrisonTypeID);
+		local isUnlocked = MRBP_IsLandingPageTypeUnlocked(garrisonInfo.expansionID, garrisonInfo.tagName);
+		-- print("> isUnlocked:", isUnlocked)
+		if isUnlocked then return garrisonTypeID; end
 
-	if (garrisonTypeID and garrisonTypeID > 0 and not isUnlocked ) then
-		-- Build and return garrison type ID of previous expansion.
+		-- Current garrison type is not (yet) available, build and return garrison type ID of previous expansion.
 		local minExpansionID = ExpansionInfo:GetMinimumExpansionLevel();  --> min. available, eg. 8 (Shadowlands)
 		-- Need last attribute of eg. 'Enum.GarrisonType.Type_8_0_Garrison'
 		local garrisonTypeID_Minimum = Enum.GarrisonType["Type_"..tostring(minExpansionID).."_0_Garrison"];
 
-		if (_log.level == _log.DEBUG) then
-			-- Tests
-			local playerExpansionID = ExpansionInfo:GetExpansionForPlayerLevel()
-			local maxExpansionID = ExpansionInfo:GetMaximumExpansionLevel()  --> max. available, eg. 9 (Dragonflight)
-			local garrisonTypeID_Player = Enum.GarrisonType["Type_"..tostring(playerExpansionID+1).."_0"]
-			_log:debug("playerExpansionID:", playerExpansionID)
-			_log:debug("maxExpansionID:", maxExpansionID)
-			_log:debug("minExpansionID:", minExpansionID)
-			_log:debug("garrisonTypeID_Player:", garrisonTypeID_Player)
-			_log:debug("garrisonTypeID_Minimum:", garrisonTypeID_Minimum)
-		end
-
-		garrisonTypeID = garrisonTypeID_Minimum;
+		return garrisonTypeID_Minimum;
 	end
 
-	_log:debug("Returning garrison type:", garrisonTypeID)
 	return garrisonTypeID or 0;
 end
 
@@ -1455,7 +1447,7 @@ end
 MRBP_GetLandingPageGarrisonType_orig = C_Garrison.GetLandingPageGarrisonType
 C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType
 
-MRBP_GetLandingPageType_orig = ExpansionLandingPage.GetLandingPageType;
+-- MRBP_GetLandingPageType_orig = ExpansionLandingPage.GetLandingPageType;
 
 ----- Slash commands -----------------------------------------------------------
 
@@ -1540,6 +1532,15 @@ function MRBP:RegisterSlashCommands()
 				_log:debug("playerMaxLevelForExpansion:", playerMaxLevelForExpansion);
 
 				_log.level = prev_loglvl;
+
+			elseif (msg == 'xptest') then
+				local maxExpansionID = ExpansionInfo:GetMaximumExpansionLevel();  --> max. available
+				local minExpansionID = ExpansionInfo:GetMinimumExpansionLevel();  --> min. available
+				local playerExpansionID = ExpansionInfo:GetExpansionForPlayerLevel();  --> currently available for player
+				print(" ");
+				print("max. expansionID:", maxExpansionID);
+				print("min. expansionID:", minExpansionID);
+				print("player expansionID:", playerExpansionID);
 			end
 			---------------------
 		else
@@ -1870,7 +1871,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentClick(data, menuInputData,
 	if (clickInfo.buttonName == "RightButton") then
 		MRBP_Settings_ToggleSettingsPanel(AddonID);
 	end
-	if (clickInfo.buttonName == "MiddleButton" and MRBP_GetLandingPageType_orig() >= ExpansionInfo.data.DRAGONFLIGHT.landingPageType) then
+	if (clickInfo.buttonName == "MiddleButton" and MRBP_GetLandingPageType_orig() >= ExpansionInfo.data.DRAGONFLIGHT.landingPageTypeID) then
 	-- if (clickInfo.buttonName == "MiddleButton" and MRBP_IsGarrisonRequirementMet(Enum.ExpansionLandingPageType.Dragonflight)) then
 		LocalDragonridingUtil:ToggleDragonridingTree();
 	end
