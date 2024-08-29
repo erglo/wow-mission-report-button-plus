@@ -505,11 +505,10 @@ ns.MRBP_IsAnyGarrisonRequirementMet = MRBP_IsAnyGarrisonRequirementMet;
 -- Handle opening and closing of Garrison-/ExpansionLandingPage frames.
 ---@param garrTypeID number
 --
-local function MRBP_ToggleLandingPageFrames(garrTypeID)
-	local expansion = ExpansionInfo:GetExpansionDataByGarrisonType(garrTypeID);
+local function MRBP_ToggleLandingPageFrames(garrTypeID, landingPageTypeID)
 	-- Always (!) hide the GarrisonLandingPage; all visible UI widgets can only
 	-- be loaded properly on opening.
-	if (expansion.ID < ExpansionInfo.data.DRAGONFLIGHT.ID) then
+	if (garrTypeID and garrTypeID > 0) then
 		if (ExpansionLandingPage and ExpansionLandingPage:IsShown()) then
 			_log:debug("Hiding ExpansionLandingPage");
 			HideUIPanel(ExpansionLandingPage);
@@ -1328,7 +1327,7 @@ local function ShowMenuTooltip(parent)
 			expansionInfo.disabled = not MRBP_IsLandingPageTypeUnlocked(landingPageInfo.expansionID, landingPageInfo.tagName)
 			expansionInfo.hintIconInfo = ShouldShowHintColumn() and hints
 			expansionInfo.color = CreateColorFromHexString(ns.settings["menuTextColor"])
-			expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID) end
+			expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID, expansionInfo.landingPageTypeID) end
 			AddMenuTooltipLine(expansionInfo)
 		end
 	end
@@ -1380,10 +1379,13 @@ function MRBP_OnClick(self, button, isDown)
 	else
 		-- Pass-through the button click to the original function on LeftButton
 		-- click, but hide an eventually already opened landing page frame.
-		if (not ExpansionLandingPageMinimapButton.garrisonMode and GarrisonLandingPage and GarrisonLandingPage:IsShown()) then
-			HideUIPanel(GarrisonLandingPage);
-		end
-		ExpansionLandingPageMinimapButton:OnClick(button);
+		-- if (not ExpansionLandingPageMinimapButton.garrisonMode and GarrisonLandingPage and GarrisonLandingPage:IsShown()) then
+		-- 	HideUIPanel(GarrisonLandingPage);
+		-- end
+		local garrisonTypeID = ExpansionLandingPageMinimapButton.garrisonType;
+		local landingPageTypeID = ExpansionLandingPageMinimapButton.expansionLandingPageType;
+		-- print("Toggling custom handler, IDs:", garrisonTypeID, landingPageTypeID)
+		MRBP_ToggleLandingPageFrames(garrisonTypeID, landingPageTypeID);
 	end
 end
 

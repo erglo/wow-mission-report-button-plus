@@ -8,6 +8,10 @@
 
 * Minimap Button: clicking the middle mouse button (_optional_) now toggles the Skyriding Skill Tree as soon as Skyriding has been unlocked.
 
+### Fixed
+
+* Minimap Button: clicking the currently shown landing page button on the Minimap now opens AND closes the corresponding Landing Page properly.
+
 &nbsp;
 
 ## Previous Changes
