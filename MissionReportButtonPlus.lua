@@ -1411,6 +1411,64 @@ function MRBP_ShowGarrisonLandingPage(garrTypeID)
 	end
 end
 
+local LocalLandingPageTypeUtil = {};
+LocalLandingPageTypeUtil.currentGarrisonTypeID = 0;
+LocalLandingPageTypeUtil.previousGarrisonTypeID = 0;
+LocalLandingPageTypeUtil.currentLandingPageTypeID = 0;
+LocalLandingPageTypeUtil.previousLandingPageTypeID = 0;
+
+function LocalLandingPageTypeUtil:SetLandingPageGarrisonType(garrisonTypeID)
+	self.previousGarrisonTypeID = self.currentGarrisonTypeID;
+	self.currentGarrisonTypeID = garrisonTypeID;
+end
+
+function LocalLandingPageTypeUtil:SetExpansionLandingPageType(landingPageTypeID)
+	self.previousLandingPageTypeID = self.currentLandingPageTypeID;
+	self.currentLandingPageTypeID = landingPageTypeID;
+end
+
+function LocalLandingPageTypeUtil:IsValidExpansionLandingPageType(landingPageTypeID)
+	return (landingPageTypeID and landingPageTypeID >= ExpansionInfo.data.DRAGONFLIGHT.landingPageTypeID);
+end
+
+function LocalLandingPageTypeUtil:IsValidGarrisonType(garrisonTypeID)
+	return (garrisonTypeID and garrisonTypeID > 0);
+end
+
+-- Check if given garrison type is available.
+function LocalLandingPageTypeUtil:IsGarrisonTypeUnlocked(garrisonTypeID)
+	local garrisonInfo = LandingPageInfo:GetGarrisonInfo(garrisonTypeID);
+	local isUnlocked = MRBP_IsLandingPageTypeUnlocked(garrisonInfo.expansionID, garrisonInfo.tagName);
+	-- print("> isUnlocked:", isUnlocked)
+
+	return isUnlocked;
+end
+
+-- Build and return garrison type ID of previous available expansion.
+---@param minimumLevel integer|nil
+---@return integer minimumGarrisonTypeID
+--
+function LocalLandingPageTypeUtil:GetMinimumUnlockedExpansionGarrisonType(minimumLevel)
+	local minimumExpansionID = minimumLevel or ExpansionInfo:GetMinimumExpansionLevel();  --> min. available, eg. 8 (Shadowlands)
+	if minimumExpansionID < ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID then
+		return 0;
+	end
+
+	-- Need last attribute, eg. 'Enum.GarrisonType.Type_8_0_Garrison'
+	local minimumGarrisonTypeID = Enum.GarrisonType["Type_"..tostring(minimumExpansionID).."_0_Garrison"];
+
+	-- Check if available
+	local isMinimumUnlocked = self:IsGarrisonTypeUnlocked(minimumGarrisonTypeID);
+	if isMinimumUnlocked then
+		self:SetLandingPageGarrisonType(minimumGarrisonTypeID);
+		-- print("--> Found unlocked minimum:", minimumGarrisonTypeID)
+		return minimumGarrisonTypeID;
+	end
+
+	-- Landing Page not unlocked, yet. Try expansion prior to this one.
+	return self:GetMinimumUnlockedExpansionGarrisonType(minimumExpansionID-1);
+end
+
 -- Return the garrison type of the previous expansion, as long as the most
 -- current one hasn't been unlocked.
 ---@return integer garrTypeID  The landing page garrison type ID
@@ -1421,7 +1479,8 @@ function MRBP_GetLandingPageGarrisonType()
 	-- Check non-garrison types first
 	local landingPageTypeID = ExpansionLandingPage:GetLandingPageType();
 	-- print("landingPageTypeID:", landingPageTypeID)
-	if (landingPageTypeID >= ExpansionInfo.data.DRAGONFLIGHT.landingPageTypeID) then
+	if LocalLandingPageTypeUtil:IsValidExpansionLandingPageType(landingPageTypeID) then
+		LocalLandingPageTypeUtil:SetExpansionLandingPageType(landingPageTypeID);
 		return 0;
 	end
 
@@ -1429,20 +1488,19 @@ function MRBP_GetLandingPageGarrisonType()
 	local garrisonTypeID = MRBP_GetLandingPageGarrisonType_orig();
 	-- print("garrisonTypeID:", garrisonTypeID)
 
-	if (garrisonTypeID and garrisonTypeID > 0) then
-		local garrisonInfo = LandingPageInfo:GetGarrisonInfo(garrisonTypeID);
-		local isUnlocked = MRBP_IsLandingPageTypeUnlocked(garrisonInfo.expansionID, garrisonInfo.tagName);
-		-- print("> isUnlocked:", isUnlocked)
-		if isUnlocked then return garrisonTypeID; end
+	if LocalLandingPageTypeUtil:IsValidGarrisonType(garrisonTypeID) then
+		local isUnlocked = LocalLandingPageTypeUtil:IsGarrisonTypeUnlocked(garrisonTypeID);
+		if isUnlocked then
+			LocalLandingPageTypeUtil:SetLandingPageGarrisonType(garrisonTypeID);
+			return garrisonTypeID;
+		end
 
 		-- Current garrison type is not (yet) available, build and return garrison type ID of previous expansion.
-		local minExpansionID = ExpansionInfo:GetMinimumExpansionLevel();  --> min. available, eg. 8 (Shadowlands)
-		-- Need last attribute of eg. 'Enum.GarrisonType.Type_8_0_Garrison'
-		local garrisonTypeID_Minimum = Enum.GarrisonType["Type_"..tostring(minExpansionID).."_0_Garrison"];
-
-		return garrisonTypeID_Minimum;
+		return LocalLandingPageTypeUtil:GetMinimumUnlockedExpansionGarrisonType();
 	end
 
+	-- Fallback
+	LocalLandingPageTypeUtil:SetLandingPageGarrisonType(garrisonTypeID or 0);
 	return garrisonTypeID or 0;
 end
 
