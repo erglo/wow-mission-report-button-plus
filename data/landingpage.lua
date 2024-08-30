@@ -98,6 +98,20 @@ function LandingPageInfo:GetLandingPageInfoByMapID(uiMapID)
     end
 end
 
+-- Verify if the player's current area belongs to an expansion continent with a Landing Page.
+function LandingPageInfo:GetPlayerLocationLandingPageInfo()
+	local mapID = C_Map.GetBestMapForUnit("player");  -- MapUtil.GetDisplayableMapForPlayer();
+	print("mapID:", mapID)
+	local playerLandingPageInfo = mapID and self:GetLandingPageInfoByMapID(mapID);
+	if playerLandingPageInfo then
+		print("--> playerLandingPageInfo:", playerLandingPageInfo.title);
+		return playerLandingPageInfo;
+	end
+
+	-- -- No Landing Page details for player location found. Keep current one alive.
+	-- return LandingPageInfo:GetGarrisonInfo(self.currentGarrisonTypeID);
+end
+
 ----- Wrapper -----
 
 function LandingPageInfo:IsExpansionLandingPageUnlocked(expansionID)

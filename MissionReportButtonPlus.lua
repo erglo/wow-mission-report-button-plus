@@ -1596,7 +1596,7 @@ function MRBP_RefreshButton(self, forceUpdateIcon)
 		-- Intervene
 		-- print(">> def. mode:", self.mode, previousMode)
 		if not self.mode then
-			local playerLandingPageInfo = LocalLandingPageTypeUtil:GetPlayerLocationLandingPageInfo();
+			local playerLandingPageInfo = LandingPageInfo:GetPlayerLocationLandingPageInfo();
 			self.mode = LocalLandingPageTypeUtil:GetLandingPageModeForLandingPageInfo(playerLandingPageInfo, previousMode);
 			-- print("--> mode:", self.mode)
 		end
