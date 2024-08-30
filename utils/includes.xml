@@ -1,5 +1,6 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
   <Script file="mrbputils.lua"/>
+  <Include file="landingpagetype.lua"/>
   <Include file="dragonriding.lua"/>
   <Include file="libqtip.lua"/>
   <Include file="tooltips.lua"/>
