@@ -1510,6 +1510,108 @@ C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType
 
 -- MRBP_GetLandingPageType_orig = ExpansionLandingPage.GetLandingPageType;
 
+-- IsGarrisonLandingPageFeatured()
+-- ExpansionLandingPage:IsOverlayApplied()
+-- ExpansionLandingPageMinimapButton:RefreshButton(forceUpdateIcon)
+
+
+local LocalGarrisonLandingPageEvents = {
+	"GARRISON_SHOW_LANDING_PAGE",
+	"GARRISON_HIDE_LANDING_PAGE",
+	"GARRISON_BUILDING_ACTIVATABLE",
+	"GARRISON_BUILDING_ACTIVATED",
+	"GARRISON_ARCHITECT_OPENED",
+	"GARRISON_MISSION_FINISHED",
+	"GARRISON_MISSION_NPC_OPENED",
+	"GARRISON_SHIPYARD_NPC_OPENED",
+	"GARRISON_INVASION_AVAILABLE",
+	"GARRISON_INVASION_UNAVAILABLE",
+	"SHIPMENT_UPDATE",
+	"PLAYER_ENTERING_WORLD",
+};
+
+-- Check if the player's current area belongs to an expansion continent with a Landing Page.
+---@return table|nil playerLandingPageInfo
+--
+function LocalLandingPageTypeUtil:GetPlayerLocationLandingPageInfo()
+	-- local mapID = C_Map.GetBestMapForUnit("player");
+	local mapID = MapUtil.GetDisplayableMapForPlayer();
+	-- print("mapID:", mapID)
+	local playerLandingPageInfo = mapID and LandingPageInfo:GetLandingPageInfoByMapID(mapID);
+	if playerLandingPageInfo then
+		-- print("--> playerLandingPageInfo:", playerLandingPageInfo.title);
+		return playerLandingPageInfo;
+	end
+
+	-- No Landing Page details for player location found. Keep current one alive.
+	return LandingPageInfo:GetGarrisonInfo(self.currentGarrisonTypeID);
+end
+
+function LocalLandingPageTypeUtil:GetLandingPageModeForLandingPageInfo(landingPageInfo, previousMode)
+	-- Case 1: Area w/o a Landing Page
+	--> Note: Keep previous mode alive.
+	if not landingPageInfo then
+		return previousMode or ExpansionLandingPageMode.Garrison;
+	end
+
+	-- Case 2: Dranoer -> Shadowlands
+	if self:IsValidGarrisonType(landingPageInfo.garrisonTypeID) then
+		-- print("MODE: Garrison")
+		return ExpansionLandingPageMode.Garrison;
+	end
+
+	-- Case 3: Dragonflight -> War Within
+	--> Note: MajorFactionRenown is already handles by the game.
+	if self:IsValidExpansionLandingPageType(landingPageInfo.landingPageTypeID) then
+		-- print("MODE: Overlay")
+		return ExpansionLandingPageMode.ExpansionOverlay;
+	end
+end
+
+-- REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_Minimap/Minimap.lua>
+-- 
+function MRBP_RefreshButton(self, forceUpdateIcon)
+	-- print("Refreshing Minimap Button, forceUpdateIcon:", forceUpdateIcon)
+
+	local previousMode = self.mode;
+	-- print("<< previousMode:", previousMode)
+	local wasInGarrisonMode = self:IsInGarrisonMode();
+	if C_GameRules.IsGameRuleActive(Enum.GameRule.LandingPageFactionID) then
+		self.mode = ExpansionLandingPageMode.MajorFactionRenown;
+		self.majorFactionID = C_GameRules.GetGameRuleAsFloat(Enum.GameRule.LandingPageFactionID);
+	elseif ExpansionLandingPage:IsOverlayApplied() then
+		self.mode = ExpansionLandingPageMode.ExpansionOverlay;
+	else
+		self.mode = nil;
+	end
+	if wasInGarrisonMode and not self:IsInGarrisonMode() then
+		if (GarrisonLandingPage and GarrisonLandingPage:IsShown()) then
+			HideUIPanel(GarrisonLandingPage);
+		end
+		self:ClearPulses();
+		FrameUtil.UnregisterFrameForEvents(self, LocalGarrisonLandingPageEvents);
+	end
+	if self.mode ~= previousMode or forceUpdateIcon == true then
+		self:Hide();
+		-- Intervene
+		-- print(">> def. mode:", self.mode, previousMode)
+		if not self.mode then
+			local playerLandingPageInfo = LocalLandingPageTypeUtil:GetPlayerLocationLandingPageInfo();
+			self.mode = LocalLandingPageTypeUtil:GetLandingPageModeForLandingPageInfo(playerLandingPageInfo, previousMode);
+			-- print("--> mode:", self.mode)
+		end
+		-- 
+		if self.mode then
+			self:UpdateIcon();
+			self:Show();
+		end
+	end
+end
+
+MRBP_RefreshButton_orig = ExpansionLandingPageMinimapButton.RefreshButton;
+ExpansionLandingPageMinimapButton.RefreshButton = MRBP_RefreshButton;
+-- ExpansionLandingPageMinimapButton:RefreshButton()
+
 ----- Slash commands -----------------------------------------------------------
 
 local SLASH_CMD_ARGLIST = {
