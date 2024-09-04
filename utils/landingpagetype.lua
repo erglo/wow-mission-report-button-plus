@@ -102,6 +102,17 @@ function LocalLandingPageTypeUtil:GetMinimumUnlockedExpansionGarrisonType(minimu
 	return self:GetMinimumUnlockedExpansionGarrisonType(minimumExpansionID-1);
 end
 
+-- Return the ID of the newest expansion with an unlocked Expansion Landing Page.
+function LocalLandingPageTypeUtil:GetMaximumUnlockedLandingPageExpansionID()
+	local maximumLevel = ExpansionInfo:GetMaximumExpansionLevel();
+	for maxExpansionID=maximumLevel, ExpansionInfo.data.DRAGONFLIGHT.ID, -1 do
+		local maxExpansionInfo = LandingPageInfo:GetLandingPageInfo(maxExpansionID);
+		if self:IsExpansionLandingPageTypeUnlocked(maxExpansionInfo.landingPageTypeID) then
+			return maxExpansionID;
+		end
+	end
+end
+
 function LocalLandingPageTypeUtil:GetLandingPageModeForLandingPageInfo(landingPageInfo, previousMode)
 	-- Case 1: Area w/o a Landing Page  --> Note: Keep previous mode alive.
 	if not landingPageInfo then
