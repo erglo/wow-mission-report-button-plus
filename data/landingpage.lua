@@ -92,24 +92,31 @@ function LandingPageInfo:GetLandingPageInfoByMapID(uiMapID)
     local expansionList = ExpansionInfo:GetExpansionsWithLandingPage();
     for _, expansion in ipairs(expansionList) do
         if tContains(expansion.continents, continentMapInfo.mapID) then
-            print("Found info!")
             return self[expansion.ID];
         end
     end
 end
 
+local LocationCache = {};  --> {[mapID] = landingpageInfo, ...}
+
 -- Verify if the player's current area belongs to an expansion continent with a Landing Page.
 function LandingPageInfo:GetPlayerLocationLandingPageInfo()
-	local mapID = C_Map.GetBestMapForUnit("player");  -- MapUtil.GetDisplayableMapForPlayer();
-	print("mapID:", mapID)
-	local playerLandingPageInfo = mapID and self:GetLandingPageInfoByMapID(mapID);
+	local mapID = MapUtil.GetDisplayableMapForPlayer();
+	-- local mapID = C_Map.GetBestMapForUnit("player");
+    -- if not mapID then return; end
+
+    if LocationCache[mapID] then
+        return LocationCache[mapID];
+    end
+
+	local playerLandingPageInfo = self:GetLandingPageInfoByMapID(mapID);
 	if playerLandingPageInfo then
-		print("--> playerLandingPageInfo:", playerLandingPageInfo.title);
+        LocationCache[mapID] = playerLandingPageInfo;
 		return playerLandingPageInfo;
 	end
 
-	-- -- No Landing Page details for player location found. Keep current one alive.
-	-- return LandingPageInfo:GetGarrisonInfo(self.currentGarrisonTypeID);
+	-- No Landing Page details for player location found. Keep current one alive.
+	return LandingPageInfo:GetGarrisonInfo(self.currentGarrisonTypeID);
 end
 
 ----- Wrapper -----
