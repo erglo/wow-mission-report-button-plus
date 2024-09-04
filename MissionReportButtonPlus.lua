@@ -1364,8 +1364,10 @@ end
 
 local function ToggleMenuTooltip(parent)
 	if (MenuTooltip and MenuTooltip:IsShown()) then
+		PlaySound(MenuVariants.GetDropdownCloseSoundKit())
 		ReleaseTooltip(MenuTooltip)
 	else
+		PlaySound(MenuVariants.GetDropdownOpenSoundKit())
 		ShowMenuTooltip(parent)
 	end
 end
