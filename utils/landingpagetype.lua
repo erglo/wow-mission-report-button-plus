@@ -45,11 +45,13 @@ LocalLandingPageTypeUtil.currentLandingPageTypeID = 0;
 LocalLandingPageTypeUtil.previousLandingPageTypeID = 0;
 
 function LocalLandingPageTypeUtil:SetLandingPageGarrisonType(garrisonTypeID)
+	-- print("< Set current garrisonTypeID:", garrisonTypeID)
 	self.previousGarrisonTypeID = self.currentGarrisonTypeID;
 	self.currentGarrisonTypeID = garrisonTypeID;
 end
 
 function LocalLandingPageTypeUtil:SetExpansionLandingPageType(landingPageTypeID)
+	-- print("< Set current landingPageTypeID:", landingPageTypeID)
 	self.previousLandingPageTypeID = self.currentLandingPageTypeID;
 	self.currentLandingPageTypeID = landingPageTypeID;
 end
@@ -92,7 +94,7 @@ function LocalLandingPageTypeUtil:GetMinimumUnlockedExpansionGarrisonType(minimu
 	local isMinimumUnlocked = self:IsGarrisonTypeUnlocked(minimumGarrisonTypeID);
 	if isMinimumUnlocked then
 		self:SetLandingPageGarrisonType(minimumGarrisonTypeID);
-		print("--> Found unlocked minimum:", minimumGarrisonTypeID)
+		-- print("<-- Found unlocked minimum:", minimumGarrisonTypeID)
 		return minimumGarrisonTypeID;
 	end
 
@@ -103,16 +105,17 @@ end
 function LocalLandingPageTypeUtil:GetLandingPageModeForLandingPageInfo(landingPageInfo, previousMode)
 	-- Case 1: Area w/o a Landing Page  --> Note: Keep previous mode alive.
 	if not landingPageInfo then
-		return previousMode or ExpansionLandingPageMode.Garrison;
+		-- print("MODE: previous")
+		return previousMode;
 	end
 
-	-- Case 2: Dranoer -> Shadowlands
+	-- Case 2: Draenor -> Shadowlands
 	if self:IsValidGarrisonType(landingPageInfo.garrisonTypeID) then
 		-- print("MODE: Garrison")
 		return ExpansionLandingPageMode.Garrison;
 	end
 
-	-- Case 3: Dragonflight -> War Within  --> Note: MajorFactionRenown is already handles by the game.
+	-- Case 3: Dragonflight -> War Within  --> Note: MajorFactionRenown is handled by the game.
 	if self:IsValidExpansionLandingPageType(landingPageInfo.landingPageTypeID) then
 		-- print("MODE: Overlay")
 		return ExpansionLandingPageMode.ExpansionOverlay;

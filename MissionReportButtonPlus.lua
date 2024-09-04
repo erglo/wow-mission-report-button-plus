@@ -51,7 +51,7 @@ local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
 local LabelUtil = ns.data;  --> <data\labels.lua>
 local LocalDragonridingUtil = ns.DragonridingUtil  --> <utils\dragonriding.lua> --> TODO - Rename to Skyriding
-local LocalLandingPageTypeUtil = ns.LandingPageTypeUtil;
+local LocalLandingPageTypeUtil = ns.LandingPageTypeUtil;  --> <utils\landingpagetype.lua>
 
 -- ns.poi9;  --> <utils\poi-9-dragonflight.lua>
 
@@ -505,42 +505,47 @@ ns.MRBP_IsAnyGarrisonRequirementMet = MRBP_IsAnyGarrisonRequirementMet;
 ----- Dropdown Menu ------------------------------------------------------------
 
 -- Handle opening and closing of Garrison-/ExpansionLandingPage frames.
----@param garrTypeID number
+---@param garrisonTypeID number
 --
-local function MRBP_ToggleLandingPageFrames(garrTypeID, landingPageTypeID)
+local function MRBP_ToggleLandingPageFrames(garrisonTypeID, landingPageTypeID)
 	-- Always (!) hide the GarrisonLandingPage; all visible UI widgets can only
 	-- be loaded properly on opening.
-	if (garrTypeID and garrTypeID > 0) then
+	if LocalLandingPageTypeUtil:IsValidGarrisonType(garrisonTypeID) then
 		if (ExpansionLandingPage and ExpansionLandingPage:IsShown()) then
 			_log:debug("Hiding ExpansionLandingPage");
 			HideUIPanel(ExpansionLandingPage);
 		end
 		if (GarrisonLandingPage == nil) then
 			-- Hasn't been opened in this session, yet
-			_log:debug("Showing GarrisonLandingPage1 type", garrTypeID);
-			ShowGarrisonLandingPage(garrTypeID);
+			_log:debug("Showing GarrisonLandingPage1 type", garrisonTypeID);
+			ShowGarrisonLandingPage(garrisonTypeID);
 		else
 			-- Toggle the GarrisonLandingPage frame; only re-open it
 			-- if the garrison type is not the same.
 			if (GarrisonLandingPage:IsShown()) then
 				_log:debug("Hiding GarrisonLandingPage type", GarrisonLandingPage.garrTypeID);
 				HideUIPanel(GarrisonLandingPage);
-				if (garrTypeID ~= GarrisonLandingPage.garrTypeID) then
-					_log:debug("Showing GarrisonLandingPage2 type", garrTypeID);
-					ShowGarrisonLandingPage(garrTypeID);
+				if (garrisonTypeID ~= GarrisonLandingPage.garrTypeID) then
+					_log:debug("Showing GarrisonLandingPage2 type", garrisonTypeID);
+					ShowGarrisonLandingPage(garrisonTypeID);
 				end
 			else
-				_log:debug("Showing GarrisonLandingPage3 type", garrTypeID);
-				ShowGarrisonLandingPage(garrTypeID);
+				_log:debug("Showing GarrisonLandingPage3 type", garrisonTypeID);
+				ShowGarrisonLandingPage(garrisonTypeID);
 			end
 		end
-	else
+	end
+
+	-- Note: works currently only in Dragonflight and newer expansions
+	if LocalLandingPageTypeUtil:IsValidExpansionLandingPageType(landingPageTypeID) then
 		if (GarrisonLandingPage and GarrisonLandingPage:IsShown()) then
 			_log:debug("Hiding GarrisonLandingPage1 type", GarrisonLandingPage.garrTypeID);
 			HideUIPanel(GarrisonLandingPage);
 		end
-		-- ToggleExpansionLandingPage();
-		ExpansionLandingPageMinimapButton:ToggleLandingPage()
+		-- print("Toggling ExpansionLandingPageMinimapButton, landingPageTypeID:", landingPageTypeID, ExpansionLandingPage:GetLandingPageType())
+		-- -- ExpansionLandingPageMinimapButton.expansionLandingPageType = landingPageTypeID;
+		-- ExpansionLandingPageMinimapButton:ToggleLandingPage()
+		ToggleExpansionLandingPage();
 	end
 end
 
@@ -1420,64 +1425,132 @@ end
 -- **Note:** At first log-in this always returns 0 (== no garrison at all).
 --
 function MRBP_GetLandingPageGarrisonType()
-	-- Check non-garrison types first
-	local landingPageTypeID = ExpansionLandingPage:GetLandingPageType();
-	-- print("landingPageTypeID:", landingPageTypeID)
-	if LocalLandingPageTypeUtil:IsValidExpansionLandingPageType(landingPageTypeID) then
-		LocalLandingPageTypeUtil:SetExpansionLandingPageType(landingPageTypeID);
-		return 0;
-	end
+	-- print(YELLOW_FONT_COLOR:WrapTextInColorCode("MRBP_GetLandingPageGarrisonType..."))
 
-	-- Handle garrison types
-	local garrisonTypeID = MRBP_GetLandingPageGarrisonType_orig();
-	-- print("garrisonTypeID:", garrisonTypeID)
+	-- -- Check non-garrison types (== newer expansions) first
+	-- local landingPageTypeID = MRBP_GetLandingPageType_orig(ExpansionLandingPage);
+	-- print("> landingPageTypeID1:", landingPageTypeID)
+	-- if LocalLandingPageTypeUtil:IsValidExpansionLandingPageType(landingPageTypeID) then
+	-- 	-- We're in Dragonflight or newer expansion area
+	-- 	local nonGarrisonTypeID = 0;
+	-- 	LocalLandingPageTypeUtil:SetLandingPageGarrisonType(nonGarrisonTypeID);
+	-- 	return nonGarrisonTypeID;
+	-- end
 
-	if LocalLandingPageTypeUtil:IsValidGarrisonType(garrisonTypeID) then
-		local isUnlocked = LocalLandingPageTypeUtil:IsGarrisonTypeUnlocked(garrisonTypeID);
-		if isUnlocked then
-			LocalLandingPageTypeUtil:SetLandingPageGarrisonType(garrisonTypeID);
-			return garrisonTypeID;
-		end
+	-- if  LocalLandingPageTypeUtil.currentGarrisonTypeID == LocalLandingPageTypeUtil.previousGarrisonTypeID then
+	-- 	-- We're still in the same area
+	-- 	print("--> same area:", LocalLandingPageTypeUtil.currentGarrisonTypeID)
+	-- 	return LocalLandingPageTypeUtil.currentGarrisonTypeID;
+	-- end
 
-		-- Current garrison type is not (yet) available, build and return garrison type ID of previous expansion.
-		return LocalLandingPageTypeUtil:GetMinimumUnlockedExpansionGarrisonType();
-	end
+	-- Get default values
+	local garrisonTypeID = MRBP_GetLandingPageGarrisonType_orig() or 0;
+	local currentType = ns.settings.currentExpansionLandingPageType;
 
-	-- Fallback
-	LocalLandingPageTypeUtil:SetLandingPageGarrisonType(garrisonTypeID or 0);
-	return garrisonTypeID or 0;
+	local value = (garrisonTypeID == currentType.garrisonTypeID) and garrisonTypeID or currentType.garrisonTypeID;
+	-- print("> garrisonTypeID:", value)
+	return value;
+
+	-- -- Try custom type, a garrison type based on the player's current location
+	-- local playerGarrisonInfo = LandingPageInfo:GetPlayerLocationLandingPageInfo();
+	-- if playerGarrisonInfo then
+	-- 	-- -- We ignore Dragonflight and newer expansion locations
+	-- 	-- if LocalLandingPageTypeUtil:IsValidExpansionLandingPageType(playerGarrisonInfo.landingPageTypeID) then
+	-- 	-- 	-- We're in Dragonflight or newer expansion area
+	-- 	-- 	local nonGarrisonTypeID = 0;
+	-- 	-- 	LocalLandingPageTypeUtil:SetLandingPageGarrisonType(nonGarrisonTypeID);
+	-- 	-- 	return nonGarrisonTypeID;
+	-- 	-- end
+
+	-- 	local playerGarrisonTypeID = playerGarrisonInfo.garrisonTypeID;
+	-- 	-- if LocalLandingPageTypeUtil:IsValidGarrisonType(playerGarrisonTypeID) and playerGarrisonTypeID ~= LocalLandingPageTypeUtil.previousGarrisonTypeID then
+	-- 	if LocalLandingPageTypeUtil:IsValidGarrisonType(playerGarrisonTypeID) then
+	-- 	-- 	local isUnlocked = LocalLandingPageTypeUtil:IsGarrisonTypeUnlocked(playerGarrisonTypeID);
+	-- 	-- 	if isUnlocked then
+	-- 	-- 		LocalLandingPageTypeUtil:SetLandingPageGarrisonType(playerGarrisonTypeID);
+	-- 	-- 		return playerGarrisonTypeID;
+	-- 	-- 	end
+	-- 		print("> playerGarrisonTypeID:", playerGarrisonTypeID);
+	-- 		return playerGarrisonTypeID;
+	-- 	end
+	-- -- elseif LocalLandingPageTypeUtil:IsValidGarrisonType(garrisonTypeID) then
+	-- -- 	return garrisonTypeID;
+	-- end
+
+	-- -- Pass default garrison type through
+	-- -- LocalLandingPageTypeUtil:SetLandingPageGarrisonType(garrisonTypeID);
+	-- print("> garrisonTypeID:", garrisonTypeID);
+	-- return garrisonTypeID;
 end
 
---> TODO - Find a more secure way to pre-hook this.
-MRBP_GetLandingPageGarrisonType_orig = C_Garrison.GetLandingPageGarrisonType
-C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType
+function MRBP_GetLandingPageType(self)
+	-- print(YELLOW_FONT_COLOR:WrapTextInColorCode("MRBP_GetLandingPageType..."))
 
--- MRBP_GetLandingPageType_orig = ExpansionLandingPage.GetLandingPageType;
+	-- Get default values
+	local landingPageTypeID = MRBP_GetLandingPageType_orig(self);
+	local currentType = ns.settings.currentExpansionLandingPageType;
 
--- IsGarrisonLandingPageFeatured()
--- ExpansionLandingPage:IsOverlayApplied()
--- ExpansionLandingPageMinimapButton:RefreshButton(forceUpdateIcon)
+	local value = (landingPageTypeID == currentType.landingPageTypeID) and landingPageTypeID or currentType.landingPageTypeID;
+	-- print("--> landingPageTypeID:", value)
+	return value;
 
+	-- -- if not LocalLandingPageTypeUtil:IsValidExpansionLandingPageType(landingPageTypeID) then
+	-- -- 	return landingPageTypeID;
+	-- -- end
 
-local LocalGarrisonLandingPageEvents = {
-	"GARRISON_SHOW_LANDING_PAGE",
-	"GARRISON_HIDE_LANDING_PAGE",
-	"GARRISON_BUILDING_ACTIVATABLE",
-	"GARRISON_BUILDING_ACTIVATED",
-	"GARRISON_ARCHITECT_OPENED",
-	"GARRISON_MISSION_FINISHED",
-	"GARRISON_MISSION_NPC_OPENED",
-	"GARRISON_SHIPYARD_NPC_OPENED",
-	"GARRISON_INVASION_AVAILABLE",
-	"GARRISON_INVASION_UNAVAILABLE",
-	"SHIPMENT_UPDATE",
-	"PLAYER_ENTERING_WORLD",
-};
+	-- -- if landingPageTypeID == LocalLandingPageTypeUtil.currentLandingPageTypeID then
+	-- -- 	-- We're still in the same area
+	-- -- 	print("-->> same area:", landingPageTypeID)
+	-- -- 	return landingPageTypeID;
+	-- -- end
+
+	-- -- Try custom type, a garrison type based on the player's current location
+	-- local playerLandingPageTypeInfo = LandingPageInfo:GetPlayerLocationLandingPageInfo();
+	-- local playerLandingPageTypeID = playerLandingPageTypeInfo and playerLandingPageTypeInfo.landingPageTypeID;
+	-- print("> playerLandingPageTypeID:", playerLandingPageTypeID);
+	-- -- if LocalLandingPageTypeUtil:IsValidExpansionLandingPageType(playerLandingPageTypeID) then
+	-- -- -- 	local isUnlocked = LocalLandingPageTypeUtil:IsExpansionLandingPageTypeUnlocked(landingPageTypeID);
+	-- -- -- 	if isUnlocked then
+	-- -- -- 		LocalLandingPageTypeUtil:SetExpansionLandingPageType(landingPageTypeID);
+	-- -- -- 		return landingPageTypeID;
+	-- -- -- 	end
+	-- -- 	return playerLandingPageTypeID;
+	-- -- end
+
+	-- local playerGarrisonTypeID = playerLandingPageTypeInfo and playerLandingPageTypeInfo.garrisonTypeID;
+	-- if LocalLandingPageTypeUtil:IsValidGarrisonType(playerGarrisonTypeID) then
+	-- 	print("--> landingPageTypeID:", 0)
+	-- 	return 0;
+	-- end
+
+	-- -- Fallback to default value
+	-- -- LocalLandingPageTypeUtil:SetExpansionLandingPageType(landingPageTypeID);
+	-- print("--> landingPageTypeID:", landingPageTypeID)
+	-- return landingPageTypeID;
+end
+
+local function GetCurrentLandingPageInfo()
+    -- -- Always return same LandingPageInfo
+    -- return self:GetLandingPageInfo(ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID);
+    local currentType = ns.settings.currentExpansionLandingPageType;
+
+    if LocalLandingPageTypeUtil:IsValidGarrisonType(currentType.garrisonTypeID) then
+        return LandingPageInfo:GetGarrisonInfo(currentType.garrisonTypeID);
+    end
+    if LocalLandingPageTypeUtil:IsValidExpansionLandingPageType(currentType.landingPageTypeID) then
+        return LandingPageInfo:GetLandingPageInfo(currentType.landingPageTypeID);
+    end
+end
 
 -- REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_Minimap/Minimap.lua>
 -- 
 function MRBP_RefreshButton(self, forceUpdateIcon)
-	-- print("Refreshing Minimap Button, forceUpdateIcon:", forceUpdateIcon)
+	-- print(YELLOW_FONT_COLOR:WrapTextInColorCode("Refreshing Minimap Button, forceUpdateIcon:"), forceUpdateIcon)
+
+	-- local playerLandingPageInfo = LandingPageInfo:GetPlayerLocationLandingPageInfo();
+	local playerLandingPageInfo = GetCurrentLandingPageInfo();
+	self.mode = LocalLandingPageTypeUtil:GetLandingPageModeForLandingPageInfo(playerLandingPageInfo, self.mode);
+	-- print("--> mode:", self.mode, self:IsInGarrisonMode(), self:IsInMajorFactionRenownMode(), self:IsExpansionOverlayMode())
 
 	local previousMode = self.mode;
 	-- print("<< previousMode:", previousMode)
@@ -1485,38 +1558,62 @@ function MRBP_RefreshButton(self, forceUpdateIcon)
 	if C_GameRules.IsGameRuleActive(Enum.GameRule.LandingPageFactionID) then
 		self.mode = ExpansionLandingPageMode.MajorFactionRenown;
 		self.majorFactionID = C_GameRules.GetGameRuleAsFloat(Enum.GameRule.LandingPageFactionID);
-	elseif ExpansionLandingPage:IsOverlayApplied() then
-		self.mode = ExpansionLandingPageMode.ExpansionOverlay;
-	else
-		self.mode = nil;
+	-- elseif ExpansionLandingPage:IsOverlayApplied() then
+	-- 	self.mode = ExpansionLandingPageMode.ExpansionOverlay;
+	-- else
+	-- 	self.mode = nil;
 	end
 	if wasInGarrisonMode and not self:IsInGarrisonMode() then
+		-- print("wasInGarrisonMode:", wasInGarrisonMode)
 		if (GarrisonLandingPage and GarrisonLandingPage:IsShown()) then
 			HideUIPanel(GarrisonLandingPage);
 		end
 		self:ClearPulses();
-		FrameUtil.UnregisterFrameForEvents(self, LocalGarrisonLandingPageEvents);
+		-- FrameUtil.UnregisterFrameForEvents(self, LocalGarrisonLandingPageEvents);
 	end
+	-- if self.mode ~= previousMode or forceUpdateIcon == true then
+	-- 	self:Hide();
+	-- 	-- -- Intervene
+	-- 	-- print(">> defaultMode:", self.mode, "peviousMode:", previousMode)
+	-- 	-- if not self.mode then
+	-- 	-- 	local playerLandingPageInfo = LandingPageInfo:GetPlayerLocationLandingPageInfo();
+	-- 	-- 	self.mode = LocalLandingPageTypeUtil:GetLandingPageModeForLandingPageInfo(playerLandingPageInfo, previousMode);
+	-- 	-- 	print("--> mode:", self.mode)
+	-- 	-- end
+	-- 	-- -- 
+	-- 	if self.mode then
+	-- 		self:UpdateIcon();
+	-- 		self:Show();
+	-- 	end
+	-- end
 	if self.mode ~= previousMode or forceUpdateIcon == true then
+		-- print("> Hiding previous button...")
 		self:Hide();
-		-- Intervene
-		-- print(">> def. mode:", self.mode, previousMode)
-		if not self.mode then
-			local playerLandingPageInfo = LandingPageInfo:GetPlayerLocationLandingPageInfo();
-			self.mode = LocalLandingPageTypeUtil:GetLandingPageModeForLandingPageInfo(playerLandingPageInfo, previousMode);
-			-- print("--> mode:", self.mode)
-		end
-		-- 
-		if self.mode then
-			self:UpdateIcon();
-			self:Show();
-		end
+	end
+	if self.mode then
+		-- print("> Icon is being updated...")
+		self:UpdateIcon();
+		self:Show();
 	end
 end
 
+--> TODO - Find a more secure way to pre-hook this.
+MRBP_GetLandingPageGarrisonType_orig = C_Garrison.GetLandingPageGarrisonType
+C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType
+
+MRBP_GetLandingPageType_orig = ExpansionLandingPage.GetLandingPageType;
+ExpansionLandingPage.GetLandingPageType = MRBP_GetLandingPageType;
+
 MRBP_RefreshButton_orig = ExpansionLandingPageMinimapButton.RefreshButton;
 ExpansionLandingPageMinimapButton.RefreshButton = MRBP_RefreshButton;
+
+-- IsGarrisonLandingPageFeatured()
+-- ExpansionLandingPage:IsOverlayApplied()
+-- ExpansionLandingPageMinimapButton:RefreshButton(forceUpdateIcon)
+
 -- ExpansionLandingPageMinimapButton:RefreshButton()
+-- ExpansionLandingPageMinimapButton:ResetLandingPageIconOffset()
+-- ExpansionLandingPageMinimapButton:UpdateIcon()
 
 ----- Slash commands -----------------------------------------------------------
 

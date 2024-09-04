@@ -29,7 +29,7 @@ local C_CovenantCallings = C_CovenantCallings;
 local GarrisonFollowerOptions = GarrisonFollowerOptions;
 
 local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
-local ExpansionInfo = ns.ExpansionInfo;  --> data\expansion.lua<>
+local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 
 ----- Helper Functions ---------------------------------------------------------
 

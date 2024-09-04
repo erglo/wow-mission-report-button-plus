@@ -68,6 +68,8 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showMinimapButton"] = true,
 	["showAddonNameInTooltip"] = true,
 	["useMiddleButton"] = true,
+	-- ["useSingleExpansionLandingPageType"] = true,
+	["currentExpansionLandingPageType"] = {garrisonTypeID=Enum.GarrisonType.Type_9_0_Garrison, landingPageTypeID=Enum.ExpansionLandingPageType.None},
 	["showInAddonCompartment"] = true,
 	["showAchievementTracking"] = true,
 	-- Dropdown menu
@@ -1078,6 +1080,13 @@ function MRBP_Settings_Register()
 			parentVariable = "showMinimapButton",
 			tag = Settings.Default.True,
 		},
+		-- {
+		-- 	variable = "useSingleExpansionLandingPageType",						--> TODO - L10n
+		-- 	name = "Eine Erweiterung für alle Zonen",
+		-- 	tooltip = "Wenn aktiviert, wird eine der im Menü verfügbaren Erweiterungen als Minikarten-Button durchgehend in allen Zonen angezeigt.",
+		-- 	parentVariable = "showMinimapButton",
+		-- 	tag = Settings.Default.True,
+		-- },
 		util.AddonCompartment.IsAddonCompartmentAvailable() and {
 			variable = "showInAddonCompartment",
 			name = L.CFG_SHOW_ADDON_COMPARTMENT_TEXT,
