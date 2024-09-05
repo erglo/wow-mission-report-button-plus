@@ -686,22 +686,6 @@ end
 
 ----- Dragonflight -----
 
--- Check if the dragon riding feature in Dragonflight is unlocked.
----@return boolean isUnlocked
--- REF.: <FrameXML/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
--- REF.: <FrameXML/AchievementUtil.lua>
--- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/AchievementInfoDocumentation.lua>
--- REF.: <https://wowpedia.fandom.com/wiki/World_of_Warcraft_API#Achievements>
---
-function util.garrison.IsDragonridingUnlocked()
-	-- local DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID = 15794;
-	-- local DRAGONRIDING_INTRO_QUEST_ID = 68798;
-	-- local hasAccountAchievement = select(4, GetAchievementInfo(DRAGONRIDING_ACCOUNT_ACHIEVEMENT_ID));
-	-- return hasAccountAchievement or LocalQuestUtil.IsQuestFlaggedCompleted(DRAGONRIDING_INTRO_QUEST_ID);
-	return DragonridingUtil.IsDragonridingUnlocked();
-	--> REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
-end
-
 -- -- Create a string with the amount and icon of given currency info.
 -- ---@param treeCurrencyInfo table  A TreeCurrencyInfo table
 -- ---@param includeMaximum boolean|nil  Whether to include the maximal amount to the returned string or not

@@ -271,13 +271,18 @@ local function GetMajorFactionIcon(majorFactionData)
 	end
 end
 
-local function ShouldApplyFactionColors(expansionInfo)
-	local varName = "applyMajorFactionColors" .. tostring(expansionInfo.ID)
+local function ShouldApplyFactionColors(expansionID)
+	local varName = "applyMajorFactionColors" .. tostring(expansionID)
 	return ns.settings[varName]
 end
 
-local function ShouldHideMajorFactionUnlockDescription(expansionInfo)
-	local varName = "hideMajorFactionUnlockDescription" .. tostring(expansionInfo.ID)
+local function ShouldHideMajorFactionUnlockDescription(expansionID)
+	local varName = "hideMajorFactionUnlockDescription" .. tostring(expansionID)
+	return ns.settings[varName]
+end
+
+local function ShouldAutoHideCompletedDragonGlyphZones(expansionID)
+	local varName = "autoHideCompletedDragonGlyphZones" .. tostring(expansionID)
 	return ns.settings[varName]
 end
 
@@ -290,16 +295,18 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 			self:AddHeaderLine(tooltip, expansionInfo.name, nil, true)
 		end
 		self:AddHeaderLine(tooltip, L["showMajorFactionRenownLevel"])
+
 		for _, factionData in ipairs(majorFactionData) do
 			local factionIcon = GetMajorFactionIcon(factionData)
-			local FactionColor = ShouldApplyFactionColors(expansionInfo) and util.garrison.GetMajorFactionColor(factionData) or TOOLTIP_TEXT_FONT_COLOR
+			local FactionColor = ShouldApplyFactionColors(expansionInfo.ID) and util.garrison.GetMajorFactionColor(factionData) or TOOLTIP_TEXT_FONT_COLOR
 			self:AddIconLine(tooltip, factionData.name, factionIcon, FactionColor)
+
 			if factionData.isUnlocked then
 				-- Show current renown progress
 				local levelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel)
 				local progressText = GENERIC_FRACTION_STRING:format(factionData.renownReputationEarned, factionData.renownLevelThreshold)
 				local progressTextParens = AppendColoredText(PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
-				-- local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID)
+
 				if not util.garrison.IsFactionParagon(factionData.factionID) then
 					self:AddObjectiveLine(tooltip, levelText..TEXT_DELIMITER..progressTextParens) -- , nil, hasMaxRenown and DISABLED_FONT_COLOR)
 				else
@@ -308,6 +315,7 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 					progressText = util.garrison.GetFactionParagonProgressText(paragonInfo)
 					progressTextParens = AppendColoredText(PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
 					self:AddObjectiveLine(tooltip, levelText..TEXT_DELIMITER..progressTextParens..TEXT_DELIMITER..bagIconString, nil, DISABLED_FONT_COLOR)
+
 					if paragonInfo.hasRewardPending then
 						local completionText = util.garrison.GetParagonCompletionText(paragonInfo)
 						self:AddObjectiveLine(tooltip, completionText)
@@ -316,7 +324,8 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 			else
 				-- Major Faction is not unlocked, yet :(
 				self:AddObjectiveLine(tooltip, MAJOR_FACTION_BUTTON_FACTION_LOCKED, nil, DISABLED_FONT_COLOR)
-				if not ShouldHideMajorFactionUnlockDescription(expansionInfo) then
+
+				if not ShouldHideMajorFactionUnlockDescription(expansionInfo.ID) then
 					self:AddObjectiveLine(tooltip, factionData.unlockDescription, nil, DISABLED_FONT_COLOR)
 				end
 			end
@@ -325,12 +334,13 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 end
 
 function LocalTooltipUtil:AddDragonGlyphLines(tooltip, expansionID)
-	if LocalDragonridingUtil:IsDragonridingUnlocked() then
+	if LocalDragonridingUtil:IsSkyridingUnlocked() then
 		local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = LocalDragonridingUtil:GetDragonGlyphsCount(expansionID)
+
 		-- Show collected glyphs per zone
 		for mapName, count in pairs(glyphsPerZone) do
 			local isComplete = count.numComplete == count.numTotal
-			if not (isComplete and ns.settings.autoHideCompletedDragonGlyphZones) then
+			if not (isComplete and ShouldAutoHideCompletedDragonGlyphZones(expansionID)) then
 				local zoneName = mapName..HEADER_COLON
 				local counterText = GENERIC_FRACTION_STRING:format(count.numComplete, count.numTotal)
 				local lineColor = isComplete and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
@@ -338,6 +348,7 @@ function LocalTooltipUtil:AddDragonGlyphLines(tooltip, expansionID)
 				self:AddObjectiveLine(tooltip, zoneName..resultsText, isComplete)
 			end
 		end
+
 		-- Add glyph collection summary
 		local treeCurrencyInfo = LocalDragonridingUtil:GetDragonRidingTreeCurrencyInfo()
 		local youCollectedAmountString = TRADESKILL_NAME_RANK:format(YOU_COLLECTED_LABEL, numGlyphsCollected, numGlyphsTotal)
@@ -345,12 +356,14 @@ function LocalTooltipUtil:AddDragonGlyphLines(tooltip, expansionID)
 		local lineColor = collectedAll and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
 		local lineSuffix = collectedAll and TEXT_DELIMITER..TOOLTIP_CHECK_MARK_ICON_STRING or ''
 		self:AddIconLine(tooltip, youCollectedAmountString..lineSuffix, treeCurrencyInfo.texture, lineColor)
+
 		if (treeCurrencyInfo.quantity > 0) then
 			-- Inform user that there are glyphs to spend
 			local currencySymbolString = util.CreateInlineIcon(treeCurrencyInfo.texture, 16, 16, 0, -1)
 			local availableAmountText = PROFESSIONS_CURRENCY_AVAILABLE:format(treeCurrencyInfo.quantity, currencySymbolString)
 			self:AddObjectiveLine(tooltip, availableAmountText)
 		end
+
 		if (numGlyphsCollected == 0) then
 			-- Inform player on how to get some glyphs
 			self:AddIconLine(tooltip, DRAGON_RIDING_CURRENCY_TUTORIAL, treeCurrencyInfo.texture, DISABLED_FONT_COLOR)

@@ -1097,7 +1097,7 @@ local function MenuLine_OnEnter(...)
 			LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 		end
 		-- Dragon Glyphs
-		if ns.settings.showDragonGlyphs then
+		if ns.settings.showDragonGlyphs9 then
 			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showDragonGlyphs"])
 			LocalTooltipUtil:AddDragonGlyphLines(ExpansionTooltip, expansionInfo.ID)
 		end
@@ -1255,6 +1255,11 @@ local function MenuLine_OnEnter(...)
 		if ns.settings.showMajorFactionRenownLevel10 then
 			local tooltip = ns.settings.separateMajorFactionTooltip10 and ReputationTooltip or ExpansionTooltip
 			LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
+		end
+		-- Dragon Glyphs
+		if ns.settings.showDragonGlyphs10 then
+			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showDragonGlyphs"])
+			LocalTooltipUtil:AddDragonGlyphLines(ExpansionTooltip, expansionInfo.ID)
 		end
 	end
 

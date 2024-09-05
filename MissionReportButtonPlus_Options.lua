@@ -89,13 +89,15 @@ ns.defaultSettings = {  --> default + fallback settings
 	["applyMajorFactionColors10"] = true,
 	["hideMajorFactionUnlockDescription10"] = false,
 	["separateMajorFactionTooltip10"] = false,
+	["showDragonGlyphs10"] = true,
+	["autoHideCompletedDragonGlyphZones10"] = false,
 	-- Dragonflight
 	["showMajorFactionRenownLevel9"] = true,
 	["applyMajorFactionColors9"] = true,
 	["hideMajorFactionUnlockDescription9"] = false,
 	["separateMajorFactionTooltip9"] = false,
-	["showDragonGlyphs"] = true,
-	["autoHideCompletedDragonGlyphZones"] = false,
+	["showDragonGlyphs9"] = true,
+	["autoHideCompletedDragonGlyphZones9"] = false,
 	["showDragonflightWorldMapEvents"] = true,
 	["showDragonRaceInfo"] = true,
 	["showGrandHuntsInfo"] = true,
@@ -928,15 +930,15 @@ ExpansionTooltipSettings[ExpansionInfo.data.DRAGONFLIGHT.ID] = {
 		parentVariable = "showMajorFactionRenownLevel9",
 	},
 	{
-		variable = "showDragonGlyphs",
+		variable = "showDragonGlyphs9",
 		name = L["showDragonGlyphs"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_DRAGON_GLYPHS_TOOLTIP,
 	},
 	{
-		variable = "autoHideCompletedDragonGlyphZones",
+		variable = "autoHideCompletedDragonGlyphZones9",
 		name = L["autoHideCompletedDragonGlyphZones"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_HIDE_DRAGON_GLYPHS_TOOLTIP,
-		parentVariable = "showDragonGlyphs",
+		parentVariable = "showDragonGlyphs9",
 	},
 	{
 		variable = "showDragonflightWorldMapEvents",
@@ -1048,6 +1050,17 @@ ExpansionTooltipSettings[ExpansionInfo.data.WAR_WITHIN.ID] = {
 		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
 		tooltip = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TOOLTIP,
 		parentVariable = "showMajorFactionRenownLevel10",
+	},
+	{
+		variable = "showDragonGlyphs10",
+		name = L["showDragonGlyphs"],
+		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_DRAGON_GLYPHS_TOOLTIP,
+	},
+	{
+		variable = "autoHideCompletedDragonGlyphZones10",
+		name = L["autoHideCompletedDragonGlyphZones"],
+		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_HIDE_DRAGON_GLYPHS_TOOLTIP,
+		parentVariable = "showDragonGlyphs10",
 	},
 };
 

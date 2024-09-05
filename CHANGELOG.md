@@ -24,7 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 * Data: getting the Landing Page's garrison type can return empty values (nil) instead of zero (0) which caused an error.
 * Addon Compartment: the click handler's argument types have been changed in the pre-expansion patch and couldn't be processed correctly.
-* Tooltip: fixed UI scaling of the expansion details tooltip.
+* ExpansionTooltip: fixed UI scaling of the expansion details tooltip.
 * World Map Events: not all events appeared in the tooltip, due to the changes made by Blizzard.
 
 ## [1.1.0] - 2024-08-11

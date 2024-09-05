@@ -95,25 +95,35 @@ function LocalDragonridingUtil:GetDragonGlyphsCount(expansionID)
 			{mapID = 2133, achievementID = 18150},  -- Zaralek Cavern Glyph Hunter
 			{mapID = 2200, achievementID = 19306},  -- Emerald Dream Glyph Hunter
 		},
-		--> TODO - Add TWW IDs
+		[tostring(ExpansionInfo.data.WAR_WITHIN.ID)] = {
+			{mapID = 2248, achievementID = 40166},  -- Isle of Dorn Glyph Hunter
+			{mapID = 2214, achievementID = 40703},  -- The Ringing Deeps Glyph Hunter
+			{mapID = 2215, achievementID = 40704},  -- Hallowfall Glyph Hunter
+			{mapID = 2255, achievementID = 40705},  -- Azj-Kahet Glyph Hunter
+		},
 	};
 	local achievements = DRAGONRIDING_GLYPH_HUNTER_ACHIEVEMENTS[tostring(expansionID)];
+
 	local glyphsPerZone = {};  -- Glyph count by map ID
 	local numGlyphsTotal = 0;  -- The total number of glyphs from all zones
 	local numGlyphsCollected = 0;  -- The number of collected glyphs from all zones
+
 	for _, info in ipairs(achievements) do
 		local numCriteria = GetAchievementNumCriteria(info.achievementID);
 		local mapInfo = LocalMapUtil.GetMapInfo(info.mapID);
 		local numComplete = 0;
+
 		for i=1, numCriteria do
 			local criteriaCompleted = select(3, GetAchievementCriteriaInfo(info.achievementID, i));
 			if criteriaCompleted then
 				numComplete = numComplete + 1;
 			end
 		end
+
 		glyphsPerZone[mapInfo.name] = {};  -- The name of a zone
 		glyphsPerZone[mapInfo.name].numTotal = numCriteria;  -- The total number of glyphs per zone
 		glyphsPerZone[mapInfo.name].numComplete = numComplete;  -- The number of collected glyphs per zone
+
 		numGlyphsTotal = numGlyphsTotal + numCriteria;
 		numGlyphsCollected = numGlyphsCollected + numComplete;
 	end

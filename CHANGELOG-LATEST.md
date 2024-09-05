@@ -6,8 +6,11 @@
 
 ### Added
 
-* Minimap Button: added a click sound when opening and closing the button's menu.
-* Minimap Button: clicking the middle mouse button (_optional_) now toggles the Skyriding Skill Tree as soon as Skyriding has been unlocked.
+* ExpansionTooltip: added `Dragon Glyph details` for The War Within.
+* ExpansionTooltip: added `Major Faction details` for The War Within.
+* War Within: added unlocking requirement data.
+* Minimap Button: added a `mouse click sound` when opening and closing the button's menu.
+* Minimap Button: added an optional `middle mouse click` which toggles the Skyriding Skill Tree as soon as Skyriding has been unlocked.
 
 ### Fixed
 
