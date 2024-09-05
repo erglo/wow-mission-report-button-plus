@@ -374,15 +374,14 @@ local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
 		[Enum.CovenantType.Necrolord] = {57878, "Choosing Your Purpose"},
 		["alt"] = {62000, "Choosing Your Purpose"},  --> when skipping story mode
 	},
-	-- [ExpansionInfo.data.DRAGONFLIGHT.ID] = {
-	-- 	["Horde"] = {65444, "To the Dragon Isles!"},
-	-- 	["Alliance"] = {67700, "To the Dragon Isles!"},
-	-- 	-- ["alt"] = {68798, "Dragon Glyphs and You"},
-	-- },
-	-- [ExpansionInfo.data.WAR_WITHIN.ID] = {
-	-- 	["Horde"] = {0, UNKNOWN},
-	-- 	["Alliance"] = {0, UNKNOWN},
-	-- },
+	[ExpansionInfo.data.DRAGONFLIGHT.ID] = {
+		["Horde"] = {65444, "To the Dragon Isles!"},
+		["Alliance"] = {67700, "To the Dragon Isles!"},
+	},
+	[ExpansionInfo.data.WAR_WITHIN.ID] = {
+		["Horde"] = {78722, "To Khaz Algar!"},
+		["Alliance"] = {78722, "To Khaz Algar!"},
+	},
 }
 
 -- Request data for the unlocking requirement quests; on initial log-in the
@@ -393,6 +392,7 @@ function MRBP:RequestLoadData()
 	local playerCovenantID = PlayerInfo:GetActiveCovenantID();
 	local playerFactionGroupTag = PlayerInfo:GetFactionGroupData("tag");
 	local tagNames = {playerFactionGroupTag, playerClassTag, playerCovenantID};
+
 	for _, questData in pairs(MRBP_COMMAND_TABLE_UNLOCK_QUESTS) do
 		-- if not questData then break; end
 		for tagName, questTable in pairs(questData) do
@@ -412,7 +412,10 @@ function MRBP:RequestLoadData()
 end
 
 -- Get quest details of given garrison type for given tag.
---> Returns: table  {questID, questName, requirementText}
+---@param expansionID number  The expansion ID.
+---@param tagName string|number  Expansion type-specific identifier, eg. "Horde", "Warrior", etc.
+---@return table reqData  Table of format `{questID, questName, requirementText}`.
+--
 local function MRBP_GetLandingPageTypeUnlockInfo(expansionID, tagName)
 	local reqMessageTemplate = L.TOOLTIP_REQUIREMENTS_TEXT_S;  --> same as Companion App text
 	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID] and MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID][tagName];
@@ -444,7 +447,6 @@ local function MRBP_IsLandingPageTypeUnlocked(expansionID, tagName)
 
 	-- Landing pages with a garrison (Draenor -> Shadowlands)
 	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID][tagName];
-	-- if not questData then return true; end
 
 	local questID = questData[1];
 	local IsCompleted = C_QuestLog.IsQuestFlaggedCompleted;
