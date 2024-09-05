@@ -1447,9 +1447,10 @@ function MRBP_GetLandingPageGarrisonType()
 
 	-- Get default values
 	local garrisonTypeID = MRBP_GetLandingPageGarrisonType_orig() or 0;
-	local currentType = ns.settings.currentExpansionLandingPageType;
+	-- local currentType = ns.settings.currentExpansionLandingPageType;
 
-	local value = (garrisonTypeID == currentType.garrisonTypeID) and garrisonTypeID or currentType.garrisonTypeID;
+	-- local value = (garrisonTypeID == currentType.garrisonTypeID) and garrisonTypeID or currentType.garrisonTypeID;
+	local value = garrisonTypeID;
 	-- print("> garrisonTypeID:", value)
 	return value;
 
@@ -1485,16 +1486,17 @@ function MRBP_GetLandingPageGarrisonType()
 	-- return garrisonTypeID;
 end
 
-function MRBP_GetLandingPageType(self)
-	-- print(YELLOW_FONT_COLOR:WrapTextInColorCode("MRBP_GetLandingPageType..."))
+-- function MRBP_GetLandingPageType(self)
+-- 	-- print(YELLOW_FONT_COLOR:WrapTextInColorCode("MRBP_GetLandingPageType..."))
 
-	-- Get default values
-	local landingPageTypeID = MRBP_GetLandingPageType_orig(self);
-	local currentType = ns.settings.currentExpansionLandingPageType;
+-- 	-- Get default values
+-- 	local landingPageTypeID = MRBP_GetLandingPageType_orig(self);
+-- 	-- local currentType = ns.settings.currentExpansionLandingPageType;
 
-	local value = (landingPageTypeID == currentType.landingPageTypeID) and landingPageTypeID or currentType.landingPageTypeID;
-	-- print("--> landingPageTypeID:", value)
-	return value;
+-- 	-- local value = (landingPageTypeID == currentType.landingPageTypeID) and landingPageTypeID or currentType.landingPageTypeID;
+-- 	local value = landingPageTypeID;
+-- 	print("--> landingPageTypeID:", value)
+-- 	return value;
 
 	-- -- if not LocalLandingPageTypeUtil:IsValidExpansionLandingPageType(landingPageTypeID) then
 	-- -- 	return landingPageTypeID;
@@ -1529,85 +1531,139 @@ function MRBP_GetLandingPageType(self)
 	-- -- LocalLandingPageTypeUtil:SetExpansionLandingPageType(landingPageTypeID);
 	-- print("--> landingPageTypeID:", landingPageTypeID)
 	-- return landingPageTypeID;
-end
+-- end
 
-local function GetCurrentLandingPageInfo()
-    -- -- Always return same LandingPageInfo
-    -- return self:GetLandingPageInfo(ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID);
-    local currentType = ns.settings.currentExpansionLandingPageType;
+-- local function GetCurrentLandingPageInfo()
+--     -- -- Always return same LandingPageInfo
+--     -- return self:GetLandingPageInfo(ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID);
+--     local currentType = ns.settings.currentExpansionLandingPageType;
 
-    if LocalLandingPageTypeUtil:IsValidGarrisonType(currentType.garrisonTypeID) then
-        return LandingPageInfo:GetGarrisonInfo(currentType.garrisonTypeID);
-    end
-    if LocalLandingPageTypeUtil:IsValidExpansionLandingPageType(currentType.landingPageTypeID) then
-        return LandingPageInfo:GetLandingPageInfo(currentType.landingPageTypeID);
-    end
-end
+--     if LocalLandingPageTypeUtil:IsValidGarrisonType(currentType.garrisonTypeID) then
+--         return LandingPageInfo:GetGarrisonInfo(currentType.garrisonTypeID);
+--     end
+--     if LocalLandingPageTypeUtil:IsValidExpansionLandingPageType(currentType.landingPageTypeID) then
+--         return LandingPageInfo:GetLandingPageInfo(currentType.landingPageTypeID);
+--     end
+-- end
 
 -- REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_Minimap/Minimap.lua>
 -- 
-function MRBP_RefreshButton(self, forceUpdateIcon)
-	-- print(YELLOW_FONT_COLOR:WrapTextInColorCode("Refreshing Minimap Button, forceUpdateIcon:"), forceUpdateIcon)
+-- function MRBP_RefreshButton(self, forceUpdateIcon)
+-- 	-- print(YELLOW_FONT_COLOR:WrapTextInColorCode("Refreshing Minimap Button, forceUpdateIcon:"), forceUpdateIcon)
 
-	-- local playerLandingPageInfo = LandingPageInfo:GetPlayerLocationLandingPageInfo();
-	local playerLandingPageInfo = GetCurrentLandingPageInfo();
-	self.mode = LocalLandingPageTypeUtil:GetLandingPageModeForLandingPageInfo(playerLandingPageInfo, self.mode);
-	-- print("--> mode:", self.mode, self:IsInGarrisonMode(), self:IsInMajorFactionRenownMode(), self:IsExpansionOverlayMode())
+-- 	-- local playerLandingPageInfo = LandingPageInfo:GetPlayerLocationLandingPageInfo();
+-- 	local playerLandingPageInfo = GetCurrentLandingPageInfo();
+-- 	self.mode = LocalLandingPageTypeUtil:GetLandingPageModeForLandingPageInfo(playerLandingPageInfo, self.mode);
+-- 	-- print("--> mode:", self.mode, self:IsInGarrisonMode(), self:IsInMajorFactionRenownMode(), self:IsExpansionOverlayMode())
 
-	local previousMode = self.mode;
-	-- print("<< previousMode:", previousMode)
-	local wasInGarrisonMode = self:IsInGarrisonMode();
-	if C_GameRules.IsGameRuleActive(Enum.GameRule.LandingPageFactionID) then
-		self.mode = ExpansionLandingPageMode.MajorFactionRenown;
-		self.majorFactionID = C_GameRules.GetGameRuleAsFloat(Enum.GameRule.LandingPageFactionID);
-	-- elseif ExpansionLandingPage:IsOverlayApplied() then
-	-- 	self.mode = ExpansionLandingPageMode.ExpansionOverlay;
-	-- else
-	-- 	self.mode = nil;
-	end
-	if wasInGarrisonMode and not self:IsInGarrisonMode() then
-		-- print("wasInGarrisonMode:", wasInGarrisonMode)
-		if (GarrisonLandingPage and GarrisonLandingPage:IsShown()) then
-			HideUIPanel(GarrisonLandingPage);
+-- 	local previousMode = self.mode;
+-- 	-- print("<< previousMode:", previousMode)
+-- 	local wasInGarrisonMode = self:IsInGarrisonMode();
+-- 	if C_GameRules.IsGameRuleActive(Enum.GameRule.LandingPageFactionID) then
+-- 		self.mode = ExpansionLandingPageMode.MajorFactionRenown;
+-- 		self.majorFactionID = C_GameRules.GetGameRuleAsFloat(Enum.GameRule.LandingPageFactionID);
+-- 	-- elseif ExpansionLandingPage:IsOverlayApplied() then
+-- 	-- 	self.mode = ExpansionLandingPageMode.ExpansionOverlay;
+-- 	-- else
+-- 	-- 	self.mode = nil;
+-- 	end
+-- 	if wasInGarrisonMode and not self:IsInGarrisonMode() then
+-- 		-- print("wasInGarrisonMode:", wasInGarrisonMode)
+-- 		if (GarrisonLandingPage and GarrisonLandingPage:IsShown()) then
+-- 			HideUIPanel(GarrisonLandingPage);
+-- 		end
+-- 		self:ClearPulses();
+-- 		-- FrameUtil.UnregisterFrameForEvents(self, LocalGarrisonLandingPageEvents);
+-- 	end
+-- 	-- if self.mode ~= previousMode or forceUpdateIcon == true then
+-- 	-- 	self:Hide();
+-- 	-- 	-- -- Intervene
+-- 	-- 	-- print(">> defaultMode:", self.mode, "peviousMode:", previousMode)
+-- 	-- 	-- if not self.mode then
+-- 	-- 	-- 	local playerLandingPageInfo = LandingPageInfo:GetPlayerLocationLandingPageInfo();
+-- 	-- 	-- 	self.mode = LocalLandingPageTypeUtil:GetLandingPageModeForLandingPageInfo(playerLandingPageInfo, previousMode);
+-- 	-- 	-- 	print("--> mode:", self.mode)
+-- 	-- 	-- end
+-- 	-- 	-- -- 
+-- 	-- 	if self.mode then
+-- 	-- 		self:UpdateIcon();
+-- 	-- 		self:Show();
+-- 	-- 	end
+-- 	-- end
+-- 	if self.mode ~= previousMode or forceUpdateIcon == true then
+-- 		-- print("> Hiding previous button...")
+-- 		self:Hide();
+-- 	end
+-- 	if self.mode then
+-- 		-- print("> Icon is being updated...")
+-- 		self:UpdateIcon();
+-- 		self:Show();
+-- 	end
+-- end
+
+local landingPageOverlay = {
+	[ExpansionInfo.data.DRAGONFLIGHT.ID] = CreateFromMixins(DragonflightLandingOverlayMixin),
+	[ExpansionInfo.data.WAR_WITHIN.ID] = CreateFromMixins(WarWithinLandingOverlayMixin),
+};
+
+-- This is called eg. on every zone change. Get the newest unlocked expansion overlay und refresh.
+--> Note: The Blizzard's default function does the same, but for some reasons it doesn't work outside zones of newer 
+--> expansions, eg. outside Dragonflight or Khaz Algar.
+-- 
+-- REF.: [Blizzard_ExpansionLandingPage.lua](https://www.townlong-yak.com/framexml/live/Blizzard_ExpansionLandingPage/Blizzard_ExpansionLandingPage.lua)
+-- 
+function MRBP_RefreshExpansionOverlay(self)
+	local newestExpansionID = LocalLandingPageTypeUtil:GetMaximumUnlockedLandingPageExpansionID();
+
+	-- local newestOverlay = self:GetNewestExpansionOverlayForPlayer();
+	local newestOverlay = landingPageOverlay[newestExpansionID];
+	-- print("Overlay updated")
+	if newestOverlay ~= self.overlay then
+		if self.overlayFrame then
+			self.overlayFrame:Hide();
 		end
-		self:ClearPulses();
-		-- FrameUtil.UnregisterFrameForEvents(self, LocalGarrisonLandingPageEvents);
-	end
-	-- if self.mode ~= previousMode or forceUpdateIcon == true then
-	-- 	self:Hide();
-	-- 	-- -- Intervene
-	-- 	-- print(">> defaultMode:", self.mode, "peviousMode:", previousMode)
-	-- 	-- if not self.mode then
-	-- 	-- 	local playerLandingPageInfo = LandingPageInfo:GetPlayerLocationLandingPageInfo();
-	-- 	-- 	self.mode = LocalLandingPageTypeUtil:GetLandingPageModeForLandingPageInfo(playerLandingPageInfo, previousMode);
-	-- 	-- 	print("--> mode:", self.mode)
-	-- 	-- end
-	-- 	-- -- 
-	-- 	if self.mode then
-	-- 		self:UpdateIcon();
-	-- 		self:Show();
-	-- 	end
-	-- end
-	if self.mode ~= previousMode or forceUpdateIcon == true then
-		-- print("> Hiding previous button...")
-		self:Hide();
-	end
-	if self.mode then
-		-- print("> Icon is being updated...")
-		self:UpdateIcon();
-		self:Show();
+
+		if self.overlay then
+			local minimapAnimationEvents = self.overlay.GetMinimapAnimationEvents();
+			if minimapAnimationEvents then
+				FrameUtil.UnregisterFrameForEvents(self, minimapAnimationEvents);
+			end
+		end
+
+		self.overlay = newestOverlay;
+
+		if self.overlay then
+			self.overlayFrame = newestOverlay.CreateOverlay(self.Overlay);
+			self.overlayFrame:Show();
+
+			local minimapAnimationEvents = self.overlay.GetMinimapAnimationEvents();
+			if minimapAnimationEvents then
+				FrameUtil.RegisterFrameForEvents(self, minimapAnimationEvents);
+			end
+		end
+
+		EventRegistry:TriggerEvent("ExpansionLandingPage.ClearPulses");
+		EventRegistry:TriggerEvent("ExpansionLandingPage.OverlayChanged");
+
+		if self.overlay and self.overlay.TryCelebrateUnlock then
+			self.overlay:TryCelebrateUnlock();
+		end
 	end
 end
 
---> TODO - Find a more secure way to pre-hook this.
+
+--> TODO - Find a more secure way to pre-hook these.
 MRBP_GetLandingPageGarrisonType_orig = C_Garrison.GetLandingPageGarrisonType
 C_Garrison.GetLandingPageGarrisonType = MRBP_GetLandingPageGarrisonType
 
-MRBP_GetLandingPageType_orig = ExpansionLandingPage.GetLandingPageType;
-ExpansionLandingPage.GetLandingPageType = MRBP_GetLandingPageType;
+-- MRBP_GetLandingPageType_orig = ExpansionLandingPage.GetLandingPageType;
+-- ExpansionLandingPage.GetLandingPageType = MRBP_GetLandingPageType;
 
-MRBP_RefreshButton_orig = ExpansionLandingPageMinimapButton.RefreshButton;
-ExpansionLandingPageMinimapButton.RefreshButton = MRBP_RefreshButton;
+-- MRBP_RefreshButton_orig = ExpansionLandingPageMinimapButton.RefreshButton;
+-- ExpansionLandingPageMinimapButton.RefreshButton = MRBP_RefreshButton;
+
+MRBP_RefreshExpansionOverlay_orig = ExpansionLandingPage.RefreshExpansionOverlay;
+ExpansionLandingPage.RefreshExpansionOverlay = MRBP_RefreshExpansionOverlay;
 
 -- IsGarrisonLandingPageFeatured()
 -- ExpansionLandingPage:IsOverlayApplied()
