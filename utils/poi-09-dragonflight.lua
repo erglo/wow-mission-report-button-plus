@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---[[ poi-9-dragonflight.lua - Utility and wrapper functions for handling
+--[[ poi-09-dragonflight.lua - Utility and wrapper functions for handling
 -- 							  Dragonflight World Map events in WoW. ]]--
 --
 -- by erglo <erglo.coder+MRBP@gmail.com>
@@ -26,7 +26,7 @@ local AddonID, ns = ...;
 local L = ns.L;
 local LocalL10nUtil = ns.data;  --> <data\labels.lua>
 
--- <utils\mrbputils.lua>
+-- From <utils\mrbputils.lua>
 local LocalPoiUtil = ns.poiUtil;
 local LocalMapUtil = ns.mapUtil;
 local LocalAchievementUtil = ns.achievement;
