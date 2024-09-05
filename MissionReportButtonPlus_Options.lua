@@ -45,6 +45,7 @@ local SettingsPanel = SettingsPanel;
 
 local sort = table.sort;
 local strjoin = strjoin;
+local tostring = tostring;
 local NEWLINE = "|n";
 local NEW_PARAGRAPH = "|n|n";
 local HEADER_COLON = HEADER_COLON;
@@ -82,12 +83,17 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showReputationRewardPendingHint"] = true,
 	["showTimewalkingVendorHint"] = true,
 	-- Menu entries
-	["activeMenuEntries"] = {"5", "6", "7", "8", "9", "99"},
+	["activeMenuEntries"] = {"5", "6", "7", "8", "9", "10", "99"},
+	-- The War Within
+	["showMajorFactionRenownLevel10"] = true,
+	["applyMajorFactionColors10"] = true,
+	["hideMajorFactionUnlockDescription10"] = false,
+	["separateMajorFactionTooltip10"] = false,
 	-- Dragonflight
-	["showMajorFactionRenownLevel"] = true,
-	["applyMajorFactionColors"] = true,
-	["hideMajorFactionUnlockDescription"] = false,
-	["separateMajorFactionTooltip"] = false,
+	["showMajorFactionRenownLevel9"] = true,
+	["applyMajorFactionColors9"] = true,
+	["hideMajorFactionUnlockDescription9"] = false,
+	["separateMajorFactionTooltip9"] = false,
 	["showDragonGlyphs"] = true,
 	["autoHideCompletedDragonGlyphZones"] = false,
 	["showDragonflightWorldMapEvents"] = true,
@@ -899,27 +905,27 @@ ExpansionTooltipSettings[ExpansionInfo.data.SHADOWLANDS.ID] = {
 
 ExpansionTooltipSettings[ExpansionInfo.data.DRAGONFLIGHT.ID] = {
 	{
-		variable = "showMajorFactionRenownLevel",
+		variable = "showMajorFactionRenownLevel9",
 		name = L["showMajorFactionRenownLevel"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_RENOWN_TOOLTIP,
 	},
 	{
-		variable = "applyMajorFactionColors",
+		variable = "applyMajorFactionColors9",
 		name = L["applyMajorFactionColors"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
-		parentVariable = "showMajorFactionRenownLevel",
+		parentVariable = "showMajorFactionRenownLevel9",
 	},
 	{
-		variable = "hideMajorFactionUnlockDescription",
+		variable = "hideMajorFactionUnlockDescription9",
 		name = L["hideMajorFactionUnlockDescription"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_UNLOCK_TOOLTIP,
-		parentVariable = "showMajorFactionRenownLevel",
+		parentVariable = "showMajorFactionRenownLevel9",
 	},
 	{
-		variable = "separateMajorFactionTooltip",
+		variable = "separateMajorFactionTooltip9",
 		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
 		tooltip = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TOOLTIP,
-		parentVariable = "showMajorFactionRenownLevel",
+		parentVariable = "showMajorFactionRenownLevel9",
 	},
 	{
 		variable = "showDragonGlyphs",
@@ -1015,6 +1021,33 @@ ExpansionTooltipSettings[ExpansionInfo.data.DRAGONFLIGHT.ID] = {
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS,
 		parentVariable = "showDragonflightWorldMapEvents",
 		-- modifyPredicate = ShouldShowEntryTooltip,
+	},
+};
+
+ExpansionTooltipSettings[ExpansionInfo.data.WAR_WITHIN.ID] = {
+	{
+		variable = "showMajorFactionRenownLevel10",
+		name = L["showMajorFactionRenownLevel"],
+		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_RENOWN_TOOLTIP,
+		tag = Settings.Default.True,
+	},
+	{
+		variable = "applyMajorFactionColors10",
+		name = L["applyMajorFactionColors"],
+		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
+		parentVariable = "showMajorFactionRenownLevel10",
+	},
+	{
+		variable = "hideMajorFactionUnlockDescription10",
+		name = L["hideMajorFactionUnlockDescription"],
+		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_UNLOCK_TOOLTIP,
+		parentVariable = "showMajorFactionRenownLevel10",
+	},
+	{
+		variable = "separateMajorFactionTooltip10",
+		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
+		tooltip = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TOOLTIP,
+		parentVariable = "showMajorFactionRenownLevel10",
 	},
 };
 

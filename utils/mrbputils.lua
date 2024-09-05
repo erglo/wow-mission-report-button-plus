@@ -728,14 +728,14 @@ end
 
 -- Retrieve the data for given major faction ID.
 ---@param factionID number  A major faction ID (since Dragonflight WoW 10.x)
----@return MajorFactionData table  For details see "MajorFactionData" fields below
+---@return MajorFactionData|nil majorFactionData  For details see "MajorFactionData" fields below
 --
 function util.garrison.GetMajorFactionData(factionID)
 	return C_MajorFactions.GetMajorFactionData(factionID);
 end
 
--- Sorting function for major faction. <br>
--- (Gleaned from the file blow. Credits go to its author(s).) <br>
+-- Sorting function for major factions. <br>
+-- (Gleaned from the file below. Credits go to its author(s).) <br>
 -- REF.: [Blizzard_MajorFactionsLandingTemplates.lua](https://www.townlong-yak.com/framexml/live/Blizzard_MajorFactions/Blizzard_MajorFactionsLandingTemplates.lua)
 --
 local function MajorFactionSort(faction1, faction2)
@@ -752,36 +752,24 @@ end
 function util.garrison.GetAllMajorFactionDataForExpansion(expansionID)
 	local majorFactionData = {};
 	local majorFactionIDs = C_MajorFactions.GetMajorFactionIDs(expansionID);
+
 	for _, factionID in ipairs(majorFactionIDs) do
 		tinsert(majorFactionData, util.garrison.GetMajorFactionData(factionID));
 	end
-	-- local sortFunc = function(a, b) return a.uiPriority < b.uiPriority end;  --> 0-9 (Fixed thanks to @justinkb.)
-	-- table.sort(majorFactionData, sortFunc);
-	table.sort(majorFactionData, MajorFactionSort);
 
+	table.sort(majorFactionData, MajorFactionSort);
 	return majorFactionData;
 end
 
--- Build and return the icon of the given expansion's major faction.
----@param majorFactionData table  See 'util.garrison.GetMajorFactionData' doc string for details
----@return string majorFactionIcon
---
-function util.garrison.GetMajorFactionInlineIcon(majorFactionData)
-	if (majorFactionData.expansionID == ExpansionInfo.data.DRAGONFLIGHT.ID) then
-		return util.CreateInlineIcon("MajorFactions_MapIcons_"..majorFactionData.textureKit.."64", 16, 16, 0, 0);
-	end
-	return '';
-end
-
 -- Build and return the color of the given major faction.
----@param majorFactionData any
----@return table majorFactionColor
---
 function util.garrison.GetMajorFactionColor(majorFactionData, fallbackColor)
 	local normalColor = fallbackColor or NORMAL_FONT_COLOR;
-	if(majorFactionData.expansionID == ExpansionInfo.data.DRAGONFLIGHT.ID) then
-		return _G[strupper(majorFactionData.textureKit).."_MAJOR_FACTION_COLOR"] or normalColor;
+
+	if (majorFactionData.expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
+		local colorName = strupper(majorFactionData.textureKit).."_MAJOR_FACTION_COLOR";
+		return _G[colorName] or normalColor;
 	end
+
 	return normalColor;
 end
 

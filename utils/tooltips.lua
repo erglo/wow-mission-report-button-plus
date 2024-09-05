@@ -38,6 +38,7 @@ local LocalLibQTipUtil = ns.utils.libqtip  --> <utils\libqtip.lua>
 ----- Upvalues -----
 
 local format = string.format
+local tostring = tostring
 local QuestUtils_GetQuestName = QuestUtils_GetQuestName
 local CovenantCalling_CheckCallings = CovenantCalling_CheckCallings
 local CreateTextureMarkup = CreateTextureMarkup
@@ -265,9 +266,19 @@ end
 ----- MRBP content -------------------------------------------------------------
 
 local function GetMajorFactionIcon(majorFactionData)
-	if (majorFactionData.expansionID == ExpansionInfo.data.DRAGONFLIGHT.ID) then
-		return "MajorFactions_MapIcons_"..majorFactionData.textureKit.."64"
+	if (majorFactionData.expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
+		return "MajorFactions_Icons_"..majorFactionData.textureKit.."512"
 	end
+end
+
+local function ShouldApplyFactionColors(expansionInfo)
+	local varName = "applyMajorFactionColors" .. tostring(expansionInfo.ID)
+	return ns.settings[varName]
+end
+
+local function ShouldHideMajorFactionUnlockDescription(expansionInfo)
+	local varName = "hideMajorFactionUnlockDescription" .. tostring(expansionInfo.ID)
+	return ns.settings[varName]
 end
 
 -- Requires expansionInfo, eg. ExpansionInfo.data.DRAGONFLIGHT
@@ -281,7 +292,7 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 		self:AddHeaderLine(tooltip, L["showMajorFactionRenownLevel"])
 		for _, factionData in ipairs(majorFactionData) do
 			local factionIcon = GetMajorFactionIcon(factionData)
-			local FactionColor = ns.settings.applyMajorFactionColors and util.garrison.GetMajorFactionColor(factionData) or TOOLTIP_TEXT_FONT_COLOR
+			local FactionColor = ShouldApplyFactionColors(expansionInfo) and util.garrison.GetMajorFactionColor(factionData) or TOOLTIP_TEXT_FONT_COLOR
 			self:AddIconLine(tooltip, factionData.name, factionIcon, FactionColor)
 			if factionData.isUnlocked then
 				-- Show current renown progress
@@ -305,7 +316,7 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 			else
 				-- Major Faction is not unlocked, yet :(
 				self:AddObjectiveLine(tooltip, MAJOR_FACTION_BUTTON_FACTION_LOCKED, nil, DISABLED_FONT_COLOR)
-				if not ns.settings.hideMajorFactionUnlockDescription then
+				if not ShouldHideMajorFactionUnlockDescription(expansionInfo) then
 					self:AddObjectiveLine(tooltip, factionData.unlockDescription, nil, DISABLED_FONT_COLOR)
 				end
 			end

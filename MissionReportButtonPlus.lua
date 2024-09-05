@@ -850,6 +850,7 @@ local function MenuLine_ShowTooltips()
 		ExpansionTooltip:Show()
 	end
 	if (ReputationTooltip and ReputationTooltip:GetLineCount() > 0) then
+		ReputationTooltip:SetClampedToScreen(true)
 		ReputationTooltip:Show()
 	end
 end
@@ -917,6 +918,7 @@ local function MenuLine_OnEnter(...)
 	local isForBattleForAzeroth = expansionInfo.ID == ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID
 	local isForShadowlands = expansionInfo.ID == ExpansionInfo.data.SHADOWLANDS.ID
 	local isForDragonflight = expansionInfo.ID == ExpansionInfo.data.DRAGONFLIGHT.ID
+	local isForWarWithin = expansionInfo.ID == ExpansionInfo.data.WAR_WITHIN.ID
 
 	------ Unlocking requirements -----
 
@@ -1088,8 +1090,8 @@ local function MenuLine_OnEnter(...)
 
 	if isForDragonflight then
 		-- Major Factions renown level and progress
-		if ns.settings.showMajorFactionRenownLevel then
-			local tooltip = ns.settings.separateMajorFactionTooltip and ReputationTooltip or ExpansionTooltip
+		if ns.settings.showMajorFactionRenownLevel9 then
+			local tooltip = ns.settings.separateMajorFactionTooltip9 and ReputationTooltip or ExpansionTooltip
 			LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 		end
 		-- Dragon Glyphs
@@ -1241,6 +1243,16 @@ local function MenuLine_OnEnter(...)
 					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, dfTheBigDigInfo.timeString);
 				end
 			end
+		end
+	end
+
+	----- The War Within -----
+
+	if isForWarWithin then
+		-- Major Factions renown level and progress
+		if ns.settings.showMajorFactionRenownLevel10 then
+			local tooltip = ns.settings.separateMajorFactionTooltip10 and ReputationTooltip or ExpansionTooltip
+			LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 		end
 	end
 
