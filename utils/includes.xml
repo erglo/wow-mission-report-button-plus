@@ -3,6 +3,7 @@
   <Include file="landingpagetype.lua"/>
   <Include file="dragonriding.lua"/>
   <Include file="poi-09-dragonflight.lua"/>
+  <Include file="poi-10-warwithin.lua"/>
   <Include file="libqtip.lua"/>
   <Include file="tooltips.lua"/>
 </Ui>
