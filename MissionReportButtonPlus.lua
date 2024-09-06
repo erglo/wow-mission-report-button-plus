@@ -57,10 +57,6 @@ local LocalLandingPageTypeUtil = ns.LandingPageTypeUtil;  --> <utils\landingpage
 
 local MRBP_EventMessagesCounter = {};
 
-local MRBP_DRAGONRIDING_QUEST_ID = 68795;  --> "Dragonriding"
--- local MRBP_MAJOR_FACTIONS_QUEST_ID_HORDE = 65444;  --> "To the Dragon Isles!"
--- local MRBP_MAJOR_FACTIONS_QUEST_ID_ALLIANCE = 67700;  --> "To the Dragon Isles!"
-
 -- Backwards compatibility 
 local IsAddOnLoaded = C_AddOns.IsAddOnLoaded;
 local LoadAddOn = C_AddOns.LoadAddOn;
@@ -256,10 +252,13 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 		elseif (event == "QUEST_TURNED_IN") then
 			-- REF.: <FrameXML/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
 			local questID, xpReward, moneyReward = ...;
-			if (questID == MRBP_DRAGONRIDING_QUEST_ID) then 
-				ns.cprint(DRAGONFLIGHT_LANDING_PAGE_ALERT_DRAGONRIDING_UNLOCKED);
-			-- elseif (questID == MRBP_MAJOR_FACTIONS_QUEST_ID_ALLIANCE or questID == MRBP_MAJOR_FACTIONS_QUEST_ID_HORDE) then
-			-- 	ns.cprint(DRAGONFLIGHT_LANDING_PAGE_ALERT_SUMMARY_UNLOCKED);
+			local skyridingQuests = {
+				LocalDragonridingUtil.DRAGONFLIGHT_DRAGONRIDING_QUEST_ID,
+				LocalDragonridingUtil.WAR_WITHIN_SKYRIDING_QUEST_ID,
+			};
+			if tContains(skyridingQuests, questID) then
+				local landingPageInfo = LandingPageInfo:GetLandingPageInfo(ExpansionInfo.data.DRAGONFLIGHT.ID);
+				ns.cprint(landingPageInfo.msg.dragonridingUnlocked);
 			end
 
 		elseif (event == "GARRISON_HIDE_LANDING_PAGE") then

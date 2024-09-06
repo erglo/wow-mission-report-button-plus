@@ -15,7 +15,9 @@
 
 ### Changed
 
+* Chat: updated chat notification for unlocking Skyriding in DF + TWW.
 * Chat: updated chat notification for unlocking a Major Faction.
+* Addon Compartment: updated tooltip with TWW details.
 
 ### Fixed
 

@@ -35,6 +35,11 @@ local LocalMapUtil = ns.mapUtil;  --> <utils\mrbputils.lua>
 local LocalDragonridingUtil = {};
 ns.DragonridingUtil = LocalDragonridingUtil;
 
+----- Constants ----------------------------------------------------------------
+
+LocalDragonridingUtil.DRAGONFLIGHT_DRAGONRIDING_QUEST_ID = 68795;  -- "Dragonriding" --> Unlocks ability to ride skyriding mounts.
+LocalDragonridingUtil.WAR_WITHIN_SKYRIDING_QUEST_ID = 78533;  -- "Secure the Beach" --> Unlocks Skyriding in Khaz Algar.
+
 ----- Wrapper ------------------------------------------------------------------
 
 function LocalDragonridingUtil:IsDragonridingUnlocked()

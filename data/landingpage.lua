@@ -289,6 +289,7 @@ function LandingPageInfo:Load_Dragonflight()
         ["bannerAtlas"] = "accountupgradebanner-dragonflight",  -- 199x133
         ["msg"] = {
             ["requirementText"] = ns.GetLandingPageTypeUnlockInfo(expansionID, playerFactionGroupTag).requirementText,
+            ["dragonridingUnlocked"] = DRAGONFLIGHT_LANDING_PAGE_ALERT_DRAGONRIDING_UNLOCKED,
             ["majorFactionUnlocked"] = DRAGONFLIGHT_LANDING_PAGE_ALERT_MAJOR_FACTION_UNLOCKED,
             ["summaryUnlocked"] = DRAGONFLIGHT_LANDING_PAGE_ALERT_SUMMARY_UNLOCKED,
         },
@@ -317,6 +318,7 @@ function LandingPageInfo:Load_The_War_Within()
         ["bannerAtlas"] = "accountupgradebanner-thewarwithin",  -- 199x133
         ["msg"] = {
             ["requirementText"] = ns.GetLandingPageTypeUnlockInfo(expansionID, playerFactionGroupTag).requirementText,
+            ["dragonridingUnlocked"] = DRAGONFLIGHT_LANDING_PAGE_ALERT_DRAGONRIDING_UNLOCKED,
             ["majorFactionUnlocked"] = WAR_WITHIN_LANDING_PAGE_ALERT_MAJOR_FACTION_UNLOCKED,
             ["summaryUnlocked"] = WAR_WITHIN_LANDING_PAGE_ALERT_SUMMARY_UNLOCKED,
         },
