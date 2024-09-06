@@ -56,10 +56,10 @@ local LocalLandingPageTypeUtil = ns.LandingPageTypeUtil;  --> <utils\landingpage
 -- ns.poi9;  --> <utils\poi-9-dragonflight.lua>
 
 local MRBP_EventMessagesCounter = {};
--- Tests
+
 local MRBP_DRAGONRIDING_QUEST_ID = 68795;  --> "Dragonriding"
-local MRBP_MAJOR_FACTIONS_QUEST_ID_HORDE = 65444;  --> "To the Dragon Isles!"
-local MRBP_MAJOR_FACTIONS_QUEST_ID_ALLIANCE = 67700;  --> "To the Dragon Isles!"
+-- local MRBP_MAJOR_FACTIONS_QUEST_ID_HORDE = 65444;  --> "To the Dragon Isles!"
+-- local MRBP_MAJOR_FACTIONS_QUEST_ID_ALLIANCE = 67700;  --> "To the Dragon Isles!"
 
 -- Backwards compatibility 
 local IsAddOnLoaded = C_AddOns.IsAddOnLoaded;
@@ -256,32 +256,19 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 		elseif (event == "QUEST_TURNED_IN") then
 			-- REF.: <FrameXML/Blizzard_ExpansionLandingPage/Blizzard_DragonflightLandingPage.lua>
 			local questID, xpReward, moneyReward = ...;
-			if (questID == MRBP_DRAGONRIDING_QUEST_ID) then
+			if (questID == MRBP_DRAGONRIDING_QUEST_ID) then 
 				ns.cprint(DRAGONFLIGHT_LANDING_PAGE_ALERT_DRAGONRIDING_UNLOCKED);
-			elseif (questID == MRBP_MAJOR_FACTIONS_QUEST_ID_ALLIANCE or questID == MRBP_MAJOR_FACTIONS_QUEST_ID_HORDE) then
-				ns.cprint(DRAGONFLIGHT_LANDING_PAGE_ALERT_SUMMARY_UNLOCKED);
+			-- elseif (questID == MRBP_MAJOR_FACTIONS_QUEST_ID_ALLIANCE or questID == MRBP_MAJOR_FACTIONS_QUEST_ID_HORDE) then
+			-- 	ns.cprint(DRAGONFLIGHT_LANDING_PAGE_ALERT_SUMMARY_UNLOCKED);
 			end
 
-		-- elseif (event == "QUEST_TURNED_IN" or event == "QUEST_AUTOCOMPLETE") then
-		-- 	-- REF.: <FrameXML/Blizzard_APIDocumentation/QuestLogDocumentation.lua>
-		-- 	-- REF.: <FrameXML/QuestUtils.lua>
-		-- 	local questID = ...
-		-- 	local questName = QuestUtils_GetQuestName(questID)
-		-- 	_log:debug(event, questID, questName)
-		-- 	if MRBP_IsQuestGarrisonRequirement(questID) then
-		-- 		_log:info("Required quest completed!", questID, questName)
-		-- 		--> TODO - Print 'is unlocked/complete' info to chat
-		-- 	end
+		elseif (event == "GARRISON_HIDE_LANDING_PAGE") then
+			self:ShowMinimapButton()
 
-		elseif (event == "GARRISON_SHOW_LANDING_PAGE" or event == "GARRISON_HIDE_LANDING_PAGE") then
-			-- print(event, ...)
-			if (event == "GARRISON_HIDE_LANDING_PAGE") then
-				self:ShowMinimapButton()
-			else
-				-- Minimap already visible through WoW default process
-				if (not ns.settings.showMinimapButton) then
-					self:HideMinimapButton()
-				end
+		elseif (event == "GARRISON_SHOW_LANDING_PAGE") then
+			-- Minimap button already visible through WoW default process
+			if (not ns.settings.showMinimapButton) then
+				self:HideMinimapButton()
 			end
 
 		elseif (event == "COVENANT_CHOSEN") then
@@ -665,28 +652,27 @@ function MRBP:ShowMinimapButton(isCalledByUser)
 		ns.cprint("isCalledByUser:", isCalledByUser or false)
 		ns.cprint("garrisonType:", MRBP_GetLandingPageGarrisonType())
 	end
-	if MRBP_IsAnyGarrisonRequirementMet() then
-		if (MRBP_GetLandingPageGarrisonType() > 0) then
-			if isCalledByUser then
-				if ( not ExpansionLandingPageMinimapButton:IsShown() ) then
-					ExpansionLandingPageMinimapButton:Show()
-					ExpansionLandingPageMinimapButton:UpdateIcon(ExpansionLandingPageMinimapButton)
-					-- Manually set by user
-					ns.settings.showMinimapButton = true
-					_log:debug("--> Minimap button should be visible. (user)")
-					-- ns.settings.disableShowMinimapButtonSetting = false
-				else
-					-- Give user feedback, if button is already visible
-					ns.cprint(L.CHATMSG_MINIMAPBUTTON_ALREADY_SHOWN)
-				end
+	if not MRBP_IsAnyGarrisonRequirementMet() then return; end
+
+	local garrisonTypeID = MRBP_GetLandingPageGarrisonType()
+	if LocalLandingPageTypeUtil:IsValidGarrisonType(garrisonTypeID) then
+		if isCalledByUser then
+			if ( not ExpansionLandingPageMinimapButton:IsShown() ) then
+				ExpansionLandingPageMinimapButton:Show()
+				ExpansionLandingPageMinimapButton:UpdateIcon()
+				-- Manually set by user
+				ns.settings.showMinimapButton = true
+				_log:debug("--> Minimap button should stay visible. (user)")
 			else
-				-- Fired by GARRISON_HIDE_LANDING_PAGE event
-				if ( ns.settings.showMinimapButton and (not ExpansionLandingPageMinimapButton:IsShown()) )then
-					ExpansionLandingPageMinimapButton:UpdateIcon(ExpansionLandingPageMinimapButton)
-					ExpansionLandingPageMinimapButton:Show()
-					_log:debug("--> Minimap button should be visible. (event)")
-					-- ns.settings.disableShowMinimapButtonSetting = false
-				end
+				-- Give user feedback, if button is already visible
+				ns.cprint(L.CHATMSG_MINIMAPBUTTON_ALREADY_SHOWN)
+			end
+		else
+			-- Fired by GARRISON_HIDE_LANDING_PAGE event
+			if ( ns.settings.showMinimapButton and (not ExpansionLandingPageMinimapButton:IsShown()) )then
+				ExpansionLandingPageMinimapButton:UpdateIcon()
+				ExpansionLandingPageMinimapButton:Show()
+				_log:debug("--> Minimap button should be visible. (event)")
 			end
 		end
 	end
@@ -708,7 +694,6 @@ function MRBP:ShowMinimapButton_User(isCalledByCancelFunc)
 		-- Do nothing, as long as user hasn't unlocked any of the command tables available
 		-- Inform user about this, and disable checkbutton in config.
 		ns.cprint(L.CHATMSG_UNLOCKED_COMMANDTABLES_REQUIRED)
-		-- ns.settings.disableShowMinimapButtonSetting = true
 	else
 		local isCalledByUser = not isCalledByCancelFunc
 		MRBP:ShowMinimapButton(isCalledByUser)
