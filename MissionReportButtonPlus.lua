@@ -437,10 +437,6 @@ end
 ns.GetLandingPageTypeUnlockInfo = MRBP_GetLandingPageTypeUnlockInfo;
 
 -- Check if given garrison type is unlocked for given tag.
----@param expansionID number
----@param tagName string|number
----@return boolean isCompleted
---
 local function MRBP_IsLandingPageTypeUnlocked(expansionID, tagName)
 	-- Non-garrison type landing pages
 	if (expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
@@ -464,6 +460,25 @@ local function MRBP_IsLandingPageTypeUnlocked(expansionID, tagName)
 	return IsCompleted(questID);
 end
 ns.IsLandingPageTypeUnlocked = MRBP_IsLandingPageTypeUnlocked;
+
+-- Check if given expansion is unlocked for given tag. Less strict than `MRBP_IsLandingPageTypeUnlocked`.
+local function MRBP_IsIntroQuestCompleted(expansionID, tagName)
+	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID] and MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID][tagName];
+	if not questData then return; end
+
+	local questID = questData[1];
+	local IsCompleted = C_QuestLog.IsQuestFlaggedCompleted;
+
+	--> FIXME - Temp. work-around (better with achievement of same name ???)
+	-- In Shadowlands if you skip the story mode you get a different quest (ID) with the same name, so
+	-- we need to check both quests.
+	if (expansionID == ExpansionInfo.data.SHADOWLANDS.ID) then
+		local questID2 = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID]["alt"][1];
+		return IsCompleted(questID) or IsCompleted(questID2);
+	end
+
+	return IsCompleted(questID);
+end
 
 -- -- Check if the requirement for the given garrison type is met in order to
 -- -- unlock the command table.
@@ -1776,7 +1791,8 @@ function MRBP:RegisterSlashCommands()
 					local landingPageInfo = LandingPageInfo:GetLandingPageInfo(expansion.ID);
 				    _log:debug("HasGarrison:", util.garrison.HasGarrison(expansion.garrisonTypeID),
 							--    "- req:", MRBP_IsGarrisonRequirementMet(expansion.garrisonTypeID),
-							   "- unlocked:", MRBP_IsLandingPageTypeUnlocked(expansion.ID, landingPageInfo.tagName));
+							   "- unlocked:", MRBP_IsLandingPageTypeUnlocked(expansion.ID, landingPageInfo.tagName),
+							   "- hasIntro:", MRBP_IsIntroQuestCompleted(expansion.ID, landingPageInfo.tagName));
 				end
 
 				local playerLevel = UnitLevel("player");
@@ -1859,7 +1875,8 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 
 	for _, expansion in ipairs(expansionList) do
 		local garrisonInfo = LandingPageInfo:GetLandingPageInfo(expansion.ID);
-		garrisonInfo.shouldShowDisabled = not MRBP_IsLandingPageTypeUnlocked(garrisonInfo.expansionID, garrisonInfo.tagName);
+		-- garrisonInfo.shouldShowDisabled = not MRBP_IsLandingPageTypeUnlocked(garrisonInfo.expansionID, garrisonInfo.tagName);
+		garrisonInfo.shouldShowDisabled = not MRBP_IsIntroQuestCompleted(garrisonInfo.expansionID, garrisonInfo.tagName);
 		local playerOwnsExpansion = ExpansionInfo:DoesPlayerOwnExpansion(expansion.ID);
 		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(expansion.ID)); --> user option
 		garrisonInfo.missions = {};
@@ -1874,40 +1891,46 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 				-- Expansion name
 				GameTooltip_AddHighlightLine(tooltip, expansion.name);
 				util.GameTooltip_AddAtlas(tooltip, garrisonInfo.minimapIcon, 36, 36, Enum.TooltipTextureAnchor.RightCenter);
-				-- Major Factions
-				local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansion.ID);
-				if util.TableHasAnyEntries(majorFactionData) then
-					for _, factionData in ipairs(majorFactionData) do
-						if factionData.isUnlocked then
-							local factionAtlasName = "MajorFactions_MapIcons_"..factionData.textureKit.."64";
-							local factionColor = util.garrison.GetMajorFactionColor(factionData);  -- WHITE_FONT_COLOR
-							local renownLevelText = factionColor:WrapTextInColorCode(MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel));
-							local levelThreshold = factionData.renownLevelThreshold;
-							local reputationEarned = factionData.renownReputationEarned;
-							local suffixText = '';
-							local isParagon = util.garrison.IsFactionParagon(factionData.factionID);
-							if isParagon then
-								local paragonInfo = util.garrison.GetFactionParagonInfo(factionData.factionID);
-								local value = mod(paragonInfo.currentValue, paragonInfo.threshold);
-								levelThreshold = paragonInfo.threshold;
-								reputationEarned = paragonInfo.hasRewardPending and value + paragonInfo.threshold or value;
-								local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING;
-								suffixText = TEXT_DELIMITER..bagIconString;
+				-- Dragonflight + War Within
+				if (expansion.ID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
+					-- Major Factions
+					local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansion.ID);
+					if util.TableHasAnyEntries(majorFactionData) then
+						for _, factionData in ipairs(majorFactionData) do
+							local factionAtlasName = "MajorFactions_Icons_"..factionData.textureKit.."512";
+							if factionData.isUnlocked then
+								local factionColor = util.garrison.GetMajorFactionColor(factionData);
+								local renownLevelText = factionColor:WrapTextInColorCode(MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel));
+								local levelThreshold = factionData.renownLevelThreshold;
+								local reputationEarned = factionData.renownReputationEarned;
+								local suffixText = '';
+								local isParagon = util.garrison.IsFactionParagon(factionData.factionID);
+								if isParagon then
+									local paragonInfo = util.garrison.GetFactionParagonInfo(factionData.factionID);
+									local value = mod(paragonInfo.currentValue, paragonInfo.threshold);
+									levelThreshold = paragonInfo.threshold;
+									reputationEarned = paragonInfo.hasRewardPending and value + paragonInfo.threshold or value;
+									local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING;
+									suffixText = TEXT_DELIMITER..bagIconString;
+								end
+								local reputationLevelText = GENERIC_FRACTION_STRING:format(reputationEarned, levelThreshold);
+								local lineText = format("%s: %s - %s", factionData.name, renownLevelText, HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(reputationLevelText));
+								local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID);
+								util.GameTooltip_AddObjectiveLine(tooltip, lineText..suffixText, hasMaxRenown, wrapLine, leftOffset, factionAtlasName);
+							else
+								local lineText = format("%s: %s", factionData.name, DISABLED_FONT_COLOR:WrapTextInColorCode(MAJOR_FACTION_BUTTON_FACTION_LOCKED));
+								util.GameTooltip_AddObjectiveLine(tooltip, lineText, factionData.isUnlocked, wrapLine, leftOffset, factionAtlasName)
 							end
-							local reputationLevelText = GENERIC_FRACTION_STRING:format(reputationEarned, levelThreshold);
-							local lineText = format("%s: %s - %s", factionData.name, renownLevelText, HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(reputationLevelText));
-							local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID);
-							util.GameTooltip_AddObjectiveLine(tooltip, lineText..suffixText, hasMaxRenown, wrapLine, leftOffset, factionAtlasName);
 						end
 					end
-				end
-				-- Dragon Glyphs
-				if (expansion.ID == ExpansionInfo.data.DRAGONFLIGHT.ID) then
+					-- Dragon Glyphs
 					local treeCurrencyInfo = LocalDragonridingUtil:GetDragonRidingTreeCurrencyInfo();
 					local glyphsPerZone, numGlyphsCollected, numGlyphsTotal = LocalDragonridingUtil:GetDragonGlyphsCount(expansion.ID);
 					local collectedAmountString = WHITE_FONT_COLOR:WrapTextInColorCode(GENERIC_FRACTION_STRING:format(numGlyphsCollected, numGlyphsTotal));
 					local isCompleted = numGlyphsCollected == numGlyphsTotal;
 					util.GameTooltip_AddObjectiveLine(tooltip, L["showDragonGlyphs"]..": "..collectedAmountString, isCompleted, wrapLine, leftOffset, treeCurrencyInfo.texture);
+				end
+				if (expansion.ID == ExpansionInfo.data.DRAGONFLIGHT.ID) then
 					-- Dragonriding Race
 					if ns.settings.showDragonRaceInfo then
 						local raceAreaPoiInfo = util.poi.GetDragonRaceInfo()
@@ -2043,7 +2066,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 				if (expansion.ID ~= ExpansionInfo.data.DRAGONFLIGHT.ID and
 					expansion.ID ~= ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) then
 					local bountyBoard = garrisonInfo.bountyBoard;
-					if bountyBoard.AreBountiesUnlocked() then
+					if bountyBoard and bountyBoard.AreBountiesUnlocked() then
 						local bounties = bountyBoard.GetBounties()
 						util.GameTooltip_AddObjectiveLine(tooltip, format("%s: %d/3", bountyBoard.title, #bounties), #bounties == 0);
 					end
