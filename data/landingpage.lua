@@ -89,6 +89,8 @@ end
 
 function LandingPageInfo:GetLandingPageInfoByMapID(uiMapID)
     local continentMapInfo = ns.mapUtil:GetContinentMapInfo(uiMapID);
+    if not continentMapInfo then return; end
+
     local expansionList = ExpansionInfo:GetExpansionsWithLandingPage();
     for _, expansion in ipairs(expansionList) do
         if tContains(expansion.continents, continentMapInfo.mapID) then
