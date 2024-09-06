@@ -313,12 +313,13 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>
 			local majorFactionID = ...;
 			local majorFactionData = util.garrison.GetMajorFactionData(majorFactionID);
-			local unlockedMessage = DRAGONFLIGHT_LANDING_PAGE_ALERT_MAJOR_FACTION_UNLOCKED;
 			if majorFactionData then
+				local landingPageInfo = LandingPageInfo:GetLandingPageInfo(majorFactionData.expansionID);
+				local unlockedMessage = landingPageInfo.msg.majorFactionUnlocked;
 				local majorFactionColor = _G[strupper(majorFactionData.textureKit).."_MAJOR_FACTION_COLOR"];
 				unlockedMessage = unlockedMessage..TEXT_DASH_SEPARATOR..majorFactionColor:WrapTextInColorCode(majorFactionData.name);
+				ns.cprint(unlockedMessage);
 			end
-			ns.cprint(unlockedMessage);
 		end
 	end
 );

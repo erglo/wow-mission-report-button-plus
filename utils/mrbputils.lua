@@ -711,9 +711,24 @@ end
 -- end
 
 -- Retrieve the data for given major faction ID.
----@param factionID number  A major faction ID (since Dragonflight WoW 10.x)
----@return MajorFactionData|nil majorFactionData  For details see "MajorFactionData" fields below
+-- 
+-- `MajorFactionData` fields:
+-- * `name` --> cstring
+-- * `factionID` --> number
+-- * `expansionID` --> number
+-- * `bountySetID` --> number
+-- * `isUnlocked` --> bool
+-- * `unlockDescription` --> cstring?
+-- * `uiPriority` --> number
+-- * `renownLevel` --> number
+-- * `renownReputationEarned` --> number
+-- * `renownLevelThreshold` --> number
+-- * `textureKit` --> textureKit
+-- * `celebrationSoundKit` --> number
+-- * `renownFanfareSoundKitID` --> number
 --
+-- REF.: [MajorFactionsDocumentation.lua](https://www.townlong-yak.com/framexml/56421/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua)
+-- 
 function util.garrison.GetMajorFactionData(factionID)
 	return C_MajorFactions.GetMajorFactionData(factionID);
 end

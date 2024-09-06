@@ -289,6 +289,8 @@ function LandingPageInfo:Load_Dragonflight()
         ["bannerAtlas"] = "accountupgradebanner-dragonflight",  -- 199x133
         ["msg"] = {
             ["requirementText"] = ns.GetLandingPageTypeUnlockInfo(expansionID, playerFactionGroupTag).requirementText,
+            ["majorFactionUnlocked"] = DRAGONFLIGHT_LANDING_PAGE_ALERT_MAJOR_FACTION_UNLOCKED,
+            ["summaryUnlocked"] = DRAGONFLIGHT_LANDING_PAGE_ALERT_SUMMARY_UNLOCKED,
         },
         ["expansionID"] = expansionID,
         ["continents"] = ExpansionInfo.data.DRAGONFLIGHT.continents,
@@ -315,8 +317,8 @@ function LandingPageInfo:Load_The_War_Within()
         ["bannerAtlas"] = "accountupgradebanner-thewarwithin",  -- 199x133
         ["msg"] = {
             ["requirementText"] = ns.GetLandingPageTypeUnlockInfo(expansionID, playerFactionGroupTag).requirementText,
-            -- ["majorFactionUnlocked"] = WAR_WITHIN_LANDING_PAGE_ALERT_MAJOR_FACTION_UNLOCKED,
-            -- ["summaryUnlocked"] = WAR_WITHIN_LANDING_PAGE_ALERT_SUMMARY_UNLOCKED,
+            ["majorFactionUnlocked"] = WAR_WITHIN_LANDING_PAGE_ALERT_MAJOR_FACTION_UNLOCKED,
+            ["summaryUnlocked"] = WAR_WITHIN_LANDING_PAGE_ALERT_SUMMARY_UNLOCKED,
         },
         ["expansionID"] = expansionID,
         ["continents"] = ExpansionInfo.data.WAR_WITHIN.continents,

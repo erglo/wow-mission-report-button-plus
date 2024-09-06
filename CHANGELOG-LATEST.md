@@ -13,6 +13,10 @@
 * Minimap Button: added a `mouse click sound` when opening and closing the button's menu.
 * Minimap Button: added an optional `middle mouse click` which toggles the Skyriding Skill Tree as soon as Skyriding has been unlocked.
 
+### Changed
+
+* Chat: updated chat notification for unlocking a Major Faction.
+
 ### Fixed
 
 * Minimap Button: the new-style button now remains shown even when entering older zones.
