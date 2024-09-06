@@ -35,46 +35,47 @@
 --
 --------------------------------------------------------------------------------
 
-local AddonID, ns = ...
-local ShortAddonID = "MRBP"
-local L = ns.L
-local _log = ns.dbg_logger
-local util = ns.utilities
+local AddonID, ns = ...;
+local ShortAddonID = "MRBP";
+local L = ns.L;
+local _log = ns.dbg_logger;
+local util = ns.utilities;
 
-local LibQTip = LibStub('LibQTip-1.0')
-local MenuTooltip, ExpansionTooltip, ReputationTooltip
-local LocalLibQTipUtil = ns.utils.libqtip
-local LocalTooltipUtil = ns.utilities.tooltip
+local LibQTip = LibStub('LibQTip-1.0');
+local MenuTooltip, ExpansionTooltip, ReputationTooltip;
+local LocalLibQTipUtil = ns.utils.libqtip;
+local LocalTooltipUtil = ns.utilities.tooltip;
 
 local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
 local LabelUtil = ns.data;  --> <data\labels.lua>
-local LocalDragonridingUtil = ns.DragonridingUtil  --> <utils\dragonriding.lua> --> TODO - Rename to Skyriding
+local LocalDragonridingUtil = ns.DragonridingUtil;  --> <utils\dragonriding.lua> --> TODO - Rename to Skyriding
 local LocalLandingPageTypeUtil = ns.LandingPageTypeUtil;  --> <utils\landingpagetype.lua>
 
 -- ns.poi9;  --> <utils\poi-9-dragonflight.lua>
 
-local MRBP_EventMessagesCounter = {}
+local MRBP_EventMessagesCounter = {};
 -- Tests
 local MRBP_DRAGONRIDING_QUEST_ID = 68795;  --> "Dragonriding"
 local MRBP_MAJOR_FACTIONS_QUEST_ID_HORDE = 65444;  --> "To the Dragon Isles!"
 local MRBP_MAJOR_FACTIONS_QUEST_ID_ALLIANCE = 67700;  --> "To the Dragon Isles!"
 
 -- Backwards compatibility 
-local IsAddOnLoaded = C_AddOns.IsAddOnLoaded
-local LoadAddOn = C_AddOns.LoadAddOn
-local CreateAtlasMarkup = CreateAtlasMarkup
+local IsAddOnLoaded = C_AddOns.IsAddOnLoaded;
+local LoadAddOn = C_AddOns.LoadAddOn;
+local CreateAtlasMarkup = CreateAtlasMarkup;
 local C_QuestLog = C_QuestLog;
 local GarrisonFollowerOptions = GarrisonFollowerOptions;
 local ExpansionLandingPageMinimapButton = ExpansionLandingPageMinimapButton;
 
-local DIM_RED_FONT_COLOR = DIM_RED_FONT_COLOR
-local DISABLED_FONT_COLOR = DISABLED_FONT_COLOR
-local HIGHLIGHT_FONT_COLOR = HIGHLIGHT_FONT_COLOR
-local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR
-local RED_FONT_COLOR = RED_FONT_COLOR
-local WARNING_FONT_COLOR = WARNING_FONT_COLOR
+local DIM_RED_FONT_COLOR = DIM_RED_FONT_COLOR;
+local DISABLED_FONT_COLOR = DISABLED_FONT_COLOR;
+local HIGHLIGHT_FONT_COLOR = HIGHLIGHT_FONT_COLOR;
+local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR;
+local RED_FONT_COLOR = RED_FONT_COLOR;
+local WARNING_FONT_COLOR = WARNING_FONT_COLOR;
+local DARKGRAY_COLOR = DARKGRAY_COLOR;
 
 local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
 local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
@@ -1325,6 +1326,13 @@ local function AddMenuTooltipLine(info)
     	MenuTooltip:SetLineTextColor(lineIndex, DISABLED_FONT_COLOR:GetRGBA())
 	elseif info.func then
 		MenuTooltip:SetLineScript(lineIndex, "OnMouseUp", MenuLine_OnClick, info)
+	end
+	-- Highlight expansion for current zone
+	if ns.settings.highlightCurrentZone then
+		local landingPageInfo = LandingPageInfo:GetPlayerLocationLandingPageInfo()
+		if (landingPageInfo and landingPageInfo.expansionID == info.ID) then
+			MenuTooltip:SetLineColor(lineIndex, DARKGRAY_COLOR:GetRGBA())
+		end
 	end
 end
 

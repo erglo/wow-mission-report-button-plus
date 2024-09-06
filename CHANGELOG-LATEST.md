@@ -6,6 +6,7 @@
 
 ### Added
 
+* MenuTooltip: added optional highlight for the expansion line matching the player's current zone.
 * ExpansionTooltip: added `Dragon Glyph details` for The War Within.
 * ExpansionTooltip: added `Major Faction details` for The War Within.
 * War Within: added unlocking requirement data.

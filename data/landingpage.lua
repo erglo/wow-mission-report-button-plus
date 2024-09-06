@@ -115,8 +115,8 @@ function LandingPageInfo:GetPlayerLocationLandingPageInfo()
 		return playerLandingPageInfo;
 	end
 
-	-- No Landing Page details for player location found. Keep current one alive.
-	return LandingPageInfo:GetGarrisonInfo(self.currentGarrisonTypeID);
+	-- -- No Landing Page details for player location found. Keep current one alive.
+	-- return LandingPageInfo:GetGarrisonInfo(self.currentGarrisonTypeID);
 end
 
 ----- Wrapper -----

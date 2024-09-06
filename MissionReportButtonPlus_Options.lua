@@ -82,6 +82,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showMissionCompletedHintOnlyForAll"] = false,
 	["showReputationRewardPendingHint"] = true,
 	["showTimewalkingVendorHint"] = true,
+	["highlightCurrentZone"] = true,
 	-- Menu entries
 	["activeMenuEntries"] = {"5", "6", "7", "8", "9", "10", "99"},
 	-- The War Within
@@ -669,7 +670,12 @@ local function CreateMenuTooltipSettings(category, layout)
 			variable = "showTimewalkingVendorHint",
 			name = L.CFG_DDMENU_HINT_TIMEWALKING_VENDOR_TEXT,
 			tooltip = L.CFG_DDMENU_HINT_TIMEWALKING_VENDOR_TOOLTIP,
-			-- tag = Settings.Default.True,
+		},
+		{
+			variable = "highlightCurrentZone",
+			name = L.CFG_DDMENU_HIGHLIGHT_CURRENT_ZONE_TEXT,
+			tooltip = L.CFG_DDMENU_HIGHLIGHT_CURRENT_ZONE_TOOLTIP,
+			tag = Settings.Default.True,
 		},
 	};
 
@@ -1055,6 +1061,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.WAR_WITHIN.ID] = {
 		variable = "showDragonGlyphs10",
 		name = L["showDragonGlyphs"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_DRAGON_GLYPHS_TOOLTIP,
+		tag = Settings.Default.True,
 	},
 	{
 		variable = "autoHideCompletedDragonGlyphZones10",
@@ -1188,6 +1195,9 @@ function MRBP_Settings_Register()
 			end
 			local expansionButtonInitializer = CreateSettingsButtonInitializer('', expansionInfo.name, OnExpansionButtonClick, '', addSearchTags);
 			mainLayout:AddInitializer(expansionButtonInitializer);
+			if (expansionInfo.ID == ExpansionInfo.data.WAR_WITHIN.ID) then
+				expansionButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
+			end
 		end
 	end
 
