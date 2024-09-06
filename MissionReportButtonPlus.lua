@@ -64,7 +64,7 @@ local MRBP_MAJOR_FACTIONS_QUEST_ID_ALLIANCE = 67700;  --> "To the Dragon Isles!"
 -- Backwards compatibility 
 local IsAddOnLoaded = C_AddOns.IsAddOnLoaded;
 local LoadAddOn = C_AddOns.LoadAddOn;
-local CreateAtlasMarkup = CreateAtlasMarkup;
+-- local CreateAtlasMarkup = CreateAtlasMarkup;
 local C_QuestLog = C_QuestLog;
 local GarrisonFollowerOptions = GarrisonFollowerOptions;
 local ExpansionLandingPageMinimapButton = ExpansionLandingPageMinimapButton;
@@ -76,6 +76,7 @@ local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR;
 local RED_FONT_COLOR = RED_FONT_COLOR;
 local WARNING_FONT_COLOR = WARNING_FONT_COLOR;
 local DARKGRAY_COLOR = DARKGRAY_COLOR;
+local LIGHTERBLUE_FONT_COLOR = LIGHTERBLUE_FONT_COLOR;
 
 local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
 local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
@@ -1313,25 +1314,30 @@ end
 
 local function AddMenuTooltipLine(info)
 	local isSettingsLine = info.ID == nil
-	local name = info.color and info.color:WrapTextInColorCode(info.label) or info.label
 	local lineIndex = MenuTooltip:AddLine('', '', '')
 	MenuTooltip:SetCell(lineIndex, 1, info.hintIconInfo, nil, nil, nil, isSettingsLine and ns.TextureCellProvider or ns.HintIconCellProvider)
-	MenuTooltip:SetCell(lineIndex, 2, name, MenuTooltip_GetCellStyle())
+	MenuTooltip:SetCell(lineIndex, 2, info.label, MenuTooltip_GetCellStyle())
 	MenuTooltip:SetCell(lineIndex, 3, info.minimapIcon, nil, nil, nil, ns.TextureCellProvider)
 	if ns.settings.showEntryTooltip then
 		MenuTooltip:SetLineScript(lineIndex, "OnEnter", MenuLine_OnEnter, info)
 		MenuTooltip:SetLineScript(lineIndex, "OnLeave", MenuLine_OnLeave)
 	end
-	if info.disabled then
-    	MenuTooltip:SetLineTextColor(lineIndex, DISABLED_FONT_COLOR:GetRGBA())
-	elseif info.func then
+	if info.color then
+		MenuTooltip:SetLineTextColor(lineIndex, info.color:GetRGBA())
+	end
+	-- if info.disabled then													--> TODO - Check if still needed
+    -- 	MenuTooltip:SetLineTextColor(lineIndex, DISABLED_FONT_COLOR:GetRGBA())
+	-- elseif info.func then
+	if (info.func and not info.disabled) then
 		MenuTooltip:SetLineScript(lineIndex, "OnMouseUp", MenuLine_OnClick, info)
 	end
 	-- Highlight expansion for current zone
 	if ns.settings.highlightCurrentZone then
 		local landingPageInfo = LandingPageInfo:GetPlayerLocationLandingPageInfo()
 		if (landingPageInfo and landingPageInfo.expansionID == info.ID) then
-			MenuTooltip:SetLineColor(lineIndex, DARKGRAY_COLOR:GetRGBA())
+			local r, g, b, a = DARKGRAY_COLOR:GetRGBA()
+			MenuTooltip:SetLineColor(lineIndex, r, g, b, 0.75)
+			MenuTooltip:SetLineTextColor(lineIndex, LIGHTERBLUE_FONT_COLOR:GetRGBA())
 		end
 	end
 end
