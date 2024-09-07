@@ -122,17 +122,22 @@ function ExpansionInfo:GetExpansionData(expansionID)
 	return {};																	--> TODO - Add default table for new expansions
 end
 
--- Return the expansion data of given expansion ID.
----@param garrisonTypeID number  A landing page garrison type ID
----@return table|nil ExpansionData
--- 
+-- Return the expansion data matching the given Garrison type.
 function ExpansionInfo:GetExpansionDataByGarrisonType(garrisonTypeID)
 	for _, expansion in pairs(self.data) do
 		if (expansion.garrisonTypeID == garrisonTypeID) then
 			return expansion;
 		end
 	end
-	-- return {};
+end
+
+-- Return the expansion data matching the given Expansion Landing Page type.
+function ExpansionInfo:GetExpansionDataByExpansionLandingPageType(landingPageTypeID)
+	for _, expansion in pairs(self.data) do
+		if (expansion.landingPageTypeID == landingPageTypeID) then
+			return expansion;
+		end
+	end
 end
 
 -- Comparison function: sort expansion list by ID in *ascending* order.

@@ -510,9 +510,12 @@ local function MRBP_ToggleLandingPageFrames(garrisonTypeID, landingPageTypeID)
 			_log:debug("Hiding GarrisonLandingPage1 type", GarrisonLandingPage.garrTypeID);
 			HideUIPanel(GarrisonLandingPage);
 		end
-		-- print("Toggling ExpansionLandingPageMinimapButton, landingPageTypeID:", landingPageTypeID, ExpansionLandingPage:GetLandingPageType())
-		-- -- ExpansionLandingPageMinimapButton.expansionLandingPageType = landingPageTypeID;
-		-- ExpansionLandingPageMinimapButton:ToggleLandingPage()
+		if (ExpansionLandingPage and ExpansionLandingPage:IsShown() and ExpansionLandingPage.expansionLandingPageType ~= landingPageTypeID) then
+			HideUIPanel(ExpansionLandingPage);
+		end
+
+		ExpansionLandingPage.expansionLandingPageType = landingPageTypeID;
+		MRBP_ApplyExpansionLandingPageOverlay(landingPageTypeID);
 		ToggleExpansionLandingPage();
 	end
 end
@@ -1596,14 +1599,34 @@ end
 -- 	end
 -- end
 
+--------------------------------------------------------------------------------
+
 local landingPageOverlay = {
 	[ExpansionInfo.data.DRAGONFLIGHT.ID] = CreateFromMixins(DragonflightLandingOverlayMixin),
 	[ExpansionInfo.data.WAR_WITHIN.ID] = CreateFromMixins(WarWithinLandingOverlayMixin),
 };
 
+function MRBP_ApplyExpansionLandingPageOverlay(landingPageTypeID)
+	local expansionInfo = ExpansionInfo:GetExpansionDataByExpansionLandingPageType(landingPageTypeID);
+	local expansionID = expansionInfo.ID;
+
+	if not expansionID or expansionID < ExpansionInfo.data.DRAGONFLIGHT.ID then
+		return;
+	end
+
+	local overlay = landingPageOverlay[expansionID];
+
+	if ExpansionLandingPage.overlayFrame then
+		ExpansionLandingPage.overlayFrame:Hide();
+	end
+
+	ExpansionLandingPage.overlayFrame = overlay.CreateOverlay(ExpansionLandingPage.Overlay);
+	ExpansionLandingPage.overlayFrame:Show();
+end
+
 -- This is called eg. on every zone change. Get the newest unlocked expansion overlay und refresh.
---> Note: The Blizzard's default function does the same, but for some reasons it doesn't work outside zones of newer 
---> expansions, eg. outside Dragonflight or Khaz Algar.
+--> Note: This is almost exactly what Blizzard's default function does, but for some reasons it doesn't work outside
+--> zones of newer expansions, eg. outside Dragonflight or Khaz Algar.
 -- 
 -- REF.: [Blizzard_ExpansionLandingPage.lua](https://www.townlong-yak.com/framexml/live/Blizzard_ExpansionLandingPage/Blizzard_ExpansionLandingPage.lua)
 -- 
