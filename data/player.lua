@@ -104,6 +104,10 @@ function PlayerInfo:GetActiveCovenantID()
     return self.activeCovenantID;
 end
 
+function PlayerInfo:HasActiveCovenant()
+    return C_Covenants.GetActiveCovenantID() > Enum.CovenantType.None;
+end
+
 -- Return the covenant data of the player's active covenant. Defaults to Kyrian,
 -- if eg. the player hasn't chosen a covenant, yet.
 -- If KEY is given, this returns only the value of given key name. Available

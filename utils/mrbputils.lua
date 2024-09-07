@@ -53,7 +53,7 @@ _log.DEBUG = 10;
 _log.NOTSET = 0;
 _log.USER = -10;
 
-_log.DEVMODE = true;
+_log.DEVMODE = false;
 ns.isDebugActive = _log.DEVMODE;
 
 -- _log.level = _log.INFO;

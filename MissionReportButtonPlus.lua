@@ -436,7 +436,7 @@ local function MRBP_IsIntroQuestCompleted(expansionID, tagName)
 	-- we need to check both quests.
 	if (expansionID == ExpansionInfo.data.SHADOWLANDS.ID) then
 		local questID2 = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID]["alt"][1];
-		return IsCompleted(questID) or IsCompleted(questID2);
+		return PlayerInfo:HasActiveCovenant() and (IsCompleted(questID) or IsCompleted(questID2));
 	end
 
 	return IsCompleted(questID);
@@ -1290,10 +1290,10 @@ local function AddMenuTooltipLine(info)
 	if info.color then
 		MenuTooltip:SetLineTextColor(lineIndex, info.color:GetRGBA())
 	end
-	-- if info.disabled then													--> TODO - Check if still needed
-    -- 	MenuTooltip:SetLineTextColor(lineIndex, DISABLED_FONT_COLOR:GetRGBA())
-	-- elseif info.func then
-	if (info.func and not info.disabled) then
+	if info.disabled then														--> TODO - Check if still needed
+    	MenuTooltip:SetLineTextColor(lineIndex, DISABLED_FONT_COLOR:GetRGBA())
+	elseif info.func then
+	-- if (info.func and not info.disabled) then
 		MenuTooltip:SetLineScript(lineIndex, "OnMouseUp", MenuLine_OnClick, info)
 	end
 	-- Highlight expansion for current zone
@@ -1633,6 +1633,7 @@ end
 function MRBP_RefreshExpansionOverlay(self)
 	local newestOverlay = self:GetNewestExpansionOverlayForPlayer();
 	-- print("Overlay update...", "LandingPageType:", ExpansionLandingPage:GetLandingPageType())
+	-- print("-->", ExpansionLandingPage.expansionLandingPageType, ExpansionLandingPageMinimapButton.expansionLandingPageType) --, landingPageTypeID)
 
 	if not newestOverlay then
 		-- No overlay available outside the Dragon Isles or Khaz Algar by default before unlocking upcoming Expansion Landing Page. Retrieve manually.
