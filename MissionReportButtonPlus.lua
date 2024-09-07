@@ -1608,11 +1608,15 @@ local landingPageOverlay = {
 -- REF.: [Blizzard_ExpansionLandingPage.lua](https://www.townlong-yak.com/framexml/live/Blizzard_ExpansionLandingPage/Blizzard_ExpansionLandingPage.lua)
 -- 
 function MRBP_RefreshExpansionOverlay(self)
-	local newestExpansionID = LocalLandingPageTypeUtil:GetMaximumUnlockedLandingPageExpansionID();
+	local newestOverlay = self:GetNewestExpansionOverlayForPlayer();
+	-- print("Overlay update...", "LandingPageType:", ExpansionLandingPage:GetLandingPageType())
 
-	-- local newestOverlay = self:GetNewestExpansionOverlayForPlayer();
-	local newestOverlay = landingPageOverlay[newestExpansionID];
-	-- print("Overlay updated")
+	if not newestOverlay then
+		-- No overlay available outside the Dragon Isles or Khaz Algar by default before unlocking upcoming Expansion Landing Page. Retrieve manually.
+		local newestExpansionID = LocalLandingPageTypeUtil:GetMaximumUnlockedLandingPageExpansionID();
+		newestOverlay = landingPageOverlay[newestExpansionID];
+	end
+
 	if newestOverlay ~= self.overlay then
 		if self.overlayFrame then
 			self.overlayFrame:Hide();
