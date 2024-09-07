@@ -423,6 +423,25 @@ local function MRBP_GetLandingPageTypeUnlockInfo(expansionID, tagName)
 end
 ns.GetLandingPageTypeUnlockInfo = MRBP_GetLandingPageTypeUnlockInfo;
 
+-- Check if given expansion is unlocked for given tag. Less strict than `MRBP_IsLandingPageTypeUnlocked`.
+local function MRBP_IsIntroQuestCompleted(expansionID, tagName)
+	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID] and MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID][tagName];
+	if not questData then return; end
+
+	local questID = questData[1];
+	local IsCompleted = C_QuestLog.IsQuestFlaggedCompletedOnAccount;  -- C_QuestLog.IsQuestFlaggedCompleted;
+
+	--> FIXME - Temp. work-around (better with achievement of same name ???)
+	-- In Shadowlands if you skip the story mode you get a different quest (ID) with the same name, so
+	-- we need to check both quests.
+	if (expansionID == ExpansionInfo.data.SHADOWLANDS.ID) then
+		local questID2 = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID]["alt"][1];
+		return IsCompleted(questID) or IsCompleted(questID2);
+	end
+
+	return IsCompleted(questID);
+end
+
 -- Check if given garrison type is unlocked for given tag.
 local function MRBP_IsLandingPageTypeUnlocked(expansionID, tagName)
 	-- Non-garrison type landing pages
@@ -431,68 +450,11 @@ local function MRBP_IsLandingPageTypeUnlocked(expansionID, tagName)
 	end
 
 	-- Landing pages with a garrison (Draenor -> Shadowlands)
-	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID][tagName];
-
-	local questID = questData[1];
-	local IsCompleted = C_QuestLog.IsQuestFlaggedCompleted;
-
-	--> FIXME - Temp. work-around (better with achievement of same name ???)
-	-- In Shadowlands if you skip the story mode you get a different quest (ID) with the same name, so
-	-- we need to check both quests.
-	if (expansionID == ExpansionInfo.data.SHADOWLANDS.ID) then
-		local questID2 = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID]["alt"][1];
-		return IsCompleted(questID) or IsCompleted(questID2);
-	end
-
-	return IsCompleted(questID);
+	return MRBP_IsIntroQuestCompleted(expansionID, tagName);
 end
 ns.IsLandingPageTypeUnlocked = MRBP_IsLandingPageTypeUnlocked;
 
--- Check if given expansion is unlocked for given tag. Less strict than `MRBP_IsLandingPageTypeUnlocked`.
-local function MRBP_IsIntroQuestCompleted(expansionID, tagName)
-	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID] and MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID][tagName];
-	if not questData then return; end
-
-	local questID = questData[1];
-	local IsCompleted = C_QuestLog.IsQuestFlaggedCompleted;
-
-	--> FIXME - Temp. work-around (better with achievement of same name ???)
-	-- In Shadowlands if you skip the story mode you get a different quest (ID) with the same name, so
-	-- we need to check both quests.
-	if (expansionID == ExpansionInfo.data.SHADOWLANDS.ID) then
-		local questID2 = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID]["alt"][1];
-		return IsCompleted(questID) or IsCompleted(questID2);
-	end
-
-	return IsCompleted(questID);
-end
-
--- -- Check if the requirement for the given garrison type is met in order to
--- -- unlock the command table.
--- -- Note: Currently only the required quest is checked for completion and
--- --       nothing more. In Shadowlands there would be one more step needed, since
--- --       2 quest are available for this (see MRBP_IsLandingPageTypeUnlocked).
--- ---@param garrisonTypeID number
--- ---@return boolean|nil isRequirementMet?
--- ---
--- function MRBP_IsGarrisonRequirementMet(garrisonTypeID)
--- 	local garrisonInfo = LandingPageInfo:GetGarrisonInfo(garrisonTypeID);
--- 	if not garrisonInfo then return false end
-
--- 	local hasGarrison = util.garrison.HasGarrison(garrisonInfo.garrisonTypeID);
--- 	local isQuestCompleted = MRBP_IsLandingPageTypeUnlocked(garrisonInfo.expansionID, garrisonInfo.tagName);
-
--- 	if (garrisonInfo.expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
--- 		local isUnlocked = C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(garrisonInfo.expansionID);
--- 		return isUnlocked or isQuestCompleted;
--- 	end
-
--- 	return hasGarrison and isQuestCompleted;
--- end
-
 ---Check if at least one garrison is unlocked.
----@return boolean
----
 function MRBP_IsAnyGarrisonRequirementMet()
 	local expansionList = ExpansionInfo:GetExpansionsWithLandingPage();
 	for _, expansion in ipairs(expansionList) do
@@ -2034,7 +1996,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 				if (expansion.ID == ExpansionInfo.data.SHADOWLANDS.ID) then
 					-- Covenant Renown
 					local covenantInfo = util.covenant.GetCovenantInfo();
-					local renownInfo = util.covenant.GetRenownData(covenantInfo.ID);
+					local renownInfo = covenantInfo and util.covenant.GetRenownData(covenantInfo.ID);
 					if renownInfo then
 						local renownLevelText = GARRISON_TYPE_9_0_LANDING_PAGE_RENOWN_LEVEL:format(renownInfo.currentRenownLevel);  --, renownInfo.maximumRenownLevel);
 						local lineText = format("%s: %s", covenantInfo.name, WHITE_FONT_COLOR:WrapTextInColorCode(renownLevelText));

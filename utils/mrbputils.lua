@@ -940,6 +940,8 @@ end
 ---@field maximumRenownLevel number
 --
 function util.covenant.GetRenownData(covenantID)
+	if not covenantID or covenantID == 0 then return; end
+
 	local currentRenownLevel = C_CovenantSanctumUI.GetRenownLevel();
 	if (currentRenownLevel >= 1) then
 		local renownData = {
