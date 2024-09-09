@@ -36,6 +36,7 @@ local L = ns.L;
 local _log = ns.dbg_logger;
 local util = ns.utilities;
 
+local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 local LocalRequirementInfo = ns.RequirementInfo;  --> <data\requirements.lua>
 
@@ -802,6 +803,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.LEGION.ID] = {
 		variable = "showLegionMissionInfo",
 		name = L["showLegionMissionInfo"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
+		modifyPredicate = function() return not PlayerInfo:IsPlayerEvokerClass(); end
 	},
 	{
 		variable = "showLegionBounties",

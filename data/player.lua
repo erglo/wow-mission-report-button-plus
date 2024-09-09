@@ -82,6 +82,12 @@ function PlayerInfo:GetClassData(key)
     return self.classData;
 end
 
+function PlayerInfo:IsPlayerEvokerClass()
+    local className = PlayerInfo:GetClassData("tag");
+
+    return (className == "EVOKER");
+end
+
 ----- Covenant -----------------------------------------------------------------
 
 -- Return the player's currently active covenant ID. Defaults to Kyrian, if eg.

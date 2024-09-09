@@ -188,11 +188,11 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 			local followerTypeID = GetPrimaryGarrisonFollowerType(garrisonTypeID)
 			local eventMsg = GarrisonFollowerOptions[followerTypeID].strings.TALENT_COMPLETE_TOAST_TITLE
 			-- REF. <FrameXML/Blizzard_GarrisonUI/Blizzard_GarrisonLandingPage.lua>
-			local talentTreeIDs = C_Garrison.GetTalentTreeIDsByClassID(garrisonTypeID, select(3, UnitClass("player")))
-			local completeTalentID = C_Garrison.GetCompleteTalent(garrisonTypeID)
+			local talentTreeIDs = C_Garrison.GetTalentTreeIDsByClassID(garrisonTypeID, PlayerInfo:GetClassData("ID"));
+			local completeTalentID = C_Garrison.GetCompleteTalent(garrisonTypeID);
 			if (talentTreeIDs) then
 				for treeIndex, treeID in ipairs(talentTreeIDs) do
-					local treeInfo = C_Garrison.GetTalentTreeInfo(treeID)
+					local treeInfo = C_Garrison.GetTalentTreeInfo(treeID);
 					for talentIndex, talent in ipairs(treeInfo.talents) do
 						if (talent.researched or talent.id == completeTalentID) then
 							-- GetTalentLink(talent.id)
@@ -430,11 +430,10 @@ local function AddMultiPOITestText(poiInfos, tooltipText)
 end
 
 local function ShouldShowMissionsInfoText(garrisonTypeID)
-	local className = select(2, UnitClass("player"));
 	return (
 		(garrisonTypeID == ExpansionInfo.data.SHADOWLANDS.garrisonTypeID and ns.settings.showCovenantMissionInfo) or
 		(garrisonTypeID == ExpansionInfo.data.BATTLE_FOR_AZEROTH.garrisonTypeID and ns.settings.showBfAMissionInfo) or
-		(garrisonTypeID == ExpansionInfo.data.LEGION.garrisonTypeID and ns.settings.showLegionMissionInfo and className ~= "EVOKER") or
+		(garrisonTypeID == ExpansionInfo.data.LEGION.garrisonTypeID and ns.settings.showLegionMissionInfo and not PlayerInfo:IsPlayerEvokerClass()) or
 		(garrisonTypeID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.garrisonTypeID and ns.settings.showWoDMissionInfo)
 	);
 end
@@ -752,8 +751,7 @@ local function MenuLine_OnEnter(...)
 	-- Moved to next category (see below)
 	-- Special treatment for Evoker; they don't have a Class Hall in Legion, hence no mission table.
 	if (isForLegion and expansionInfo.disabled) then
-		local className = select(2, UnitClass("player"))
-		if (className == "EVOKER") then
+		if PlayerInfo:IsPlayerEvokerClass() then
 			LocalLibQTipUtil:AddBlankLineToTooltip(ExpansionTooltip)
 			LocalTooltipUtil:AddTextLine(ExpansionTooltip, garrisonInfo.msg.requirementText, DIM_RED_FONT_COLOR)
 		end
