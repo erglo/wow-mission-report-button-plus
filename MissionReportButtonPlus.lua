@@ -1633,14 +1633,26 @@ end
 function MRBP_RefreshExpansionOverlay(self)
 	local newestOverlay = self:GetNewestExpansionOverlayForPlayer();
 	-- print("Overlay update...", "LandingPageType:", ExpansionLandingPage:GetLandingPageType())
-	-- print("-->", ExpansionLandingPage.expansionLandingPageType, ExpansionLandingPageMinimapButton.expansionLandingPageType) --, landingPageTypeID)
+
+	if newestOverlay then
+		local newestUnlockedExpansionID = LocalLandingPageTypeUtil:GetMaximumUnlockedLandingPageExpansionID();
+		local landingPageInfo = LandingPageInfo:GetLandingPageInfo(newestUnlockedExpansionID);
+		local displayInfo = newestOverlay.GetMinimapDisplayInfo();
+		if displayInfo and displayInfo.expansionLandingPageType ~= landingPageInfo.landingPageTypeID then
+			-- print("> Overwriting newestOverlay...")
+			newestOverlay = landingPageOverlay[newestUnlockedExpansionID];
+		end
+	end
 
 	if not newestOverlay then
 		-- No overlay available outside the Dragon Isles or Khaz Algar by default before unlocking upcoming Expansion Landing Page. Retrieve manually.
-		local newestExpansionID = LocalLandingPageTypeUtil:GetMaximumUnlockedLandingPageExpansionID();
-		newestOverlay = landingPageOverlay[newestExpansionID];
+		local newestUnlockedExpansionID = LocalLandingPageTypeUtil:GetMaximumUnlockedLandingPageExpansionID();
+		newestOverlay = landingPageOverlay[newestUnlockedExpansionID] and landingPageOverlay[newestUnlockedExpansionID];
+		-- print("> Updating manually... -->", newestUnlockedExpansionID)
 	end
+	-- print("-->", ExpansionLandingPage.expansionLandingPageType, ExpansionLandingPageMinimapButton.expansionLandingPageType) --, landingPageTypeID)
 
+	-- Original code
 	if newestOverlay ~= self.overlay then
 		if self.overlayFrame then
 			self.overlayFrame:Hide();
