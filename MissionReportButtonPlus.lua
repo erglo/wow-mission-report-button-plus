@@ -1644,7 +1644,8 @@ function MRBP:RegisterSlashCommands()
 				local playerMaxLevelForExpansion = ExpansionInfo:GetMaxPlayerLevel();
 				local expansion = ExpansionInfo:GetExpansionData(expansionLevelForPlayer);
 
-				_log:debug("|nexpansionLevelForPlayer:", expansionLevelForPlayer, ",", expansion.name);
+				_log:debug(" ");
+				_log:debug("expansionLevelForPlayer:", expansionLevelForPlayer, ",", expansion.name);
 				_log:debug("playerLevel:", playerLevel);
 				_log:debug("playerMaxLevelForExpansion:", playerMaxLevelForExpansion);
 

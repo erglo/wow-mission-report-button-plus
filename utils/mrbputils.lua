@@ -863,6 +863,19 @@ function util.garrison.HasMajorFactionReputationReward(expansionID)
 	return false
 end
 
+function util.garrison.HasAnyUnlockedMajorFaction(expansionID)
+	local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansionID);
+	if util.TableHasAnyEntries(majorFactionData) then
+		for _, factionData in ipairs(majorFactionData) do
+			if factionData.isUnlocked then
+				return true;
+			end
+		end
+	end
+
+	return false;
+end
+
 ----- Shadowlands - Covenant utilities -----
 --
 -- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/CovenantsDocumentation.lua>
