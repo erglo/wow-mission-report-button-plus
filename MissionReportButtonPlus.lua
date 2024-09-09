@@ -1165,6 +1165,16 @@ local function AddMenuTooltipLine(info)
 	end
 end
 
+local function CanShowExpansionLandingPage(landingPageInfo)
+	local isUnlocked = LocalRequirementInfo:IsLandingPageUnlocked(landingPageInfo);
+
+	if (landingPageInfo.expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
+		isUnlocked = isUnlocked or util.garrison.HasAnyUnlockedMajorFaction(landingPageInfo.expansionID);
+	end
+
+	return isUnlocked;
+end
+
 -- Create tooltip and display as dropdown menu
 local function ShowMenuTooltip(parent)
 	MenuTooltip = LibQTip:Acquire(ShortAddonID.."LibQTipMenuTooltip", 3, "CENTER", ns.settings.menuTextAlignment, "CENTER")
@@ -1187,7 +1197,7 @@ local function ShowMenuTooltip(parent)
 			local hints = GetExpansionHintIconInfo(expansionInfo)
 			expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or landingPageInfo.title
 			expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and landingPageInfo.minimapIcon or ''
-			expansionInfo.disabled = not LocalRequirementInfo:IsLandingPageUnlocked(landingPageInfo)
+			expansionInfo.disabled = not CanShowExpansionLandingPage(landingPageInfo)
 			expansionInfo.hintIconInfo = ShouldShowHintColumn() and hints
 			expansionInfo.color = CreateColorFromHexString(ns.settings["menuTextColor"])
 			expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID, expansionInfo.landingPageTypeID) end
