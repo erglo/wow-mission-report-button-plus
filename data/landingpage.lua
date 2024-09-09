@@ -23,10 +23,12 @@
 
 local AddonID, ns = ...;
 
+-- Upvalues
 local format = string.format;
 local MapUtil = MapUtil;
 local C_CovenantCallings = C_CovenantCallings;
 local GarrisonFollowerOptions = GarrisonFollowerOptions;
+local GetCVarBitfield = GetCVarBitfield;
 
 local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
@@ -124,21 +126,11 @@ end
 ----- Wrapper -----
 
 function LandingPageInfo:IsExpansionLandingPageUnlocked(expansionID)
-    -- if (expansionID == ExpansionInfo.data.DRAGONFLIGHT.ID) then
-    --     local unlockInfo = {  -- "To the Dragon Isles!"
-    --     	["Horde"] = 65444,
-    --     	["Alliance"] = 67700,
-    --     };
-    --     local questID = unlockInfo[PlayerInfo:GetFactionGroupData("tag")];
-    --     return questID and C_QuestLog.IsQuestFlaggedCompleted(questID);
-    -- end
-
-    -- return C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(expansionID);
-
     local expansionInfo = ExpansionInfo:GetExpansionData(expansionID);
 
-    return  GetCVarBitfield("unlockedExpansionLandingPages", expansionInfo.landingPageTypeID);
+    return  GetCVarBitfield("unlockedExpansionLandingPages", expansionInfo.landingPageTypeID);  --> Available since `10.0.2`
 end
+-- SetCVarBitfield("unlockedExpansionLandingPages", 1, false)  --> Test
 
 ----- Landing Page Data -----
 
