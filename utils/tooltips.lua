@@ -27,6 +27,7 @@ local L = ns.L
 local util = ns.utilities  --> <utils\mrbputils.lua>
 local ExpansionInfo = ns.ExpansionInfo  --> <data\expansion.lua>
 local LocalDragonridingUtil = ns.DragonridingUtil  --> <utils\dragonriding.lua>
+local LocalMajorFactionInfo = ns.MajorFactionInfo;  --> <data\majorfactions.lua>
 
 local LocalTooltipUtil = {}  --> Handler from this file
 ns.utilities.tooltip = LocalTooltipUtil
@@ -288,7 +289,7 @@ end
 
 -- Requires expansionInfo, eg. ExpansionInfo.data.DRAGONFLIGHT
 function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
-	local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansionInfo.ID)
+	local majorFactionData = LocalMajorFactionInfo:GetAllMajorFactionDataForExpansion(expansionInfo.ID)
 	if (#majorFactionData > 0) then
 		if (tooltip.key == ShortAddonID.."LibQTipReputationTooltip") then
 			-- self:AddHeaderLine(tooltip, L["showMajorFactionRenownLevel"], nil, true)
@@ -298,7 +299,7 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 
 		for _, factionData in ipairs(majorFactionData) do
 			local factionIcon = GetMajorFactionIcon(factionData)
-			local FactionColor = ShouldApplyFactionColors(expansionInfo.ID) and util.garrison.GetMajorFactionColor(factionData) or TOOLTIP_TEXT_FONT_COLOR
+			local FactionColor = ShouldApplyFactionColors(expansionInfo.ID) and LocalMajorFactionInfo:GetMajorFactionColor(factionData) or TOOLTIP_TEXT_FONT_COLOR
 			self:AddIconLine(tooltip, factionData.name, factionIcon, FactionColor)
 
 			if factionData.isUnlocked then
@@ -307,17 +308,17 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 				local progressText = GENERIC_FRACTION_STRING:format(factionData.renownReputationEarned, factionData.renownLevelThreshold)
 				local progressTextParens = AppendColoredText(PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
 
-				if not util.garrison.IsFactionParagon(factionData.factionID) then
+				if not LocalMajorFactionInfo:IsFactionParagon(factionData.factionID) then
 					self:AddObjectiveLine(tooltip, levelText..TEXT_DELIMITER..progressTextParens) -- , nil, hasMaxRenown and DISABLED_FONT_COLOR)
 				else
-					local paragonInfo = util.garrison.GetFactionParagonInfo(factionData.factionID)
+					local paragonInfo = LocalMajorFactionInfo:GetFactionParagonInfo(factionData.factionID)
 					local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING
-					progressText = util.garrison.GetFactionParagonProgressText(paragonInfo)
+					progressText = LocalMajorFactionInfo:GetFactionParagonProgressText(paragonInfo)
 					progressTextParens = AppendColoredText(PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
 					self:AddObjectiveLine(tooltip, levelText..TEXT_DELIMITER..progressTextParens..TEXT_DELIMITER..bagIconString, nil, DISABLED_FONT_COLOR)
 
 					if paragonInfo.hasRewardPending then
-						local completionText = util.garrison.GetParagonCompletionText(paragonInfo)
+						local completionText = LocalMajorFactionInfo:GetParagonCompletionText(paragonInfo)
 						self:AddObjectiveLine(tooltip, completionText)
 					end
 				end

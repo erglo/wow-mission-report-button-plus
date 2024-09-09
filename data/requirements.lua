@@ -17,12 +17,6 @@
 --
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see http://www.gnu.org/licenses.
---
--- Further reading:
--- + [ExpansionDocumentation.lua](https://www.townlong-yak.com/framexml/live/Blizzard_APIDocumentationGenerated/ExpansionDocumentation.lua)
--- + [AccountUtil.lua](https://warcraft.wiki.gg/wiki/Console_variables#List_of_Console_Variables)
--- + [Warcraft Wiki - World of Warcraft API, Expansions](https://warcraft.wiki.gg/wiki/World_of_Warcraft_API#Expansions)
--- + [Warcraft Wiki - List of Console Variables](https://warcraft.wiki.gg/wiki/Console_variables#List_of_Console_Variables)
 -- 
 --------------------------------------------------------------------------------
 
@@ -39,6 +33,7 @@ local C_Garrison = C_Garrison;
 local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
+local LocalMajorFactionInfo = ns.MajorFactionInfo;  --> <data\majorfactions.lua>
 
 --------------------------------------------------------------------------------
 
@@ -169,6 +164,18 @@ function LocalRequirementInfo:IsAnyLandingPageAvailable()
 
 	return false;
 end
+
+function LocalRequirementInfo:CanShowExpansionLandingPage(landingPageInfo)
+	local isUnlocked = self:IsLandingPageUnlocked(landingPageInfo);
+
+	if (landingPageInfo.expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
+		isUnlocked = isUnlocked or LocalMajorFactionInfo:HasAnyUnlockedMajorFaction(landingPageInfo.expansionID);
+	end
+
+	return isUnlocked;
+end
+
+--------------------------------------------------------------------------------
 
 -- Get quest details of given garrison type for given tag.
 local function GetLandingPageTypeUnlockInfo(expansionID, tagName)

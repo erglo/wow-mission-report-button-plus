@@ -4,5 +4,6 @@
 	<Include file="player.lua"/>
 	<Include file="expansion.lua"/>
 	<Include file="landingpage.lua"/>
+	<Include file="majorfactions.lua"/>
   	<Include file="requirements.lua"/>
 </Ui>

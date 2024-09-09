@@ -52,6 +52,7 @@ local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
 local LabelUtil = ns.data;  --> <data\labels.lua>
 local LocalDragonridingUtil = ns.DragonridingUtil;  --> <utils\dragonriding.lua> --> TODO - Rename to Skyriding
 local LocalLandingPageTypeUtil = ns.LandingPageTypeUtil;  --> <utils\landingpagetype.lua>
+local LocalMajorFactionInfo = ns.MajorFactionInfo;  --> <data\majorfactions.lua>
 local LocalRequirementInfo = ns.RequirementInfo;  --> <data\requirements.lua>
 
 -- ns.poi9;  --> <utils\poi-9-dragonflight.lua>
@@ -299,7 +300,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 		elseif (event == "MAJOR_FACTION_UNLOCKED") then
 			-- REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>
 			local majorFactionID = ...;
-			local majorFactionData = util.garrison.GetMajorFactionData(majorFactionID);
+			local majorFactionData = LocalMajorFactionInfo:GetMajorFactionData(majorFactionID);
 			if majorFactionData then
 				local landingPageInfo = LandingPageInfo:GetLandingPageInfo(majorFactionData.expansionID);
 				local unlockedMessage = landingPageInfo.msg.majorFactionUnlocked;
@@ -634,7 +635,7 @@ local function GetExpansionHintIconInfo(expansionInfo)
 		missionsAvailable = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID);
 		timeWalkingVendorAvailable = ns.settings.showTimewalkingVendorHint and util.poi.HasTimewalkingVendor(expansionInfo.ID);
 	elseif ns.settings.showReputationRewardPendingHint then
-		reputationRewardPending = util.garrison.HasMajorFactionReputationReward(expansionInfo.ID);
+		reputationRewardPending = LocalMajorFactionInfo:HasMajorFactionReputationReward(expansionInfo.ID);
 	end
 	return {missionsAvailable, reputationRewardPending, timeWalkingVendorAvailable};
 end
@@ -1163,16 +1164,6 @@ local function AddMenuTooltipLine(info)
 	end
 end
 
-local function CanShowExpansionLandingPage(landingPageInfo)
-	local isUnlocked = LocalRequirementInfo:IsLandingPageUnlocked(landingPageInfo);
-
-	if (landingPageInfo.expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
-		isUnlocked = isUnlocked or util.garrison.HasAnyUnlockedMajorFaction(landingPageInfo.expansionID);
-	end
-
-	return isUnlocked;
-end
-
 -- Create tooltip and display as dropdown menu
 local function ShowMenuTooltip(parent)
 	MenuTooltip = LibQTip:Acquire(ShortAddonID.."LibQTipMenuTooltip", 3, "CENTER", ns.settings.menuTextAlignment, "CENTER")
@@ -1195,7 +1186,7 @@ local function ShowMenuTooltip(parent)
 			local hints = GetExpansionHintIconInfo(expansionInfo)
 			expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or landingPageInfo.title
 			expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and landingPageInfo.minimapIcon or ''
-			expansionInfo.disabled = not CanShowExpansionLandingPage(landingPageInfo)
+			expansionInfo.disabled = not LocalRequirementInfo:CanShowExpansionLandingPage(landingPageInfo)
 			expansionInfo.hintIconInfo = ShouldShowHintColumn() and hints
 			expansionInfo.color = CreateColorFromHexString(ns.settings["menuTextColor"])
 			expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID, expansionInfo.landingPageTypeID) end
@@ -1746,19 +1737,19 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 				-- Dragonflight + War Within
 				if (expansion.ID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
 					-- Major Factions
-					local majorFactionData = util.garrison.GetAllMajorFactionDataForExpansion(expansion.ID);
-					if util.TableHasAnyEntries(majorFactionData) then
+					local majorFactionData = LocalMajorFactionInfo:GetAllMajorFactionDataForExpansion(expansion.ID);
+					if (#majorFactionData > 0) then
 						for _, factionData in ipairs(majorFactionData) do
 							local factionAtlasName = "MajorFactions_Icons_"..factionData.textureKit.."512";
 							if factionData.isUnlocked then
-								local factionColor = util.garrison.GetMajorFactionColor(factionData);
+								local factionColor = LocalMajorFactionInfo:GetMajorFactionColor(factionData);
 								local renownLevelText = factionColor:WrapTextInColorCode(MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel));
 								local levelThreshold = factionData.renownLevelThreshold;
 								local reputationEarned = factionData.renownReputationEarned;
 								local suffixText = '';
-								local isParagon = util.garrison.IsFactionParagon(factionData.factionID);
+								local isParagon = LocalMajorFactionInfo:IsFactionParagon(factionData.factionID);
 								if isParagon then
-									local paragonInfo = util.garrison.GetFactionParagonInfo(factionData.factionID);
+									local paragonInfo = LocalMajorFactionInfo:GetFactionParagonInfo(factionData.factionID);
 									local value = mod(paragonInfo.currentValue, paragonInfo.threshold);
 									levelThreshold = paragonInfo.threshold;
 									reputationEarned = paragonInfo.hasRewardPending and value + paragonInfo.threshold or value;
@@ -1767,7 +1758,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 								end
 								local reputationLevelText = GENERIC_FRACTION_STRING:format(reputationEarned, levelThreshold);
 								local lineText = format("%s: %s - %s", factionData.name, renownLevelText, HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(reputationLevelText));
-								local hasMaxRenown = util.garrison.HasMaximumMajorFactionRenown(factionData.factionID);
+								local hasMaxRenown = LocalMajorFactionInfo:HasMaximumMajorFactionRenown(factionData.factionID);
 								util.GameTooltip_AddObjectiveLine(tooltip, lineText..suffixText, hasMaxRenown, wrapLine, leftOffset, factionAtlasName);
 							else
 								local lineText = format("%s: %s", factionData.name, DISABLED_FONT_COLOR:WrapTextInColorCode(MAJOR_FACTION_BUTTON_FACTION_LOCKED));
