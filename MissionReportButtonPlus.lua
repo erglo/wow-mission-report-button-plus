@@ -52,6 +52,7 @@ local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
 local LabelUtil = ns.data;  --> <data\labels.lua>
 local LocalDragonridingUtil = ns.DragonridingUtil;  --> <utils\dragonriding.lua> --> TODO - Rename to Skyriding
 local LocalLandingPageTypeUtil = ns.LandingPageTypeUtil;  --> <utils\landingpagetype.lua>
+local LocalRequirementInfo = ns.RequirementInfo;  --> <data\requirements.lua>
 
 -- ns.poi9;  --> <utils\poi-9-dragonflight.lua>
 
@@ -316,7 +317,7 @@ function MRBP:OnLoad()
 	LabelUtil:LoadInGameLabels()
 	LandingPageInfo:CheckInitialize();
 	-- Prepare quest data for the unlocking requirements
-	self:RequestLoadData();
+	LocalRequirementInfo:Initialize();
 
 	-- Load settings and interface options
 	MRBP_Settings_Register()
@@ -326,149 +327,6 @@ function MRBP:OnLoad()
 
 	-- _log:info("----- Addon is ready. -----")
 end
-
------ Data ---------------------------------------------------------------------
-
--- A collection of quest for (before) unlocking the command table.
---> <questID, questName_English (fallback)>
-local MRBP_COMMAND_TABLE_UNLOCK_QUESTS = {
-	[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
-		-- REF.: <https://www.wowhead.com/guides/garrisons/quests-to-unlock-a-level-1-and-level-2-garrison>
-		["Horde"] = {34775, "Mission Probable"},  --> wowhead
-		["Alliance"] = {34692, "Delegating on Draenor"},  --> Companion App
-	},
-	[ExpansionInfo.data.LEGION.ID] = {
-		["WARRIOR"] = {40585, "Thus Begins the War"},
-		["PALADIN"] = {39696, "Rise, Champions"},
-		["HUNTER"] = {42519, "Rise, Champions"},
-		["ROGUE"] = {42139, "Rise, Champions"},
-		["PRIEST"] = {43270, "Rise, Champions"},
-		["DEATHKNIGHT"] = {43264, "Rise, Champions"},
-		["SHAMAN"] = {42383, "Rise, Champions"},
-		["MAGE"] = {42663, "Rise, Champions"},
-		["WARLOCK"] = {42608, "Rise, Champions"},
-		["MONK"] = {42187, "Rise, Champions"},
-		["DRUID"] = {42583, "Rise, Champions"},
-		["DEMONHUNTER"] = {42670, "Rise, Champions"},
-		["EVOKER"] = {72129, "Aiding Khadgar"},  --> no Class Hall for Evoker (!); talk to Khadgar instead.
-	},
-	[ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = {
-		["Horde"] = {51771, "War of Shadows"},
-		["Alliance"] = {51715, "War of Shadows"},
-	},
-	[ExpansionInfo.data.SHADOWLANDS.ID] = {
-		[Enum.CovenantType.Kyrian] = {57878, "Choosing Your Purpose"},
-		[Enum.CovenantType.Venthyr] = {57878, "Choosing Your Purpose"}, 	--> optional: 59319, "Advancing Our Efforts"
-		[Enum.CovenantType.NightFae] = {57878, "Choosing Your Purpose"},	--> optional: 61552, "The Hunt Watches"
-		[Enum.CovenantType.Necrolord] = {57878, "Choosing Your Purpose"},
-		["alt"] = {62000, "Choosing Your Purpose"},  --> when skipping story mode
-	},
-	[ExpansionInfo.data.DRAGONFLIGHT.ID] = {
-		["Horde"] = {65444, "To the Dragon Isles!"},
-		["Alliance"] = {67700, "To the Dragon Isles!"},
-	},
-	[ExpansionInfo.data.WAR_WITHIN.ID] = {
-		["Horde"] = {78722, "To Khaz Algar!"},
-		["Alliance"] = {78722, "To Khaz Algar!"},
-	},
-}
-
--- Request data for the unlocking requirement quests; on initial log-in the
--- localized quest titles are not always available. This should help getting
--- the quest details in the language the player has chosen.
-function MRBP:RequestLoadData()
-	local playerClassTag = PlayerInfo:GetClassData("tag");
-	local playerCovenantID = PlayerInfo:GetActiveCovenantID();
-	local playerFactionGroupTag = PlayerInfo:GetFactionGroupData("tag");
-	local tagNames = {playerFactionGroupTag, playerClassTag, playerCovenantID};
-
-	for _, questData in pairs(MRBP_COMMAND_TABLE_UNLOCK_QUESTS) do
-		-- if not questData then break; end
-		for tagName, questTable in pairs(questData) do
-			local questID = questTable[1];
-			if (questID > 0) then
-				if tContains(tagNames, tagName) then
-					C_QuestLog.RequestLoadQuestByID(questID);
-				end
-			end
-		end
-	end
-
-    -- Note: Shadowlands callings receive info through event listening or on
-	-- opening the mission frame; try to update.
-	CovenantCalling_CheckCallings();
-	--> REF.: <FrameXML/ObjectAPI/CovenantCalling.lua>
-end
-
--- Get quest details of given garrison type for given tag.
----@param expansionID number  The expansion ID.
----@param tagName string|number  Expansion type-specific identifier, eg. "Horde", "Warrior", etc.
----@return table reqData  Table of format `{questID, questName, requirementText}`.
---
-local function MRBP_GetLandingPageTypeUnlockInfo(expansionID, tagName)
-	local reqMessageTemplate = L.TOOLTIP_REQUIREMENTS_TEXT_S;  --> same as Companion App text
-	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID] and MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID][tagName];
-	if not questData then return { requirementText = UNKNOWN }; end
-
-	local questID = questData[1];
-	local questFallbackName = questData[2];  --> quest name in English
-	local questName = QuestUtils_GetQuestName(questID);
-
-	local questInfo = {};
-	questInfo["questID"] = questID;
-	questInfo["questName"] = strlen(questName) > 0 and questName or questFallbackName;
-	questInfo["requirementText"] = reqMessageTemplate:format(questInfo.questName);
-
-	return questInfo;
-end
-ns.GetLandingPageTypeUnlockInfo = MRBP_GetLandingPageTypeUnlockInfo;
-
--- Check if given expansion is unlocked for given tag. Less strict than `MRBP_IsLandingPageTypeUnlocked`.
-local function MRBP_IsIntroQuestCompleted(expansionID, tagName)
-	local questData = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID] and MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID][tagName];
-	if not questData then return; end
-
-	local questID = questData[1];
-	local IsCompleted = C_QuestLog.IsQuestFlaggedCompletedOnAccount;  -- C_QuestLog.IsQuestFlaggedCompleted;
-
-	--> FIXME - Temp. work-around (better with achievement of same name ???)
-	-- In Shadowlands if you skip the story mode you get a different quest (ID) with the same name, so
-	-- we need to check both quests.
-	if (expansionID == ExpansionInfo.data.SHADOWLANDS.ID) then
-		local questID2 = MRBP_COMMAND_TABLE_UNLOCK_QUESTS[expansionID]["alt"][1];
-		return PlayerInfo:HasActiveCovenant() and (IsCompleted(questID) or IsCompleted(questID2));
-	end
-
-	return IsCompleted(questID);
-end
-
--- Check if given garrison type is unlocked for given tag.
-local function MRBP_IsLandingPageTypeUnlocked(expansionID, tagName)
-	-- Non-garrison type landing pages
-	if (expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
-		return LandingPageInfo:IsExpansionLandingPageUnlocked(expansionID);
-	end
-
-	-- Landing pages with a garrison (Draenor -> Shadowlands)
-	return MRBP_IsIntroQuestCompleted(expansionID, tagName);
-end
-ns.IsLandingPageTypeUnlocked = MRBP_IsLandingPageTypeUnlocked;
-
----Check if at least one garrison is unlocked.
-function MRBP_IsAnyGarrisonRequirementMet()
-	local expansionList = ExpansionInfo:GetExpansionsWithLandingPage();
-	for _, expansion in ipairs(expansionList) do
-		local landingPageInfo = LandingPageInfo:GetLandingPageInfo(expansion.ID);
-		local isUnlocked = MRBP_IsLandingPageTypeUnlocked(landingPageInfo.expansionID, landingPageInfo.tagName);
-		if isUnlocked then
-			return true;
-		end
-	end
-
-	_log:debug(RED_FONT_COLOR:WrapTextInColorCode("No unlocked garrison available."))
-	return false
-end
-ns.MRBP_IsAnyGarrisonRequirementMet = MRBP_IsAnyGarrisonRequirementMet;
 
 ----- Dropdown Menu ------------------------------------------------------------
 
@@ -616,7 +474,7 @@ function MRBP:ShowMinimapButton(isCalledByUser)
 		ns.cprint("isCalledByUser:", isCalledByUser or false)
 		ns.cprint("garrisonType:", MRBP_GetLandingPageGarrisonType())
 	end
-	if not MRBP_IsAnyGarrisonRequirementMet() then return; end
+	if not LocalRequirementInfo:IsAnyLandingPageAvailable() then return; end
 
 	local garrisonTypeID = MRBP_GetLandingPageGarrisonType()
 	if LocalLandingPageTypeUtil:IsValidGarrisonType(garrisonTypeID) then
@@ -653,7 +511,7 @@ ns.HideMinimapButton = MRBP.HideMinimapButton
 -- Handle user action of showing the minimap button. Show it only if any command
 -- table is unlocked.
 function MRBP:ShowMinimapButton_User(isCalledByCancelFunc)
-	local isAnyUnlocked = MRBP_IsAnyGarrisonRequirementMet()
+	local isAnyUnlocked = LocalRequirementInfo:IsAnyLandingPageAvailable()
 	if (not isAnyUnlocked) then
 		-- Do nothing, as long as user hasn't unlocked any of the command tables available
 		-- Inform user about this, and disable checkbutton in config.
@@ -1329,7 +1187,7 @@ local function ShowMenuTooltip(parent)
 			local hints = GetExpansionHintIconInfo(expansionInfo)
 			expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or landingPageInfo.title
 			expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and landingPageInfo.minimapIcon or ''
-			expansionInfo.disabled = not MRBP_IsLandingPageTypeUnlocked(landingPageInfo.expansionID, landingPageInfo.tagName)
+			expansionInfo.disabled = not LocalRequirementInfo:IsLandingPageUnlocked(landingPageInfo)
 			expansionInfo.hintIconInfo = ShouldShowHintColumn() and hints
 			expansionInfo.color = CreateColorFromHexString(ns.settings["menuTextColor"])
 			expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID, expansionInfo.landingPageTypeID) end
@@ -1777,9 +1635,8 @@ function MRBP:RegisterSlashCommands()
 					_log:debug(expansion.ID, expansion.garrisonTypeID, YELLOW_FONT_COLOR:WrapTextInColorCode(expansion.name))
 					local landingPageInfo = LandingPageInfo:GetLandingPageInfo(expansion.ID);
 				    _log:debug("HasGarrison:", util.garrison.HasGarrison(expansion.garrisonTypeID),
-							--    "- req:", MRBP_IsGarrisonRequirementMet(expansion.garrisonTypeID),
-							   "- unlocked:", MRBP_IsLandingPageTypeUnlocked(expansion.ID, landingPageInfo.tagName),
-							   "- hasIntro:", MRBP_IsIntroQuestCompleted(expansion.ID, landingPageInfo.tagName));
+							   "- unlocked:", LocalRequirementInfo:IsLandingPageUnlocked(landingPageInfo),
+							   "- hasIntro:", LocalRequirementInfo:IsIntroQuestCompleted(expansion.ID, landingPageInfo.tagName));
 				end
 
 				local playerLevel = UnitLevel("player");
@@ -1862,8 +1719,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 
 	for _, expansion in ipairs(expansionList) do
 		local garrisonInfo = LandingPageInfo:GetLandingPageInfo(expansion.ID);
-		-- garrisonInfo.shouldShowDisabled = not MRBP_IsLandingPageTypeUnlocked(garrisonInfo.expansionID, garrisonInfo.tagName);
-		garrisonInfo.shouldShowDisabled = not MRBP_IsIntroQuestCompleted(garrisonInfo.expansionID, garrisonInfo.tagName);
+		garrisonInfo.shouldShowDisabled = not LocalRequirementInfo:IsIntroQuestCompleted(garrisonInfo.expansionID, garrisonInfo.tagName);
 		local playerOwnsExpansion = ExpansionInfo:DoesPlayerOwnExpansion(expansion.ID);
 		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(expansion.ID)); --> user option
 		garrisonInfo.missions = {};
@@ -2130,7 +1986,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentClick(data, menuInputData,
 	local clickInfo = menuInputData;  --> .context=2, .buttonName
 
 	if (clickInfo.buttonName == "LeftButton") then
-		local isAnyUnlocked =  MRBP_IsAnyGarrisonRequirementMet();
+		local isAnyUnlocked = LocalRequirementInfo:IsAnyLandingPageAvailable();
 		if isAnyUnlocked then
 			MRBP_OnClick(ExpansionLandingPageMinimapButton, clickInfo.buttonName, false);
 		end

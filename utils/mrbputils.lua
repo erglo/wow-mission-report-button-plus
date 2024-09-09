@@ -638,16 +638,6 @@ function util.garrison.IsDraenorInvasionAvailable()
 	return C_Garrison.IsInvasionAvailable();
 end
 
-
--- function IsExpansionLandingPageUnlocked(garrisonTypeID)
--- 	local expansion = ExpansionInfo:GetExpansionDataByGarrisonType(garrisonTypeID);
--- 	if (expansion and expansion.ID >= ExpansionInfo.data.DRAGONFLIGHT.ID)
--- 		return C_PlayerInfo.IsExpansionLandingPageUnlockedForPlayer(expansion.ID);
--- 	end
--- end
-																				--> TODO - Needed ???
---> Check MRBP_COMMAND_TABLE_UNLOCK_QUESTS in core; need quest IDs for requirements.
-
 ----- Missions -----
 
 -- Check wether the given garrison type has running or completed missions

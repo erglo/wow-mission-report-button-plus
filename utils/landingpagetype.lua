@@ -30,9 +30,7 @@ local AddonID, ns = ...;
 
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
-
--- Upvalues
-local GetCVarBitfield = GetCVarBitfield;
+local LocalRequirementInfo = ns.RequirementInfo;  --> <data\requirements.lua>
 
 --------------------------------------------------------------------------------
 
@@ -64,17 +62,12 @@ function LocalLandingPageTypeUtil:IsValidExpansionLandingPageType(landingPageTyp
 	return (landingPageTypeID and landingPageTypeID >= ExpansionInfo.data.DRAGONFLIGHT.landingPageTypeID);
 end
 
--- Verify if given garrison type is available.
 function LocalLandingPageTypeUtil:IsGarrisonTypeUnlocked(garrisonTypeID)
-	local garrisonInfo = LandingPageInfo:GetGarrisonInfo(garrisonTypeID);
-	local isUnlocked = ns.IsLandingPageTypeUnlocked(garrisonInfo.expansionID, garrisonInfo.tagName);
-
-	return isUnlocked;
+	return LocalRequirementInfo:IsGarrisonLandingPageUnlocked(garrisonTypeID);
 end
 
--- Verify if given Expansion Landing Page type is available.
 function LocalLandingPageTypeUtil:IsExpansionLandingPageTypeUnlocked(landingPageTypeID)
-    return GetCVarBitfield("unlockedExpansionLandingPages", landingPageTypeID);  --> Available since `10.0.2`
+    return LocalRequirementInfo:IsExpansionLandingPageUnlocked(landingPageTypeID);
 end
 
 -- Build and return garrison type ID of previous available expansion.
@@ -94,7 +87,6 @@ function LocalLandingPageTypeUtil:GetMinimumUnlockedExpansionGarrisonType(minimu
 	local isMinimumUnlocked = self:IsGarrisonTypeUnlocked(minimumGarrisonTypeID);
 	if isMinimumUnlocked then
 		self:SetLandingPageGarrisonType(minimumGarrisonTypeID);
-		-- print("<-- Found unlocked minimum:", minimumGarrisonTypeID)
 		return minimumGarrisonTypeID;
 	end
 

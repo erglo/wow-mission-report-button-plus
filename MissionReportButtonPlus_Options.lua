@@ -37,6 +37,7 @@ local _log = ns.dbg_logger;
 local util = ns.utilities;
 
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
+local LocalRequirementInfo = ns.RequirementInfo;  --> <data\requirements.lua>
 
 local _, addonTitle, addonNotes = C_AddOns.GetAddOnInfo(AddonID);
 local version, build, date, tocVersion, localizedVersion, buildType = GetBuildInfo();
@@ -1111,7 +1112,7 @@ function MRBP_Settings_Register()
 			name = L.CFG_MINIMAPBUTTON_SHOWBUTTON_TEXT,
 			tooltip = L.CFG_MINIMAPBUTTON_SHOWBUTTON_TOOLTIP,
 			modifyPredicate = function()
-				local result =  ns.MRBP_IsAnyGarrisonRequirementMet();
+				local result = LocalRequirementInfo:IsAnyLandingPageAvailable();
 				if not result then
 					-- Inform user about the reason
 					printOption(L.CFG_MINIMAPBUTTON_SHOWBUTTON_TEXT, result);

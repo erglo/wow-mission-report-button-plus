@@ -28,7 +28,6 @@ local format = string.format;
 local MapUtil = MapUtil;
 local C_CovenantCallings = C_CovenantCallings;
 local GarrisonFollowerOptions = GarrisonFollowerOptions;
-local GetCVarBitfield = GetCVarBitfield;
 
 local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
@@ -125,12 +124,11 @@ end
 
 ----- Wrapper -----
 
-function LandingPageInfo:IsExpansionLandingPageUnlocked(expansionID)
-    local expansionInfo = ExpansionInfo:GetExpansionData(expansionID);
-
-    return  GetCVarBitfield("unlockedExpansionLandingPages", expansionInfo.landingPageTypeID);  --> Available since `10.0.2`
-end
--- SetCVarBitfield("unlockedExpansionLandingPages", 1, false)  --> Test
+-- -- REF.: [GarrisonBaseUtils.lua](https://www.townlong-yak.com/framexml/live/Blizzard_GarrisonBase/GarrisonBaseUtils.lua)
+-- -- 
+-- function LandingPageInfo:IsGarrisonLandingPageFeatured()
+--     return IsGarrisonLandingPageFeatured()
+-- end
 
 ----- Landing Page Data -----
 
