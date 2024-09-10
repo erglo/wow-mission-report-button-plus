@@ -142,7 +142,7 @@ function LandingPageInfo:Load_Warlords_of_Draenor()
         ["tagName"] = playerFactionGroupTag,
         ["title"] = GARRISON_LANDING_PAGE_TITLE,
         ["description"] = MINIMAP_GARRISON_LANDING_PAGE_TOOLTIP,
-        ["minimapIcon"] = format("GarrLanding-MinimapIcon-%s-Up", playerFactionGroupTag),
+        ["GetMinimapIcon"] = function() return format("GarrLanding-MinimapIcon-%s-Up", playerFactionGroupTag); end,
         ["bannerAtlas"] = "accountupgradebanner-wod",  -- 199x117
         ["msg"] = {  --> menu entry tooltip messages
             ["missionsTitle"] = GARRISON_MISSIONS_TITLE,
@@ -169,7 +169,7 @@ function LandingPageInfo:Load_Legion()
         ["tagName"] = playerClassTag,
         ["title"] = ORDER_HALL_LANDING_PAGE_TITLE,
         ["description"] = MINIMAP_ORDER_HALL_LANDING_PAGE_TOOLTIP,
-        ["minimapIcon"] = playerClassTag == "EVOKER" and "UF-Essence-Icon-Active" or format("legionmission-landingbutton-%s-up", playerClassTag),
+        ["GetMinimapIcon"] = function() return PlayerInfo:IsPlayerEvokerClass() and "UF-Essence-Icon-Active" or format("legionmission-landingbutton-%s-up", playerClassTag); end,
         ["bannerAtlas"] = "accountupgradebanner-legion",  -- 199x117
         ["msg"] = {
             ["missionsTitle"] = GARRISON_MISSIONS,
@@ -205,7 +205,7 @@ function LandingPageInfo:Load_Battle_for_Azeroth()
         ["tagName"] = playerFactionGroupTag,
         ["title"] = GARRISON_TYPE_8_0_LANDING_PAGE_TITLE,
         ["description"] = GARRISON_TYPE_8_0_LANDING_PAGE_TOOLTIP,
-        ["minimapIcon"] = format("bfa-landingbutton-%s-up", playerFactionGroupTag),
+        ["GetMinimapIcon"] = function() return format("bfa-landingbutton-%s-up", playerFactionGroupTag); end,
         ["bannerAtlas"] = "accountupgradebanner-bfa",  -- 199x133
         ["msg"] = {
             ["missionsTitle"] = GARRISON_MISSIONS,
@@ -241,7 +241,10 @@ function LandingPageInfo:Load_Shadowlands()
         ["tagName"] = PlayerInfo.activeCovenantID,
         ["title"] = GARRISON_TYPE_9_0_LANDING_PAGE_TITLE,
         ["description"] = GARRISON_TYPE_9_0_LANDING_PAGE_TOOLTIP,
-        ["minimapIcon"] = format("shadowlands-landingbutton-%s-up", playerCovenantData.textureKit),
+        ["GetMinimapIcon"] = function()
+            local covenantData = PlayerInfo:GetCovenantData();
+            return format("shadowlands-landingbutton-%s-up", covenantData.textureKit);
+        end,
         ["bannerAtlas"] = "accountupgradebanner-shadowlands",  -- 199x133
         ["msg"] = {
             ["missionsTitle"] = COVENANT_MISSIONS_TITLE,
@@ -275,7 +278,7 @@ function LandingPageInfo:Load_Dragonflight()
         ["tagName"] = playerFactionGroupTag,
         ["title"] = DRAGONFLIGHT_LANDING_PAGE_TITLE,
         ["description"] = DRAGONFLIGHT_LANDING_PAGE_TOOLTIP,
-        ["minimapIcon"] = "dragonflight-landingbutton-up",
+        ["GetMinimapIcon"] = function() return "dragonflight-landingbutton-up"; end,
         ["bannerAtlas"] = "accountupgradebanner-dragonflight",  -- 199x133
         ["msg"] = {
             ["requirementText"] = ns.GetLandingPageTypeUnlockInfo(expansionID, playerFactionGroupTag).requirementText,
@@ -304,7 +307,7 @@ function LandingPageInfo:Load_The_War_Within()
         ["tagName"] = playerFactionGroupTag,
         ["title"] = WAR_WITHIN_LANDING_PAGE_TITLE,
         ["description"] = WAR_WITHIN_LANDING_PAGE_TOOLTIP,
-        ["minimapIcon"] = "warwithin-landingbutton-up",
+        ["GetMinimapIcon"] = function() return "warwithin-landingbutton-up"; end,
         ["bannerAtlas"] = "accountupgradebanner-thewarwithin",  -- 199x133
         ["msg"] = {
             ["requirementText"] = ns.GetLandingPageTypeUnlockInfo(expansionID, playerFactionGroupTag).requirementText,

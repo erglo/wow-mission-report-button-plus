@@ -1183,11 +1183,10 @@ local function ShowMenuTooltip(parent)
 		local isActiveEntry = tContains(ns.settings.activeMenuEntries, tostring(expansionInfo.ID))  --> user option
 		if (playerOwnsExpansion and isActiveEntry) then
 			local landingPageInfo = LandingPageInfo:GetLandingPageInfo(expansionInfo.ID)
-			local hints = GetExpansionHintIconInfo(expansionInfo)
 			expansionInfo.label = ns.settings.preferExpansionName and expansionInfo.name or landingPageInfo.title
-			expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and landingPageInfo.minimapIcon or ''
+			expansionInfo.minimapIcon = ns.settings.showLandingPageIcons and landingPageInfo:GetMinimapIcon() or ''
 			expansionInfo.disabled = not LocalRequirementInfo:CanShowExpansionLandingPage(landingPageInfo)
-			expansionInfo.hintIconInfo = ShouldShowHintColumn() and hints
+			expansionInfo.hintIconInfo = ShouldShowHintColumn() and GetExpansionHintIconInfo(expansionInfo)
 			expansionInfo.color = CreateColorFromHexString(ns.settings["menuTextColor"])
 			expansionInfo.func = function() MRBP_ToggleLandingPageFrames(expansionInfo.garrisonTypeID, expansionInfo.landingPageTypeID) end
 			AddMenuTooltipLine(expansionInfo)
@@ -1728,12 +1727,12 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 		if (playerOwnsExpansion and isActiveEntry) then
 			if garrisonInfo.shouldShowDisabled then
 				GameTooltip_AddDisabledLine(tooltip, expansion.name);
-				util.GameTooltip_AddAtlas(tooltip, garrisonInfo.minimapIcon, 36, 36, Enum.TooltipTextureAnchor.RightCenter);
+				util.GameTooltip_AddAtlas(tooltip, garrisonInfo:GetMinimapIcon(), 36, 36, Enum.TooltipTextureAnchor.RightCenter);
 				GameTooltip_AddErrorLine(tooltip, garrisonInfo.msg.requirementText, nil, leftOffset);
 			else
 				-- Expansion name
 				GameTooltip_AddHighlightLine(tooltip, expansion.name);
-				util.GameTooltip_AddAtlas(tooltip, garrisonInfo.minimapIcon, 36, 36, Enum.TooltipTextureAnchor.RightCenter);
+				util.GameTooltip_AddAtlas(tooltip, garrisonInfo:GetMinimapIcon(), 36, 36, Enum.TooltipTextureAnchor.RightCenter);
 				-- Dragonflight + War Within
 				if (expansion.ID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
 					-- Major Factions
