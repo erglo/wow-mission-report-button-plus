@@ -24,7 +24,7 @@
 local AddonID, ns = ...;
 
 local L = ns.L;
-local LocalL10nUtil = ns.data;  --> <data\labels.lua>
+local LocalL10nUtil = ns.L10nUtil;  --> <data\labels.lua>
 
 -- From <utils\mrbputils.lua>
 local LocalPoiUtil = ns.poiUtil;

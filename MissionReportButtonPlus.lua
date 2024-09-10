@@ -46,10 +46,10 @@ local MenuTooltip, ExpansionTooltip, ReputationTooltip;
 local LocalLibQTipUtil = ns.utils.libqtip;
 local LocalTooltipUtil = ns.utilities.tooltip;
 
+local LocalL10nUtil = ns.L10nUtil;  --> <data\labels.lua>
 local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
-local LabelUtil = ns.data;  --> <data\labels.lua>
 local LocalDragonridingUtil = ns.DragonridingUtil;  --> <utils\dragonriding.lua> --> TODO - Rename to Skyriding
 local LocalLandingPageTypeUtil = ns.LandingPageTypeUtil;  --> <utils\landingpagetype.lua>
 local LocalMajorFactionInfo = ns.MajorFactionInfo;  --> <data\majorfactions.lua>
@@ -86,6 +86,7 @@ FrameUtil.RegisterFrameForEvents(MRBP, {
 	"ADDON_LOADED",
 	"PLAYER_ENTERING_WORLD",
 	"PLAYER_QUITING",
+	-- "PLAYER_LOGOUT",
 	"GARRISON_SHOW_LANDING_PAGE",
 	"GARRISON_HIDE_LANDING_PAGE",
 	"GARRISON_BUILDING_ACTIVATABLE",
@@ -115,7 +116,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 
 		elseif (event == "PLAYER_QUITING") then
 			-- Do some variables clean-up
-			LabelUtil:CleanUpLabels()
+			LocalL10nUtil:CleanUpLabels()
 
 		elseif (event == "GARRISON_BUILDING_ACTIVATABLE") then
 			-- REF. <FrameXML/Blizzard_GarrisonUI/Blizzard_GarrisonLandingPage.lua>
@@ -312,7 +313,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 -- Load this add-on's functions when the MR minimap button is ready.
 function MRBP:OnLoad()
 	-- Load data and their handler
-	LabelUtil:LoadInGameLabels();
+	LocalL10nUtil:LoadInGameLabels();
 	LandingPageInfo:CheckInitialize();
 	-- Prepare quest data for the unlocking requirements
 	LocalRequirementInfo:Initialize();

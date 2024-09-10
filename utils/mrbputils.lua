@@ -22,8 +22,8 @@
 
 local AddonID, ns = ...;
 local L = ns.L;
-local data = ns.data;  --> <data\labels.lua>
 
+local LocalL10nUtil = ns.L10nUtil;  --> <data\labels.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 
 -- Backwards compatibility
@@ -1151,7 +1151,7 @@ LegionAssaultsData.achievementID = DEFENDER_OF_THE_BROKEN_ISLES_ID;
 function util.poi.GetLegionAssaultsInfo()
 	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(LegionAssaultsData);
 	if poiInfo then
-		data:SaveLabel("showLegionAssaultsInfo", poiInfo.name);
+		LocalL10nUtil:SaveLabel("showLegionAssaultsInfo", poiInfo.name);
 		poiInfo.parentMapInfo = LocalMapUtil.GetMapInfo(poiInfo.mapInfo.parentMapID);
 		poiInfo.color = LocalThreatUtil.TYPE_COLORS[tostring(ExpansionInfo.data.LEGION.ID)];
 		LocalAchievementUtil.AddAchievementData(LegionAssaultsData.achievementID, poiInfo);
@@ -1177,7 +1177,7 @@ function util.poi.GetBrokenShoreInvasionInfo()
 			poiInfo.color = InvasionColor;
 		end
 		local areaName = BrokenShoreInvasionData.mapInfo.name;
-		data:SaveLabel("showBrokenShoreInvasionInfo", areaName..HEADER_COLON.." "..SPLASH_LEGION_PREPATCH_FEATURE1_TITLE);
+		LocalL10nUtil:SaveLabel("showBrokenShoreInvasionInfo", areaName..HEADER_COLON.." "..SPLASH_LEGION_PREPATCH_FEATURE1_TITLE);
 		return poiInfoTable;
 	end
 end
@@ -1202,7 +1202,7 @@ function util.poi.GetArgusInvasionPointsInfo()
 			LocalAchievementUtil.AddAchievementData(ArgusInvasionData.achievementID, poiInfo);
 		end
 		local areaName = ArgusInvasionData.continentMapInfo.name;
-		data:SaveLabel("showArgusInvasionInfo",  areaName..HEADER_COLON.." "..poiInfoTable[1].name);
+		LocalL10nUtil:SaveLabel("showArgusInvasionInfo",  areaName..HEADER_COLON.." "..poiInfoTable[1].name);
 		return poiInfoTable;
 	end
 end
