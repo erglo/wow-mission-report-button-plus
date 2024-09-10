@@ -1,4 +1,4 @@
---[[ Mission Report Button Plus - Data file for extending localized strings ]]--
+--[[ labels.lua - Localization handler for Mission Report Button Plus. ]]--
 --
 -- by erglo <erglo.coder+MRBP@gmail.com>
 --
@@ -281,44 +281,47 @@ function LocalL10nUtil:InitializeLabels()
     if not SAVED_LABELS[L.currentLocale] then
         SAVED_LABELS[L.currentLocale] = {}
     end
-    -- print("Initialized labels")
 end
 
 -- Check if the category label is neither saved locally nor in the global variable
 function LocalL10nUtil:IsEmptyLabel(categoryName)
     local isEmptyVariable = L:StringIsEmpty(MRBP_GlobalSettings.labels[L.currentLocale][categoryName])
     local isEmptyLocally = L:StringIsEmpty(SAVED_LABELS[L.currentLocale][categoryName])
-    -- print("isEmpty", isEmptyVariable, isEmptyLocally, "-->", categoryName)
     return isEmptyVariable and isEmptyLocally
 end
 
 function LocalL10nUtil:SaveLabel(categoryName, label)
+    if not MRBP_GlobalSettings or TableIsEmpty(MRBP_GlobalSettings) then
+        -- Note: this can happen when logging-out or quitting was aborted, due to clean-up.
+        --> (See ":CleanUpLabels()" below)
+        self:InitializeLabels()
+    end
     if L:StringIsEmpty(label) then return end
     -- Add or update name in global variable
     if self:IsEmptyLabel(categoryName) then
         MRBP_GlobalSettings.labels[L.currentLocale][categoryName] = label
         L[categoryName] = label
-        -- print("format("Saved '%s' in '%s'", label, categoryName))
         return
     end
-    -- Clean-up variable
+    -- Clean-up variable, if already hard coded in this file
     if (SAVED_LABELS[L.currentLocale][categoryName] and MRBP_GlobalSettings.labels[L.currentLocale][categoryName]) then
         MRBP_GlobalSettings.labels[L.currentLocale][categoryName] = nil
-        -- print("Cleaned-up", L.currentLocale, categoryName)
     end
 end
 
-function LocalL10nUtil:GetLabel(categoryName)
+-- function LocalL10nUtil:GetLabel(categoryName)
+local function GetLabel(categoryName)
     local fallbackLabel = L.defaultLabels[categoryName]  -- only needed for non-English locales
     local variableLabel = MRBP_GlobalSettings.labels[L.currentLocale][categoryName]
     local label = L[categoryName] or variableLabel or fallbackLabel or ''
-    -- print(">", categoryName, label)
     return label
 end
 
 -- Clean up variable strings already saved in this file
---> (See "PLAYER_LEAVING_WORLD" event in main file)
-function ns.data:CleanUpLabels()
+--> (See eg. "PLAYER_QUITING" event in main file)
+function LocalL10nUtil:CleanUpLabels()
+    if not MRBP_GlobalSettings then return; end
+
     if MRBP_GlobalSettings.labels then
         if (MRBP_GlobalSettings.labels[L.currentLocale] and TableIsEmpty(MRBP_GlobalSettings.labels[L.currentLocale])) then
             MRBP_GlobalSettings.labels[L.currentLocale] = nil
@@ -339,21 +342,21 @@ end
 LocalL10nUtil.LoadInGameLabels = function(self)
     self:InitializeLabels()
     -- Legion
-    L["showLegionAssaultsInfo"] = self:GetLabel("showLegionAssaultsInfo")    --> TODO - achievementID=11201
-    L["showBrokenShoreInvasionInfo"] = self:GetLabel("showBrokenShoreInvasionInfo")
-    L["showArgusInvasionInfo"] = self:GetLabel("showArgusInvasionInfo")
+    L["showLegionAssaultsInfo"] = GetLabel("showLegionAssaultsInfo")    --> TODO - achievementID=11201
+    L["showBrokenShoreInvasionInfo"] = GetLabel("showBrokenShoreInvasionInfo")
+    L["showArgusInvasionInfo"] = GetLabel("showArgusInvasionInfo")
     -- Dragonflight
-    L["showDragonRaceInfo"] = self:GetLabel("showDragonRaceInfo")
-    L["showDragonGlyphs"] = self:GetLabel("showDragonGlyphs")
-    L["showCampAylaagInfo"] = self:GetLabel("showCampAylaagInfo")
-    L["showGrandHuntsInfo"] = self:GetLabel("showGrandHuntsInfo")
-    L["showCommunityFeastInfo"] = self:GetLabel("showCommunityFeastInfo")
-    L["showDragonbaneKeepInfo"] = self:GetLabel("showDragonbaneKeepInfo")
-    L["showElementalStormsInfo"] = self:GetLabel("showElementalStormsInfo")
-    L["showFyrakkAssaultsInfo"] = self:GetLabel("showFyrakkAssaultsInfo")
-    L["showResearchersUnderFireInfo"] = self:GetLabel("showResearchersUnderFireInfo")
-    L["showTimeRiftInfo"] = self:GetLabel("showTimeRiftInfo")
-    L["showDreamsurgeInfo"] = self:GetLabel("showDreamsurgeInfo")
-    L["showSuperbloomInfo"] = self:GetLabel("showSuperbloomInfo")
-    L["showTheBigDigInfo"] = self:GetLabel("showTheBigDigInfo")
+    L["showDragonRaceInfo"] = GetLabel("showDragonRaceInfo")
+    L["showDragonGlyphs"] = GetLabel("showDragonGlyphs")
+    L["showCampAylaagInfo"] = GetLabel("showCampAylaagInfo")
+    L["showGrandHuntsInfo"] = GetLabel("showGrandHuntsInfo")
+    L["showCommunityFeastInfo"] = GetLabel("showCommunityFeastInfo")
+    L["showDragonbaneKeepInfo"] = GetLabel("showDragonbaneKeepInfo")
+    L["showElementalStormsInfo"] = GetLabel("showElementalStormsInfo")
+    L["showFyrakkAssaultsInfo"] = GetLabel("showFyrakkAssaultsInfo")
+    L["showResearchersUnderFireInfo"] = GetLabel("showResearchersUnderFireInfo")
+    L["showTimeRiftInfo"] = GetLabel("showTimeRiftInfo")
+    L["showDreamsurgeInfo"] = GetLabel("showDreamsurgeInfo")
+    L["showSuperbloomInfo"] = GetLabel("showSuperbloomInfo")
+    L["showTheBigDigInfo"] = GetLabel("showTheBigDigInfo")
 end

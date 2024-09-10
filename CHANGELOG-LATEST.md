@@ -22,6 +22,7 @@
 
 ### Fixed
 
+* Data (L10n): an error occurred when quitting the game (outside a rested area) was aborted. The clean-up process removed variables needed for looking-up eg. DF world event names.
 * Shadowlands: the Covenant icon didn't always load properly and showed the Kyrian fallback icon instead.
 * Minimap Button: the new-style button now remains shown even when entering older zones.
 * Minimap Button: clicking the currently shown landing page button on the Minimap now opens AND closes the corresponding Landing Page properly.

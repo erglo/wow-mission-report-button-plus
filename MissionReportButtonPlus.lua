@@ -84,8 +84,8 @@ local MRBP = CreateFrame("Frame", AddonID.."EventListenerFrame")
 FrameUtil.RegisterFrameForEvents(MRBP, {
 	"ADDON_LOADED",
 	"PLAYER_ENTERING_WORLD",
-	"PLAYER_QUITING",
-	-- "PLAYER_LOGOUT",
+	"PLAYER_CAMPING",  --> when the player is camping (logging out)
+	"PLAYER_QUITING",  --> when the player tries to quit, as opposed to logout, while outside an inn
 	"GARRISON_SHOW_LANDING_PAGE",
 	"GARRISON_HIDE_LANDING_PAGE",
 	"GARRISON_BUILDING_ACTIVATABLE",
@@ -113,7 +113,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 				self:UnregisterEvent("ADDON_LOADED")
 			end
 
-		elseif (event == "PLAYER_QUITING") then
+		elseif (event == "PLAYER_QUITING" or event == "PLAYER_CAMPING") then
 			-- Do some variables clean-up
 			LocalL10nUtil:CleanUpLabels()
 
