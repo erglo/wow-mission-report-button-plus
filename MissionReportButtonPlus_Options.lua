@@ -71,6 +71,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showMinimapButton"] = true,
 	["showAddonNameInTooltip"] = true,
 	["useMiddleButton"] = true,
+	["useMouseOverMinimapMode"] = false,
 	-- ["useSingleExpansionLandingPageType"] = true,
 	["currentExpansionLandingPageType"] = {garrisonTypeID=Enum.GarrisonType.Type_9_0_Garrison, landingPageTypeID=Enum.ExpansionLandingPageType.None},
 	["showInAddonCompartment"] = true,
@@ -317,7 +318,16 @@ local function CheckBox_OnValueChanged(owner, setting, value)
 		if value then
 			ns:ShowMinimapButton_User();
 		else
+			local mouseOverMinimapSetting = Settings.GetSetting("useMouseOverMinimapMode");
+			mouseOverMinimapSetting:SetValue(Settings.Default.False);
 			ns:HideMinimapButton();
+		end
+	end
+	if (setting.variable == "useMouseOverMinimapMode") then
+		if value then
+			ns:HideMinimapButton();
+		else
+			ns:ShowMinimapButton_User();
 		end
 	end
 	if (setting.variable == "showInAddonCompartment") then
@@ -1128,6 +1138,13 @@ function MRBP_Settings_Register()
 			name = L.CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TEXT,
 			tooltip = L.CFG_MINIMAPBUTTON_SHOWNAMEINTOOLTIP_TOOLTIP,
 			parentVariable = "showMinimapButton",
+		},
+		{
+			variable = "useMouseOverMinimapMode",
+			name = L.CFG_MINIMAPBUTTON_MOUSE_OVER_MINIMAP_MODE_TEXT,
+			tooltip = L.CFG_MINIMAPBUTTON_MOUSE_OVER_MINIMAP_MODE_TOOLTIP,
+			parentVariable = "showMinimapButton",
+			tag = Settings.Default.True,
 		},
 		{
 			variable = "useMiddleButton",

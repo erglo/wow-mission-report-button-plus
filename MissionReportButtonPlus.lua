@@ -62,8 +62,6 @@ local MRBP_EventMessagesCounter = {};
 -- Backwards compatibility 
 local IsAddOnLoaded = C_AddOns.IsAddOnLoaded;
 local LoadAddOn = C_AddOns.LoadAddOn;
--- local CreateAtlasMarkup = CreateAtlasMarkup;
-local C_QuestLog = C_QuestLog;
 local GarrisonFollowerOptions = GarrisonFollowerOptions;
 local ExpansionLandingPageMinimapButton = ExpansionLandingPageMinimapButton;
 
@@ -71,7 +69,6 @@ local DIM_RED_FONT_COLOR = DIM_RED_FONT_COLOR;
 local DISABLED_FONT_COLOR = DISABLED_FONT_COLOR;
 local HIGHLIGHT_FONT_COLOR = HIGHLIGHT_FONT_COLOR;
 local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR;
-local RED_FONT_COLOR = RED_FONT_COLOR;
 local WARNING_FONT_COLOR = WARNING_FONT_COLOR;
 local DARKGRAY_COLOR = DARKGRAY_COLOR;
 local LIGHTERBLUE_FONT_COLOR = LIGHTERBLUE_FONT_COLOR;
@@ -268,7 +265,7 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 
 		elseif (event == "GARRISON_SHOW_LANDING_PAGE") then
 			-- Minimap button already visible through WoW default process
-			if (not ns.settings.showMinimapButton) then
+			if (not ns.settings.showMinimapButton or ns.settings.useMouseOverMinimapMode) then
 				self:HideMinimapButton()
 			end
 
@@ -315,16 +312,16 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 -- Load this add-on's functions when the MR minimap button is ready.
 function MRBP:OnLoad()
 	-- Load data and their handler
-	LabelUtil:LoadInGameLabels()
+	LabelUtil:LoadInGameLabels();
 	LandingPageInfo:CheckInitialize();
 	-- Prepare quest data for the unlocking requirements
 	LocalRequirementInfo:Initialize();
 
 	-- Load settings and interface options
-	MRBP_Settings_Register()
+	MRBP_Settings_Register();
 
-	self:RegisterSlashCommands()
-	self:SetButtonHooks()
+	self:RegisterSlashCommands();
+	self:SetButtonHooks();
 
 	-- _log:info("----- Addon is ready. -----")
 end
@@ -539,6 +536,11 @@ function MRBP:SetButtonHooks()
 		ExpansionLandingPageMinimapButton:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
 		ExpansionLandingPageMinimapButton:SetScript("OnClick", MRBP_OnClick)
 		-- ExpansionLandingPageMinimapButton:HookScript("OnClick", MRBP_OnClick)  --> safer, but doesn't work properly!
+
+		-- Mouse Over Minimap Mode
+		Minimap:HookScript("OnEnter", MRBP_OnMinimapEnter)
+		Minimap:HookScript("OnLeave", MRBP_OnMinimapLeave)
+		ExpansionLandingPageMinimapButton:HookScript("OnLeave", MRBP_OnMinimapLeave)
 	end
 
 	-- GarrisonLandingPage (mission report frame) post hook
@@ -549,6 +551,12 @@ function MRBP:RedoButtonHooks(informUser)
 	self:SetButtonHooks()
 	if informUser then
 		ns.cprint(L.CHATMSG_MINIMAPBUTTON_HOOKS_UPDATED)
+	end
+end
+
+function MRBP:CheckShowMinimapButtonInMouseOverMode()
+	if (ns.settings.useMouseOverMinimapMode and not ExpansionLandingPageMinimapButton:IsShown()) then
+		ExpansionLandingPageMinimapButton:Show();
 	end
 end
 
@@ -564,6 +572,8 @@ function MRBP_OnEnter(self, button, description_only)
 		-- Needed for Addon Compartment details
 		return self.description;
 	end
+	MRBP:CheckShowMinimapButtonInMouseOverMode();
+
 	GameTooltip:SetOwner(self, "ANCHOR_LEFT");
 	if self:IsInMajorFactionRenownMode() then
 		RenownRewardUtil.AddMajorFactionToTooltip(GameTooltip, self.majorFactionID, GenerateClosure(self.SetTooltip, self));
@@ -598,6 +608,16 @@ function MRBP_OnEnter(self, button, description_only)
 	end
 
 	GameTooltip:Show();
+end
+
+function MRBP_OnMinimapEnter(self, ...)
+	MRBP:CheckShowMinimapButtonInMouseOverMode();
+end
+
+function MRBP_OnMinimapLeave(self)
+	if (ns.settings.useMouseOverMinimapMode and not (MenuTooltip and MenuTooltip:IsShown()) and not (Minimap.ZoomIn and Minimap.ZoomIn:IsShown())) then
+		MRBP:HideMinimapButton();
+	end
 end
 
 -----
@@ -1172,9 +1192,12 @@ local function ShowMenuTooltip(parent)
 	MenuTooltip.OnRelease = function(self)
 		ReleaseTooltip(self)
 		ReleaseTooltip(ExpansionTooltip)
+		MRBP_OnMinimapLeave()
 	end
 	MenuTooltip:SetCellMarginV(ns.settings.menuLineHeight)
 	MenuTooltip:SetFrameLevel(parent:GetFrameLevel() + 10)
+	-- Mouse Over Minimap Mode
+	MRBP:CheckShowMinimapButtonInMouseOverMode();
 	-- Expansion list
 	local sortFunc = ns.settings.reverseSortorder and ExpansionInfo.SortAscending or ExpansionInfo.SortDescending
 	local expansionList = ExpansionInfo:GetExpansionsWithLandingPage(sortFunc)
