@@ -88,6 +88,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	-- Menu entries
 	["activeMenuEntries"] = {"5", "6", "7", "8", "9", "10", "99"},
 	-- The War Within
+	["showExpansion10"] = true,
 	["showMajorFactionRenownLevel10"] = true,
 	["applyMajorFactionColors10"] = true,
 	["hideMajorFactionUnlockDescription10"] = false,
@@ -95,6 +96,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showDragonGlyphs10"] = true,
 	["autoHideCompletedDragonGlyphZones10"] = false,
 	-- Dragonflight
+	["showExpansion9"] = true,
 	["showMajorFactionRenownLevel9"] = true,
 	["applyMajorFactionColors9"] = true,
 	["hideMajorFactionUnlockDescription9"] = false,
@@ -116,12 +118,14 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showTheBigDigInfo"] = true,
 	["hideEventDescriptions"] = false,
 	-- Shadowlands
+	["showExpansion8"] = true,
 	["showCovenantMissionInfo"] = true,
 	["showCovenantBounties"] = true,
 	["showMawThreats"] = true,
 	["showCovenantRenownLevel"] = true,
 	["applyCovenantColors"] = true,
 	-- Battle for Azeroth
+	["showExpansion7"] = true,
 	["showBfAMissionInfo"] = true,
 	["showBfABounties"] = true,
 	["showNzothThreats"] = true,
@@ -130,6 +134,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["applyBfAFactionColors"] = true,
 	["showBfAIslandExpeditionsInfo"] = true,
 	-- Legion
+	["showExpansion6"] = true,
 	["showLegionMissionInfo"] = true,
 	["showLegionBounties"] = true,
 	["showLegionWorldMapEvents"] = true,
@@ -139,6 +144,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["applyInvasionColors"] = true,
 	["showLegionTimewalkingVendor"] = true,
 	-- Warlords of Draenor
+	["showExpansion5"] = true,
 	["showWoDMissionInfo"] = true,
 	["showWoDGarrisonInvasionAlert"] = true,
 	["hideWoDGarrisonInvasionAlertIcon"] = false,
@@ -220,7 +226,7 @@ end
 ---@param value any  The new value of the given variable
 ---
 local function SaveSingleSetting(varName, value)
-	if (tocVersion < 110002) then
+	if (tocVersion < 110002) then												--> TODO - Remove in later release
 		-- Save project-wide (namespace) settings
 		ns.settings[varName] = value;  --> not needed after WoW 11.0.2
 	end
@@ -313,15 +319,16 @@ local function CheckBox_OnValueChanged(owner, setting, value)
 	elseif ns.settings.showChatNotifications then
 		printOption(setting.name, value);
 	end
+
 	if (setting.variable == "showMinimapButton") then
 		if value then
 			ns:ShowMinimapButton_User();
 		else
-			local mouseOverMinimapSetting = Settings.GetSetting("useMouseOverMinimapMode");
-			mouseOverMinimapSetting:SetValue(Settings.Default.False);
+			Settings.SetValue("useMouseOverMinimapMode", value);
 			ns:HideMinimapButton();
 		end
 	end
+
 	if (setting.variable == "useMouseOverMinimapMode") then
 		if value then
 			ns:HideMinimapButton();
@@ -329,6 +336,7 @@ local function CheckBox_OnValueChanged(owner, setting, value)
 			ns:ShowMinimapButton_User();
 		end
 	end
+
 	if (setting.variable == "showInAddonCompartment") then
 		if value then
 			util.AddonCompartment.RegisterAddon();
@@ -336,6 +344,7 @@ local function CheckBox_OnValueChanged(owner, setting, value)
 			util.AddonCompartment.UnregisterAddon();
 		end
 	end
+
 	-- Handle "activeMenuEntries"
 	local varName, indexString = strsplit('#', setting.variable);
 	if indexString then
@@ -351,9 +360,10 @@ local function CheckBox_OnValueChanged(owner, setting, value)
 				end
 			end
 		end
-		value = CopyTable(activeEntriesList);
+		-- Also update checkbox in corresponding tooltip details
+		ns.settings["showExpansion"..indexString] = value;
 
-		_log:debug("selectedMenuEntries:", SafeUnpack(ns.settings.activeMenuEntries));
+		value = CopyTable(activeEntriesList);
 	end
 
 	SaveSingleSetting(varName, value);
@@ -398,7 +408,7 @@ end
 ---@return table setting  The registered setting
 ---@return table initializer The checkbox control
 ---
-local function CheckBox_Create(category, variableName, name, tooltip)
+local function CheckBox_Create(category, variableName, name, tooltip, OnValueChangedCallback)
 	-- Prepare values
 	local defaultValue = ns.settings[variableName];
 	--> Note: This works only with the currently set value; defaultValue is set below.
@@ -424,8 +434,8 @@ local function CheckBox_Create(category, variableName, name, tooltip)
 	-- Work-around until I find a better solution
 	setting.initializer = initializer;
 	-- Keep track of value changes
-	local cbrHandle = Settings.SetOnValueChangedCallback(varName, CheckBox_OnValueChanged, setting);
-	--> Note: Handle is needed to unregister this OnValueChanged event, if necessary.
+	local cbrHandle = Settings.SetOnValueChangedCallback(varName, OnValueChangedCallback or CheckBox_OnValueChanged, setting);
+	--> Note: Handle is only needed to unregister this OnValueChanged event, if necessary.
 
 	return setting, initializer;
 end
@@ -438,7 +448,7 @@ local function CheckBox_CreateFromList(category, checkBoxList)
 	-- Create checkboxes
 	local data = {};
 	for i, cb in ipairs(checkBoxList) do
-		local setting, initializer = CheckBox_Create(category, cb.variable, cb.name, cb.tooltip);
+		local setting, initializer = CheckBox_Create(category, cb.variable, cb.name, cb.tooltip, cb.onValueChanged);
 		if cb.tag then
 			setting:SetNewTagShown(Settings.Default.True);
 			initializer.IsNewTagShown = function() return Settings.Default.True end;
@@ -579,10 +589,8 @@ local function DropDown_Create(category, variableName, valueList, defaultText, t
 			-- Current value derived from "primary" value
 			ns.settings[vName] = value;  --> always update this, so 'ns.settings.menuTextFont' can be used in core.
 			-- Update font size slider
-			local fontSizeSetting = Settings.GetSetting("menuTextFontSize");
-			if fontSizeSetting then
-				fontSizeSetting:SetValue(LocalFontUtil:GetCurrentFontSize());
-			end
+			Settings.SetValue("menuTextFontSize", LocalFontUtil:GetCurrentFontSize());
+
 			printOption(settingInfo.name, value);
 			SaveSingleSetting(vName, value);  --> save to "primary"
 			-- Update the other font dropdown controls
@@ -735,6 +743,7 @@ local function CreateMenuEntriesSelection(category, layout)
 			name = ownsExpansion and expansion.name or DISABLED_FONT_COLOR:WrapTextInColorCode(expansion.name),
 			tooltip = ns.settingsMenuEntry ~= tostring(expansion.ID) and getMenuEntryTooltip(expansion.ID, ownsExpansion),
 			modifyPredicate = function() return ownsExpansion end;
+			tag = (expansion.ID == ExpansionInfo.data.WAR_WITHIN.ID) and Settings.Default.True or Settings.Default.False,
 		});
 	end
 
@@ -1246,11 +1255,37 @@ function MRBP_Settings_Register()
 	CreateMenuEntriesSelection(menuTooltipCategory, menuTooltipLayout);
 
 	----- Expansion tooltip settings (separate subcategories) -----
+	local function cbOnValueChangedCallback(owner, setting, value)
+		local expansionIDstring = string.gsub(setting.variable, "showExpansion", '');  --> eg. "10"
+		local activeMenuEntrySetting = Settings.GetSetting("activeMenuEntries#"..expansionIDstring);
+		if activeMenuEntrySetting then
+			ns.settings["activeMenuEntries#"..expansionIDstring] = value;
+			CheckBox_OnValueChanged(owner, activeMenuEntrySetting, value);
+		end
+	end
+
 	if ns.settings.showEntryTooltip then
 		for _, expansionInfo in ipairs(GetOwnedExpansionInfoList()) do
 			-- Register expansion in its own subcategory
 			local expansionCategory, expansionLayout = Settings.RegisterVerticalLayoutSubcategory(menuTooltipCategory, expansionInfo.name);
 			expansionCategory.ID = format("%sExpansion%02dSettings", AddonID, expansionInfo.ID);
+
+			-- Add show/hide entry checkboxes for each expansion details settings
+			if (ns.settingsMenuEntry ~= tostring(expansionInfo.ID)) then
+				local expansionTooltipName = BANK_TAB_EXPANSION_ASSIGNMENT:format(expansionInfo.name);
+				local cbShowHide = {
+					{
+						variable = "showExpansion"..tostring(expansionInfo.ID),
+						name = L.CFG_DDMENU_SHOW_EXPANSION_ENTRY_TEXT,
+						tooltip = L.CFG_DDMENU_SHOW_EXPANSION_ENTRY_TOOLTIP_S:format(expansionTooltipName),
+						modifyPredicate = function() return ExpansionInfo:DoesPlayerOwnExpansion(expansionInfo.ID); end,
+						onValueChanged = cbOnValueChangedCallback,
+						tag = Settings.Default.True,
+					},
+				};
+				CheckBox_CreateFromList(expansionCategory, cbShowHide);
+			end
+
 			-- Add subcategory content
 			expansionLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
 			CreateExpansionTooltipSettings(expansionCategory, expansionInfo);
