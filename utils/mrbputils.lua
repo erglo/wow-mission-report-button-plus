@@ -413,6 +413,7 @@ function LocalQuestUtil.GetQuestName(questID)
 	end
 	return QuestUtils_GetQuestName(questID);
 end
+ns.GetQuestName = function(questID) return LocalQuestUtil.GetQuestName(questID); end
 
 --------------------------------------------------------------------------------
 ----- Achievement utilities ----------------------------------------------------

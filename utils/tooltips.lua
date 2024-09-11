@@ -40,7 +40,6 @@ local LocalLibQTipUtil = ns.utils.libqtip  --> <utils\libqtip.lua>
 
 local format = string.format
 local tostring = tostring
-local QuestUtils_GetQuestName = QuestUtils_GetQuestName
 local CovenantCalling_CheckCallings = CovenantCalling_CheckCallings
 local CreateTextureMarkup = CreateTextureMarkup
 -- local CreateAtlasMarkup = CreateAtlasMarkup
@@ -416,7 +415,7 @@ function LocalTooltipUtil:AddBountyBoardLines(tooltip, garrisonInfo)
 	self:AddHeaderLine(tooltip, bountyBoard.title)
 	if (#bounties > 0) then
 		for _, bountyData in ipairs(bounties) do
-			local questName = QuestUtils_GetQuestName(bountyData.questID)
+			local questName = ns.GetQuestName(bountyData.questID)
 			if isForShadowlands then
 				-- Shadowland bounties have a golden border around their icon; need special treatment.
 				-- REF.: CreateTextureMarkup(file, fileWidth, fileHeight, width, height, left, right, top, bottom, xOffset, yOffset)

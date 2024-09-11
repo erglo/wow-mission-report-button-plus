@@ -35,6 +35,17 @@ local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
 local LocalMajorFactionInfo = ns.MajorFactionInfo;  --> <data\majorfactions.lua>
 
+----- Helper Functions -----
+
+-- REF.: <FrameXML/QuestUtils.lua>
+--
+local function GetQuestName(questID)
+	if not HaveQuestData(questID) then
+		C_QuestLog.RequestLoadQuestByID(questID);
+	end
+	return QuestUtils_GetQuestName(questID);
+end
+
 --------------------------------------------------------------------------------
 
 local LocalRequirementInfo = {};
@@ -187,7 +198,7 @@ local function GetLandingPageTypeUnlockInfo(expansionID, tagName)
 
 	local questID = questData[1];
 	local questFallbackName = questData[2];  --> quest name in English
-	local questName = QuestUtils_GetQuestName(questID);
+	local questName = GetQuestName(questID);
 	local reqMessageTemplate = L.TOOLTIP_REQUIREMENTS_TEXT_S;  --> same as Companion App text
 
 	local questInfo = {};
