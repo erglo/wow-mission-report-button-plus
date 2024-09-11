@@ -264,7 +264,7 @@ function LandingPageInfo:Load_Shadowlands()
             ["noBountiesMessage"] = BOUNTY_BOARD_NO_CALLINGS_DAYS_1,
             ["isCompleteMessage"] = BOUNTY_TUTORIAL_BOUNTY_FINISHED,
             ["GetBounties"] = function() return {} end,  --> Shadowlands callings will be added later via the event handler.
-            ["AreBountiesUnlocked"] = function() return C_CovenantCallings.AreCallingsUnlocked() end,
+            ["AreBountiesUnlocked"] = function() return PlayerInfo:HasActiveCovenant() and C_CovenantCallings.AreCallingsUnlocked() end,
         },
     };
 end

@@ -1928,8 +1928,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					util.GameTooltip_AddObjectiveLine(tooltip, garrisonInfo.msg.missionsTitle..": "..progressText, hasCompletedAllMissions);
 				end
 				-- Bounty Board + Covenant Callings
-				if (expansion.ID ~= ExpansionInfo.data.DRAGONFLIGHT.ID and
-					expansion.ID ~= ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) then
+				if ShouldShowBountyBoardText(expansion.garrisonTypeID) then
 					local bountyBoard = garrisonInfo.bountyBoard;
 					if bountyBoard and bountyBoard.AreBountiesUnlocked() then
 						local bounties = bountyBoard.GetBounties()
