@@ -7,4 +7,5 @@
 	<Script file="itIT.lua"/>
 	<Script file="zhTW.lua"/>
 	<Script file="zhCN.lua"/>
+	<Include file="labels.lua"/>
 </Ui>
