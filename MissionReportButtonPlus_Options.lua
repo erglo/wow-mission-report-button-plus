@@ -52,8 +52,7 @@ local NEWLINE = "|n";
 local NEW_PARAGRAPH = "|n|n";
 local HEADER_COLON = HEADER_COLON;
 local LIST_DELIMITER = LIST_DELIMITER;
-local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
--- local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
+-- local TEXT_DASH_SEPARATOR = L.TEXT_DELIMITER..QUEST_DASH..L.TEXT_DELIMITER;
 local DEFAULT = DEFAULT;
 local REFORGE_CURRENT = REFORGE_CURRENT;
 local FONT_SIZE = FONT_SIZE;
@@ -475,7 +474,7 @@ local function FormatTooltipTemplate(categoryName, tooltipText, additionalText)
 end
 
 local function AppendDefaultValueText(varName)
-    local textTemplate = LIGHT_GRAY(NEW_PARAGRAPH..DEFAULT..HEADER_COLON)..TEXT_DELIMITER.."%s";
+    local textTemplate = LIGHT_GRAY(NEW_PARAGRAPH..DEFAULT..HEADER_COLON)..L.TEXT_DELIMITER.."%s";
     local valueString = tostring(ns.defaultSettings[varName]);
 	-- Exceptions
 	if (varName == "menuTextFontSize") then
@@ -492,7 +491,7 @@ local function AppendColorPreviewText(varName, isDefault)
 	local text = isDefault and DEFAULT or REFORGE_CURRENT;
 	local value = isDefault and ns.defaultSettings[varName] or ns.settings[varName];
 	local TextColor = CreateColorFromHexString(value);
-    local textTemplate = NEWLINE.."%s"..TEXT_DELIMITER..LIGHT_GRAY(PARENS_TEMPLATE:format(text));
+    local textTemplate = NEWLINE.."%s"..L.TEXT_DELIMITER..LIGHT_GRAY(PARENS_TEMPLATE:format(text));
 	local exampleText = TextColor:WrapTextInColorCode(PREVIEW);
     return textTemplate:format(exampleText);
 end
@@ -558,7 +557,7 @@ local function DropDown_Create(category, variableName, valueList, defaultText, t
 				optionData.onEnter = OnEntryEnter_SetFontPreview;
 			end
 			if (optionData.value == defaultValue) then
-				optionData.label = optionData.label..TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(DEFAULT));
+				optionData.label = optionData.label..L.TEXT_DELIMITER..GRAY(PARENS_TEMPLATE:format(DEFAULT));
 				-- optionData.recommend = Settings.Default.True;
 				-- optionData.disabled = "Disabled text.";
 				-- optionData.warning = "Warning text.";
@@ -1265,7 +1264,7 @@ function MRBP_Settings_Register()
 	local appearanceCategory, appearanceLayout = Settings.RegisterVerticalLayoutSubcategory(mainCategory, APPEARANCE_LABEL);
 	appearanceCategory.ID = AddonID.."AppearanceSettings";
 
-	local menuNameTemplate = GRAY(L.CFG_DDMENU_SEPARATOR_HEADING..HEADER_COLON)..TEXT_DELIMITER.."%s";
+	local menuNameTemplate = GRAY(L.CFG_DDMENU_SEPARATOR_HEADING..HEADER_COLON)..L.TEXT_DELIMITER.."%s";
 
 	------- MenuTooltip: Anchor -----
 	do
@@ -1284,21 +1283,21 @@ function MRBP_Settings_Register()
 			{"RIGHT", "RIGHT", nil},
 			{"CENTER", "CENTER", nil},
 		};
-		local pointLabel = L.CFG_APPEARANCE_ANCHOR_LABEL..HEADER_COLON..TEXT_DELIMITER..L.CFG_DDMENU_SEPARATOR_HEADING;
+		local pointLabel = L.CFG_APPEARANCE_ANCHOR_LABEL..HEADER_COLON..L.TEXT_DELIMITER..L.CFG_DDMENU_SEPARATOR_HEADING;
 		DropDown_Create(appearanceCategory, "menuAnchorPoint", pointValues, pointLabel, L.CFG_APPEARANCE_ANCHOR_POINT_MENU_TOOLTIP);
 
 		-- relativePoint
-		local parentPointLabel = L.CFG_APPEARANCE_ANCHOR_LABEL..HEADER_COLON..TEXT_DELIMITER..L.CFG_APPEARANCE_ANCHOR_POINT_BUTTON_TEXT;
+		local parentPointLabel = L.CFG_APPEARANCE_ANCHOR_LABEL..HEADER_COLON..L.TEXT_DELIMITER..L.CFG_APPEARANCE_ANCHOR_POINT_BUTTON_TEXT;
 		DropDown_Create(appearanceCategory, "menuAnchorPointParent", pointValues, parentPointLabel, L.CFG_APPEARANCE_ANCHOR_POINT_BUTTON_TOOLTIP);
 
 		-- offsetX
 		local minOffsetXValue, maxOffsetXValue, offsetXStep = -64, 64, 1;
-		local offsetXLabel = L.CFG_APPEARANCE_ANCHOR_DISTANCE_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ORIENTATION_HORIZONTAL);
+		local offsetXLabel = L.CFG_APPEARANCE_ANCHOR_DISTANCE_TEXT..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ORIENTATION_HORIZONTAL);
 		Slider_Create(appearanceCategory, "menuAnchorOffsetX", minOffsetXValue, maxOffsetXValue, offsetXStep, offsetXLabel, L.CFG_APPEARANCE_ANCHOR_DISTANCE_TOOLTIP);
 
 		-- offsetY
 		local minOffsetYValue, maxOffsetYValue, offsetYStep = -64, 64, 1;
-		local offsetYLabel = L.CFG_APPEARANCE_ANCHOR_DISTANCE_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ORIENTATION_VERTICAL);
+		local offsetYLabel = L.CFG_APPEARANCE_ANCHOR_DISTANCE_TEXT..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ORIENTATION_VERTICAL);
 		Slider_Create(appearanceCategory, "menuAnchorOffsetY", minOffsetYValue, maxOffsetYValue, offsetYStep, offsetYLabel, L.CFG_APPEARANCE_ANCHOR_DISTANCE_TOOLTIP);
 	end
 
@@ -1311,12 +1310,12 @@ function MRBP_Settings_Register()
 
 		-- Padding (Left)
 		local padLeftMinValue, padLeftMaxValue, padLeftStep = 0, 64, 1;
-		local padLeftLabel = L.CFG_APPEARANCE_TEXT_PADDING_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT);
+		local padLeftLabel = L.CFG_APPEARANCE_TEXT_PADDING_TEXT..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_LEFT);
 		Slider_Create(appearanceCategory, "menuTextPaddingLeft", padLeftMinValue, padLeftMaxValue, padLeftStep, padLeftLabel, L.CFG_APPEARANCE_TEXT_PADDING_TOOLTIP);
 
 		-- Padding (Right)
 		local padRightMinValue, padRightMaxValue, padRightStep = 0, 64, 1;
-		local padRightLabel = L.CFG_APPEARANCE_TEXT_PADDING_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT);
+		local padRightLabel = L.CFG_APPEARANCE_TEXT_PADDING_TEXT..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(HUD_EDIT_MODE_SETTING_AURA_FRAME_ICON_DIRECTION_RIGHT);
 		Slider_Create(appearanceCategory, "menuTextPaddingRight", padRightMinValue, padRightMaxValue, padRightStep, padRightLabel, L.CFG_APPEARANCE_TEXT_PADDING_TOOLTIP);
 
 		-- Text Color
@@ -1392,7 +1391,7 @@ function MRBP_Settings_Register()
 				end
 			end
 
-			local menuTextFontLabel = L.CFG_APPEARANCE_FONT_SELECTION_TEXT..TEXT_DELIMITER..PARENS_TEMPLATE:format(L.SELECTION_PART_NUM_D);
+			local menuTextFontLabel = L.CFG_APPEARANCE_FONT_SELECTION_TEXT..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(L.SELECTION_PART_NUM_D);
 			-- Note:
 			-- As of now Blizzard only allows 1 variable per each setting control. (2024-08-17)
 			-- We need to register 4 variables for each control, but only the above variable holds the current font
@@ -1610,7 +1609,7 @@ end
 	-- MAXIMUM = "Maximum";
 	-- MINIMUM = "Minimum";
 
-GRAY(APPEARANCE_LABEL..TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AVAILABLE))
+GRAY(APPEARANCE_LABEL..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_AVAILABLE))
 
 	--> TODO - add more appearance settings (see below)
 	-- 	menuHighlightTexture

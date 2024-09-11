@@ -73,8 +73,7 @@ local WARNING_FONT_COLOR = WARNING_FONT_COLOR;
 local DARKGRAY_COLOR = DARKGRAY_COLOR;
 local LIGHTERBLUE_FONT_COLOR = LIGHTERBLUE_FONT_COLOR;
 
-local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
-local TEXT_DASH_SEPARATOR = TEXT_DELIMITER..QUEST_DASH..TEXT_DELIMITER;
+local TEXT_DASH_SEPARATOR = L.TEXT_DELIMITER..QUEST_DASH..L.TEXT_DELIMITER;
 local GENERIC_FRACTION_STRING = GENERIC_FRACTION_STRING;
 
 ----- Main ---------------------------------------------------------------------
@@ -906,7 +905,7 @@ local function MenuLine_OnEnter(...)
 				LocalTooltipUtil:AddIconLine(ExpansionTooltip, islandExpeditionInfo.name, islandExpeditionInfo.atlasName)
 				local appendedTextColor = islandExpeditionInfo.isCompleted and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
 				local appendedText = appendedTextColor:WrapTextInColorCode( PARENS_TEMPLATE:format(islandExpeditionInfo.fulfilledPercentageString) )
-				LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, islandExpeditionInfo.progressText..TEXT_DELIMITER..appendedText, islandExpeditionInfo.isCompleted)
+				LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, islandExpeditionInfo.progressText..L.TEXT_DELIMITER..appendedText, islandExpeditionInfo.isCompleted)
 			end
 		end
 	end
@@ -924,7 +923,7 @@ local function MenuLine_OnEnter(...)
 				if renownInfo.hasMaximumRenown then
 					-- Append max. level after covenant name
 					local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(renownInfo.currentRenownLevel)
-					lineText = lineText..TEXT_DELIMITER..DISABLED_FONT_COLOR:WrapTextInColorCode(PARENS_TEMPLATE:format(renownLevelText))
+					lineText = lineText..L.TEXT_DELIMITER..DISABLED_FONT_COLOR:WrapTextInColorCode(PARENS_TEMPLATE:format(renownLevelText))
 					progressText = COVENANT_SANCTUM_RENOWN_REWARD_TITLE_COMPLETE
 				end
 				LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, lineText, covenantInfo.atlasName, ns.settings.applyCovenantColors and covenantInfo.color, covenantInfo.isCompleted)
@@ -1777,7 +1776,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 									levelThreshold = paragonInfo.threshold;
 									reputationEarned = paragonInfo.hasRewardPending and value + paragonInfo.threshold or value;
 									local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING;
-									suffixText = TEXT_DELIMITER..bagIconString;
+									suffixText = L.TEXT_DELIMITER..bagIconString;
 								end
 								local reputationLevelText = GENERIC_FRACTION_STRING:format(reputationEarned, levelThreshold);
 								local lineText = format("%s: %s - %s", factionData.name, renownLevelText, HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(reputationLevelText));

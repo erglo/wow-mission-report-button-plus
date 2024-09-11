@@ -22,6 +22,8 @@
 local ns = select(2, ...)
 local L = ns.L
 
+----- Helper Functions -----
+
 L.currentLocale = GetLocale()
 
 L.IsEnglishLocale = function(self, locale)
@@ -38,7 +40,9 @@ L.StringIsEmpty = function(self, str)
 	return str == nil or strlen(str) == 0
 end
 
-local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
+----- Constants -----
+
+L.TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
 
 -- Warlords of Draenor
 L["showWoDMissionInfo"] = GARRISON_MISSIONS_TITLE
@@ -64,10 +68,10 @@ L["showBfAIslandExpeditionsInfo"] = ISLANDS_HEADER
 L["showCovenantMissionInfo"] = COVENANT_MISSIONS_TITLE
 L["showCovenantBounties"] = CALLINGS_QUESTS
 L["showMawThreats"] = L.ENTRYTOOLTIP_SL_MAW_THREATS_LABEL
-L["showCovenantRenownLevel"] = COVENANT_PROGRESS..TEXT_DELIMITER..PARENS_TEMPLATE:format(LANDING_PAGE_RENOWN_LABEL)
+L["showCovenantRenownLevel"] = COVENANT_PROGRESS..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(LANDING_PAGE_RENOWN_LABEL)
 L["applyCovenantColors"] = L.ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL
 -- Dragonflight
-L["showMajorFactionRenownLevel"] = MAJOR_FACTION_LIST_TITLE..TEXT_DELIMITER..PARENS_TEMPLATE:format(LANDING_PAGE_RENOWN_LABEL)
+L["showMajorFactionRenownLevel"] = MAJOR_FACTION_LIST_TITLE..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(LANDING_PAGE_RENOWN_LABEL)
 L["applyMajorFactionColors"] = L.ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL
 L["hideMajorFactionUnlockDescription"] = L.ENTRYTOOLTIP_DF_HIDE_MF_UNLOCK_DESCRIPTION_LABEL
 L["autoHideCompletedDragonGlyphZones"] = L.ENTRYTOOLTIP_DF_HIDE_DRAGON_GLYPHS_LABEL

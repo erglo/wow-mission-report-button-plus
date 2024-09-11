@@ -79,8 +79,6 @@ local YOU_COLLECTED_LABEL = YOU_COLLECTED_LABEL
 local PROFESSIONS_CURRENCY_AVAILABLE = PROFESSIONS_CURRENCY_AVAILABLE
 local DRAGON_RIDING_CURRENCY_TUTORIAL = DRAGON_RIDING_CURRENCY_TUTORIAL
 
-local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER
-
 -- Return given text in an optional font color (defaults to white) delimited by 1 space character.
 ---@param text string
 ---@param color table|nil  A color class (see <FrameXML/GlobalColors.lua>); defaults to TOOLTIP_TEXT_FONT_COLOR
@@ -88,7 +86,7 @@ local TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER
 --
 local function AppendColoredText(text, color)
     local FontColor = color or TOOLTIP_TEXT_FONT_COLOR
-    return TEXT_DELIMITER..FontColor:WrapTextInColorCode(text)
+    return L.TEXT_DELIMITER..FontColor:WrapTextInColorCode(text)
 end
 
 ----- LibQTip -----
@@ -135,7 +133,7 @@ function LocalTooltipUtil:AddIconLine(tooltip, text, icon, TextColor, ...)
 		return self:AddTextLine(tooltip, text, TextColor, ...)
 	end
 	local iconString = util.CreateInlineIcon(icon)
-	return self:AddTextLine(tooltip, iconString..TEXT_DELIMITER..text, TextColor, ...)
+	return self:AddTextLine(tooltip, iconString..L.TEXT_DELIMITER..text, TextColor, ...)
 end
 
 function LocalTooltipUtil:AddObjectiveLine(tooltip, text, completed, TextColor, ...)
@@ -143,7 +141,7 @@ function LocalTooltipUtil:AddObjectiveLine(tooltip, text, completed, TextColor, 
         return
     end
 	local iconString = completed and TOOLTIP_CHECK_MARK_ICON_STRING or TOOLTIP_DASH_ICON_STRING
-	return self:AddTextLine(tooltip, iconString..TEXT_DELIMITER..text, completed and DISABLED_FONT_COLOR or TextColor, ...)
+	return self:AddTextLine(tooltip, iconString..L.TEXT_DELIMITER..text, completed and DISABLED_FONT_COLOR or TextColor, ...)
 end
 
 function LocalTooltipUtil:AddAchievementLine(tooltip, text, icon, TextColor, completed, ...)
@@ -156,8 +154,8 @@ end
 
 function LocalTooltipUtil:AddTimeRemainingLine(tooltip, timeString, ...)
 	local text = timeString or RED_FONT_COLOR:WrapTextInColorCode(RETRIEVING_DATA)
-	local iconString = TOOLTIP_DASH_ICON_STRING..TEXT_DELIMITER..TOOLTIP_CLOCK_ICON_STRING
-	return self:AddTextLine(tooltip, iconString..TEXT_DELIMITER..text, ...)
+	local iconString = TOOLTIP_DASH_ICON_STRING..L.TEXT_DELIMITER..TOOLTIP_CLOCK_ICON_STRING
+	return self:AddTextLine(tooltip, iconString..L.TEXT_DELIMITER..text, ...)
 end
 
 ----- LibQTip - Cell Provider -----
@@ -309,13 +307,13 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 				local progressTextParens = AppendColoredText(PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
 
 				if not LocalMajorFactionInfo:IsFactionParagon(factionData.factionID) then
-					self:AddObjectiveLine(tooltip, levelText..TEXT_DELIMITER..progressTextParens) -- , nil, hasMaxRenown and DISABLED_FONT_COLOR)
+					self:AddObjectiveLine(tooltip, levelText..L.TEXT_DELIMITER..progressTextParens) -- , nil, hasMaxRenown and DISABLED_FONT_COLOR)
 				else
 					local paragonInfo = LocalMajorFactionInfo:GetFactionParagonInfo(factionData.factionID)
 					local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING
 					progressText = LocalMajorFactionInfo:GetFactionParagonProgressText(paragonInfo)
 					progressTextParens = AppendColoredText(PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
-					self:AddObjectiveLine(tooltip, levelText..TEXT_DELIMITER..progressTextParens..TEXT_DELIMITER..bagIconString, nil, DISABLED_FONT_COLOR)
+					self:AddObjectiveLine(tooltip, levelText..L.TEXT_DELIMITER..progressTextParens..L.TEXT_DELIMITER..bagIconString, nil, DISABLED_FONT_COLOR)
 
 					if paragonInfo.hasRewardPending then
 						local completionText = LocalMajorFactionInfo:GetParagonCompletionText(paragonInfo)
@@ -355,7 +353,7 @@ function LocalTooltipUtil:AddDragonGlyphLines(tooltip, expansionID)
 		local youCollectedAmountString = TRADESKILL_NAME_RANK:format(YOU_COLLECTED_LABEL, numGlyphsCollected, numGlyphsTotal)
 		local collectedAll = numGlyphsCollected == numGlyphsTotal
 		local lineColor = collectedAll and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
-		local lineSuffix = collectedAll and TEXT_DELIMITER..TOOLTIP_CHECK_MARK_ICON_STRING or ''
+		local lineSuffix = collectedAll and L.TEXT_DELIMITER..TOOLTIP_CHECK_MARK_ICON_STRING or ''
 		self:AddIconLine(tooltip, youCollectedAmountString..lineSuffix, treeCurrencyInfo.texture, lineColor)
 
 		if (treeCurrencyInfo.quantity > 0) then
@@ -423,7 +421,7 @@ function LocalTooltipUtil:AddBountyBoardLines(tooltip, garrisonInfo)
 				-- Shadowland bounties have a golden border around their icon; need special treatment.
 				-- REF.: CreateTextureMarkup(file, fileWidth, fileHeight, width, height, left, right, top, bottom, xOffset, yOffset)
 				local iconString = CreateTextureMarkup(bountyData.icon, 256, 256, 16, 16, 0.28, 0.74, 0.26, 0.72, 1, -1)
-				questName = iconString..TEXT_DELIMITER..questName
+				questName = iconString..L.TEXT_DELIMITER..questName
 			end
 			local bountyIcon = not isForShadowlands and bountyData.icon or nil
 			if bountyData.turninRequirementText then
@@ -433,7 +431,7 @@ function LocalTooltipUtil:AddBountyBoardLines(tooltip, garrisonInfo)
 				-- end
 			else
 				local complete = C_QuestLog.IsComplete(bountyData.questID)
-				questName = complete and questName..TEXT_DELIMITER..TOOLTIP_CHECK_MARK_ICON_STRING or questName
+				questName = complete and questName..L.TEXT_DELIMITER..TOOLTIP_CHECK_MARK_ICON_STRING or questName
 				self:AddIconLine(tooltip, questName, bountyIcon, complete and DISABLED_FONT_COLOR)
 				if complete then
 					self:AddObjectiveLine(tooltip, bountyBoard.isCompleteMessage)
@@ -457,7 +455,7 @@ function LocalTooltipUtil:AddDraenorTreasureLines(tooltip)
 		for mapName, poiCountsPerMap in pairs(draenorTreasuresAreaPoiInfos) do
 			self:AddIconLine(tooltip, mapName, "VignetteLoot", ORANGE_FONT_COLOR)
 			for poiName, poiCount in pairs(poiCountsPerMap) do
-				local lineName = poiName..TEXT_DELIMITER..NORMAL_FONT_COLOR:WrapTextInColorCode("x"..tostring(poiCount))
+				local lineName = poiName..L.TEXT_DELIMITER..NORMAL_FONT_COLOR:WrapTextInColorCode("x"..tostring(poiCount))
 				self:AddObjectiveLine(tooltip, lineName)
 			end
 		end
