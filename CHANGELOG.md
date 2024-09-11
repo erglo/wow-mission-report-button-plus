@@ -4,11 +4,40 @@ All notable changes to this project will be documented in this file (or linked t
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+* MenuTooltip: added optional highlight for the expansion line matching the player's current zone.
+* ExpansionTooltip: added a CheckBox to show or hide the expansion from the minimap button's menu.
+* ExpansionTooltip: added `Dragon Glyph details` for The War Within.
+* ExpansionTooltip: added `Major Faction details` for The War Within.
+* War Within: added unlocking requirement data.
+* [Issue #27] Minimap Button: added a feature request for a `dynamic minimap button`. After activating this option the minimap button will only be visible when hovering the mouse over the minimap and hidden otherwise. (Thanks go to [PepiSCZ](https://www.curseforge.com/members/pepiscz) for the suggestion.)
+* Minimap Button: added a `mouse click sound` when opening and closing the button's menu.
+* Minimap Button: added an optional `middle mouse click` which toggles the Skyriding Skill Tree as soon as Skyriding has been unlocked.
+
+### Changed
+
+* Minimap Button: Dragonflight and newer expansions won't stay unaccessible if an Alt unlocked it already.
+* Chat: updated chat notification for unlocking Skyriding in DF + TWW.
+* Chat: updated chat notification for unlocking a Major Faction.
+* Addon Compartment: updated tooltip with TWW details.
+* [Issue #29] Data: added support for `The War Within`.
+
+### Fixed
+
+* [Issue #30] Data (L10n): an error occurred when quitting the game was aborted outside a rested area. The clean-up process removed variables needed for looking-up eg. DF world event names.
+* Shadowlands: the Covenant Callings details tried to show up in the expansion details tooltip although the player doesn't have an active Covenant, yet.
+* Shadowlands: the Covenant icon didn't always load properly and showed the Kyrian fallback icon instead.
+* Minimap Button: the new-style button now remains shown even when entering older zones.
+* Minimap Button: clicking the currently shown landing page button on the Minimap now opens AND closes the corresponding Landing Page properly.
+
 ## [1.2.1] - 2024-08-17
 
 ### Fixed
 
-* Settings: an error occurred with the multiple font dropdown menus due to the most recent hotfix from Blizzard. As of now using only 1 variable for more than 1 setting control is no longer allowed. (Thanks go to [zaphon](https://github.com/zaphon) for the hyperlink to the Blizzard changes and the others for reporting this quickly.)
+* [Issue #28] Settings: an error occurred with the multiple font dropdown menus due to the most recent hotfix from Blizzard. As of now using only 1 variable for more than 1 setting control is no longer allowed. (Thanks go to [zaphon](https://github.com/zaphon) for the hyperlink to the Blizzard changes and the others for reporting this quickly.)
 
 ## [1.2.0] - 2024-08-14
 
@@ -17,12 +46,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * Updated TOC file version to `WoW 11.0.2`.
 * Settings: the settings frame can now be toggled from each source, eg. as slash command in chat, via right-click menu or addon compartment.
 * Settings: updated the tooltip for the Appearance shortcut button.
-* Settings: addressed some changes in the new game version.
+* [Issue #26] Settings: addressed some changes in the new game version.
 * Dragonflight: updated all World Map events.
 
 ### Fixed
 
-* Data: getting the Landing Page's garrison type can return empty values (nil) instead of zero (0) which caused an error.
+* [Issue #25] Data: getting the Landing Page's garrison type can return empty values (nil) instead of zero (0) which caused an error.
 * Addon Compartment: the click handler's argument types have been changed in the pre-expansion patch and couldn't be processed correctly.
 * ExpansionTooltip: fixed UI scaling of the expansion details tooltip.
 * World Map Events: not all events appeared in the tooltip, due to the changes made by Blizzard.
@@ -43,8 +72,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
-* The changes coming with the pre-patch version of the game caused UI errors. A big thanks goes to [justinkb](https://github.com/justinkb) for this quick fix.
-* Changes in spelling of some setting controls caused UI errors.
+* [PR #23] [Issue #24] The changes coming with the pre-patch version of the game caused UI errors. A big thanks goes to [justinkb](https://github.com/justinkb) for this quick fix.
+* Settings: Changes in spelling of some setting controls caused UI errors.
 
 ## [1.0.1] - 2024-03-27
 
