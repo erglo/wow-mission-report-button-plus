@@ -206,6 +206,16 @@ function ExpansionInfo:GetMinimumExpansionLevel()
 	return GetMinimumExpansionLevel();
 end
 
+function ExpansionInfo:GetAccountExpansionLevel()
+	return GetAccountExpansionLevel();
+end
+
+function ExpansionInfo:GetRealMaximumExpansionLevel()
+	local maxLevel = max(self:GetMaximumExpansionLevel(), self:GetAccountExpansionLevel(), GetClientDisplayExpansionLevel())  --, GetExpansionLevel(), GetServerExpansionLevel()
+
+	return maxLevel;
+end
+
 ----- Player Level Handler -----
 
 -- Return the maximal level the player can reach in the current expansion.
