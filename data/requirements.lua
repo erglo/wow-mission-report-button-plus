@@ -56,6 +56,7 @@ ns.RequirementInfo = LocalRequirementInfo;
 function LocalRequirementInfo:IsExpansionLandingPageUnlocked(landingPageTypeID)
     return GetCVarBitfield("unlockedExpansionLandingPages", landingPageTypeID);  --> Available since `10.0.2`
 end
+-- For testing only: SetCVarBitfield("unlockedExpansionLandingPages", 1, false)
 
 ----- Data -----
 

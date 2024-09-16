@@ -72,6 +72,17 @@ function LandingPageInfo:GetGarrisonInfo(garrisonTypeID)
     end
 end
 
+function LandingPageInfo:GetExpansionLandingPageInfo(landingPageTypeID)
+    self:CheckInitialize();
+    -- Look for garrison types only
+    local expansionList = ExpansionInfo:GetExpansionsWithLandingPage();
+    for _, expansion in ipairs(expansionList) do
+        if (expansion.ID >= ExpansionInfo.data.DRAGONFLIGHT.ID and expansion.landingPageTypeID == landingPageTypeID) then
+            return self[expansion.ID];
+        end
+    end
+end
+
 function LandingPageInfo:GetGarrisonInfoByFollowerType(followerTypeID, onlyGarrisonTypeID)
     self:CheckInitialize();
 
