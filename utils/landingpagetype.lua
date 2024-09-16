@@ -96,7 +96,7 @@ end
 
 -- Return the ID of the newest expansion with an unlocked Expansion Landing Page.
 function LocalLandingPageTypeUtil:GetMaximumUnlockedLandingPageExpansionID()
-	local maximumLevel = ExpansionInfo:GetMaximumExpansionLevel();
+	local maximumLevel = ExpansionInfo:GetRealMaximumExpansionLevel();
 	for maxExpansionID=maximumLevel, ExpansionInfo.data.DRAGONFLIGHT.ID, -1 do
 		local maxExpansionInfo = LandingPageInfo:GetLandingPageInfo(maxExpansionID);
 		if self:IsExpansionLandingPageTypeUnlocked(maxExpansionInfo.landingPageTypeID) then

@@ -1514,12 +1514,16 @@ function MRBP_RefreshExpansionOverlay(self)
 	-- print("Overlay update...", "LandingPageType:", ExpansionLandingPage:GetLandingPageType())
 
 	if newestOverlay then
+		-- Blizzard shows by default DF overlay in DF zones, TWW overlay in TWW zones, etc. This overwrites this
+		-- behavior in order to stick to the most latest (newest) unlocked expansion.
 		local newestUnlockedExpansionID = LocalLandingPageTypeUtil:GetMaximumUnlockedLandingPageExpansionID();
 		local landingPageInfo = LandingPageInfo:GetLandingPageInfo(newestUnlockedExpansionID);
-		local displayInfo = newestOverlay.GetMinimapDisplayInfo();
-		if displayInfo and displayInfo.expansionLandingPageType ~= landingPageInfo.landingPageTypeID then
-			-- print("> Overwriting newestOverlay...")
-			newestOverlay = landingPageOverlay[newestUnlockedExpansionID];
+		if landingPageInfo then
+			local displayInfo = newestOverlay.GetMinimapDisplayInfo();
+			if displayInfo and displayInfo.expansionLandingPageType ~= landingPageInfo.landingPageTypeID then
+				-- print("> Overwriting newestOverlay...")
+				newestOverlay = landingPageOverlay[newestUnlockedExpansionID];
+			end
 		end
 	end
 
