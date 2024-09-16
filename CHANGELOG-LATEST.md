@@ -1,15 +1,15 @@
 ## Latest Changes
 
-⚠️ **Note:** _This is a pre-release version and still in development._ ⚠️
-
-## [Unreleased]
+## [1.3.0] 2024-09-12
 
 ### Added
 
 * MenuTooltip: added optional highlight for the expansion line matching the player's current zone.
+* ExpansionTooltip: added a CheckBox to show or hide the expansion from the minimap button's menu.
 * ExpansionTooltip: added `Dragon Glyph details` for The War Within.
 * ExpansionTooltip: added `Major Faction details` for The War Within.
 * War Within: added unlocking requirement data.
+* [Issue #27] Minimap Button: added a feature request for a `dynamic minimap button`. After activating this option the minimap button will only be visible when hovering the mouse over the minimap and hidden otherwise. (Thanks go to [PepiSCZ](https://www.curseforge.com/members/pepiscz) for the suggestion.)
 * Minimap Button: added a `mouse click sound` when opening and closing the button's menu.
 * Minimap Button: added an optional `middle mouse click` which toggles the Skyriding Skill Tree as soon as Skyriding has been unlocked.
 
@@ -19,10 +19,11 @@
 * Chat: updated chat notification for unlocking Skyriding in DF + TWW.
 * Chat: updated chat notification for unlocking a Major Faction.
 * Addon Compartment: updated tooltip with TWW details.
+* [Issue #29] Data: added support for `The War Within`.
 
 ### Fixed
 
-* Data (L10n): an error occurred when quitting the game (outside a rested area) was aborted. The clean-up process removed variables needed for looking-up eg. DF world event names.
+* [Issue #30] Data (L10n): an error occurred when quitting the game was aborted outside a rested area. The clean-up process removed variables needed for looking-up eg. DF world event names.
 * Shadowlands: the Covenant Callings details tried to show up in the expansion details tooltip although the player doesn't have an active Covenant, yet.
 * Shadowlands: the Covenant icon didn't always load properly and showed the Kyrian fallback icon instead.
 * Minimap Button: the new-style button now remains shown even when entering older zones.

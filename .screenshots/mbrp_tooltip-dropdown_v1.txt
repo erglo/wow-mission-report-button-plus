@@ -1,0 +1,3 @@
+Button tooltip and right-click menu with expansion names
+
+Khaz Algar Summary minimap button with tooltip and the MRBP right-click menu.
