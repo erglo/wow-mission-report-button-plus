@@ -4,7 +4,14 @@ All notable changes to this project will be documented in this file (or linked t
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.0] 2024-09-12
+## [1.3.1] - 2024-09-17
+
+### Fixed
+
+* Minimap Button: when a new expansion summary is available, clicking the button didn't toggle the Landing Page frame.
+* [Issue #31] Data: sometimes when entering a new zone or logging-in an error occurred while retrieving the newest unlocked expansion data.
+
+## [1.3.0] - 2024-09-12
 
 ### Added
 

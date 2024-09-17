@@ -1,13 +1,11 @@
 ## Latest Changes
 
-⚠️ **Note:** _This is a pre-release version and still in development._ ⚠️
-
-## [Unreleased]
+## [1.3.1] - 2024-09-17
 
 ### Fixed
 
 * Minimap Button: when a new expansion summary is available, clicking the button didn't toggle the Landing Page frame.
-* Data: sometimes when entering a new zone or logging-in an error occurred while retrieving the newest unlocked expansion data.
+* [Issue #31] Data: sometimes when entering a new zone or logging-in an error occurred while retrieving the newest unlocked expansion data.
 
 &nbsp;
 
