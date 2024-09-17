@@ -15,9 +15,9 @@ Adds a right-click menu to the mission report button on the minimap (aka. [I]Gar
 [SIZE="2"][I]Minimap Landing Page Button[/I][/SIZE]
 [LIST]
 [*] adds a right-click menu to the minimap's expansion landing page button
-[*] displays the minimap button of the *previous* expansion as long as the current command table or expansion requirements haven't been unlocked
-[*] optionally shows or hides the minimap button itself permanently
-[*] clicking a menu entry opens the (read-only) Mission Report Frame of the corresponding expansion
+[*] displays the minimap button of the *previous* expansion as long as the latest expansion requirements haven't been unlocked
+[*] optionally shows or hides the minimap button itself permanently or optionally by hovering the minimap
+[*] clicking a menu entry opens the (read-only) Mission Report Frame of the corresponding expansion which gives you access to summaries and reports from anywhere!
 [/LIST]
 
 [SIZE="2"][I]Dropdown Menu[/I][/SIZE]
@@ -25,19 +25,20 @@ Adds a right-click menu to the mission report button on the minimap (aka. [I]Gar
 [*] see details about in-progress mission of each command table
 [*] see which bounties, threats and world map events of each expansion are currently active
 [*] expansions you (yet) don't own will be hidden in the menu
-[*] expansions without unlocked requirements (eg. a command table) will be displayed, but disabled
+[*] expansions without unlocked requirements (eg. a command table) will be displayed as disabled
     --> now optionally showing a hint on how to unlock it
+[*] expansions in relation to the current zone are optionally highlighted
 [*] WoD: get notified about Garrison Invasions
 [*] Legion: see details about Demon Invasions and Invasion Points
-[*] BfA: see details about Faction and N'Zoth Assaults as well as you Isle Expedition Azerite progress
+[*] BfA: see details about Faction and N'Zoth Assaults as well as your Isle Expedition Azerite progress
 [*] Shadowlands: see details about Covenant Assaults in The Maw as well as your Covenant Renown status
-[*] Dragonflight: see a summary of your Major Factions Renown status, collected Dragon Glyphs and many Dragon Isles events
+[*] Dragonflight + The War Within: see a summary of your Major Factions Renown status, collected Dragon Glyphs and many world map events
 [/LIST]
 
 [SIZE="2"][I]Chat[/I][/SIZE]
 [LIST]
-[*] get informed in-chat about finished missions, talents, WoD garrison invasions and buildings, etc.
-[*] chat messages are optionally and can be disabled in the settings
+[*] get informed in-chat about finished missions, talents, WoD garrison invasions and buildings
+[*] chat messages are optionally and can be de-/activated in the settings
 [/LIST]
 
 [SIZE="2"][I]Addon Compartment[/I][/SIZE]
@@ -56,7 +57,7 @@ Adds a right-click menu to the mission report button on the minimap (aka. [I]Gar
 [*] [B]many more to come...[/B]
 [/LIST]
 
-[I]If you want to see some examples of these features, go visit this addon's [URL="https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots"]screenshots page[/URL] on CurseForge.[/I]
+[I]If you would like to see some examples of these features, go visit this addon's [URL="https://www.curseforge.com/wow/addons/mission-report-button-plus/screenshots"]screenshots page[/URL] on CurseForge.[/I]
 
 __________________________________________________
 
@@ -88,8 +89,7 @@ __________________________________________________
 
 [SIZE="2"][B]Download sources[/B][/SIZE]
 
-[URL="https://www.curseforge.com/wow/addons/mission-report-button-plus"][IMG]https://camo.githubusercontent.com/48404c2885f4a76d04c9c5e2f48c90d572c49226b88e71577f6512cc74d95172/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2546302539462539342539372d4375727365466f7267652d663136343336[/IMG][/URL] [URL="https://addons.wago.io/addons/mission-report-button-plus"][IMG]https://camo.githubusercontent.com/7ed4c70d9f0c1d700b5b7fd1d18dc242e772e54f9efd3ad8f728de757e52b862/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2546302539462539342539372d5761676f2e696f2d633132373264[/IMG][/URL] [URL="https://www.wowinterface.com/downloads/info26583-MissionReportButtonPlus.html"][IMG]https://camo.githubusercontent.com/a112960875472813cbe1f296ec1bc65c78645abb09165af8d524500dc4a4a829/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2546302539462539342539372d576f57496e746572666163652d646138613030[/IMG][/URL] [URL="https://github.com/erglo/wow-mission-report-button-plus"][IMG]https://camo.githubusercontent.com/e0186baf731dff7487d43970c94fd54fbe0bb1d5709b182cbc1c7cb61f0db993/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f2546302539462539342539372d4769744875622d366537363831[/IMG][/URL]
-
+[URL="https://www.curseforge.com/wow/addons/mission-report-button-plus/files"][IMG]https://img.shields.io/badge/%F0%9F%94%97-CurseForge-f16436[/IMG][/URL] [URL="https://addons.wago.io/addons/mission-report-button-plus/versions"][IMG]https://img.shields.io/badge/%F0%9F%94%97-Wago.io-c1272d[/IMG][/URL] [URL="https://www.wowinterface.com/downloads/info26583-MissionReportButtonPlus.html"][IMG]https://img.shields.io/badge/%F0%9F%94%97-WoWInterface-da8a00[/IMG][/URL] [URL="https://github.com/erglo/wow-mission-report-button-plus"][IMG]https://img.shields.io/badge/%F0%9F%94%97-GitHub-6e7681[/IMG][/URL]
 
 [SIZE="2"][B]Install manually[/B][/SIZE]
 [LIST]
@@ -110,7 +110,7 @@ __________________________________________________
 [LIST]
 [*] [URL="https://www.wowinterface.com/forums/faq.php?faq=install"]WoWInterface - FAQ: Installing AddOns[/URL]
 [*] [URL="https://www.wowhead.com/guide/addons-how-to-install-and-maintain-1998"]Wowhead - AddOns: How to Install and Maintain[/URL]
-[*] [URL="https://wowpedia.fandom.com/wiki/AddOn#Installing_an_addon"]Wowpedia - Installing an addon[/URL]
+[*] [URL="https://warcraft.wiki.gg/wiki/AddOn#Installing_an_addon"]WarCraft Wiki - AddOn - Installing an addon[/URL]
 [/LIST]
 
 __________________________________________________
@@ -128,16 +128,17 @@ __________________________________________________
 [*] Thanks go to [URL="https://github.com/SpareSimian"]SpareSimian[/URL] and [URL="
 (https://github.com/erglo/wow-mission-report-button-plus/issues?q=is%3Aissue+is%3Aclosed"]others[/URL] for their awesome bug reports.
 [*] Thanks go to [URL="https://github.com/EKE00372"]EK (EKE00372)[/URL] for the `zhTW` and the `zhCN` localization.
-[*] Thanks go to [URL="https://github.com/justinkb"]justinkb[/URL] for the very [URL="https://github.com/erglo/wow-mission-report-button-plus/pull/16"]quick fix PR[/URL] for [URL="https://github.com/erglo/wow-mission-report-button-plus/issues/17"]issue #17[/URL].
+[*] Thanks go to [URL="https://github.com/justinkb"]justinkb[/URL] for the very [URL="https://github.com/erglo/wow-mission-report-button-plus/pull/16"]quick fix PR[/URL] for [URL="https://github.com/erglo/wow-mission-report-button-plus/issues/17"]issue #17[/URL] and [URL="https://github.com/erglo/wow-mission-report-button-plus/pull/23"]issue #23[/URL].
+[*] Thanks go to [URL="https://www.curseforge.com/members/pepiscz/projects"]PepiSCZ[/URL] for suggesting the [I]dynamic minimap button[/I].
 [/LIST]
 
 [SIZE="2"][B]Known Issues[/B][/SIZE]
 
 [LIST]
-[*] When opening the garrison landing page of Draenor with an *upgraded* character an recursion error occurs. The game expects a list with mission details but receives empty values instead. I will tend to this as soon as possible, but it seems to be a sever-side problem at first glance.
+[*] [FIXED] When opening the garrison landing page of Draenor with an *upgraded* character an recursion error occurs. The game expects a list with mission details but receives empty values instead. I will tend to this as soon as possible, but it seems to be a sever-side problem at first glance.
 [*] [FIXED] When using MRBP together with [B]cfxfox[/B]'s addon [URL="https://beta.curseforge.com/wow/addons/war-plan"]War Plan[/URL] the minimap button's right-click handler was overridden showing only War Plan's dropdown menu. This has been fixed.
 --> [I]In case of other addons doing something similar I added the slash command `hook`, which simply re-registers the MRBP's button hooks (tooltip + right-click menu).[/I]
-[*] As soon as you unlock a command table the minimap button doesn't update automatically. The addon gathers this information only once at startup in order to save memory. You need to reload the UI manually, eg. by typing `/reload` in the chat frame. Logging-out and -in again also works. I will tend to this as soon as possible.
+[*] [FIXED] As soon as you unlock a command table the minimap button doesn't update automatically. The addon gathers this information only once at startup in order to save memory. You need to reload the UI manually, eg. by typing `/reload` in the chat frame. Logging-out and -in again also works. I will tend to this as soon as possible.
 [/LIST]
 
 __________________________________________________
