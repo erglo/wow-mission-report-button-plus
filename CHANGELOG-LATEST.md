@@ -6,6 +6,7 @@
 
 ### Fixed
 
+* Minimap Button: when a new expansion summary is available, clicking the button didn't toggle the Landing Page frame.
 * Data: sometimes when entering a new zone or logging-in an error occurred while retrieving the newest unlocked expansion data.
 
 &nbsp;
