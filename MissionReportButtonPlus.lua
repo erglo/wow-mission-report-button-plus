@@ -334,7 +334,7 @@ end
 local function MRBP_ToggleLandingPageFrames(garrisonTypeID, landingPageTypeID)
 	-- Always (!) hide the GarrisonLandingPage; all visible UI widgets can only
 	-- be loaded properly on opening.
-	if LocalLandingPageTypeUtil:IsValidGarrisonType(garrisonTypeID) then
+	if not landingPageTypeID and LocalLandingPageTypeUtil:IsValidGarrisonType(garrisonTypeID) then
 		if (ExpansionLandingPage and ExpansionLandingPage:IsShown()) then
 			_log:debug("Hiding ExpansionLandingPage");
 			HideUIPanel(ExpansionLandingPage);
@@ -1565,6 +1565,8 @@ function MRBP_RefreshExpansionOverlay(self)
 
 		if self.overlay and self.overlay.TryCelebrateUnlock then
 			self.overlay:TryCelebrateUnlock();
+			-- Renew minimap button hook
+			ExpansionLandingPageMinimapButton:SetScript("OnClick", MRBP_OnClick);
 		end
 	end
 end
