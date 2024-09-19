@@ -23,7 +23,7 @@
 local AddonID, ns = ...;
 local L = ns.L;
 
-local LocalL10nUtil = ns.L10nUtil;  --> <data\labels.lua>
+local LocalL10nUtil = ns.L10nUtil;  --> <data\L10nUtils.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 
 -- Backwards compatibility

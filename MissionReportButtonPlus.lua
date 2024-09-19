@@ -46,7 +46,7 @@ local MenuTooltip, ExpansionTooltip, ReputationTooltip;
 local LocalLibQTipUtil = ns.utils.libqtip;
 local LocalTooltipUtil = ns.utilities.tooltip;
 
-local LocalL10nUtil = ns.L10nUtil;  --> <data\labels.lua>
+local LocalL10nUtil = ns.L10nUtil;  --> <data\L10nUtils.lua>
 local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
