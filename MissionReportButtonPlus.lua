@@ -1784,7 +1784,7 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 									local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING;
 									suffixText = L.TEXT_DELIMITER..bagIconString;
 								end
-								local reputationLevelText = GENERIC_FRACTION_STRING:format(reputationEarned, levelThreshold);
+								local reputationLevelText = L.REPUTATION_PROGRESS_FORMAT:format(reputationEarned, levelThreshold);
 								local lineText = format("%s: %s - %s", factionData.name, renownLevelText, HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(reputationLevelText));
 								local hasMaxRenown = LocalMajorFactionInfo:HasMaximumMajorFactionRenown(factionData.factionID);
 								util.GameTooltip_AddObjectiveLine(tooltip, lineText..suffixText, hasMaxRenown, wrapLine, leftOffset, factionAtlasName);

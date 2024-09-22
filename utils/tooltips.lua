@@ -68,8 +68,6 @@ local TOOLTIP_BAG_FULL_ICON_STRING = TOOLTIP_BAG_ICON_STRING..util.CreateInlineI
 
 ----- Strings -----
 
-local HEADER_COLON = HEADER_COLON
-local PARENS_TEMPLATE = PARENS_TEMPLATE
 local GENERIC_FRACTION_STRING = GENERIC_FRACTION_STRING
 local MAJOR_FACTION_BUTTON_RENOWN_LEVEL = MAJOR_FACTION_BUTTON_RENOWN_LEVEL
 local MAJOR_FACTION_BUTTON_FACTION_LOCKED = MAJOR_FACTION_BUTTON_FACTION_LOCKED
@@ -302,8 +300,8 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 			if factionData.isUnlocked then
 				-- Show current renown progress
 				local levelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel)
-				local progressText = GENERIC_FRACTION_STRING:format(factionData.renownReputationEarned, factionData.renownLevelThreshold)
-				local progressTextParens = AppendColoredText(PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
+				local progressText = L.REPUTATION_PROGRESS_FORMAT:format(factionData.renownReputationEarned, factionData.renownLevelThreshold)
+				local progressTextParens = AppendColoredText(L.PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
 
 				if not LocalMajorFactionInfo:IsFactionParagon(factionData.factionID) then
 					self:AddObjectiveLine(tooltip, levelText..L.TEXT_DELIMITER..progressTextParens) -- , nil, hasMaxRenown and DISABLED_FONT_COLOR)
@@ -311,7 +309,7 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 					local paragonInfo = LocalMajorFactionInfo:GetFactionParagonInfo(factionData.factionID)
 					local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING
 					progressText = LocalMajorFactionInfo:GetFactionParagonProgressText(paragonInfo)
-					progressTextParens = AppendColoredText(PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
+					progressTextParens = AppendColoredText(L.PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
 					self:AddObjectiveLine(tooltip, levelText..L.TEXT_DELIMITER..progressTextParens..L.TEXT_DELIMITER..bagIconString, nil, DISABLED_FONT_COLOR)
 
 					if paragonInfo.hasRewardPending then
@@ -339,7 +337,7 @@ function LocalTooltipUtil:AddDragonGlyphLines(tooltip, expansionID)
 		for mapName, count in pairs(glyphsPerZone) do
 			local isComplete = count.numComplete == count.numTotal
 			if not (isComplete and ShouldAutoHideCompletedDragonGlyphZones(expansionID)) then
-				local zoneName = mapName..HEADER_COLON
+				local zoneName = mapName..L.HEADER_COLON
 				local counterText = GENERIC_FRACTION_STRING:format(count.numComplete, count.numTotal)
 				local lineColor = isComplete and DISABLED_FONT_COLOR or NORMAL_FONT_COLOR
 				local resultsText = AppendColoredText(counterText, lineColor)

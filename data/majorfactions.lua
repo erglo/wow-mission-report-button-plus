@@ -155,7 +155,7 @@ function LocalMajorFactionInfo:GetFactionParagonProgressText(paragonInfo)
 		value = value + paragonInfo.threshold;
 	end
 
-	local progressText = GENERIC_FRACTION_STRING:format(value, paragonInfo.threshold);
+	local progressText = L.REPUTATION_PROGRESS_FORMAT:format(value, paragonInfo.threshold);
 
 	return progressText;
 end
