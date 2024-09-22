@@ -26,8 +26,9 @@ local L = ns.L
 
 local util = ns.utilities  --> <utils\mrbputils.lua>
 local ExpansionInfo = ns.ExpansionInfo  --> <data\expansion.lua>
-local LocalDragonridingUtil = ns.DragonridingUtil  --> <utils\dragonriding.lua>
+local LocalFactionInfo = ns.FactionInfo;  --> <data\factions.lua>
 local LocalMajorFactionInfo = ns.MajorFactionInfo;  --> <data\majorfactions.lua>
+local LocalDragonridingUtil = ns.DragonridingUtil  --> <utils\dragonriding.lua>
 
 local LocalTooltipUtil = {}  --> Handler from this file
 ns.utilities.tooltip = LocalTooltipUtil
@@ -303,10 +304,10 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 				local progressText = L.REPUTATION_PROGRESS_FORMAT:format(factionData.renownReputationEarned, factionData.renownLevelThreshold)
 				local progressTextParens = AppendColoredText(L.PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
 
-				if not LocalMajorFactionInfo:IsFactionParagon(factionData.factionID) then
+				if not LocalFactionInfo:IsFactionParagon(factionData.factionID) then
 					self:AddObjectiveLine(tooltip, levelText..L.TEXT_DELIMITER..progressTextParens) -- , nil, hasMaxRenown and DISABLED_FONT_COLOR)
 				else
-					local paragonInfo = LocalMajorFactionInfo:GetFactionParagonInfo(factionData.factionID)
+					local paragonInfo = LocalFactionInfo:GetFactionParagonInfo(factionData.factionID)
 					local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING
 					progressText = LocalMajorFactionInfo:GetFactionParagonProgressText(paragonInfo)
 					progressTextParens = AppendColoredText(L.PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)

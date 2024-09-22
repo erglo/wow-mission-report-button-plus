@@ -50,10 +50,11 @@ local LocalL10nUtil = ns.L10nUtil;  --> <data\L10nUtils.lua>
 local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
 local LandingPageInfo = ns.LandingPageInfo;  --> <data\landingpage.lua>
-local LocalDragonridingUtil = ns.DragonridingUtil;  --> <utils\dragonriding.lua> --> TODO - Rename to Skyriding
-local LocalLandingPageTypeUtil = ns.LandingPageTypeUtil;  --> <utils\landingpagetype.lua>
+local LocalFactionInfo = ns.FactionInfo;  --> <data\factions.lua>
 local LocalMajorFactionInfo = ns.MajorFactionInfo;  --> <data\majorfactions.lua>
 local LocalRequirementInfo = ns.RequirementInfo;  --> <data\requirements.lua>
+local LocalLandingPageTypeUtil = ns.LandingPageTypeUtil;  --> <utils\landingpagetype.lua>
+local LocalDragonridingUtil = ns.DragonridingUtil;  --> <utils\dragonriding.lua> --> TODO - Rename to Skyriding
 
 -- ns.poi9;  --> <utils\poi-9-dragonflight.lua>
 
@@ -1775,9 +1776,9 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 								local levelThreshold = factionData.renownLevelThreshold;
 								local reputationEarned = factionData.renownReputationEarned;
 								local suffixText = '';
-								local isParagon = LocalMajorFactionInfo:IsFactionParagon(factionData.factionID);
+								local isParagon = LocalFactionInfo:IsFactionParagon(factionData.factionID);
 								if isParagon then
-									local paragonInfo = LocalMajorFactionInfo:GetFactionParagonInfo(factionData.factionID);
+									local paragonInfo = LocalFactionInfo:GetFactionParagonInfo(factionData.factionID);
 									local value = mod(paragonInfo.currentValue, paragonInfo.threshold);
 									levelThreshold = paragonInfo.threshold;
 									reputationEarned = paragonInfo.hasRewardPending and value + paragonInfo.threshold or value;

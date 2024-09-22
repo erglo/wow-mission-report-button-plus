@@ -23,8 +23,6 @@
 -- + REF.: <FrameXML/Blizzard_APIDocumentationGenerated/MajorFactionsDocumentation.lua>  
 -- + REF.: <FrameXML/Blizzard_MajorFactions/Blizzard_MajorFactionRenown.lua>
 -- + REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_MajorFactions/Blizzard_MajorFactionsLandingTemplates.lua>
--- + REF.: <https://warcraft.wiki.gg/wiki/API_C_Reputation.IsFactionParagon>
--- + REF.: <https://warcraft.wiki.gg/wiki/API_C_Reputation.GetFactionParagonInfo>
 -- (see also the function comments section for more reference)
 -- 
 --------------------------------------------------------------------------------
@@ -34,11 +32,11 @@ local L = ns.L;
 
 -- Upvalues
 local C_MajorFactions = C_MajorFactions;
-local C_Reputation = C_Reputation;
 local GetQuestLogCompletionText = GetQuestLogCompletionText;
 local GetLogIndexForQuestID = C_QuestLog.GetLogIndexForQuestID;
 
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
+local LocalFactionInfo = ns.FactionInfo;  --> <data\factions.lua>
 
 --------------------------------------------------------------------------------
 
@@ -73,29 +71,6 @@ end
 -- Check if player has reached the maximum renown level for given major faction.
 function LocalMajorFactionInfo:HasMaximumMajorFactionRenown(currentFactionID)
 	return C_MajorFactions.HasMaximumRenown(currentFactionID);
-end
-
--- Check if given faction is/supports paragon reputation.
-function LocalMajorFactionInfo:IsFactionParagon(factionID)
-	return C_Reputation.IsFactionParagon(factionID);
-end
-
--- Return the wrapped paragon info for given faction.
-function LocalMajorFactionInfo:GetFactionParagonInfo(factionID)
-	local currentValue, threshold, rewardQuestID, hasRewardPending, tooLowLevelForParagon = C_Reputation.GetFactionParagonInfo(factionID);
-	---@class FactionParagonInfo
-	---@field currentValue number
-	---@field threshold number
-	---@field rewardQuestID number
-	---@field hasRewardPending boolean
-	---@field tooLowLevelForParagon boolean
-	return {
-		currentValue = currentValue,
-		threshold = threshold,
-		rewardQuestID = rewardQuestID,
-		hasRewardPending = hasRewardPending,
-		tooLowLevelForParagon = tooLowLevelForParagon,
-	};
 end
 
 ----- Helper Functions -----
@@ -182,8 +157,8 @@ function LocalMajorFactionInfo:HasMajorFactionReputationReward(expansionID)
 
 	for i, factionData in ipairs(majorFactionData) do
 		if factionData.isUnlocked then
-			if self:IsFactionParagon(factionData.factionID) then
-				local paragonInfo = self:GetFactionParagonInfo(factionData.factionID);
+			if LocalFactionInfo:IsFactionParagon(factionData.factionID) then
+				local paragonInfo = LocalFactionInfo:GetFactionParagonInfo(factionData.factionID);
 				if paragonInfo.hasRewardPending then
 					return true;
 				end
