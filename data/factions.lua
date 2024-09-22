@@ -103,9 +103,14 @@ end
 
 ----- Helper Functions -----
 
-local function IsSuitableFactionGroupForPlayer(unitFactionGroup)
-    return (unitFactionGroup == LocalFactionInfo.UnitFactionGroupID.Player or
-            unitFactionGroup == LocalFactionInfo.UnitFactionGroupID.Neutral);
+function LocalFactionInfo:HasMaximumReputation(factionData)
+    return factionData.reaction == MAX_REPUTATION_REACTION;  --> 8
+end
+
+-- REF.: [SharedColorConstants.lua](https://www.townlong-yak.com/framexml/live/Blizzard_SharedXML/SharedColorConstants.lua)
+-- 
+function LocalFactionInfo:GetFactionStandingColor(factionData)
+    return FACTION_BAR_COLORS[factionData.reaction];
 end
 
 -- Sorting
@@ -120,7 +125,7 @@ function LocalFactionInfo.SortAscendingByFactionName(dataA, dataB)
     return dataA.name < dataB.name;  --> A-Z
 end
 
------ Unit Faction Groups ------
+-- Unit Faction Groups
 
 LocalFactionInfo.PlayerFactionGroupID = UnitFactionGroup("player");
 
@@ -132,29 +137,32 @@ LocalFactionInfo.UnitFactionGroupID = EnumUtil.MakeEnum(
 );
 LocalFactionInfo.UnitFactionGroupID["Player"] = LocalFactionInfo.UnitFactionGroupID[LocalFactionInfo.PlayerFactionGroupID];
 
------ Data Handler -------------------------------------------------------------
+function LocalFactionInfo:IsSuitableFactionGroupForPlayer(unitFactionGroup)
+    return (unitFactionGroup == self.UnitFactionGroupID.Player or
+            unitFactionGroup == self.UnitFactionGroupID.Neutral);
+end
 
------ Draenor -----
+----- Data ---------------------------------------------------------------------
 
 LocalFactionInfo.FactionIDs = {
     [ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
         [LocalFactionInfo.UnitFactionGroupID.Alliance] = {
-            ["1731"] = "Council of Exarchs",
-            ["1710"] = "Sha'tari Defense",
-            ["1682"] = "Wrynn's Vanguard",
-            ["1847"] = "Hand of the Prophet",
+            ["1731"] = {englishName="Council of Exarchs",  icon=1048727},
+            ["1710"] = {englishName="Sha'tari Defense", icon=1042739},
+            ["1682"] = {englishName="Wrynn's Vanguard", icon=1042294},
+            ["1847"] = {englishName="Hand of the Prophet", icon=930038},
         },
         [LocalFactionInfo.UnitFactionGroupID.Horde] = {
-            ["1445"] = "Frostwolf Orcs",
-            ["1708"] = "Laughing Skull Orcs",
-            ["1681"] = "Vol'jin's Spear",
-            ["1848"] = "Vol'jin's Headhunters",
+            ["1445"] = {englishName="Frostwolf Orcs", icon=1044164},
+            ["1708"] = {englishName="Laughing Skull Orcs", icon=1043559},
+            ["1681"] = {englishName="Vol'jin's Spear", icon=1042727},
+            ["1848"] = {englishName="Vol'jin's Headhunters", icon=5197938},  -- Basic_B_01_fadedred 5197944
         },
         [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
-            ["1515"] = "Arakkoa Outcasts",
-            ["1711"] = "Steamwheedle Preservation Society",
-            ["1849"] = "Order of the Awakened",
-            ["1850"] = "The Saberstalkers",
+            ["1515"] = {englishName="Arakkoa Outcasts", icon=1042646},
+            ["1711"] = {englishName="Steamwheedle Preservation Society", icon=1052654},
+            ["1849"] = {englishName="Order of the Awakened", icon=1240656},
+            ["1850"] = {englishName="The Saberstalkers", icon=1240657},
         },
         --> TODO - Add "Barracks Bodyguards" ???
     },
@@ -169,16 +177,46 @@ function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, sortFunc)
     local factionIDs = self:GetExpansionFactionIDs(expansionID);
 
     for unitFactionGroup, expansionFactionIDs in pairs(factionIDs) do
-        if IsSuitableFactionGroupForPlayer(unitFactionGroup) then
-            for factionIDstring, fallbackName in pairs(expansionFactionIDs) do
-                tinsert(factionData, self:GetFactionDataByID(tonumber(factionIDstring)));
+        if self:IsSuitableFactionGroupForPlayer(unitFactionGroup) then
+            for factionIDstring, factionTbl in pairs(expansionFactionIDs) do
+                local faction = self:GetFactionDataByID(tonumber(factionIDstring));
+                faction.icon = factionTbl.icon
+                tinsert(factionData, faction);
             end
         end
     end
 
-    table.sort(factionData, sortFunc or LocalFactionInfo.SortAscendingByFactionName);
+    table.sort(factionData, sortFunc or self.SortAscendingByFactionName);
 
     return factionData;
+end
+
+----- Formatting -----
+
+-- Retrieve the player's current reputation standing with given faction as text.
+function LocalFactionInfo:GetFactionReputationStandingText(factionData)
+    local gender = PlayerInfo:GetPlayerSex();
+    local reputationStandingText = L:GetText("FACTION_STANDING_LABEL" .. factionData.reaction, gender);
+
+    return reputationStandingText;
+end
+
+-- Build a generic reputation progress string from given faction data and return it.
+function LocalFactionInfo:GetFactionReputationProgressText(factionData)
+    local minValue, maxValue, currentValue;
+    local isCapped = self:HasMaximumReputation(factionData);
+
+    if isCapped then
+        minValue, maxValue, currentValue = 0, factionData.nextReactionThreshold, factionData.currentStanding;
+    else
+        minValue, maxValue, currentValue = factionData.currentReactionThreshold, factionData.nextReactionThreshold, factionData.currentStanding;
+        maxValue = maxValue - minValue;
+        currentValue = currentValue - minValue;
+    end
+
+    local reputationProgressText = L.REPUTATION_PROGRESS_FORMAT:format(BreakUpLargeNumbers(currentValue), BreakUpLargeNumbers(maxValue));
+
+    return reputationProgressText;
 end
 
 --@do-not-package@
@@ -192,38 +230,17 @@ end
 -- end
 
 -- function TestFactions()
---     -- local expansionList = ExpansionInfo:GetExpansionsWithLandingPage();
---     -- for _, expansion in ipairs(expansionList) do
---     --     if expansion.ID < ExpansionInfo.data.DRAGONFLIGHT.ID then
---     --         -- TODO
---     --     end
---     -- end
 --     print(ExpansionInfo.data.WARLORDS_OF_DRAENOR.name)
 
---     local factionDataList = LocalFactionInfo:GetAllFactionDataForExpansion(ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID);
+--     local factionData = LocalFactionInfo:GetAllFactionDataForExpansion(ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID);
 
---     for i, faction in ipairs(factionDataList) do
---         -- Draenor Reputation: InitializeBarForStandardReputation
---         local isCapped = faction.reaction == MAX_REPUTATION_REACTION;  --> 8
---         local minValue, maxValue, currentValue;
---         if isCapped then
---             -- Max rank, make it look like a full bar
---             minValue, maxValue, currentValue = 0, faction.nextReactionThreshold, faction.currentStanding;
---         else
---             minValue, maxValue, currentValue = faction.currentReactionThreshold, faction.nextReactionThreshold, faction.currentStanding;
---             maxValue = maxValue - minValue;
--- 	        currentValue = currentValue - minValue;
---         end
---         -- minValue, maxValue, currentValue = NormalizeBarValues(minValue, maxValue, currentValue);
+--     for i, faction in ipairs(factionData) do
+--         local reputationProgressText = LocalFactionInfo:GetFactionReputationProgressText(faction);
+--         local reputationStandingText = LocalFactionInfo:GetFactionReputationStandingText(faction);
 
---         -- local reputationString = "("..currentValue.." / "..maxValue..")";
---         local reputationValuesString = L.REPUTATION_PROGRESS_FORMAT:format(BreakUpLargeNumbers(currentValue), BreakUpLargeNumbers(maxValue));
---         local gender = PlayerInfo:GetPlayerSex();
-
---         local reputationStandingText = L.GetText("FACTION_STANDING_LABEL" .. faction.reaction, gender);
 --         print("-", i, faction.factionID, faction.name);
---         -- print("-->", faction.atWarWith, faction.isChild, faction.hasBonusRepGain, reputationString);
---         print("-->", reputationStandingText, L.PARENS_TEMPLATE:format(reputationValuesString));  --, C_Reputation.IsFactionActive());
+--         -- print("-->", faction.atWarWith, faction.isChild, faction.hasBonusRepGain);
+--         print("-->", reputationStandingText, L.PARENS_TEMPLATE:format(reputationProgressText));
 --     end
 -- end
 --@end-do-not-package@
