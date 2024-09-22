@@ -22,6 +22,20 @@
 local ns = select(2, ...)
 local L = ns.L
 
+----- Wrapper -----
+
+-- Return localized text depending on the specified gender.
+---@param token number  Reputation index
+---@param gender number  Gender ID
+---@param ordinal any
+---@return string localizedText
+-- 
+-- REF.: [API_GetText](https://warcraft.wiki.gg/wiki/API_GetText)
+-- 
+function L:GetText(token, gender, ordinal)
+    return GetText(token, gender, ordinal)
+end
+
 ----- Helper Functions -----
 
 L.currentLocale = GetLocale()
@@ -42,7 +56,13 @@ end
 
 ----- Constants -----
 
-L.TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER;
+L.TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER
+L.PARENS_TEMPLATE = PARENS_TEMPLATE
+L.HEADER_COLON = HEADER_COLON
+L.NEWLINE = "|n"
+L.NEW_PARAGRAPH = "|n|n"
+
+----- Labels -----
 
 -- Warlords of Draenor
 L["showWoDMissionInfo"] = GARRISON_MISSIONS_TITLE
@@ -270,7 +290,7 @@ ns.L10nUtil = LocalL10nUtil
 function LocalL10nUtil:InitializeLabels()
     -- Initialize global variable
     if (MRBP_GlobalSettings == nil) then
-        MRBP_GlobalSettings = {};
+        MRBP_GlobalSettings = {}
     end
     if not MRBP_GlobalSettings.labels then
         MRBP_GlobalSettings.labels = {}
