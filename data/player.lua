@@ -132,3 +132,9 @@ function PlayerInfo:GetCovenantData(key)
     end
     return covenantData;
 end
+
+----- Gender -----
+
+function PlayerInfo:GetPlayerSex()
+    return UnitSex("player");
+end
