@@ -463,6 +463,21 @@ end
 
 ----- Faction Reputation -----
 
+function LocalTooltipUtil:AddStandardReputationLine(tooltip, factionData)
+	local hasMaxReputation = LocalFactionInfo:HasMaximumReputation(factionData)
+
+	local standingText = LocalFactionInfo:GetFactionReputationStandingText(factionData)
+	local StandingColor = hasMaxReputation and DISABLED_FONT_COLOR or LocalFactionInfo:GetFactionStandingColor(factionData)
+
+	local progressText = LocalFactionInfo:GetFactionReputationProgressText(factionData)
+	local ProgressColor = hasMaxReputation and DISABLED_FONT_COLOR or TOOLTIP_TEXT_FONT_COLOR
+	local progressTextParens = AppendColoredText(L.PARENS_TEMPLATE:format(progressText), ProgressColor)
+
+	local lineText = (hasMaxReputation and standingText..L.TEXT_DELIMITER..L.PARENS_TEMPLATE:format(CAPPED) or  -- MAXIMUM
+					  standingText..L.TEXT_DELIMITER..progressTextParens)
+	self:AddObjectiveLine(tooltip, lineText, hasMaxReputation, StandingColor)
+end
+
 function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
     local factionData = LocalFactionInfo:GetAllFactionDataForExpansion(expansionInfo.ID)
 	if (#factionData == 0) then return end
@@ -478,20 +493,22 @@ function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
 		-- local ExpansionColor = _G["EXPANSION_COLOR_"..expansionInfo.ID]
 		-- self:AddTextLine(tooltip, faction.name, ExpansionColor)
 		self:AddIconLine(tooltip, faction.name, faction.icon > 0 and faction.icon)  --, LIGHTYELLOW_FONT_COLOR)
-
-		local hasMaxReputation = LocalFactionInfo:HasMaximumReputation(faction)
-
-        local standingText = LocalFactionInfo:GetFactionReputationStandingText(faction)
-        local StandingColor = hasMaxReputation and DISABLED_FONT_COLOR or LocalFactionInfo:GetFactionStandingColor(faction)
-
-        local progressText = LocalFactionInfo:GetFactionReputationProgressText(faction)
-		local ProgressColor = hasMaxReputation and DISABLED_FONT_COLOR or TOOLTIP_TEXT_FONT_COLOR
-		local progressTextParens = AppendColoredText(L.PARENS_TEMPLATE:format(progressText), ProgressColor)
-
-		local lineText = (hasMaxReputation and standingText..L.TEXT_DELIMITER..L.PARENS_TEMPLATE:format(CAPPED) or  -- MAXIMUM
-						  standingText..L.TEXT_DELIMITER..progressTextParens)
-		self:AddObjectiveLine(tooltip, lineText, hasMaxReputation, StandingColor)
+		self:AddStandardReputationLine(tooltip, faction)
     end
+
+	-- Warlords of Draenor only
+	if (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID and ns.settings.showBarracksBodyguardsReputation) then
+		local isBonusFaction = true
+		local bonusFactionData = LocalFactionInfo:GetAllFactionDataForExpansion(expansionInfo.ID, isBonusFaction)
+		if (#bonusFactionData == 0) then return end
+
+		self:AddHeaderLine(tooltip, L["showBarracksBodyguardsReputation"])
+		-- Body
+		for i, bonusFaction in ipairs(bonusFactionData) do
+			self:AddIconLine(tooltip, bonusFaction.name, bonusFaction.icon)
+			self:AddStandardReputationLine(tooltip, bonusFaction)
+		end
+	end
 end
 
 --------------------------------------------------------------------------------

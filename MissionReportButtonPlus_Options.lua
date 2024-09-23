@@ -146,6 +146,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	-- Warlords of Draenor
 	["showExpansion5"] = true,
 	["showFactionReputation5"] = true,
+	["showBarracksBodyguardsReputation"] = true,
 	["separateFactionTooltip5"] = true,
 	["showWoDMissionInfo"] = true,
 	["showWoDGarrisonInvasionAlert"] = true,
@@ -792,6 +793,12 @@ ExpansionTooltipSettings[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
 		name = L["showFactionReputation5"],
 		tooltip = L.CFG_FACTION_REPUTATION_TOOLTIP_S:format(LIGHT_GRAY(ExpansionInfo.data.WARLORDS_OF_DRAENOR.name)),
 		tag = Settings.Default.True,
+	},
+	{
+		variable = "showBarracksBodyguardsReputation",
+		name = L["showBarracksBodyguardsReputation"],
+		tooltip = L.CFG_FACTION_REPUTATION_BARRACKS_BODYGUARDS_TOOLTIP,
+		parentVariable = "showFactionReputation5",
 	},
 	{
 		variable = "separateFactionTooltip5",

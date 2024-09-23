@@ -22,6 +22,8 @@
 local ns = select(2, ...)
 local L = ns.L
 
+local GetFactionDataByID = C_Reputation.GetFactionDataByID
+
 ----- Wrapper -----
 
 -- Return localized text depending on the specified gender.
@@ -54,6 +56,14 @@ L.StringIsEmpty = function(self, str)
 	return str == nil or strlen(str) == 0
 end
 
+local function GetBarracksBodyguardsLabel()
+    local factionCategoryID = 1735;
+    local factionData = GetFactionDataByID(factionCategoryID);
+
+    local fallbackName = "Barracks Bodyguards";
+    return factionData and factionData.name or fallbackName;
+end
+
 ----- Constants -----
 
 L.TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER
@@ -71,7 +81,8 @@ L["showWoDGarrisonInvasionAlert"] = GARRISON_LANDING_INVASION
 L["showWoDWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL              --> TODO - Replace in locale files and remove from this file
 L["showWoDTimewalkingVendor"] = L.ENTRYTOOLTIP_TIMEWALKING_VENDOR_LABEL
 L["showDraenorTreasures"] = LOOT_NOUN
-L["showFactionReputation5"] = REPUTATION  -- FACTION..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION_ABBR)
+L["showFactionReputation5"] = MAJOR_FACTION_LIST_TITLE..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION)
+L["showBarracksBodyguardsReputation"] = GetBarracksBodyguardsLabel()..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION)
 -- Legion
 L["showLegionMissionInfo"] = GARRISON_MISSIONS
 L["showLegionBounties"] = BOUNTY_BOARD_LOCKED_TITLE

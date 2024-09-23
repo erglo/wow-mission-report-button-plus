@@ -114,6 +114,7 @@ ns.L = {
 	CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT = "Separater Tooltip",
 	CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TOOLTIP = "Zeigt den Fortschritt eures Ruhms bei den Hauptfraktionen in einem separaten Tooltip an.",
 	CFG_FACTION_REPUTATION_TOOLTIP_S = "Zeigt den Fortschritt eures Rufes bei den Fraktionen von %s an.",
+	CFG_FACTION_REPUTATION_BARRACKS_BODYGUARDS_TOOLTIP = "Zeigt den Fortschritt eures Rufes bei den Kasernenleibwächtern an.",
 	CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP = "Zeigt den Fortschritt eures Rufes in einem separaten Tooltip an.",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP = "Zeigt kompakte Details zur Verfügbarkeit %s im Tooltip an.",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_LEGION_INVASION = "der Angriffe der Legion auf die Verheerten Inseln",

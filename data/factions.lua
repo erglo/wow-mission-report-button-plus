@@ -119,7 +119,7 @@ function LocalFactionInfo.SortAscendingByFactionID(dataA, dataB)
     return dataA.factionID < dataB.factionID;  --> 0-9
 end
 
--- REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_SharedXML/SortUtil.lua>
+-- REF.: [SortUtil.lua](https://www.townlong-yak.com/framexml/live/Blizzard_SharedXML/SortUtil.lua)
 function LocalFactionInfo.SortAscendingByFactionName(dataA, dataB)
     -- return SortUtil.CompareUtf8i(dataA.name, dataB.name);  --> A-Z
     return dataA.name < dataB.name;  --> A-Z
@@ -144,43 +144,81 @@ end
 
 ----- Data ---------------------------------------------------------------------
 
-LocalFactionInfo.FactionIDs = {
+local FACTION_ID_LIST = {
     [ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
         [LocalFactionInfo.UnitFactionGroupID.Alliance] = {
-            ["1731"] = {englishName="Council of Exarchs",  icon=1048727},
-            ["1710"] = {englishName="Sha'tari Defense", icon=1042739},
-            ["1682"] = {englishName="Wrynn's Vanguard", icon=1042294},
-            ["1847"] = {englishName="Hand of the Prophet", icon=930038},
+            ["1731"] = {englishName="Council of Exarchs",  icon=1048727},       -- achievementID=9470
+            ["1710"] = {englishName="Sha'tari Defense", icon=1042739},          -- achievementID=9476
+            ["1682"] = {englishName="Wrynn's Vanguard", icon=1042294},          -- achievementID=9214 (PvP)
+            ["1847"] = {englishName="Hand of the Prophet", icon=930038},        -- Tanaan Diplomat, achievementID=10350
         },
         [LocalFactionInfo.UnitFactionGroupID.Horde] = {
-            ["1445"] = {englishName="Frostwolf Orcs", icon=1044164},
-            ["1708"] = {englishName="Laughing Skull Orcs", icon=1043559},
-            ["1681"] = {englishName="Vol'jin's Spear", icon=1042727},
-            ["1848"] = {englishName="Vol'jin's Headhunters", icon=5197938},  -- Basic_B_01_fadedred 5197944
+            ["1445"] = {englishName="Frostwolf Orcs", icon=1044164},            -- achievementID=9471
+            ["1708"] = {englishName="Laughing Skull Orcs", icon=1043559},       -- achievementID=9475
+            ["1681"] = {englishName="Vol'jin's Spear", icon=1042727},           -- achievementID=9215 (PvP)
+            ["1848"] = {englishName="Vol'jin's Headhunters", icon=5197938},     -- Tanaan Diplomat, achievementID=10349 (Horde), 10350 (Alliance)
         },
         [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
-            ["1515"] = {englishName="Arakkoa Outcasts", icon=1042646},
-            ["1711"] = {englishName="Steamwheedle Preservation Society", icon=1052654},
-            ["1849"] = {englishName="Order of the Awakened", icon=1240656},
-            ["1850"] = {englishName="The Saberstalkers", icon=1240657},
+            ["1515"] = {englishName="Arakkoa Outcasts", icon=1042646},          -- achievementID=9469
+            ["1711"] = {englishName="Steamwheedle Preservation Society", icon=1052654},  -- achievementID=9472
+            ["1849"] = {englishName="Order of the Awakened", icon=1240656},     -- Tanaan Diplomat, achievementID=10349 (Horde), 10350 (Alliance)
+            ["1850"] = {englishName="The Saberstalkers", icon=1240657},         -- Tanaan Diplomat, achievementID=10349 (Horde), 10350 (Alliance)
         },
         --> TODO - Add "Barracks Bodyguards" ???
     },
 };
 
-function LocalFactionInfo:GetExpansionFactionIDs(expansionID)
-    return self.FactionIDs[expansionID]
+local BONUS_FACTION_ID_LIST = {
+    [ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {                             -- achievementID=9499
+        [LocalFactionInfo.UnitFactionGroupID.Alliance] = {
+            ["1733"] = {englishName="Delvar Ironfist", icon=236685, iconTemplate="Interface/Icons/Achievement_Reputation_0"},  -- eg. "Interface/Icons/Achievement_Reputation_06" (236686)
+            ["1738"] = {englishName="Defender Illona", icon=236685, iconTemplate="Interface/Icons/Achievement_Reputation_0"},
+        },
+        [LocalFactionInfo.UnitFactionGroupID.Horde] = {
+            ["1739"] = {englishName="Vivianne", icon=236687, iconTemplate="Interface/Icons/Achievement_Reputation_0"},
+            ["1740"] = {englishName="Aeda Brightdawn", icon=236687, iconTemplate="Interface/Icons/Achievement_Reputation_0"},
+        },
+        [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
+            ["1736"] = {englishName="Tormmok", icon=236688, iconTemplate="Interface/Icons/Achievement_Reputation_0"},
+            ["1737"] = {englishName="Talonpriest Ishaal", icon=236688, iconTemplate="Interface/Icons/Achievement_Reputation_0"},
+            ["1741"] = {englishName="Leorajh", icon=236688, iconTemplate="Interface/Icons/Achievement_Reputation_0"},
+        },
+    },
+};
+
+-- REF.: [ArtTextureID.lua](https://www.townlong-yak.com/framexml/live/Helix/ArtTextureID.lua)
+local BONUS_FACTION_STANDING_ICON_LIST = {
+    [1] = 236681,  --> "Interface/Icons/Achievement_Reputation_01"
+	[2] = 236682,  --> "Interface/Icons/Achievement_Reputation_02"
+	[3] = 236683,  --> "Interface/Icons/Achievement_Reputation_03"
+	[4] = 236684,  --> "Interface/Icons/Achievement_Reputation_04"
+	[5] = 236685,  --> "Interface/Icons/Achievement_Reputation_05"
+	[6] = 236686,  --> "Interface/Icons/Achievement_Reputation_06"
+	[7] = 236687,  --> "Interface/Icons/Achievement_Reputation_07"
+	[8] = 236688,  --> "Interface/Icons/Achievement_Reputation_08"
+};
+
+local function GetBonusFactionStandingIcon(factionData)
+    return BONUS_FACTION_STANDING_ICON_LIST[factionData.reaction];
 end
 
-function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, sortFunc)
+function LocalFactionInfo:GetExpansionFactionIDs(expansionID)
+    return FACTION_ID_LIST[expansionID];
+end
+
+function LocalFactionInfo:GetExpansionBonusFactionIDs(expansionID)
+    return BONUS_FACTION_ID_LIST[expansionID];
+end
+
+function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, isBonusFaction, sortFunc)
     local factionData = {};
-    local factionIDs = self:GetExpansionFactionIDs(expansionID);
+    local factionIDs = isBonusFaction and self:GetExpansionBonusFactionIDs(expansionID) or self:GetExpansionFactionIDs(expansionID);
 
     for unitFactionGroup, expansionFactionIDs in pairs(factionIDs) do
         if self:IsSuitableFactionGroupForPlayer(unitFactionGroup) then
             for factionIDstring, factionTbl in pairs(expansionFactionIDs) do
                 local faction = self:GetFactionDataByID(tonumber(factionIDstring));
-                faction.icon = factionTbl.icon
+                faction.icon = isBonusFaction and GetBonusFactionStandingIcon(faction) or factionTbl.icon;
                 tinsert(factionData, faction);
             end
         end
