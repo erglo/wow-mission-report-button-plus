@@ -471,7 +471,7 @@ function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
 	if (tooltip.key == ShortAddonID.."LibQTipReputationTooltip") then
 		self:AddHeaderLine(tooltip, expansionInfo.name, nil, true)
 	end
-	self:AddHeaderLine(tooltip, REPUTATION)										--> TODO - Check L10n
+	self:AddHeaderLine(tooltip, L["showFactionReputation"..tostring(expansionInfo.ID)])
 
 	-- Body
     for i, faction in ipairs(factionData) do

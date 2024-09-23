@@ -789,9 +789,15 @@ local ExpansionTooltipSettings = {};
 ExpansionTooltipSettings[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
 	{
 		variable = "showFactionReputation5",
-		name = L["showFactionReputation5"],										--> TODO - L10n
-		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_RENOWN_TOOLTIP,
+		name = L["showFactionReputation5"],
+		tooltip = L.CFG_FACTION_REPUTATION_TOOLTIP_S:format(LIGHT_GRAY(ExpansionInfo.data.WARLORDS_OF_DRAENOR.name)),
 		tag = Settings.Default.True,
+	},
+	{
+		variable = "separateFactionTooltip5",
+		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
+		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
+		parentVariable = "showFactionReputation5",
 	},
 	{
 		variable = "showWoDMissionInfo",
@@ -1231,6 +1237,9 @@ function MRBP_Settings_Register()
 			end
 			local expansionButtonInitializer = CreateSettingsButtonInitializer('', expansionInfo.name, OnExpansionButtonClick, '', addSearchTags);
 			mainLayout:AddInitializer(expansionButtonInitializer);
+			if (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) then
+				expansionButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
+			end
 		end
 	end
 
