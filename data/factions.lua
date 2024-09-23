@@ -101,7 +101,7 @@ function LocalFactionInfo:GetFactionParagonInfo(factionID)
 	};
 end
 
------ Helper Functions -----
+----- Helper Functions ---------------------------------------------------------
 
 function LocalFactionInfo:HasMaximumReputation(factionData)
     return factionData.reaction == MAX_REPUTATION_REACTION;  --> 8
@@ -113,7 +113,7 @@ function LocalFactionInfo:GetFactionStandingColor(factionData)
     return FACTION_BAR_COLORS[factionData.reaction];
 end
 
--- Sorting
+----- Sorting -----
 
 function LocalFactionInfo.SortAscendingByFactionID(dataA, dataB)
     return dataA.factionID < dataB.factionID;  --> 0-9
@@ -125,7 +125,7 @@ function LocalFactionInfo.SortAscendingByFactionName(dataA, dataB)
     return dataA.name < dataB.name;  --> A-Z
 end
 
--- Unit Faction Groups
+----- Unit Faction Groups -----
 
 LocalFactionInfo.PlayerFactionGroupID = UnitFactionGroup("player");
 LocalFactionInfo.PlayerFactionGroupColor = PLAYER_FACTION_COLORS[PLAYER_FACTION_GROUP[LocalFactionInfo.PlayerFactionGroupID]];
@@ -142,6 +142,31 @@ LocalFactionInfo.UnitFactionGroupID["Player"] = LocalFactionInfo.UnitFactionGrou
 function LocalFactionInfo:IsSuitableFactionGroupForPlayer(unitFactionGroup)
     return (unitFactionGroup == self.UnitFactionGroupID.Player or
             unitFactionGroup == self.UnitFactionGroupID.Neutral);
+end
+
+----- Reputation Type -----
+
+LocalFactionInfo.ReputationType = EnumUtil.MakeEnum(
+	"Standard",
+	"Friendship",
+	"MajorFaction"
+);
+
+-- Determine the given faction's reputation type.
+function LocalFactionInfo:GetReputationType(factionData)
+	if not factionData then return; end
+
+	local friendshipData = C_GossipInfo.GetFriendshipReputation(factionData.factionID);
+	local isFriendshipReputation = friendshipData and friendshipData.friendshipFactionID > 0;
+	if isFriendshipReputation then
+		return self.ReputationType.Friendship;
+	end
+
+	if C_Reputation.IsMajorFaction(factionData.factionID) then
+		return self.ReputationType.MajorFaction;
+	end
+
+	return self.ReputationType.Standard;
 end
 
 ----- Data ---------------------------------------------------------------------
@@ -221,6 +246,7 @@ function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, isBonusFact
             for factionIDstring, factionTbl in pairs(expansionFactionIDs) do
                 local faction = self:GetFactionDataByID(tonumber(factionIDstring));
                 faction.icon = isBonusFaction and GetBonusFactionStandingIcon(faction) or factionTbl.icon;
+                faction.reputationType = LocalFactionInfo:GetReputationType(faction);
                 faction.isPVP = factionTbl.isPVP;
                 tinsert(factionData, faction);
             end
