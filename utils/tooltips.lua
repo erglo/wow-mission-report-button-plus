@@ -488,7 +488,8 @@ function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
 		local ProgressColor = hasMaxReputation and DISABLED_FONT_COLOR or TOOLTIP_TEXT_FONT_COLOR
 		local progressTextParens = AppendColoredText(L.PARENS_TEMPLATE:format(progressText), ProgressColor)
 
-		local lineText = hasMaxReputation and standingText or standingText..L.TEXT_DELIMITER..progressTextParens
+		local lineText = (hasMaxReputation and standingText..L.TEXT_DELIMITER..L.PARENS_TEMPLATE:format(CAPPED) or  -- MAXIMUM
+						  standingText..L.TEXT_DELIMITER..progressTextParens)
 		self:AddObjectiveLine(tooltip, lineText, hasMaxReputation, StandingColor)
     end
 end
