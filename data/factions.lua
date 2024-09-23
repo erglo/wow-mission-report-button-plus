@@ -37,6 +37,7 @@ local L = ns.L;
 -- Upvalues
 local C_Reputation = C_Reputation;
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
+local HasMajorFactionMaximumRenown = C_MajorFactions.HasMaximumRenown;
 
 local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
@@ -111,6 +112,19 @@ end
 ----- Helper Functions ---------------------------------------------------------
 
 function LocalFactionInfo:HasMaximumReputation(factionData)
+    if self:IsFactionParagon(factionData.factionID) then return; end
+
+    if (factionData.reputationType == self.ReputationType.Friendship) then
+        local friendshipData = C_GossipInfo.GetFriendshipReputation(factionData.factionID);
+    	if (friendshipData and friendshipData.friendshipFactionID > 0) then
+    		local repRankInfo = C_GossipInfo.GetFriendshipReputationRanks(factionData.factionID);
+    		return repRankInfo.currentLevel == repRankInfo.maxLevel;
+    	end
+    end
+    if (factionData.reputationType == self.ReputationType.MajorFaction) then
+        return HasMajorFactionMaximumRenown(factionData.factionID);
+    end
+    -- ReputationType.Standard
     return factionData.reaction == MAX_REPUTATION_REACTION;  --> 8
 end
 
