@@ -461,4 +461,36 @@ function LocalTooltipUtil:AddDraenorTreasureLines(tooltip)
 	end
 end
 
+----- Faction Reputation -----
+
+function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
+    local factionData = LocalFactionInfo:GetAllFactionDataForExpansion(expansionInfo.ID)
+	if (#factionData == 0) then return end
+
+	-- Header
+	if (tooltip.key == ShortAddonID.."LibQTipReputationTooltip") then
+		self:AddHeaderLine(tooltip, expansionInfo.name, nil, true)
+	end
+	self:AddHeaderLine(tooltip, REPUTATION)										--> TODO - Check L10n
+
+	-- Body
+    for i, faction in ipairs(factionData) do
+		-- local ExpansionColor = _G["EXPANSION_COLOR_"..expansionInfo.ID]
+		-- self:AddTextLine(tooltip, faction.name, ExpansionColor)
+		self:AddIconLine(tooltip, faction.name, faction.icon > 0 and faction.icon)  --, LIGHTYELLOW_FONT_COLOR)
+
+		local hasMaxReputation = LocalFactionInfo:HasMaximumReputation(faction)
+
+        local standingText = LocalFactionInfo:GetFactionReputationStandingText(faction)
+        local StandingColor = hasMaxReputation and DISABLED_FONT_COLOR or LocalFactionInfo:GetFactionStandingColor(faction)
+
+        local progressText = LocalFactionInfo:GetFactionReputationProgressText(faction)
+		local ProgressColor = hasMaxReputation and DISABLED_FONT_COLOR or TOOLTIP_TEXT_FONT_COLOR
+		local progressTextParens = AppendColoredText(L.PARENS_TEMPLATE:format(progressText), ProgressColor)
+
+		local lineText = hasMaxReputation and standingText or standingText..L.TEXT_DELIMITER..progressTextParens
+		self:AddObjectiveLine(tooltip, lineText, hasMaxReputation, StandingColor)
+    end
+end
+
 --------------------------------------------------------------------------------

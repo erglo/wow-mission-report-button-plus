@@ -816,6 +816,8 @@ local function MenuLine_OnEnter(...)
 		if (ns.settings.showWoDWorldMapEvents and ns.settings.showDraenorTreasures) then
 			LocalTooltipUtil:AddDraenorTreasureLines(ExpansionTooltip)
 		end
+		-- Reputation
+		LocalTooltipUtil:AddFactionReputationLines(ReputationTooltip, expansionInfo)
 	end
 
 	----- Bounty board infos (Legion + BfA + Shadowlands only) -----
