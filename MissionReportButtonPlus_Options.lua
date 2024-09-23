@@ -145,6 +145,8 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showLegionTimewalkingVendor"] = true,
 	-- Warlords of Draenor
 	["showExpansion5"] = true,
+	["showFactionReputation5"] = true,
+	["separateFactionTooltip5"] = true,
 	["showWoDMissionInfo"] = true,
 	["showWoDGarrisonInvasionAlert"] = true,
 	["hideWoDGarrisonInvasionAlertIcon"] = false,
@@ -251,6 +253,11 @@ local function printOption(text, isEnabled)
 	end
 	ns.cprint(text, "-", NORMAL_FONT_COLOR:WrapTextInColorCode(msg));
 end
+
+local function IsExpansionOptionSet(varNamePrefix, expansionID)
+	return ns.settings[varNamePrefix..tostring(expansionID)];
+end
+ns.IsExpansionOptionSet = IsExpansionOptionSet;
 
 ----- Control utilities --------------------------------------------------------
 
@@ -694,7 +701,6 @@ local function CreateMenuTooltipSettings(category, layout)
 			variable = "highlightCurrentZone",
 			name = L.CFG_DDMENU_HIGHLIGHT_CURRENT_ZONE_TEXT,
 			tooltip = L.CFG_DDMENU_HIGHLIGHT_CURRENT_ZONE_TOOLTIP,
-			tag = Settings.Default.True,
 		},
 	};
 
@@ -743,7 +749,7 @@ local function CreateMenuEntriesSelection(category, layout)
 			name = ownsExpansion and expansion.name or DISABLED_FONT_COLOR:WrapTextInColorCode(expansion.name),
 			tooltip = ns.settingsMenuEntry ~= tostring(expansion.ID) and getMenuEntryTooltip(expansion.ID, ownsExpansion),
 			modifyPredicate = function() return ownsExpansion end;
-			tag = (expansion.ID == ExpansionInfo.data.WAR_WITHIN.ID) and Settings.Default.True or Settings.Default.False,
+			-- tag = (expansion.ID == ExpansionInfo.data.WAR_WITHIN.ID) and Settings.Default.True or Settings.Default.False,
 		});
 	end
 
@@ -781,6 +787,12 @@ end
 local ExpansionTooltipSettings = {};
 
 ExpansionTooltipSettings[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
+	{
+		variable = "showFactionReputation5",
+		name = L["showFactionReputation5"],										--> TODO - L10n
+		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_RENOWN_TOOLTIP,
+		tag = Settings.Default.True,
+	},
 	{
 		variable = "showWoDMissionInfo",
 		name = L["showWoDMissionInfo"],
@@ -1058,7 +1070,6 @@ ExpansionTooltipSettings[ExpansionInfo.data.WAR_WITHIN.ID] = {
 		variable = "showMajorFactionRenownLevel10",
 		name = L["showMajorFactionRenownLevel"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAJOR_FACTION_RENOWN_TOOLTIP,
-		tag = Settings.Default.True,
 	},
 	{
 		variable = "applyMajorFactionColors10",
@@ -1082,7 +1093,6 @@ ExpansionTooltipSettings[ExpansionInfo.data.WAR_WITHIN.ID] = {
 		variable = "showDragonGlyphs10",
 		name = L["showDragonGlyphs"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_DRAGON_GLYPHS_TOOLTIP,
-		tag = Settings.Default.True,
 	},
 	{
 		variable = "autoHideCompletedDragonGlyphZones10",
@@ -1152,14 +1162,12 @@ function MRBP_Settings_Register()
 			name = L.CFG_MINIMAPBUTTON_MOUSE_OVER_MINIMAP_MODE_TEXT,
 			tooltip = L.CFG_MINIMAPBUTTON_MOUSE_OVER_MINIMAP_MODE_TOOLTIP,
 			parentVariable = "showMinimapButton",
-			tag = Settings.Default.True,
 		},
 		{
 			variable = "useMiddleButton",
 			name = L.CFG_MINIMAPBUTTON_USE_MIDDLE_BUTTON_TEXT,
 			tooltip = L.CFG_MINIMAPBUTTON_USE_MIDDLE_BUTTON_TOOLTIP,
 			parentVariable = "showMinimapButton",
-			tag = Settings.Default.True,
 		},
 		-- {
 		-- 	variable = "useSingleExpansionLandingPageType",						--> TODO - L10n
@@ -1223,9 +1231,6 @@ function MRBP_Settings_Register()
 			end
 			local expansionButtonInitializer = CreateSettingsButtonInitializer('', expansionInfo.name, OnExpansionButtonClick, '', addSearchTags);
 			mainLayout:AddInitializer(expansionButtonInitializer);
-			if (expansionInfo.ID == ExpansionInfo.data.WAR_WITHIN.ID) then
-				expansionButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
-			end
 		end
 	end
 
@@ -1280,7 +1285,6 @@ function MRBP_Settings_Register()
 						tooltip = L.CFG_DDMENU_SHOW_EXPANSION_ENTRY_TOOLTIP_S:format(expansionTooltipName),
 						modifyPredicate = function() return ExpansionInfo:DoesPlayerOwnExpansion(expansionInfo.ID); end,
 						onValueChanged = cbOnValueChangedCallback,
-						tag = Settings.Default.True,
 					},
 				};
 				CheckBox_CreateFromList(expansionCategory, cbShowHide);

@@ -817,7 +817,10 @@ local function MenuLine_OnEnter(...)
 			LocalTooltipUtil:AddDraenorTreasureLines(ExpansionTooltip)
 		end
 		-- Reputation
-		LocalTooltipUtil:AddFactionReputationLines(ReputationTooltip, expansionInfo)
+		if ns.IsExpansionOptionSet("showFactionReputation", expansionInfo.ID) then
+			local tooltip = ns.IsExpansionOptionSet("separateFactionTooltip", expansionInfo.ID) and ReputationTooltip or ExpansionTooltip
+			LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
+		end
 	end
 
 	----- Bounty board infos (Legion + BfA + Shadowlands only) -----

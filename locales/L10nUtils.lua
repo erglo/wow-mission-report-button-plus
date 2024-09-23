@@ -71,6 +71,7 @@ L["showWoDGarrisonInvasionAlert"] = GARRISON_LANDING_INVASION
 L["showWoDWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL              --> TODO - Replace in locale files and remove from this file
 L["showWoDTimewalkingVendor"] = L.ENTRYTOOLTIP_TIMEWALKING_VENDOR_LABEL
 L["showDraenorTreasures"] = LOOT_NOUN
+L["showFactionReputation5"] = REPUTATION  -- FACTION..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION_ABBR)
 -- Legion
 L["showLegionMissionInfo"] = GARRISON_MISSIONS
 L["showLegionBounties"] = BOUNTY_BOARD_LOCKED_TITLE
