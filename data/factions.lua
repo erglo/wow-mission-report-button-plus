@@ -128,6 +128,8 @@ end
 -- Unit Faction Groups
 
 LocalFactionInfo.PlayerFactionGroupID = UnitFactionGroup("player");
+LocalFactionInfo.PlayerFactionGroupColor = PLAYER_FACTION_COLORS[PLAYER_FACTION_GROUP[LocalFactionInfo.PlayerFactionGroupID]];
+LocalFactionInfo.PlayerFactionGroupAtlas = LocalFactionInfo.PlayerFactionGroupID == "Horde" and "questlog-questtypeicon-horde" or "questlog-questtypeicon-alliance"
 
 -- {Alliance=1, Horde=2, Neutral=3, Player=1|2}
 LocalFactionInfo.UnitFactionGroupID = EnumUtil.MakeEnum(
@@ -149,13 +151,13 @@ local FACTION_ID_LIST = {
         [LocalFactionInfo.UnitFactionGroupID.Alliance] = {
             ["1731"] = {englishName="Council of Exarchs",  icon=1048727},       -- achievementID=9470
             ["1710"] = {englishName="Sha'tari Defense", icon=1042739},          -- achievementID=9476
-            ["1682"] = {englishName="Wrynn's Vanguard", icon=1042294},          -- achievementID=9214 (PvP)
+            ["1682"] = {englishName="Wrynn's Vanguard", icon=1042294, isPVP=true},  -- achievementID=9214 (PvP)
             ["1847"] = {englishName="Hand of the Prophet", icon=930038},        -- Tanaan Diplomat, achievementID=10350
         },
         [LocalFactionInfo.UnitFactionGroupID.Horde] = {
             ["1445"] = {englishName="Frostwolf Orcs", icon=1044164},            -- achievementID=9471
             ["1708"] = {englishName="Laughing Skull Orcs", icon=1043559},       -- achievementID=9475
-            ["1681"] = {englishName="Vol'jin's Spear", icon=1042727},           -- achievementID=9215 (PvP)
+            ["1681"] = {englishName="Vol'jin's Spear", icon=1042727, isPVP=true},  -- achievementID=9215 (PvP)
             ["1848"] = {englishName="Vol'jin's Headhunters", icon=5197938},     -- Tanaan Diplomat, achievementID=10349 (Horde), 10350 (Alliance)
         },
         [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
@@ -219,6 +221,7 @@ function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, isBonusFact
             for factionIDstring, factionTbl in pairs(expansionFactionIDs) do
                 local faction = self:GetFactionDataByID(tonumber(factionIDstring));
                 faction.icon = isBonusFaction and GetBonusFactionStandingIcon(faction) or factionTbl.icon;
+                faction.isPVP = factionTbl.isPVP;
                 tinsert(factionData, faction);
             end
         end
