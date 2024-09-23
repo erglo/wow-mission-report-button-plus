@@ -470,6 +470,18 @@ end
 
 ----- Faction Reputation -----
 
+local function TryHighlightWatchedFaction(tooltip, lineIndex, factionData)
+	local watchedFactionData = LocalFactionInfo:GetWatchedFactionData()
+	if not watchedFactionData or watchedFactionData.factionID == 0 then return; end
+
+	if (watchedFactionData.factionID == factionData.factionID) then
+		-- Highlight both lines, faction name + faction progress
+		local r, g, b, a = FRIENDS_GRAY_COLOR:GetRGBA()
+		tooltip:SetLineColor(lineIndex-1, r, g, b, 0.6)
+		tooltip:SetLineColor(lineIndex, r, g, b, 0.6)
+	end
+end
+
 function LocalTooltipUtil:AddStandardReputationLine(tooltip, factionData)
 	local hasMaxReputation = LocalFactionInfo:HasMaximumReputation(factionData)
 
@@ -482,7 +494,10 @@ function LocalTooltipUtil:AddStandardReputationLine(tooltip, factionData)
 
 	local lineText = (hasMaxReputation and standingText..L.TEXT_DELIMITER..L.PARENS_TEMPLATE:format(CAPPED) or  -- MAXIMUM
 					  standingText..L.TEXT_DELIMITER..progressTextParens)
-	self:AddObjectiveLine(tooltip, lineText, hasMaxReputation, StandingColor)
+	local lineIndex, columnIndex = self:AddObjectiveLine(tooltip, lineText, hasMaxReputation, StandingColor)
+	TryHighlightWatchedFaction(tooltip, lineIndex, factionData)
+
+	return lineIndex, columnIndex
 end
 
 function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
@@ -497,7 +512,7 @@ function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
 
 	-- Body
     for i, faction in ipairs(factionData) do
-		-- local ExpansionColor = _G["EXPANSION_COLOR_"..expansionInfo.ID]
+		-- local ExpansionColor = _G["EXPANSION_COLOR_"..expansionInfo.ID]		--> TODO - Currently not valid color, re-check from time to time
 		-- self:AddTextLine(tooltip, faction.name, ExpansionColor)
 		local lineText = faction.isPVP and faction.name..AppendColoredPvPIconText() or faction.name
 		self:AddIconLine(tooltip, lineText, faction.icon)  --, LIGHTYELLOW_FONT_COLOR)

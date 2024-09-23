@@ -101,6 +101,13 @@ function LocalFactionInfo:GetFactionParagonInfo(factionID)
 	};
 end
 
+-- Retrieve the data of the currently watched faction.
+---@return FactionData? watchedFactionData
+--
+function LocalFactionInfo:GetWatchedFactionData()
+    return C_Reputation.GetWatchedFactionData();
+end
+
 ----- Helper Functions ---------------------------------------------------------
 
 function LocalFactionInfo:HasMaximumReputation(factionData)
