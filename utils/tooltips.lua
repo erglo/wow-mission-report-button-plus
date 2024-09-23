@@ -26,8 +26,8 @@ local L = ns.L
 
 local util = ns.utilities  --> <utils\mrbputils.lua>
 local ExpansionInfo = ns.ExpansionInfo  --> <data\expansion.lua>
-local LocalFactionInfo = ns.FactionInfo;  --> <data\factions.lua>
-local LocalMajorFactionInfo = ns.MajorFactionInfo;  --> <data\majorfactions.lua>
+local LocalFactionInfo = ns.FactionInfo  --> <data\factions.lua>
+local LocalMajorFactionInfo = ns.MajorFactionInfo  --> <data\majorfactions.lua>
 local LocalDragonridingUtil = ns.DragonridingUtil  --> <utils\dragonriding.lua>
 
 local LocalTooltipUtil = {}  --> Handler from this file
@@ -286,45 +286,46 @@ end
 -- Requires expansionInfo, eg. ExpansionInfo.data.DRAGONFLIGHT
 function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 	local majorFactionData = LocalMajorFactionInfo:GetAllMajorFactionDataForExpansion(expansionInfo.ID)
-	if (#majorFactionData > 0) then
-		if (tooltip.key == ShortAddonID.."LibQTipReputationTooltip") then
-			-- self:AddHeaderLine(tooltip, L["showMajorFactionRenownLevel"], nil, true)
-			self:AddHeaderLine(tooltip, expansionInfo.name, nil, true)
-		end
-		self:AddHeaderLine(tooltip, L["showMajorFactionRenownLevel"])
+	if (#majorFactionData == 0) then return end
 
-		for _, factionData in ipairs(majorFactionData) do
-			local factionIcon = GetMajorFactionIcon(factionData)
-			local FactionColor = ShouldApplyFactionColors(expansionInfo.ID) and LocalMajorFactionInfo:GetMajorFactionColor(factionData) or TOOLTIP_TEXT_FONT_COLOR
-			self:AddIconLine(tooltip, factionData.name, factionIcon, FactionColor)
+	-- Header
+	if (tooltip.key == ShortAddonID.."LibQTipReputationTooltip") then
+		self:AddHeaderLine(tooltip, expansionInfo.name, nil, true)
+	end
+	self:AddHeaderLine(tooltip, L["showMajorFactionRenownLevel"])
 
-			if factionData.isUnlocked then
-				-- Show current renown progress
-				local levelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel)
-				local progressText = L.REPUTATION_PROGRESS_FORMAT:format(factionData.renownReputationEarned, factionData.renownLevelThreshold)
-				local progressTextParens = AppendColoredText(L.PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
+	-- Body
+	for _, factionData in ipairs(majorFactionData) do
+		local factionIcon = GetMajorFactionIcon(factionData)
+		local FactionColor = ShouldApplyFactionColors(expansionInfo.ID) and LocalMajorFactionInfo:GetMajorFactionColor(factionData) or TOOLTIP_TEXT_FONT_COLOR
+		self:AddIconLine(tooltip, factionData.name, factionIcon, FactionColor)
 
-				if not LocalFactionInfo:IsFactionParagon(factionData.factionID) then
-					self:AddObjectiveLine(tooltip, levelText..L.TEXT_DELIMITER..progressTextParens) -- , nil, hasMaxRenown and DISABLED_FONT_COLOR)
-				else
-					local paragonInfo = LocalFactionInfo:GetFactionParagonInfo(factionData.factionID)
-					local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING
-					progressText = LocalMajorFactionInfo:GetFactionParagonProgressText(paragonInfo)
-					progressTextParens = AppendColoredText(L.PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
-					self:AddObjectiveLine(tooltip, levelText..L.TEXT_DELIMITER..progressTextParens..L.TEXT_DELIMITER..bagIconString, nil, DISABLED_FONT_COLOR)
+		if factionData.isUnlocked then
+			-- Show current renown progress
+			local levelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel)
+			local progressText = L.REPUTATION_PROGRESS_FORMAT:format(factionData.renownReputationEarned, factionData.renownLevelThreshold)
+			local progressTextParens = AppendColoredText(L.PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
 
-					if paragonInfo.hasRewardPending then
-						local completionText = LocalMajorFactionInfo:GetParagonCompletionText(paragonInfo)
-						self:AddObjectiveLine(tooltip, completionText)
-					end
-				end
+			if not LocalFactionInfo:IsFactionParagon(factionData.factionID) then
+				self:AddObjectiveLine(tooltip, levelText..L.TEXT_DELIMITER..progressTextParens) -- , nil, hasMaxRenown and DISABLED_FONT_COLOR)
 			else
-				-- Major Faction is not unlocked, yet :(
-				self:AddObjectiveLine(tooltip, MAJOR_FACTION_BUTTON_FACTION_LOCKED, nil, DISABLED_FONT_COLOR)
+				local paragonInfo = LocalFactionInfo:GetFactionParagonInfo(factionData.factionID)
+				local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING
+				progressText = LocalMajorFactionInfo:GetFactionParagonProgressText(paragonInfo)
+				progressTextParens = AppendColoredText(L.PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
+				self:AddObjectiveLine(tooltip, levelText..L.TEXT_DELIMITER..progressTextParens..L.TEXT_DELIMITER..bagIconString, nil, DISABLED_FONT_COLOR)
 
-				if not ShouldHideMajorFactionUnlockDescription(expansionInfo.ID) then
-					self:AddObjectiveLine(tooltip, factionData.unlockDescription, nil, DISABLED_FONT_COLOR)
+				if paragonInfo.hasRewardPending then
+					local completionText = LocalMajorFactionInfo:GetParagonCompletionText(paragonInfo)
+					self:AddObjectiveLine(tooltip, completionText)
 				end
+			end
+		else
+			-- Major Faction is not unlocked, yet :(
+			self:AddObjectiveLine(tooltip, MAJOR_FACTION_BUTTON_FACTION_LOCKED, nil, DISABLED_FONT_COLOR)
+
+			if not ShouldHideMajorFactionUnlockDescription(expansionInfo.ID) then
+				self:AddObjectiveLine(tooltip, factionData.unlockDescription, nil, DISABLED_FONT_COLOR)
 			end
 		end
 	end
