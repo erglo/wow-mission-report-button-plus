@@ -283,10 +283,21 @@ end
 
 -- Retrieve the player's current reputation standing with given faction as text.
 function LocalFactionInfo:GetFactionReputationStandingText(factionData)
-    local gender = PlayerInfo:GetPlayerSex();
-    local reputationStandingText = L:GetText("FACTION_STANDING_LABEL" .. factionData.reaction, gender);
+    if (factionData.reputationType == self.ReputationType.Standard) then
+        local gender = PlayerInfo:GetPlayerSex();
+        local reputationStandingText = L:GetText("FACTION_STANDING_LABEL" .. factionData.reaction, gender);
+        return reputationStandingText;
+    end
+    if (factionData.reputationType == self.ReputationType.Friendship) then
+        local friendshipData = C_GossipInfo.GetFriendshipReputation(factionData.factionID);
+        return friendshipData and friendshipData.reaction or '';
+    end
+    if (factionData.reputationType == self.ReputationType.MajorFaction) then
+        local majorFactionData = C_MajorFactions.GetMajorFactionData(factionData.factionID);
+        return majorFactionData and L.RENOWN_LEVEL_LABEL..L.TEXT_DELIMITER..majorFactionData.renownLevel;
+    end
 
-    return reputationStandingText;
+    return L.UNKNOWN;
 end
 
 -- Build a generic reputation progress string from given faction data and return it.
