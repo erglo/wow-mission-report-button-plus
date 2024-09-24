@@ -821,6 +821,10 @@ local function MenuLine_OnEnter(...)
 			local tooltip = ns.IsExpansionOptionSet("separateFactionTooltip", expansionInfo.ID) and ReputationTooltip or ExpansionTooltip
 			LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
 		end
+		if ns.settings.showBarracksBodyguardsReputation then
+			local tooltip = ns.IsExpansionOptionSet("separateBonusFactionTooltip", expansionInfo.ID) and ReputationTooltip or ExpansionTooltip
+			LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)
+		end
 	end
 
 	----- Bounty board infos (Legion + BfA + Shadowlands only) -----

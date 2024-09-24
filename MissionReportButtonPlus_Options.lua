@@ -146,8 +146,9 @@ ns.defaultSettings = {  --> default + fallback settings
 	-- Warlords of Draenor
 	["showExpansion5"] = true,
 	["showFactionReputation5"] = true,
-	["showBarracksBodyguardsReputation"] = true,
 	["separateFactionTooltip5"] = true,
+	["showBarracksBodyguardsReputation"] = true,
+	["separateBonusFactionTooltip5"] = true,
 	["showWoDMissionInfo"] = true,
 	["showWoDGarrisonInvasionAlert"] = true,
 	["hideWoDGarrisonInvasionAlertIcon"] = false,
@@ -795,16 +796,22 @@ ExpansionTooltipSettings[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
 		tag = Settings.Default.True,
 	},
 	{
-		variable = "showBarracksBodyguardsReputation",
-		name = L["showBarracksBodyguardsReputation"],
-		tooltip = L.CFG_FACTION_REPUTATION_BARRACKS_BODYGUARDS_TOOLTIP,
-		parentVariable = "showFactionReputation5",
-	},
-	{
 		variable = "separateFactionTooltip5",
 		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
 		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
 		parentVariable = "showFactionReputation5",
+	},
+	{
+		variable = "showBarracksBodyguardsReputation",
+		name = L["showBarracksBodyguardsReputation"],
+		tooltip = L.CFG_FACTION_REPUTATION_BARRACKS_BODYGUARDS_TOOLTIP,
+		tag = Settings.Default.True,
+	},
+	{
+		variable = "separateBonusFactionTooltip5",
+		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
+		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
+		parentVariable = "showBarracksBodyguardsReputation",
 	},
 	{
 		variable = "showWoDMissionInfo",

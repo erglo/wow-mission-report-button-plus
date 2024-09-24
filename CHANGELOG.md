@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * Minimap Button: Dragonflight and newer expansions won't stay unaccessible if an Alt unlocked it already.
 * Chat: updated chat notification for unlocking Skyriding in DF + TWW.
 * Chat: updated chat notification for unlocking a Major Faction.
+* L10n: updated locale files.
 * Addon Compartment: updated tooltip with TWW details.
 * [Issue #29] Data: added support for `The War Within`.
 

@@ -6,9 +6,12 @@
 
 ### Added
 
+* Warlords of Draenor: added optional `Barracks Bodyguards` faction reputation details.
 * Warlords of Draenor: added optional `faction reputation` details.
 
-&nbsp;
+### Changed
+
+* L10n: updated locale files.
 
 ## Previous Changes
 

@@ -510,15 +510,16 @@ function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
 		self:AddIconLine(tooltip, faction.name, faction.icon)  --, LIGHTYELLOW_FONT_COLOR)
 		self:AddStandardReputationLine(tooltip, faction)
     end
+end
 
-	-- Warlords of Draenor only
+function LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)
+	local isBonusFaction = true
+	local bonusFactionData = LocalFactionInfo:GetAllFactionDataForExpansion(expansionInfo.ID, isBonusFaction)
+	if (#bonusFactionData == 0) then return; end
+
+ 	-- Warlords of Draenor only
 	if (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID and ns.settings.showBarracksBodyguardsReputation) then
-		local isBonusFaction = true
-		local bonusFactionData = LocalFactionInfo:GetAllFactionDataForExpansion(expansionInfo.ID, isBonusFaction)
-		if (#bonusFactionData == 0) then return end
-
 		self:AddHeaderLine(tooltip, L["showBarracksBodyguardsReputation"])
-		-- Body
 		for i, bonusFaction in ipairs(bonusFactionData) do
 			self:AddIconLine(tooltip, bonusFaction.name, bonusFaction.icon)
 			self:AddStandardReputationLine(tooltip, bonusFaction)
