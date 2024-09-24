@@ -137,6 +137,8 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showExpansion6"] = true,
 	["showFactionReputation6"] = true,
 	["separateFactionTooltip6"] = true,
+	["showBonusFactionReputation6"] = true,
+	["separateBonusFactionTooltip6"] = true,
 	["showLegionMissionInfo"] = true,
 	["showLegionBounties"] = true,
 	["showLegionWorldMapEvents"] = true,
@@ -862,6 +864,18 @@ ExpansionTooltipSettings[ExpansionInfo.data.LEGION.ID] = {
 		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
 		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
 		parentVariable = "showFactionReputation6",
+	},
+	{
+		variable = "showBonusFactionReputation6",
+		name = L["BonusFactionReputationLabel"],
+		tooltip = L.CFG_FACTION_REPUTATION_BARRACKS_BODYGUARDS_TOOLTIP,
+		tag = Settings.Default.True,
+	},
+	{
+		variable = "separateBonusFactionTooltip6",
+		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
+		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
+		parentVariable = "showBonusFactionReputation6",
 	},
 	{
 		variable = "showLegionMissionInfo",

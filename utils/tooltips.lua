@@ -283,13 +283,17 @@ local function ShouldAutoHideCompletedDragonGlyphZones(expansionID)
 	return ns.settings[varName]
 end
 
+local function IsReputationTooltip(tooltip)
+	return tooltip.key == ShortAddonID.."LibQTipReputationTooltip"
+end
+
 -- Requires expansionInfo, eg. ExpansionInfo.data.DRAGONFLIGHT
 function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 	local majorFactionData = LocalMajorFactionInfo:GetAllMajorFactionDataForExpansion(expansionInfo.ID)
 	if (#majorFactionData == 0) then return end
 
 	-- Header
-	if (tooltip.key == ShortAddonID.."LibQTipReputationTooltip") then
+	if IsReputationTooltip(tooltip) then
 		self:AddHeaderLine(tooltip, expansionInfo.name, nil, true)
 	end
 	self:AddHeaderLine(tooltip, L["showMajorFactionRenownLevel"])
@@ -495,10 +499,8 @@ function LocalTooltipUtil:AddFactionReputationProgressLine(tooltip, factionData)
 
 	else
 		local paragonInfo = LocalFactionInfo:GetFactionParagonInfo(factionData.factionID)
-		local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING
-		lineText = lineText..L.TEXT_DELIMITER..bagIconString
-
-		lineIndex, columnIndex = self:AddObjectiveLine(tooltip, lineText, hasMaxReputation, StandingColor)
+		lineText = lineText..L.TEXT_DELIMITER..TOOLTIP_BAG_ICON_STRING
+		lineIndex, columnIndex = self:AddObjectiveLine(tooltip, lineText, paragonInfo.hasRewardPending or hasMaxReputation, StandingColor)
 
 		if paragonInfo.hasRewardPending then
 			local completionText = LocalMajorFactionInfo:GetParagonCompletionText(paragonInfo)
@@ -515,7 +517,7 @@ function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
 	if (factionData and #factionData == 0) then return; end
 
 	-- Header
-	if (tooltip.key == ShortAddonID.."LibQTipReputationTooltip") then
+	if IsReputationTooltip(tooltip) then
 		self:AddHeaderLine(tooltip, expansionInfo.name, nil, true)
 	end
 	self:AddHeaderLine(tooltip, L["MainFactionReputationLabel"])
@@ -529,12 +531,19 @@ function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
     end
 end
 
+local function IsMainFactionShownInReputationTooltip(expansionID)
+	return ns.IsExpansionOptionSet("showFactionReputation", expansionID) and ns.IsExpansionOptionSet("separateFactionTooltip", expansionID)
+end
+
 function LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)
 	local isBonusFaction = true
 	local bonusFactionData = LocalFactionInfo:GetAllFactionDataForExpansion(expansionInfo.ID, isBonusFaction)
 	if (not bonusFactionData or #bonusFactionData == 0) then return; end
 
  	-- Header
+	if (IsReputationTooltip(tooltip) and not IsMainFactionShownInReputationTooltip(expansionInfo.ID)) then
+		self:AddHeaderLine(tooltip, expansionInfo.name, nil, true)
+	end
 	local labelName = (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) and "BarracksBodyguardsFactionReputationLabel" or "BonusFactionReputationLabel"
 	self:AddHeaderLine(tooltip, L[labelName])
 

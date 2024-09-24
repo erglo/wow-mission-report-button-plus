@@ -214,21 +214,21 @@ end
 
 local FACTION_ID_LIST = {
     [ExpansionInfo.data.LEGION.ID] = {
-        [LocalFactionInfo.UnitFactionGroupID.Horde] = {
-            ["1859"] = {englishName="The Nightfallen", icon=1450998},  -- , achievements={10672, 11159}},
-        },
+        -- REF.: [Legion Reputation Overview](https://www.wowhead.com/guide/reputation/legion/overview)
         [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
-            ["1828"] = {englishName="Highmountain Tribe", icon=1450996},  -- , achievements={10672, 11159}},
-            ["1883"] = {englishName="Dreamweavers", icon=1450995},  -- , achievements={10672, 11159}},
-            ["1894"] = {englishName="The Wardens", icon=1451000},  -- , achievements={10672, 11159}},
-            ["1900"] = {englishName="Court of Farondis", icon=1450994},  -- , achievements={10672, 11159}},
-            ["1948"] = {englishName="Valarjar", icon=1450999},  -- , achievements={10672, 11159}},
+            ["1828"] = {englishName="Highmountain Tribe", icon=1450996},        -- , achievements={10672, 11159}},
+            ["1859"] = {englishName="The Nightfallen", icon=1450998},           -- , achievements={10672, 11159}},
+            ["1883"] = {englishName="Dreamweavers", icon=1450995},              -- , achievements={10672, 11159}},
+            ["1894"] = {englishName="The Wardens", icon=1451000},               -- , achievements={10672, 11159}},
+            ["1900"] = {englishName="Court of Farondis", icon=1450994},         -- , achievements={10672, 11159}},
+            ["1948"] = {englishName="Valarjar", icon=1450999},                  -- , achievements={10672, 11159}},
             ["2045"] = {englishName="Armies of Legionfall", icon=1708507},
             ["2165"] = {englishName="Army of the Light", icon=1708506},
             ["2170"] = {englishName="Argussian Reach", icon=1708505},
         },
     },
     [ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
+        -- REF.: [Warlords of Draenor Reputation Overview](https://www.wowhead.com/de/guide/reputation/wod/warlords-of-draenor-reputation-overview)
         [LocalFactionInfo.UnitFactionGroupID.Alliance] = {
             ["1682"] = {englishName="Wrynn's Vanguard", icon=1042294, isPVP=true},  -- achievementID=9214 (PvP)
             ["1710"] = {englishName="Sha'tari Defense", icon=1042739},          -- achievementID=9476
@@ -252,19 +252,26 @@ local FACTION_ID_LIST = {
 };
 
 local BONUS_FACTION_ID_LIST = {
-    [ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {                             -- achievementID=9499
+    [ExpansionInfo.data.LEGION.ID] = {
+        [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
+            ["1090"] = {englishName="Kirin Tor", icon=1450997},
+            ["2135"] = {englishName="Chromie"},
+            ["2018"] = {englishName="Talon's Vengeance", icon=134496, isPVP=true},
+        },
+    },
+    [ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {                             --> TODO -  achievementID=9499 "Wingmen"
         [LocalFactionInfo.UnitFactionGroupID.Alliance] = {
-            ["1733"] = {englishName="Delvar Ironfist", icon=236685, iconTemplate="Interface/Icons/Achievement_Reputation_0"},  -- eg. "Interface/Icons/Achievement_Reputation_06" (236686)
-            ["1738"] = {englishName="Defender Illona", icon=236685, iconTemplate="Interface/Icons/Achievement_Reputation_0"},
+            ["1733"] = {englishName="Delvar Ironfist"},
+            ["1738"] = {englishName="Defender Illona"},
         },
         [LocalFactionInfo.UnitFactionGroupID.Horde] = {
-            ["1739"] = {englishName="Vivianne", icon=236687, iconTemplate="Interface/Icons/Achievement_Reputation_0"},
-            ["1740"] = {englishName="Aeda Brightdawn", icon=236687, iconTemplate="Interface/Icons/Achievement_Reputation_0"},
+            ["1739"] = {englishName="Vivianne"},
+            ["1740"] = {englishName="Aeda Brightdawn"},
         },
         [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
-            ["1736"] = {englishName="Tormmok", icon=236688, iconTemplate="Interface/Icons/Achievement_Reputation_0"},
-            ["1737"] = {englishName="Talonpriest Ishaal", icon=236688, iconTemplate="Interface/Icons/Achievement_Reputation_0"},
-            ["1741"] = {englishName="Leorajh", icon=236688, iconTemplate="Interface/Icons/Achievement_Reputation_0"},
+            ["1736"] = {englishName="Tormmok"},
+            ["1737"] = {englishName="Talonpriest Ishaal"},
+            ["1741"] = {englishName="Leorajh"},
         },
     },
 };
@@ -303,7 +310,7 @@ function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, isBonusFact
             for factionIDstring, factionTbl in pairs(expansionFactionIDs) do
                 local factionInfo = self:GetFactionDataByID(tonumber(factionIDstring));
                 if factionInfo then
-                    factionInfo.icon = isBonusFaction and GetBonusFactionStandingIcon(factionInfo) or factionTbl.icon;
+                    factionInfo.icon = factionTbl.icon or isBonusFaction and GetBonusFactionStandingIcon(factionInfo) or 0;
                     factionInfo.isPVP = factionTbl.isPVP;
                     factionInfo.reputationType = self:GetReputationType(factionInfo);
                     -- Name formatting
@@ -423,4 +430,24 @@ end
 --         print("-->", reputationStandingText, L.PARENS_TEMPLATE:format(reputationProgressText));
 --     end
 -- end
+
+----- Bonus Factions -----
+
+-- [ExpansionInfo.data.LEGION.ID] = {
+--     [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
+--         ["1090"] = {englishName="Kirin Tor", icon=1450997},
+--         ["2135"] = {englishName="Chromie"},
+--         -- ["1899"] = {englishName="Moonguard"},  --> for Hunters only ???
+--         -- ["2018"] = {englishName="Talon's Vengeance", icon=134496, isPVP=true},  --> via Battlepet quests ???
+--         -- ["1975"] = {englishName="Conjurer Margoss"},
+--         -- [""] = {englishName="", icon=0},
+
+--         --> TODO
+--         -- C_Reputation.AreLegacyReputationsShown()
+--         -- C_Reputation.IsAccountWideReputation(factionID)
+--         -- Add Faction 1947 "Illidari" - neutral, but for Demon Hunters only!
+--         -- Add Faction 1975 "Conjurer Margoss" + 4? others - Fishing - add to own category ???
+--         -- Include achievements, eg. "criteria-of" as iconString
+--     },
+-- },
 --@end-do-not-package@
