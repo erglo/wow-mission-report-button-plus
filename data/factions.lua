@@ -21,12 +21,13 @@
 -- Further reading:
 -- + REF.: <https://warcraft.wiki.gg/wiki/Reputation>
 -- + REF.: <https://warcraft.wiki.gg/wiki/FactionID>
--- + REF.: <https://warcraft.wiki.gg/wiki/API_C_GossipInfo.GetFriendshipReputation>
 -- + REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_APIDocumentationGenerated/ReputationInfoDocumentation.lua>  
 -- + REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_UIPanels_Game/ReputationFrame.lua>
 -- + REF.: <https://warcraft.wiki.gg/wiki/API_C_Reputation.GetFactionDataByID>
 -- + REF.: <https://warcraft.wiki.gg/wiki/API_C_Reputation.IsFactionParagon>
 -- + REF.: <https://warcraft.wiki.gg/wiki/API_C_Reputation.GetFactionParagonInfo>
+-- + REF.: <https://warcraft.wiki.gg/wiki/API_C_GossipInfo.GetFriendshipReputation>
+-- + REF.: <https://warcraft.wiki.gg/wiki/API_C_GossipInfo.GetFriendshipReputationRanks>
 -- (see also the function comments section for more reference)
 -- 
 --------------------------------------------------------------------------------
@@ -38,6 +39,9 @@ local L = ns.L;
 local C_Reputation = C_Reputation;
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
 local HasMajorFactionMaximumRenown = C_MajorFactions.HasMaximumRenown;
+local GetMajorFactionData = C_MajorFactions.GetMajorFactionData;
+local GetFriendshipReputation = C_GossipInfo.GetFriendshipReputation;
+local GetFriendshipReputationRanks = C_GossipInfo.GetFriendshipReputationRanks;
 
 local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
@@ -109,15 +113,19 @@ function LocalFactionInfo:GetWatchedFactionData()
     return C_Reputation.GetWatchedFactionData();
 end
 
+function LocalFactionInfo:IsMajorFaction(factionID)
+    C_Reputation.IsMajorFaction(factionID);
+end
+
 ----- Helper Functions ---------------------------------------------------------
 
 function LocalFactionInfo:HasMaximumReputation(factionData)
     if self:IsFactionParagon(factionData.factionID) then return; end
 
     if (factionData.reputationType == self.ReputationType.Friendship) then
-        local friendshipData = C_GossipInfo.GetFriendshipReputation(factionData.factionID);
+        local friendshipData = GetFriendshipReputation(factionData.factionID);
     	if (friendshipData and friendshipData.friendshipFactionID > 0) then
-    		local repRankInfo = C_GossipInfo.GetFriendshipReputationRanks(factionData.factionID);
+    		local repRankInfo = GetFriendshipReputationRanks(factionData.factionID);
     		return repRankInfo.currentLevel == repRankInfo.maxLevel;
     	end
     end
@@ -177,13 +185,13 @@ LocalFactionInfo.ReputationType = EnumUtil.MakeEnum(
 function LocalFactionInfo:GetReputationType(factionData)
 	if not factionData then return; end
 
-	local friendshipData = C_GossipInfo.GetFriendshipReputation(factionData.factionID);
+	local friendshipData = GetFriendshipReputation(factionData.factionID);
 	local isFriendshipReputation = friendshipData and friendshipData.friendshipFactionID > 0;
 	if isFriendshipReputation then
 		return self.ReputationType.Friendship;
 	end
 
-	if C_Reputation.IsMajorFaction(factionData.factionID) then
+	if self:IsMajorFaction(factionData.factionID) then
 		return self.ReputationType.MajorFaction;
 	end
 
@@ -289,11 +297,11 @@ function LocalFactionInfo:GetFactionReputationStandingText(factionData)
         return reputationStandingText;
     end
     if (factionData.reputationType == self.ReputationType.Friendship) then
-        local friendshipData = C_GossipInfo.GetFriendshipReputation(factionData.factionID);
+        local friendshipData = GetFriendshipReputation(factionData.factionID);
         return friendshipData and friendshipData.reaction or '';
     end
     if (factionData.reputationType == self.ReputationType.MajorFaction) then
-        local majorFactionData = C_MajorFactions.GetMajorFactionData(factionData.factionID);
+        local majorFactionData = GetMajorFactionData(factionData.factionID);
         return majorFactionData and L.RENOWN_LEVEL_LABEL..L.TEXT_DELIMITER..majorFactionData.renownLevel;
     end
 
@@ -305,16 +313,36 @@ function LocalFactionInfo:GetFactionReputationProgressText(factionData)
     local minValue, maxValue, currentValue;
     local isCapped = self:HasMaximumReputation(factionData);
 
-    if isCapped then
-        minValue, maxValue, currentValue = 0, factionData.nextReactionThreshold, factionData.currentStanding;
+    if (factionData.reputationType == self.ReputationType.Standard) then
+        minValue, maxValue, currentValue = isCapped and 0 or factionData.currentReactionThreshold, factionData.nextReactionThreshold, factionData.currentStanding;
+
+    elseif (factionData.reputationType == self.ReputationType.Friendship) then
+        local friendshipData = GetFriendshipReputation(factionData.factionID);
+        minValue, maxValue, currentValue = (isCapped and 0 or friendshipData.reactionThreshold), friendshipData.nextThreshold or friendshipData.standing, friendshipData.standing;
+
+    elseif (factionData.reputationType == self.ReputationType.MajorFaction) then
+        local majorFactionData = GetMajorFactionData(factionData.factionID);
+        minValue = 0;
+        maxValue = majorFactionData and majorFactionData.renownLevelThreshold or 0;
+        currentValue = majorFactionData and majorFactionData.renownReputationEarned or 0;
+
+    elseif self:IsFactionParagon(factionData.factionID) then
+	    local paragonInfo = self:GetFactionParagonInfo(factionData.factionID);
+        local value = mod(paragonInfo.currentValue, paragonInfo.threshold);
+        if paragonInfo.hasRewardPending then
+            value = value + paragonInfo.threshold;
+        end
+        minValue, maxValue, currentValue = 0, paragonInfo.threshold, value;
+
     else
-        minValue, maxValue, currentValue = factionData.currentReactionThreshold, factionData.nextReactionThreshold, factionData.currentStanding;
-        maxValue = maxValue - minValue;
-        currentValue = currentValue - minValue;
+        minValue, maxValue, currentValue = 0, 0, 0;
     end
 
-    local reputationProgressText = L.REPUTATION_PROGRESS_FORMAT:format(BreakUpLargeNumbers(currentValue), BreakUpLargeNumbers(maxValue));
+    -- Normalize values
+    maxValue = maxValue - minValue;
+    currentValue = currentValue - minValue;
 
+    local reputationProgressText = L.REPUTATION_PROGRESS_FORMAT:format(BreakUpLargeNumbers(currentValue), BreakUpLargeNumbers(maxValue));
     return reputationProgressText;
 end
 
