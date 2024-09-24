@@ -42,6 +42,7 @@ local HasMajorFactionMaximumRenown = C_MajorFactions.HasMaximumRenown;
 local GetMajorFactionData = C_MajorFactions.GetMajorFactionData;
 local GetFriendshipReputation = C_GossipInfo.GetFriendshipReputation;
 local GetFriendshipReputationRanks = C_GossipInfo.GetFriendshipReputationRanks;
+local CreateAtlasMarkup = CreateAtlasMarkup;
 
 local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
@@ -198,6 +199,17 @@ function LocalFactionInfo:GetReputationType(factionData)
 	return self.ReputationType.Standard;
 end
 
+local function GetColoredPvPIconText(color, appendText)
+	local FontColor = color or LocalFactionInfo.PlayerFactionGroupColor;
+	local iconString = CreateAtlasMarkup("questlog-questtypeicon-pvp", 16, 16);  -- LocalFactionInfo.PlayerFactionGroupAtlas
+	local text = FontColor:WrapTextInColorCode(iconString..L.PVP);
+    if appendText then
+        return L.TEXT_DELIMITER..L.PARENS_TEMPLATE:format(text);
+    end
+
+    return text;
+end
+
 ----- Data ---------------------------------------------------------------------
 
 local FACTION_ID_LIST = {
@@ -281,6 +293,10 @@ function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, isBonusFact
                     if (factionInfo.reputationType == self.ReputationType.Friendship) then
                         local appendText = true;
                         factionInfo.name = factionInfo.name..self:GetFriendshipReputationProgressText(factionInfo, appendText);
+                    end
+                    if factionInfo.isPVP then
+                        local appendText = true;
+                        factionInfo.name = factionInfo.name..GetColoredPvPIconText(nil, appendText);
                     end
                     tinsert(factionData, factionInfo);
                 end

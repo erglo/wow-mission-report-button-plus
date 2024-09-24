@@ -87,13 +87,6 @@ local function AppendColoredText(text, color)
     return L.TEXT_DELIMITER..FontColor:WrapTextInColorCode(text)
 end
 
-local function AppendColoredPvPIconText(icon, color)
-	local FontColor = color or LocalFactionInfo.PlayerFactionGroupColor  -- TOOLTIP_TEXT_FONT_COLOR
-	local iconString = util.CreateInlineIcon(icon or "questlog-questtypeicon-pvp")  -- LocalFactionInfo.PlayerFactionGroupAtlas
-	local text = iconString..L.PVP
-
-    return L.TEXT_DELIMITER..L.PARENS_TEMPLATE:format(FontColor:WrapTextInColorCode(text))
-end
 ----- LibQTip -----
 
 -- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
@@ -514,8 +507,7 @@ function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
     for i, faction in ipairs(factionData) do
 		-- local ExpansionColor = _G["EXPANSION_COLOR_"..expansionInfo.ID]		--> TODO - Currently not valid color, re-check from time to time
 		-- self:AddTextLine(tooltip, faction.name, ExpansionColor)
-		local lineText = faction.isPVP and faction.name..AppendColoredPvPIconText() or faction.name
-		self:AddIconLine(tooltip, lineText, faction.icon)  --, LIGHTYELLOW_FONT_COLOR)
+		self:AddIconLine(tooltip, faction.name, faction.icon)  --, LIGHTYELLOW_FONT_COLOR)
 		self:AddStandardReputationLine(tooltip, faction)
     end
 
