@@ -518,7 +518,7 @@ function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
 	if (tooltip.key == ShortAddonID.."LibQTipReputationTooltip") then
 		self:AddHeaderLine(tooltip, expansionInfo.name, nil, true)
 	end
-	self:AddHeaderLine(tooltip, L["showMainFactionReputation"])
+	self:AddHeaderLine(tooltip, L["MainFactionReputationLabel"])
 
 	-- Body
     for i, faction in ipairs(factionData) do
@@ -532,15 +532,16 @@ end
 function LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)
 	local isBonusFaction = true
 	local bonusFactionData = LocalFactionInfo:GetAllFactionDataForExpansion(expansionInfo.ID, isBonusFaction)
-	if (bonusFactionData and #bonusFactionData == 0) then return; end
+	if (not bonusFactionData or #bonusFactionData == 0) then return; end
 
- 	-- Warlords of Draenor only
-	if (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID and ns.settings.showBarracksBodyguardsReputation) then
-		self:AddHeaderLine(tooltip, L["showBarracksBodyguardsReputation"])
-		for i, bonusFaction in ipairs(bonusFactionData) do
-			self:AddIconLine(tooltip, bonusFaction.name, bonusFaction.icon)
-			self:AddFactionReputationProgressLine(tooltip, bonusFaction)
-		end
+ 	-- Header
+	local labelName = (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) and "BarracksBodyguardsFactionReputationLabel" or "BonusFactionReputationLabel"
+	self:AddHeaderLine(tooltip, L[labelName])
+
+	-- Body
+	for i, bonusFaction in ipairs(bonusFactionData) do
+		self:AddIconLine(tooltip, bonusFaction.name, bonusFaction.icon)
+		self:AddFactionReputationProgressLine(tooltip, bonusFaction)
 	end
 end
 

@@ -149,7 +149,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showExpansion5"] = true,
 	["showFactionReputation5"] = true,
 	["separateFactionTooltip5"] = true,
-	["showBarracksBodyguardsReputation"] = true,
+	["showBonusFactionReputation5"] = true,
 	["separateBonusFactionTooltip5"] = true,
 	["showWoDMissionInfo"] = true,
 	["showWoDGarrisonInvasionAlert"] = true,
@@ -793,7 +793,7 @@ local ExpansionTooltipSettings = {};
 ExpansionTooltipSettings[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
 	{
 		variable = "showFactionReputation5",
-		name = L["showMainFactionReputation"],
+		name = L["MainFactionReputationLabel"],
 		tooltip = L.CFG_FACTION_REPUTATION_TOOLTIP_S:format(LIGHT_GRAY(ExpansionInfo.data.WARLORDS_OF_DRAENOR.name)),
 		tag = Settings.Default.True,
 	},
@@ -804,8 +804,8 @@ ExpansionTooltipSettings[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
 		parentVariable = "showFactionReputation5",
 	},
 	{
-		variable = "showBarracksBodyguardsReputation",
-		name = L["showBarracksBodyguardsReputation"],
+		variable = "showBonusFactionReputation5",
+		name = L["BarracksBodyguardsFactionReputationLabel"],
 		tooltip = L.CFG_FACTION_REPUTATION_BARRACKS_BODYGUARDS_TOOLTIP,
 		tag = Settings.Default.True,
 	},
@@ -813,7 +813,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
 		variable = "separateBonusFactionTooltip5",
 		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
 		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
-		parentVariable = "showBarracksBodyguardsReputation",
+		parentVariable = "showBonusFactionReputation5",
 	},
 	{
 		variable = "showWoDMissionInfo",
@@ -853,7 +853,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
 ExpansionTooltipSettings[ExpansionInfo.data.LEGION.ID] = {
 	{
 		variable = "showFactionReputation6",
-		name = L["showMainFactionReputation"],
+		name = L["MainFactionReputationLabel"],
 		tooltip = L.CFG_FACTION_REPUTATION_TOOLTIP_S:format(LIGHT_GRAY(ExpansionInfo.data.LEGION.name)),
 		tag = Settings.Default.True,
 	},
