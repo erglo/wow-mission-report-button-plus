@@ -495,7 +495,7 @@ end
 
 function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
     local factionData = LocalFactionInfo:GetAllFactionDataForExpansion(expansionInfo.ID)
-	if (#factionData == 0) then return end
+	if (factionData and #factionData == 0) then return; end
 
 	-- Header
 	if (tooltip.key == ShortAddonID.."LibQTipReputationTooltip") then
@@ -515,7 +515,7 @@ end
 function LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)
 	local isBonusFaction = true
 	local bonusFactionData = LocalFactionInfo:GetAllFactionDataForExpansion(expansionInfo.ID, isBonusFaction)
-	if (#bonusFactionData == 0) then return; end
+	if (bonusFactionData and #bonusFactionData == 0) then return; end
 
  	-- Warlords of Draenor only
 	if (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID and ns.settings.showBarracksBodyguardsReputation) then

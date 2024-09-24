@@ -135,6 +135,8 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showBfAIslandExpeditionsInfo"] = true,
 	-- Legion
 	["showExpansion6"] = true,
+	["showFactionReputation6"] = true,
+	["separateFactionTooltip6"] = true,
 	["showLegionMissionInfo"] = true,
 	["showLegionBounties"] = true,
 	["showLegionWorldMapEvents"] = true,
@@ -850,6 +852,18 @@ ExpansionTooltipSettings[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
 
 ExpansionTooltipSettings[ExpansionInfo.data.LEGION.ID] = {
 	{
+		variable = "showFactionReputation6",
+		name = L["showMainFactionReputation"],
+		tooltip = L.CFG_FACTION_REPUTATION_TOOLTIP_S:format(LIGHT_GRAY(ExpansionInfo.data.LEGION.name)),
+		tag = Settings.Default.True,
+	},
+	{
+		variable = "separateFactionTooltip6",
+		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
+		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
+		parentVariable = "showFactionReputation6",
+	},
+	{
 		variable = "showLegionMissionInfo",
 		name = L["showLegionMissionInfo"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
@@ -1251,7 +1265,8 @@ function MRBP_Settings_Register()
 			end
 			local expansionButtonInitializer = CreateSettingsButtonInitializer('', expansionInfo.name, OnExpansionButtonClick, '', addSearchTags);
 			mainLayout:AddInitializer(expansionButtonInitializer);
-			if (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) then
+			if (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) or
+			   (expansionInfo.ID == ExpansionInfo.data.LEGION.ID) then
 				expansionButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
 			end
 		end

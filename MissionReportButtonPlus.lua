@@ -779,6 +779,19 @@ local function MenuLine_OnEnter(...)
 		end
 	end
 
+	----- Reputation -----
+
+	if (expansionInfo.ID < ExpansionInfo.data.DRAGONFLIGHT.ID) then
+		if ns.IsExpansionOptionSet("showFactionReputation", expansionInfo.ID) then
+			local tooltip = ns.IsExpansionOptionSet("separateFactionTooltip", expansionInfo.ID) and ReputationTooltip or ExpansionTooltip
+			LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
+		end
+		if ns.settings.showBarracksBodyguardsReputation then
+			local tooltip = ns.IsExpansionOptionSet("separateBonusFactionTooltip", expansionInfo.ID) and ReputationTooltip or ExpansionTooltip
+			LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)
+		end
+	end
+
 	----- In-progress missions -----
 
 	if ShouldShowMissionsInfoText(expansionInfo.garrisonTypeID) then
@@ -815,15 +828,6 @@ local function MenuLine_OnEnter(...)
 		-- Draenor Treasures
 		if (ns.settings.showWoDWorldMapEvents and ns.settings.showDraenorTreasures) then
 			LocalTooltipUtil:AddDraenorTreasureLines(ExpansionTooltip)
-		end
-		-- Reputation
-		if ns.IsExpansionOptionSet("showFactionReputation", expansionInfo.ID) then
-			local tooltip = ns.IsExpansionOptionSet("separateFactionTooltip", expansionInfo.ID) and ReputationTooltip or ExpansionTooltip
-			LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
-		end
-		if ns.settings.showBarracksBodyguardsReputation then
-			local tooltip = ns.IsExpansionOptionSet("separateBonusFactionTooltip", expansionInfo.ID) and ReputationTooltip or ExpansionTooltip
-			LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)
 		end
 	end
 

@@ -213,17 +213,32 @@ end
 ----- Data ---------------------------------------------------------------------
 
 local FACTION_ID_LIST = {
+    [ExpansionInfo.data.LEGION.ID] = {
+        [LocalFactionInfo.UnitFactionGroupID.Horde] = {
+            ["1859"] = {englishName="The Nightfallen", icon=0, achievements={10672, 11159}},
+        },
+        [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
+            ["1828"] = {englishName="Highmountain Tribe", icon= 0, achievements={10672, 11159}},
+            ["1883"] = {englishName="Dreamweavers", icon=0, achievements={10672, 11159}},
+            ["1894"] = {englishName="The Wardens", icon=0, achievements={10672, 11159}},
+            ["1900"] = {englishName="Court of Farondis", icon=0, achievements={10672, 11159}},
+            ["1948"] = {englishName="Valarjar", icon=0, achievements={10672, 11159}},
+            ["2045"] = {englishName="Armies of Legionfall", icon=0},
+            ["2165"] = {englishName="Army of the Light", icon=0},
+            ["2170"] = {englishName="Argussian Reach", icon=0},
+        },
+    },
     [ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
         [LocalFactionInfo.UnitFactionGroupID.Alliance] = {
-            ["1731"] = {englishName="Council of Exarchs",  icon=1048727},       -- achievementID=9470
-            ["1710"] = {englishName="Sha'tari Defense", icon=1042739},          -- achievementID=9476
             ["1682"] = {englishName="Wrynn's Vanguard", icon=1042294, isPVP=true},  -- achievementID=9214 (PvP)
+            ["1710"] = {englishName="Sha'tari Defense", icon=1042739},          -- achievementID=9476
+            ["1731"] = {englishName="Council of Exarchs",  icon=1048727},       -- achievementID=9470
             ["1847"] = {englishName="Hand of the Prophet", icon=930038},        -- Tanaan Diplomat, achievementID=10350
         },
         [LocalFactionInfo.UnitFactionGroupID.Horde] = {
             ["1445"] = {englishName="Frostwolf Orcs", icon=1044164},            -- achievementID=9471
-            ["1708"] = {englishName="Laughing Skull Orcs", icon=1043559},       -- achievementID=9475
             ["1681"] = {englishName="Vol'jin's Spear", icon=1042727, isPVP=true},  -- achievementID=9215 (PvP)
+            ["1708"] = {englishName="Laughing Skull Orcs", icon=1043559},       -- achievementID=9475
             ["1848"] = {englishName="Vol'jin's Headhunters", icon=5197938},     -- Tanaan Diplomat, achievementID=10349 (Horde), 10350 (Alliance)
         },
         [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
@@ -279,9 +294,10 @@ function LocalFactionInfo:GetExpansionBonusFactionIDs(expansionID)
 end
 
 function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, isBonusFaction, sortFunc)
-    local factionData = {};
     local factionIDs = isBonusFaction and self:GetExpansionBonusFactionIDs(expansionID) or self:GetExpansionFactionIDs(expansionID);
+    if not factionIDs then return; end
 
+    local factionData = {};
     for unitFactionGroup, expansionFactionIDs in pairs(factionIDs) do
         if self:IsSuitableFactionGroupForPlayer(unitFactionGroup) then
             for factionIDstring, factionTbl in pairs(expansionFactionIDs) do

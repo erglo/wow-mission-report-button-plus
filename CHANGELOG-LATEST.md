@@ -6,6 +6,7 @@
 
 ### Added
 
+* Legion: added optional `faction reputation` details.
 * Warlords of Draenor: added optional `Barracks Bodyguards` faction reputation details.
 * Warlords of Draenor: added optional `faction reputation` details.
 
