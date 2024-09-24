@@ -273,11 +273,17 @@ function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, isBonusFact
     for unitFactionGroup, expansionFactionIDs in pairs(factionIDs) do
         if self:IsSuitableFactionGroupForPlayer(unitFactionGroup) then
             for factionIDstring, factionTbl in pairs(expansionFactionIDs) do
-                local faction = self:GetFactionDataByID(tonumber(factionIDstring));
-                faction.icon = isBonusFaction and GetBonusFactionStandingIcon(faction) or factionTbl.icon;
-                faction.reputationType = LocalFactionInfo:GetReputationType(faction);
-                faction.isPVP = factionTbl.isPVP;
-                tinsert(factionData, faction);
+                local factionInfo = self:GetFactionDataByID(tonumber(factionIDstring));
+                if factionInfo then
+                    factionInfo.icon = isBonusFaction and GetBonusFactionStandingIcon(factionInfo) or factionTbl.icon;
+                    factionInfo.isPVP = factionTbl.isPVP;
+                    factionInfo.reputationType = LocalFactionInfo:GetReputationType(factionInfo);
+                    if (factionInfo.reputationType == self.ReputationType.Friendship) then
+                        local appendText = true;
+                        factionInfo.name = factionInfo.name..self:GetFriendshipReputationProgressText(factionInfo, appendText);
+                    end
+                    tinsert(factionData, factionInfo);
+                end
             end
         end
     end
@@ -344,6 +350,19 @@ function LocalFactionInfo:GetFactionReputationProgressText(factionData)
 
     local reputationProgressText = L.REPUTATION_PROGRESS_FORMAT:format(BreakUpLargeNumbers(currentValue), BreakUpLargeNumbers(maxValue));
     return reputationProgressText;
+end
+
+function LocalFactionInfo:GetFriendshipReputationProgressText(factionData, appendText)
+    local friendshipData = GetFriendshipReputation(factionData.factionID);
+    if (friendshipData and friendshipData.friendshipFactionID > 0) then
+        local reputationRankInfo = GetFriendshipReputationRanks(factionData.factionID);
+        local reputationRankProgressText = L.REPUTATION_PROGRESS_FORMAT:format(reputationRankInfo.currentLevel, reputationRankInfo.maxLevel);
+        if appendText then
+            return L.TEXT_DELIMITER..L.PARENS_TEMPLATE:format(reputationRankProgressText);
+        end
+
+        return reputationRankProgressText;
+    end
 end
 
 --@do-not-package@
