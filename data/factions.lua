@@ -305,7 +305,8 @@ function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, isBonusFact
                 if factionInfo then
                     factionInfo.icon = isBonusFaction and GetBonusFactionStandingIcon(factionInfo) or factionTbl.icon;
                     factionInfo.isPVP = factionTbl.isPVP;
-                    factionInfo.reputationType = LocalFactionInfo:GetReputationType(factionInfo);
+                    factionInfo.reputationType = self:GetReputationType(factionInfo);
+                    -- Name formatting
                     if (factionInfo.reputationType == self.ReputationType.Friendship) then
                         local appendText = true;
                         factionInfo.name = factionInfo.name..self:GetFriendshipReputationProgressText(factionInfo, appendText);
@@ -364,16 +365,17 @@ function LocalFactionInfo:GetFactionReputationProgressText(factionData)
         maxValue = majorFactionData and majorFactionData.renownLevelThreshold or 0;
         currentValue = majorFactionData and majorFactionData.renownReputationEarned or 0;
 
-    elseif self:IsFactionParagon(factionData.factionID) then
+    else
+        minValue, maxValue, currentValue = 0, 0, 0;
+    end
+
+    if self:IsFactionParagon(factionData.factionID) then
 	    local paragonInfo = self:GetFactionParagonInfo(factionData.factionID);
         local value = mod(paragonInfo.currentValue, paragonInfo.threshold);
         if paragonInfo.hasRewardPending then
             value = value + paragonInfo.threshold;
         end
         minValue, maxValue, currentValue = 0, paragonInfo.threshold, value;
-
-    else
-        minValue, maxValue, currentValue = 0, 0, 0;
     end
 
     -- Normalize values

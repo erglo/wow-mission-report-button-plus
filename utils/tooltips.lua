@@ -475,11 +475,12 @@ local function TryHighlightWatchedFaction(tooltip, lineIndex, factionData)
 	end
 end
 
-function LocalTooltipUtil:AddStandardReputationLine(tooltip, factionData)
+function LocalTooltipUtil:AddFactionReputationProgressLine(tooltip, factionData)
 	local hasMaxReputation = LocalFactionInfo:HasMaximumReputation(factionData)
+	local isParagon = LocalFactionInfo:IsFactionParagon(factionData.factionID)
 
 	local standingText = LocalFactionInfo:GetFactionReputationStandingText(factionData)
-	local StandingColor = hasMaxReputation and DISABLED_FONT_COLOR or LocalFactionInfo:GetFactionStandingColor(factionData)
+	local StandingColor = (hasMaxReputation or isParagon) and DISABLED_FONT_COLOR or LocalFactionInfo:GetFactionStandingColor(factionData)
 
 	local progressText = LocalFactionInfo:GetFactionReputationProgressText(factionData)
 	local ProgressColor = hasMaxReputation and DISABLED_FONT_COLOR or TOOLTIP_TEXT_FONT_COLOR
@@ -487,9 +488,25 @@ function LocalTooltipUtil:AddStandardReputationLine(tooltip, factionData)
 
 	local lineText = (hasMaxReputation and standingText..L.TEXT_DELIMITER..L.PARENS_TEMPLATE:format(CAPPED) or  -- MAXIMUM
 					  standingText..L.TEXT_DELIMITER..progressTextParens)
-	local lineIndex, columnIndex = self:AddObjectiveLine(tooltip, lineText, hasMaxReputation, StandingColor)
-	TryHighlightWatchedFaction(tooltip, lineIndex, factionData)
+	local lineIndex, columnIndex
 
+	if not isParagon then
+		lineIndex, columnIndex = self:AddObjectiveLine(tooltip, lineText, hasMaxReputation, StandingColor)
+
+	else
+		local paragonInfo = LocalFactionInfo:GetFactionParagonInfo(factionData.factionID)
+		local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING
+		lineText = lineText..L.TEXT_DELIMITER..bagIconString
+
+		lineIndex, columnIndex = self:AddObjectiveLine(tooltip, lineText, hasMaxReputation, StandingColor)
+
+		if paragonInfo.hasRewardPending then
+			local completionText = LocalMajorFactionInfo:GetParagonCompletionText(paragonInfo)
+			lineIndex, columnIndex = self:AddObjectiveLine(tooltip, completionText, nil, LIGHTERBLUE_FONT_COLOR)  -- TUTORIAL_BLUE_FONT_COLOR, ACCOUNT_WIDE_FONT_COLOR
+		end
+	end
+
+	TryHighlightWatchedFaction(tooltip, lineIndex, factionData)
 	return lineIndex, columnIndex
 end
 
@@ -508,7 +525,7 @@ function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
 		-- local ExpansionColor = _G["EXPANSION_COLOR_"..expansionInfo.ID]		--> TODO - Currently not valid color, re-check from time to time
 		-- self:AddTextLine(tooltip, faction.name, ExpansionColor)
 		self:AddIconLine(tooltip, faction.name, faction.icon)  --, LIGHTYELLOW_FONT_COLOR)
-		self:AddStandardReputationLine(tooltip, faction)
+		self:AddFactionReputationProgressLine(tooltip, faction)
     end
 end
 
@@ -522,7 +539,7 @@ function LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)
 		self:AddHeaderLine(tooltip, L["showBarracksBodyguardsReputation"])
 		for i, bonusFaction in ipairs(bonusFactionData) do
 			self:AddIconLine(tooltip, bonusFaction.name, bonusFaction.icon)
-			self:AddStandardReputationLine(tooltip, bonusFaction)
+			self:AddFactionReputationProgressLine(tooltip, bonusFaction)
 		end
 	end
 end
