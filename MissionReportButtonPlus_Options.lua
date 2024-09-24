@@ -791,7 +791,7 @@ local ExpansionTooltipSettings = {};
 ExpansionTooltipSettings[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
 	{
 		variable = "showFactionReputation5",
-		name = L["showFactionReputation5"],
+		name = L["showMainFactionReputation"],
 		tooltip = L.CFG_FACTION_REPUTATION_TOOLTIP_S:format(LIGHT_GRAY(ExpansionInfo.data.WARLORDS_OF_DRAENOR.name)),
 		tag = Settings.Default.True,
 	},
