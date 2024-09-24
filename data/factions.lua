@@ -215,17 +215,17 @@ end
 local FACTION_ID_LIST = {
     [ExpansionInfo.data.LEGION.ID] = {
         [LocalFactionInfo.UnitFactionGroupID.Horde] = {
-            ["1859"] = {englishName="The Nightfallen", icon=0, achievements={10672, 11159}},
+            ["1859"] = {englishName="The Nightfallen", icon=1450998},  -- , achievements={10672, 11159}},
         },
         [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
-            ["1828"] = {englishName="Highmountain Tribe", icon= 0, achievements={10672, 11159}},
-            ["1883"] = {englishName="Dreamweavers", icon=0, achievements={10672, 11159}},
-            ["1894"] = {englishName="The Wardens", icon=0, achievements={10672, 11159}},
-            ["1900"] = {englishName="Court of Farondis", icon=0, achievements={10672, 11159}},
-            ["1948"] = {englishName="Valarjar", icon=0, achievements={10672, 11159}},
-            ["2045"] = {englishName="Armies of Legionfall", icon=0},
-            ["2165"] = {englishName="Army of the Light", icon=0},
-            ["2170"] = {englishName="Argussian Reach", icon=0},
+            ["1828"] = {englishName="Highmountain Tribe", icon=1450996},  -- , achievements={10672, 11159}},
+            ["1883"] = {englishName="Dreamweavers", icon=1450995},  -- , achievements={10672, 11159}},
+            ["1894"] = {englishName="The Wardens", icon=1451000},  -- , achievements={10672, 11159}},
+            ["1900"] = {englishName="Court of Farondis", icon=1450994},  -- , achievements={10672, 11159}},
+            ["1948"] = {englishName="Valarjar", icon=1450999},  -- , achievements={10672, 11159}},
+            ["2045"] = {englishName="Armies of Legionfall", icon=1708507},
+            ["2165"] = {englishName="Army of the Light", icon=1708506},
+            ["2170"] = {englishName="Argussian Reach", icon=1708505},
         },
     },
     [ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
