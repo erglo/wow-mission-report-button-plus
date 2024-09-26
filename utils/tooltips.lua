@@ -544,8 +544,8 @@ function LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)
 	if (IsReputationTooltip(tooltip) and not IsMainFactionShownInReputationTooltip(expansionInfo.ID)) then
 		self:AddHeaderLine(tooltip, expansionInfo.name, nil, true)
 	end
-	local labelName = (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) and "BarracksBodyguardsFactionReputationLabel" or "BonusFactionReputationLabel"
-	self:AddHeaderLine(tooltip, L[labelName])
+	local labelName = L["BonusFactionReputationLabel"..tostring(expansionInfo.ID)] or L["BonusFactionReputationLabel"]
+	self:AddHeaderLine(tooltip, labelName)
 
 	-- Body
 	for i, bonusFaction in ipairs(bonusFactionData) do

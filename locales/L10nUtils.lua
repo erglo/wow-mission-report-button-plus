@@ -85,9 +85,6 @@ L["showWoDGarrisonInvasionAlert"] = GARRISON_LANDING_INVASION
 L["showWoDWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL              --> TODO - Replace in locale files and remove from this file
 L["showWoDTimewalkingVendor"] = L.ENTRYTOOLTIP_TIMEWALKING_VENDOR_LABEL
 L["showDraenorTreasures"] = LOOT_NOUN
-L["MainFactionReputationLabel"] = MAJOR_FACTION_LIST_TITLE..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION)
-L["BonusFactionReputationLabel"] = FACTION_OTHER..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION)
-L["BarracksBodyguardsFactionReputationLabel"] = GetBarracksBodyguardsLabel()..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION)
 -- Legion
 L["showLegionMissionInfo"] = GARRISON_MISSIONS
 L["showLegionBounties"] = BOUNTY_BOARD_LOCKED_TITLE
@@ -115,6 +112,12 @@ L["hideMajorFactionUnlockDescription"] = L.ENTRYTOOLTIP_DF_HIDE_MF_UNLOCK_DESCRI
 L["autoHideCompletedDragonGlyphZones"] = L.ENTRYTOOLTIP_DF_HIDE_DRAGON_GLYPHS_LABEL
 L["showDragonflightWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL
 L["hideEventDescriptions"] = L.ENTRYTOOLTIP_DF_HIDE_EVENT_DESCRIPTIONS_LABEL
+
+-- Faction Reputation
+L["MainFactionReputationLabel"] = MAJOR_FACTION_LIST_TITLE..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION)
+L["BonusFactionReputationLabel"] = FACTION_OTHER..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION)
+L["BonusFactionReputationLabel7"] = WARDROBE_TOOLTIP_ENCOUNTER_SOURCE:format(FRIENDS, SPLASH_BATTLEFORAZEROTH_8_2_0_RIGHT_TITLE)..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION)
+L["BonusFactionReputationLabel5"] = GetBarracksBodyguardsLabel()..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION)
 
 L.defaultLabels = {  -- English defaults
     ["showLegionAssaultsInfo"] = "Legion Assault",                              -- Legion

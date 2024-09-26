@@ -126,6 +126,10 @@ ns.defaultSettings = {  --> default + fallback settings
 	["applyCovenantColors"] = true,
 	-- Battle for Azeroth
 	["showExpansion7"] = true,
+	["showFactionReputation7"] = true,
+	["separateFactionTooltip7"] = true,
+	["showBonusFactionReputation7"] = true,
+	["separateBonusFactionTooltip7"] = true,
 	["showBfAMissionInfo"] = true,
 	["showBfABounties"] = true,
 	["showNzothThreats"] = true,
@@ -807,7 +811,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
 	},
 	{
 		variable = "showBonusFactionReputation5",
-		name = L["BarracksBodyguardsFactionReputationLabel"],
+		name = L["BonusFactionReputationLabel5"],
 		tooltip = L.CFG_FACTION_REPUTATION_BARRACKS_BODYGUARDS_TOOLTIP,
 		tag = Settings.Default.True,
 	},
@@ -926,6 +930,30 @@ ExpansionTooltipSettings[ExpansionInfo.data.LEGION.ID] = {
 };
 
 ExpansionTooltipSettings[ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = {
+	{
+		variable = "showFactionReputation7",
+		name = L["MainFactionReputationLabel"],
+		tooltip = L.CFG_FACTION_REPUTATION_TOOLTIP_S:format(LIGHT_GRAY(ExpansionInfo.data.LEGION.name)),
+		tag = Settings.Default.True,
+	},
+	{
+		variable = "separateFactionTooltip7",
+		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
+		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
+		parentVariable = "showFactionReputation7",
+	},
+	{
+		variable = "showBonusFactionReputation7",
+		name = L["BonusFactionReputationLabel7"],
+		tooltip = L.CFG_FACTION_REPUTATION_BARRACKS_BODYGUARDS_TOOLTIP,
+		tag = Settings.Default.True,
+	},
+	{
+		variable = "separateBonusFactionTooltip7",
+		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
+		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
+		parentVariable = "showBonusFactionReputation7",
+	},
 	{
 		variable = "showBfAMissionInfo",
 		name = L["showBfAMissionInfo"],
@@ -1279,8 +1307,8 @@ function MRBP_Settings_Register()
 			end
 			local expansionButtonInitializer = CreateSettingsButtonInitializer('', expansionInfo.name, OnExpansionButtonClick, '', addSearchTags);
 			mainLayout:AddInitializer(expansionButtonInitializer);
-			if (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) or
-			   (expansionInfo.ID == ExpansionInfo.data.LEGION.ID) then
+			if (expansionInfo.ID >= ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) and
+			   (expansionInfo.ID <= ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID) then
 				expansionButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
 			end
 		end

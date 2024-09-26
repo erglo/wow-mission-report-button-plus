@@ -6,9 +6,13 @@
 
 ### Added
 
-* Legion: added optional `faction reputation` details.
-* Warlords of Draenor: added optional `Barracks Bodyguards` faction reputation details.
-* Warlords of Draenor: added optional `faction reputation` details.
+* Data + Tooltip: added optional `faction reputation` details for:
+  + `Battle for Azeroth`
+  + `Legion`
+  + `Warlords of Draenor`
+* Battle for Azeroth: added optional bonus faction reputation details for `Nazjatar friends`.
+* Legion: added optional bonus faction reputation details, eg. for `Chromie` and the `Kirin Tor` (from _Wrath of the Lich King_).
+* Warlords of Draenor: added as optional bonus `Barracks Bodyguards` faction reputation details.
 
 ### Changed
 

@@ -23,6 +23,7 @@
 -- + REF.: <https://warcraft.wiki.gg/wiki/FactionID>
 -- + REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_APIDocumentationGenerated/ReputationInfoDocumentation.lua>  
 -- + REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_UIPanels_Game/ReputationFrame.lua>
+-- + REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_ActionBar/ReputationBar.lua>
 -- + REF.: <https://warcraft.wiki.gg/wiki/API_C_Reputation.GetFactionDataByID>
 -- + REF.: <https://warcraft.wiki.gg/wiki/API_C_Reputation.IsFactionParagon>
 -- + REF.: <https://warcraft.wiki.gg/wiki/API_C_Reputation.GetFactionParagonInfo>
@@ -213,6 +214,30 @@ end
 ----- Data ---------------------------------------------------------------------
 
 local FACTION_ID_LIST = {
+    [ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = {
+        -- REF.: [Battle for Azeroth Reputation Overview](https://www.wowhead.com/guide/battle-for-azeroth-reputation-overview)
+        [LocalFactionInfo.UnitFactionGroupID.Alliance] = {
+            ["2159"] = {englishName="7th Legion", icon=2065569},
+            ["2160"] = {englishName="Proudmoore Admiralty", icon=2065573},      -- criteria-of=12947/azerothian-diplomat
+            ["2161"] = {englishName="Order of Embers", icon=2065572},           -- criteria-of=12947/azerothian-diplomat
+            ["2162"] = {englishName="Storm's Wake", icon=2065574},              -- criteria-of=12947/azerothian-diplomat
+            ["2400"] = {englishName="Waveblade Ankoan", icon=2909045},          -- criteria-of=13250/battle-for-azeroth-pathfinder-part-two
+        },
+        [LocalFactionInfo.UnitFactionGroupID.Horde] = {
+            ["2103"] = {englishName="Zandalari Empire", icon=2065579},
+            ["2156"] = {englishName="Talanji's Expedition", icon=2065575},
+            ["2157"] = {englishName="The Honorbound", icon=2065571},            -- criteria-of=12947/azerothian-diplomat
+            ["2158"] = {englishName="Voldunai", icon=2065577},
+            ["2373"] = {englishName="The Unshackled", icon=2821782},            -- criteria-of=13250/battle-for-azeroth-pathfinder-part-two
+        },
+        [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
+            ["2163"] = {englishName="Tortollan Seekers", icon=2065576},         -- criteria-of=12947/azerothian-diplomat
+            ["2164"] = {englishName="Champions of Azeroth", icon=2065570},      -- criteria-of=12947/azerothian-diplomat
+            ["2391"] = {englishName="Rustbolt Resistance", icon=2909316},       -- criteria-of=13250/battle-for-azeroth-pathfinder-part-two
+            ["2415"] = {englishName="Rajani", icon=3196265},
+            ["2417"] = {englishName="Uldum Accord", icon=3196264},
+        },
+    },
     [ExpansionInfo.data.LEGION.ID] = {
         -- REF.: [Legion Reputation Overview](https://www.wowhead.com/guide/reputation/legion/overview)
         [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
@@ -251,7 +276,22 @@ local FACTION_ID_LIST = {
     },
 };
 
+local friendshipType = LocalFactionInfo.ReputationType.Friendship;
+-- C_GossipInfo.GetFriendshipReputation(2376)
+
 local BONUS_FACTION_ID_LIST = {
+    [ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = {
+        [LocalFactionInfo.UnitFactionGroupID.Alliance] = {
+            ["2375"] = {englishName="Hunter Akana", reputationType=friendshipType, parentFactionID=2400},      -- achievements={13743, 13753, 13758} -- criteria-of=13704/nautical-battlefield-training
+            ["2376"] = {englishName="Farseer Ori", reputationType=friendshipType, parentFactionID=2400},       -- achievements={13745, 13755, 13760} -- criteria-of=13704/nautical-battlefield-training
+            ["2377"] = {englishName="Bladesman Inowari", reputationType=friendshipType, parentFactionID=2400}, -- achievements={13744, 13754, 13759} -- criteria-of=13704/nautical-battlefield-training
+        },
+        [LocalFactionInfo.UnitFactionGroupID.Horde] = {
+            ["2388"] = {englishName="Poen Gillbrack", reputationType=friendshipType, parentFactionID=2373},    -- achievements={13747, 13751, 13756} -- criteria-of=13645/nautical-battlefield-training
+            ["2389"] = {englishName="Neri Sharpfin", reputationType=friendshipType, parentFactionID=2373},     -- achievements={13746, 13749, 13750} -- criteria-of=13645/nautical-battlefield-training
+            ["2390"] = {englishName="Vim Brineheart", reputationType=friendshipType, parentFactionID=2373},    -- achievements={13748, 13752, 13757} -- criteria-of=13645/nautical-battlefield-training
+        },
+    },
     [ExpansionInfo.data.LEGION.ID] = {
         [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
             ["1090"] = {englishName="Kirin Tor", icon=1450997},
@@ -300,6 +340,24 @@ function LocalFactionInfo:GetExpansionBonusFactionIDs(expansionID)
     return BONUS_FACTION_ID_LIST[expansionID];
 end
 
+local function ConvertFriendshipToFactionInfo(friendshipData)
+    local factionID = friendshipData.friendshipFactionID;
+    local convertedFactionInfo = {
+        ["factionID"] = factionID,
+        ["name"] = friendshipData.name,
+        ["description"] = friendshipData.text,
+        ["reaction"] = 5, -- Friendships always use same  --> <FrameXML/.../ReputationBar.lua>
+        ["currentReactionThreshold"] = friendshipData.reactionThreshold,
+        ["nextReactionThreshold"] = friendshipData.nextThreshold,
+        ["currentStanding"] = friendshipData.standing,
+        ["atWarWith"] = false,
+        ["canToggleAtWar"] = false,
+        ["isAccountWide"] = C_Reputation.IsAccountWideReputation(factionID),
+    };
+
+    return convertedFactionInfo;
+end
+
 function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, isBonusFaction, sortFunc)
     local factionIDs = isBonusFaction and self:GetExpansionBonusFactionIDs(expansionID) or self:GetExpansionFactionIDs(expansionID);
     if not factionIDs then return; end
@@ -309,10 +367,19 @@ function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, isBonusFact
         if self:IsSuitableFactionGroupForPlayer(unitFactionGroup) then
             for factionIDstring, factionTbl in pairs(expansionFactionIDs) do
                 local factionInfo = self:GetFactionDataByID(tonumber(factionIDstring));
+
+                if (not factionInfo and factionTbl.reputationType == self.ReputationType.Friendship) then
+                    -- Note: some factions, eg. BfA bonus factions, are not in the ReputationFrame and don't seem to
+                    -- have faction data directly available, but their friendshipInfo has enough data in a slightly
+                    -- different format which we are going to use.
+                    local friendshipData = GetFriendshipReputation(tonumber(factionIDstring));
+                    factionInfo = ConvertFriendshipToFactionInfo(friendshipData);
+                end
+
                 if factionInfo then
                     factionInfo.icon = factionTbl.icon or isBonusFaction and GetBonusFactionStandingIcon(factionInfo) or 0;
                     factionInfo.isPVP = factionTbl.isPVP;
-                    factionInfo.reputationType = self:GetReputationType(factionInfo);
+                    factionInfo.reputationType = factionTbl.reputationType or self:GetReputationType(factionInfo);
                     -- Name formatting
                     if (factionInfo.reputationType == self.ReputationType.Friendship) then
                         local appendText = true;
