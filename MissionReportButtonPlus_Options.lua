@@ -123,6 +123,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showCovenantBounties"] = true,
 	["showMawThreats"] = true,
 	["showCovenantRenownLevel"] = true,
+	["separateCovenantRenownLevelTooltip"] = true,
 	["applyCovenantColors"] = true,
 	-- Battle for Azeroth
 	["showExpansion7"] = true,
@@ -1014,6 +1015,12 @@ ExpansionTooltipSettings[ExpansionInfo.data.SHADOWLANDS.ID] = {
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_COVENANT_RENOWN_TOOLTIP,
 	},
 	{
+		variable = "separateCovenantRenownLevelTooltip",
+		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
+		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
+		parentVariable = "showCovenantRenownLevel",
+	},
+	{
 		variable = "applyCovenantColors",
 		name = L["applyCovenantColors"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_FACTION_COLORS_TOOLTIP,
@@ -1308,7 +1315,7 @@ function MRBP_Settings_Register()
 			local expansionButtonInitializer = CreateSettingsButtonInitializer('', expansionInfo.name, OnExpansionButtonClick, '', addSearchTags);
 			mainLayout:AddInitializer(expansionButtonInitializer);
 			if (expansionInfo.ID >= ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) and
-			   (expansionInfo.ID <= ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID) then
+			   (expansionInfo.ID <= ExpansionInfo.data.SHADOWLANDS.ID) then
 				expansionButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
 			end
 		end

@@ -79,7 +79,7 @@ local DRAGON_RIDING_CURRENCY_TUTORIAL = DRAGON_RIDING_CURRENCY_TUTORIAL
 
 -- Return given text in an optional font color (defaults to white) delimited by 1 space character.
 ---@param text string
----@param color table|nil  A color class (see <FrameXML/GlobalColors.lua>); defaults to TOOLTIP_TEXT_FONT_COLOR
+---@param color table|nil  A color class (see <FrameXML/GlobalColors.lua>), defaults to TOOLTIP_TEXT_FONT_COLOR
 ---@return string tooltipText
 --
 local function AppendColoredText(text, color)
@@ -403,7 +403,7 @@ end
 function LocalTooltipUtil:AddBountyBoardLines(tooltip, garrisonInfo)
 	local isForShadowlands = garrisonInfo.garrisonTypeID == ExpansionInfo.data.SHADOWLANDS.garrisonTypeID
 
-    -- Only available since Legion (WoW 7.x); no longer useful in Dragonflight (WoW 10.x)
+    -- Only available since Legion (WoW 7.x), no longer useful in Dragonflight (WoW 10.x)
 	local bountyBoard = garrisonInfo.bountyBoard
 	if not bountyBoard.AreBountiesUnlocked() then
 		return
@@ -412,7 +412,7 @@ function LocalTooltipUtil:AddBountyBoardLines(tooltip, garrisonInfo)
 	-- List available bounties
 	local bounties = bountyBoard.GetBounties()
 	if (isForShadowlands and #bounties == 0) then
-		-- System retrieves callings through event listening and on opening the mission frame; try to update (again).
+		-- System retrieves callings through event listening and on opening the mission frame, try to update (again).
 		CovenantCalling_CheckCallings()
 		bounties = bountyBoard.GetBounties()
 	end
@@ -421,7 +421,7 @@ function LocalTooltipUtil:AddBountyBoardLines(tooltip, garrisonInfo)
 		for _, bountyData in ipairs(bounties) do
 			local questName = ns.GetQuestName(bountyData.questID)
 			if isForShadowlands then
-				-- Shadowland bounties have a golden border around their icon; need special treatment.
+				-- Shadowland bounties have a golden border around their icon, need special treatment.
 				-- REF.: CreateTextureMarkup(file, fileWidth, fileHeight, width, height, left, right, top, bottom, xOffset, yOffset)
 				local iconString = CreateTextureMarkup(bountyData.icon, 256, 256, 16, 16, 0.28, 0.74, 0.26, 0.72, 1, -1)
 				questName = iconString..L.TEXT_DELIMITER..questName
@@ -467,9 +467,37 @@ end
 
 ----- Faction Reputation -----
 
+function LocalTooltipUtil:AddCovenantRenownLevelLines(tooltip)
+	local covenantInfo = util.covenant.GetCovenantInfo()
+	if not util.TableHasAnyEntries(covenantInfo) then return end
+
+	local renownInfo = util.covenant.GetRenownData(covenantInfo.ID)
+	if not renownInfo then return end
+
+	-- Header
+	if IsReputationTooltip(tooltip) then
+		self:AddHeaderLine(tooltip, ExpansionInfo.data.SHADOWLANDS.name, nil, true)
+	end
+	self:AddHeaderLine(tooltip, L["showCovenantRenownLevel"])
+
+	-- Body
+	local lineText = covenantInfo.name
+	local progressText = L.MAJOR_FACTION_RENOWN_CURRENT_PROGRESS:format(renownInfo.currentRenownLevel, renownInfo.maximumRenownLevel)
+	if renownInfo.hasMaximumRenown then
+		-- Append max. level after covenant name
+		local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(renownInfo.currentRenownLevel)
+		lineText = lineText..L.TEXT_DELIMITER..DISABLED_FONT_COLOR:WrapTextInColorCode(L.PARENS_TEMPLATE:format(renownLevelText))
+		progressText = L.COVENANT_SANCTUM_RENOWN_REWARD_TITLE_COMPLETE
+	end
+	LocalTooltipUtil:AddAchievementLine(tooltip, lineText, covenantInfo.atlasName, ns.settings.applyCovenantColors and covenantInfo.color, covenantInfo.isCompleted)
+	local lineIndex, columnIndex = LocalTooltipUtil:AddObjectiveLine(tooltip, progressText, renownInfo.hasMaximumRenown)
+
+	return lineIndex, columnIndex
+end
+
 local function TryHighlightWatchedFaction(tooltip, lineIndex, factionData)
 	local watchedFactionData = LocalFactionInfo:GetWatchedFactionData()
-	if not watchedFactionData or watchedFactionData.factionID == 0 then return; end
+	if not watchedFactionData or watchedFactionData.factionID == 0 then return end
 
 	if (watchedFactionData.factionID == factionData.factionID) then
 		-- Highlight both lines, faction name + faction progress
@@ -514,7 +542,7 @@ end
 
 function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
     local factionData = LocalFactionInfo:GetAllFactionDataForExpansion(expansionInfo.ID)
-	if (factionData and #factionData == 0) then return; end
+	if (factionData and #factionData == 0) then return end
 
 	-- Header
 	if IsReputationTooltip(tooltip) then
@@ -538,7 +566,7 @@ end
 function LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)
 	local isBonusFaction = true
 	local bonusFactionData = LocalFactionInfo:GetAllFactionDataForExpansion(expansionInfo.ID, isBonusFaction)
-	if (not bonusFactionData or #bonusFactionData == 0) then return; end
+	if (not bonusFactionData or #bonusFactionData == 0) then return end
 
  	-- Header
 	if (IsReputationTooltip(tooltip) and not IsMainFactionShownInReputationTooltip(expansionInfo.ID)) then

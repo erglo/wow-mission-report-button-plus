@@ -927,23 +927,8 @@ local function MenuLine_OnEnter(...)
 	----- Shadowlands -----
 
 	if (isForShadowlands and ns.settings.showCovenantRenownLevel) then
-		local covenantInfo = util.covenant.GetCovenantInfo()
-		if util.TableHasAnyEntries(covenantInfo) then
-			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showCovenantRenownLevel"])
-			local renownInfo = util.covenant.GetRenownData(covenantInfo.ID)
-			if renownInfo then
-				local lineText = covenantInfo.name
-				local progressText = MAJOR_FACTION_RENOWN_CURRENT_PROGRESS:format(renownInfo.currentRenownLevel, renownInfo.maximumRenownLevel)
-				if renownInfo.hasMaximumRenown then
-					-- Append max. level after covenant name
-					local renownLevelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(renownInfo.currentRenownLevel)
-					lineText = lineText..L.TEXT_DELIMITER..DISABLED_FONT_COLOR:WrapTextInColorCode(PARENS_TEMPLATE:format(renownLevelText))
-					progressText = COVENANT_SANCTUM_RENOWN_REWARD_TITLE_COMPLETE
-				end
-				LocalTooltipUtil:AddAchievementLine(ExpansionTooltip, lineText, covenantInfo.atlasName, ns.settings.applyCovenantColors and covenantInfo.color, covenantInfo.isCompleted)
-				LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, progressText, renownInfo.hasMaximumRenown)
-			end
-		end
+		local tooltip = ns.settings.separateCovenantRenownLevelTooltip and ReputationTooltip or ExpansionTooltip
+		LocalTooltipUtil:AddCovenantRenownLevelLines(tooltip)
 	end
 
 	----- Dragonflight -----
