@@ -98,7 +98,7 @@ local GetDefaultCellStyle = function()
 		nil,	--> provider 
 		nil,	--> leftPadding 
 		nil,	--> rightPadding 
-		230,	--> maxWidth 
+		240,	--> maxWidth 
 		150,	--> minWidth 
 	})
 end
@@ -285,6 +285,10 @@ end
 
 local function IsReputationTooltip(tooltip)
 	return tooltip.key == ShortAddonID.."LibQTipReputationTooltip"
+end
+
+local function IsMainFactionShownInReputationTooltip(expansionID)
+	return ns.IsExpansionOptionSet("showFactionReputation", expansionID) and ns.IsExpansionOptionSet("separateFactionTooltip", expansionID)
 end
 
 -- Requires expansionInfo, eg. ExpansionInfo.data.DRAGONFLIGHT
@@ -475,8 +479,9 @@ function LocalTooltipUtil:AddCovenantRenownLevelLines(tooltip)
 	if not renownInfo then return end
 
 	-- Header
-	if IsReputationTooltip(tooltip) then
-		self:AddHeaderLine(tooltip, ExpansionInfo.data.SHADOWLANDS.name, nil, true)
+	local expansionInfo = ExpansionInfo.data.SHADOWLANDS
+	if (IsReputationTooltip(tooltip) and not IsMainFactionShownInReputationTooltip(expansionInfo.ID)) then
+		self:AddHeaderLine(tooltip, expansionInfo.name, nil, true)
 	end
 	self:AddHeaderLine(tooltip, L["showCovenantRenownLevel"])
 
@@ -542,7 +547,7 @@ end
 
 function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
     local factionData = LocalFactionInfo:GetAllFactionDataForExpansion(expansionInfo.ID)
-	if (factionData and #factionData == 0) then return end
+	if (not factionData or #factionData == 0) then return end
 
 	-- Header
 	if IsReputationTooltip(tooltip) then
@@ -557,10 +562,6 @@ function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
 		self:AddIconLine(tooltip, faction.name, faction.icon)  --, LIGHTYELLOW_FONT_COLOR)
 		self:AddFactionReputationProgressLine(tooltip, faction)
     end
-end
-
-local function IsMainFactionShownInReputationTooltip(expansionID)
-	return ns.IsExpansionOptionSet("showFactionReputation", expansionID) and ns.IsExpansionOptionSet("separateFactionTooltip", expansionID)
 end
 
 function LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)

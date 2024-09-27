@@ -7,6 +7,7 @@
 ### Added
 
 * Data + Tooltip: added optional `faction reputation` details for:
+  + `Shadowlands`
   + `Battle for Azeroth`
   + `Legion`
   + `Warlords of Draenor`

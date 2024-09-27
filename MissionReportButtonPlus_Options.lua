@@ -119,6 +119,8 @@ ns.defaultSettings = {  --> default + fallback settings
 	["hideEventDescriptions"] = false,
 	-- Shadowlands
 	["showExpansion8"] = true,
+	["showFactionReputation8"] = true,
+	["separateFactionTooltip8"] = true,
 	["showCovenantMissionInfo"] = true,
 	["showCovenantBounties"] = true,
 	["showMawThreats"] = true,
@@ -995,6 +997,18 @@ ExpansionTooltipSettings[ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = {
 
 ExpansionTooltipSettings[ExpansionInfo.data.SHADOWLANDS.ID] = {
 	{
+		variable = "showFactionReputation8",
+		name = L["MainFactionReputationLabel"],
+		tooltip = L.CFG_FACTION_REPUTATION_TOOLTIP_S:format(LIGHT_GRAY(ExpansionInfo.data.LEGION.name)),
+		tag = Settings.Default.True,
+	},
+	{
+		variable = "separateFactionTooltip8",
+		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
+		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
+		parentVariable = "showFactionReputation8",
+	},
+	{
 		variable = "showCovenantMissionInfo",
 		name = L["showCovenantMissionInfo"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
@@ -1019,6 +1033,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.SHADOWLANDS.ID] = {
 		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
 		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
 		parentVariable = "showCovenantRenownLevel",
+		tag = Settings.Default.True,
 	},
 	{
 		variable = "applyCovenantColors",

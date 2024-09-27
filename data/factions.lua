@@ -214,6 +214,21 @@ end
 ----- Data ---------------------------------------------------------------------
 
 local FACTION_ID_LIST = {
+    [ExpansionInfo.data.SHADOWLANDS.ID] = {
+        -- REF.: [Shadowlands Reputation Overview](https://www.wowhead.com/de/guide/shadowlands-reputations-overview)
+        [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
+            ["2407"] = {englishName="The Ascended", icon=3555147},              -- Bastion, criteria-of=14315/shadowlands-diplomat
+            ["2410"] = {englishName="The Undying Army", icon=3604102},          -- Maldraxxus, criteria-of=14315/shadowlands-diplomat
+            ["2413"] = {englishName="Court of Harvesters", icon=3540525},       -- Revendreth, criteria-of=14315/shadowlands-diplomat
+            ["2432"] = {englishName="Ve'nari", icon=1392953},                   -- The Maw
+            ["2439"] = {englishName="The Avowed", icon=460694},                 -- Revendreth (Halls of Atonement dungeon) 3601526
+            ["2464"] = {englishName="Court of Night", icon=3235306},           -- Ardenweald
+            ["2465"] = {englishName="The Wild Hunt", icon=3517784},             -- Ardenweald, criteria-of=14315/shadowlands-diplomat
+            ["2470"] = {englishName="Death's Advance", icon=4083292},           -- Korthia, The Maw (Added in 9.1)
+            ["2472"] = {englishName="The Archivists' Codex", icon=2101967},     -- Korthia, The Maw (Added in 9.1)
+            ["2478"] = {englishName="The Enlightened", icon=4280206},           -- Zereth Mortis (Added in 9.2)
+        },
+    },
     [ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = {
         -- REF.: [Battle for Azeroth Reputation Overview](https://www.wowhead.com/guide/battle-for-azeroth-reputation-overview)
         [LocalFactionInfo.UnitFactionGroupID.Alliance] = {
@@ -221,21 +236,21 @@ local FACTION_ID_LIST = {
             ["2160"] = {englishName="Proudmoore Admiralty", icon=2065573},      -- criteria-of=12947/azerothian-diplomat
             ["2161"] = {englishName="Order of Embers", icon=2065572},           -- criteria-of=12947/azerothian-diplomat
             ["2162"] = {englishName="Storm's Wake", icon=2065574},              -- criteria-of=12947/azerothian-diplomat
-            ["2400"] = {englishName="Waveblade Ankoan", icon=2909045},          -- criteria-of=13250/battle-for-azeroth-pathfinder-part-two
+            ["2400"] = {englishName="Waveblade Ankoan", icon=2909045},          -- criteria-of=13250/battle-for-azeroth-pathfinder-part-two (Added in 8.2)
         },
         [LocalFactionInfo.UnitFactionGroupID.Horde] = {
             ["2103"] = {englishName="Zandalari Empire", icon=2065579},
             ["2156"] = {englishName="Talanji's Expedition", icon=2065575},
             ["2157"] = {englishName="The Honorbound", icon=2065571},            -- criteria-of=12947/azerothian-diplomat
             ["2158"] = {englishName="Voldunai", icon=2065577},
-            ["2373"] = {englishName="The Unshackled", icon=2821782},            -- criteria-of=13250/battle-for-azeroth-pathfinder-part-two
+            ["2373"] = {englishName="The Unshackled", icon=2821782},            -- criteria-of=13250/battle-for-azeroth-pathfinder-part-two (Added in 8.2)
         },
         [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
             ["2163"] = {englishName="Tortollan Seekers", icon=2065576},         -- criteria-of=12947/azerothian-diplomat
             ["2164"] = {englishName="Champions of Azeroth", icon=2065570},      -- criteria-of=12947/azerothian-diplomat
-            ["2391"] = {englishName="Rustbolt Resistance", icon=2909316},       -- criteria-of=13250/battle-for-azeroth-pathfinder-part-two
-            ["2415"] = {englishName="Rajani", icon=3196265},
-            ["2417"] = {englishName="Uldum Accord", icon=3196264},
+            ["2391"] = {englishName="Rustbolt Resistance", icon=2909316},       -- criteria-of=13250/battle-for-azeroth-pathfinder-part-two (Added in 8.2)
+            ["2415"] = {englishName="Rajani", icon=3196265},                    -- (Added in 8.3)
+            ["2417"] = {englishName="Uldum Accord", icon=3196264},              -- (Added in 8.3)
         },
     },
     [ExpansionInfo.data.LEGION.ID] = {
