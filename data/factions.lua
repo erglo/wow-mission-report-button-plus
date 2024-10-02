@@ -295,6 +295,18 @@ local friendshipType = LocalFactionInfo.ReputationType.Friendship;
 -- C_GossipInfo.GetFriendshipReputation(2376)
 
 local BONUS_FACTION_ID_LIST = {
+    [ExpansionInfo.data.DRAGONFLIGHT.ID] = {
+        [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
+            ["2550"] = {englishName="Cobalt Assembly", icon=135732},
+	    ["2544"] = {englishName="Artisan's Consortium - Dragon Isles Branch", icon=4643982},
+	    ["2517"] = {englishName="Wrathion", icon=896771},  -- criteria-of=16494/loyalty-to-the-prince
+            ["2518"] = {englishName="Sabellian", icon=236469},  -- criteria-of=16760/the-obsidian-bloodline
+	    ["2526"] = {englishName="Winterpelt Furbolg", icon=1535070},
+	    ["2553"] = {englishName="Soridormi", icon=3193844},
+            ["2615"] = {englishName="Azerothian Archives", icon=5315246},  -- added in 10.2.5
+            ["2568"] = {englishName="Glimmerogg Racer", icon=4632789},  -- added in 10.1.0
+	},
+    },
     [ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = {
         [LocalFactionInfo.UnitFactionGroupID.Alliance] = {
             ["2375"] = {englishName="Hunter Akana", reputationType=friendshipType, parentFactionID=2400},      -- achievements={13743, 13753, 13758} -- criteria-of=13704/nautical-battlefield-training
