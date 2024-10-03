@@ -295,6 +295,14 @@ local friendshipType = LocalFactionInfo.ReputationType.Friendship;
 -- C_GossipInfo.GetFriendshipReputation(2376)
 
 local BONUS_FACTION_ID_LIST = {
+    [ExpansionInfo.data.WAR_WITHIN.ID] = {
+        [LocalFactionInfo.UnitFactionGroupID.Neutral] = {,
+	    ["2640"] = {englishName="Brann Bronzebeard", icon=236444},
+            ["2601"] = {englishName="The Weaver", icon=4549278, parentFactionID=2600},
+            ["2605"] = {englishName="The General", icon=4549279, parentFactionID=2600},
+            ["2607"] = {englishName="The Vizier", icon=4549280, parentFactionID=2600},
+	},
+    },
     [ExpansionInfo.data.DRAGONFLIGHT.ID] = {
         [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
             ["2550"] = {englishName="Cobalt Assembly", icon=135732},
