@@ -332,6 +332,14 @@ local friendshipType = LocalFactionInfo.ReputationType.Friendship;
 local IsEmberCourtAvailable = function() return LocalFactionInfo:IsEmberCourtAvailable(); end
 
 local BONUS_FACTION_ID_LIST = {
+    [ExpansionInfo.data.WAR_WITHIN.ID] = {
+        [LocalFactionInfo.UnitFactionGroupID.Neutral] = {,
+	    ["2640"] = {englishName="Brann Bronzebeard", icon=236444},
+            ["2601"] = {englishName="The Weaver", icon=4549278, parentFactionID=2600},
+            ["2605"] = {englishName="The General", icon=4549279, parentFactionID=2600},
+            ["2607"] = {englishName="The Vizier", icon=4549280, parentFactionID=2600},
+	},
+    },
     [ExpansionInfo.data.DRAGONFLIGHT.ID] = {
         [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
             ["2517"] = {englishName="Wrathion", icon=896771},                   -- criteria-of=16494/loyalty-to-the-prince
