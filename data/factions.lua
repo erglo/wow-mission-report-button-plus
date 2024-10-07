@@ -332,6 +332,18 @@ local friendshipType = LocalFactionInfo.ReputationType.Friendship;
 local IsEmberCourtAvailable = function() return LocalFactionInfo:IsEmberCourtAvailable(); end
 
 local BONUS_FACTION_ID_LIST = {
+    [ExpansionInfo.data.DRAGONFLIGHT.ID] = {
+        [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
+            ["2517"] = {englishName="Wrathion", icon=896771},                   -- criteria-of=16494/loyalty-to-the-prince
+            ["2526"] = {englishName="Winterpelt Furbolg", icon=1535070},
+            ["2544"] = {englishName="Artisan's Consortium - Dragon Isles Branch", icon=4643982},
+            ["2553"] = {englishName="Soridormi", icon=3193844},
+            ["2518"] = {englishName="Sabellian", icon=236469},                  -- criteria-of=16760/the-obsidian-bloodline
+            ["2550"] = {englishName="Cobalt Assembly", icon=135732},
+            ["2568"] = {englishName="Glimmerogg Racer", icon=4632789},          -- (Added in 10.1.0)
+            ["2615"] = {englishName="Azerothian Archives", icon=5315246},       -- (Added in 10.2.5)
+	    },
+    },
     [ExpansionInfo.data.SHADOWLANDS.ID] = {
         [Enum.CovenantType.Necrolord] = {
             ["2462"] = {englishName="Stitchmasters", icon=3222063}, requirement=LocalFactionInfo.IsAbominationFactoryAvailable,
