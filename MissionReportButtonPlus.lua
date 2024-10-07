@@ -936,13 +936,17 @@ local function MenuLine_OnEnter(...)
 	----- Dragonflight -----
 
 	if isForDragonflight then
-		-- Major Factions renown level and progress
-		if ns.settings.showMajorFactionRenownLevel9 then
+		-- Faction Reputation Progress
+		if ns.IsExpansionOptionSet("showMajorFactionRenownLevel", expansionInfo.ID) then
 			local tooltip = ns.settings.separateMajorFactionTooltip9 and ReputationTooltip or ExpansionTooltip
 			LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 		end
+		if ns.IsExpansionOptionSet("showBonusFactionReputation", expansionInfo.ID) then
+			local tooltip = ns.IsExpansionOptionSet("separateBonusFactionTooltip", expansionInfo.ID) and ReputationTooltip or ExpansionTooltip
+			LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)
+		end
 		-- Dragon Glyphs
-		if ns.settings.showDragonGlyphs9 then
+		if ns.IsExpansionOptionSet("showDragonGlyphs", expansionInfo.ID) then
 			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showDragonGlyphs"])
 			LocalTooltipUtil:AddDragonGlyphLines(ExpansionTooltip, expansionInfo.ID)
 		end

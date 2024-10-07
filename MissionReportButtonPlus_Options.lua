@@ -102,6 +102,8 @@ ns.defaultSettings = {  --> default + fallback settings
 	["applyMajorFactionColors9"] = true,
 	["hideMajorFactionUnlockDescription9"] = false,
 	["separateMajorFactionTooltip9"] = false,
+	["showBonusFactionReputation9"] = true,
+	["separateBonusFactionTooltip9"] = true,
 	["showDragonGlyphs9"] = true,
 	["autoHideCompletedDragonGlyphZones9"] = false,
 	["showDragonflightWorldMapEvents"] = true,
@@ -1087,6 +1089,18 @@ ExpansionTooltipSettings[ExpansionInfo.data.DRAGONFLIGHT.ID] = {
 		parentVariable = "showMajorFactionRenownLevel9",
 	},
 	{
+		variable = "showBonusFactionReputation9",
+		name = L["BonusFactionReputationLabel"],
+		tooltip = L.CFG_FACTION_REPUTATION_OTHER_FACTIONS_TOOLTIP,
+		tag = Settings.Default.True,
+	},
+	{
+		variable = "separateBonusFactionTooltip9",
+		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
+		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
+		parentVariable = "showBonusFactionReputation9",
+	},
+	{
 		variable = "showDragonGlyphs9",
 		name = L["showDragonGlyphs"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_DRAGON_GLYPHS_TOOLTIP,
@@ -1351,7 +1365,7 @@ function MRBP_Settings_Register()
 			local expansionButtonInitializer = CreateSettingsButtonInitializer('', expansionInfo.name, OnExpansionButtonClick, '', addSearchTags);
 			mainLayout:AddInitializer(expansionButtonInitializer);
 			if (expansionInfo.ID >= ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) and
-			   (expansionInfo.ID <= ExpansionInfo.data.SHADOWLANDS.ID) then
+			   (expansionInfo.ID <= ExpansionInfo.data.DRAGONFLIGHT.ID) then
 				expansionButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
 			end
 		end
