@@ -291,6 +291,20 @@ local function IsMainFactionShownInReputationTooltip(expansionID)
 	return ns.IsExpansionOptionSet("showFactionReputation", expansionID) and ns.IsExpansionOptionSet("separateFactionTooltip", expansionID)
 end
 
+local function HighlightWatchedFactionLines(tooltip, lineIndex, factionData)
+	if not ns.settings.highlightWatchedFaction then return end
+
+	local watchedFactionData = LocalFactionInfo:GetWatchedFactionData()
+	if not watchedFactionData or watchedFactionData.factionID == 0 then return end
+
+	if (watchedFactionData.factionID == factionData.factionID) then
+		-- Highlight both lines, faction name + faction progress
+		local r, g, b, a = FRIENDS_GRAY_COLOR:GetRGBA()
+		tooltip:SetLineColor(lineIndex-1, r, g, b, 0.6)
+		tooltip:SetLineColor(lineIndex, r, g, b, 0.6)
+	end
+end
+
 -- Requires expansionInfo, eg. ExpansionInfo.data.DRAGONFLIGHT
 function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 	local majorFactionData = LocalMajorFactionInfo:GetAllMajorFactionDataForExpansion(expansionInfo.ID)
@@ -313,21 +327,24 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 			local levelText = MAJOR_FACTION_BUTTON_RENOWN_LEVEL:format(factionData.renownLevel)
 			local progressText = L.REPUTATION_PROGRESS_FORMAT:format(factionData.renownReputationEarned, factionData.renownLevelThreshold)
 			local progressTextParens = AppendColoredText(L.PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
+			local lineIndex, columnIndex
 
 			if not LocalFactionInfo:IsFactionParagon(factionData.factionID) then
-				self:AddObjectiveLine(tooltip, levelText..L.TEXT_DELIMITER..progressTextParens) -- , nil, hasMaxRenown and DISABLED_FONT_COLOR)
+				lineIndex, columnIndex = self:AddObjectiveLine(tooltip, levelText..L.TEXT_DELIMITER..progressTextParens) -- , nil, hasMaxRenown and DISABLED_FONT_COLOR)
 			else
 				local paragonInfo = LocalFactionInfo:GetFactionParagonInfo(factionData.factionID)
 				local bagIconString = paragonInfo.hasRewardPending and TOOLTIP_BAG_FULL_ICON_STRING or TOOLTIP_BAG_ICON_STRING
 				progressText = LocalMajorFactionInfo:GetFactionParagonProgressText(paragonInfo)
 				progressTextParens = AppendColoredText(L.PARENS_TEMPLATE:format(progressText), TOOLTIP_TEXT_FONT_COLOR)
-				self:AddObjectiveLine(tooltip, levelText..L.TEXT_DELIMITER..progressTextParens..L.TEXT_DELIMITER..bagIconString, nil, DISABLED_FONT_COLOR)
+				lineIndex, columnIndex = self:AddObjectiveLine(tooltip, levelText..L.TEXT_DELIMITER..progressTextParens..L.TEXT_DELIMITER..bagIconString, nil, DISABLED_FONT_COLOR)
 
 				if paragonInfo.hasRewardPending then
 					local completionText = LocalMajorFactionInfo:GetParagonCompletionText(paragonInfo)
-					self:AddObjectiveLine(tooltip, completionText)
+					lineIndex, columnIndex = self:AddObjectiveLine(tooltip, completionText)
 				end
 			end
+
+			HighlightWatchedFactionLines(tooltip, lineIndex, factionData)
 		else
 			-- Major Faction is not unlocked, yet :(
 			self:AddObjectiveLine(tooltip, MAJOR_FACTION_BUTTON_FACTION_LOCKED, nil, DISABLED_FONT_COLOR)
@@ -500,18 +517,6 @@ function LocalTooltipUtil:AddCovenantRenownLevelLines(tooltip)
 	return lineIndex, columnIndex
 end
 
-local function TryHighlightWatchedFaction(tooltip, lineIndex, factionData)
-	local watchedFactionData = LocalFactionInfo:GetWatchedFactionData()
-	if not watchedFactionData or watchedFactionData.factionID == 0 then return end
-
-	if (watchedFactionData.factionID == factionData.factionID) then
-		-- Highlight both lines, faction name + faction progress
-		local r, g, b, a = FRIENDS_GRAY_COLOR:GetRGBA()
-		tooltip:SetLineColor(lineIndex-1, r, g, b, 0.6)
-		tooltip:SetLineColor(lineIndex, r, g, b, 0.6)
-	end
-end
-
 function LocalTooltipUtil:AddFactionReputationProgressLine(tooltip, factionData)
 	local hasMaxReputation = LocalFactionInfo:HasMaximumReputation(factionData)
 	local isParagon = LocalFactionInfo:IsFactionParagon(factionData.factionID)
@@ -541,7 +546,7 @@ function LocalTooltipUtil:AddFactionReputationProgressLine(tooltip, factionData)
 		end
 	end
 
-	TryHighlightWatchedFaction(tooltip, lineIndex, factionData)
+	HighlightWatchedFactionLines(tooltip, lineIndex, factionData)
 	return lineIndex, columnIndex
 end
 

@@ -86,6 +86,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showReputationRewardPendingHint"] = true,
 	["showTimewalkingVendorHint"] = true,
 	["highlightCurrentZone"] = true,
+	["highlightWatchedFaction"] = true,
 	-- Menu entries
 	["activeMenuEntries"] = {"5", "6", "7", "8", "9", "10", "99"},
 	-- The War Within
@@ -725,6 +726,12 @@ local function CreateMenuTooltipSettings(category, layout)
 			name = L.CFG_DDMENU_HIGHLIGHT_CURRENT_ZONE_TEXT,
 			tooltip = L.CFG_DDMENU_HIGHLIGHT_CURRENT_ZONE_TOOLTIP,
 		},
+		{
+			variable = "highlightWatchedFaction",
+			name = L.CFG_DDMENU_HIGHLIGHT_WATCHED_FACTION_TEXT,
+			tooltip = L.CFG_DDMENU_HIGHLIGHT_WATCHED_FACTION_TOOLTIP,
+			tag = Settings.Default.True,
+		},
 	};
 
 	CheckBox_CreateFromList(category, checkBoxList_DropDownMenuSettings);
@@ -1352,6 +1359,7 @@ function MRBP_Settings_Register()
 		local menuTooltipButtonLabel = strjoin(LIST_DELIMITER, L.CFG_DDMENU_ENTRYSELECTION_LABEL, L.CFG_DDMENU_SEPARATOR_HEADING);
 		local menuTooltipButtonInitializer = CreateSettingsButtonInitializer(menuTooltipButtonLabel, L.CFG_DDMENU_SEPARATOR_HEADING, OnMenuTooltipButtonClick, L.CFG_DDMENU_ENTRYSELECTION_TOOLTIP, addSearchTags);
 		mainLayout:AddInitializer(menuTooltipButtonInitializer);
+		menuTooltipButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
 	end
 
 	-- Appearance button
