@@ -276,12 +276,14 @@ MRBP:SetScript("OnEvent", function(self, event, ...)
 
 		elseif (event == "COVENANT_SANCTUM_RENOWN_LEVEL_CHANGED") then
 			local newRenownLevel, oldRenownLevel = ...;
-			ns.cprint(COVENANT_SANCTUM_RENOWN_LEVEL_UNLOCKED:format(newRenownLevel));
 			local covenantInfo = util.covenant.GetCovenantInfo();
-			local renownInfo = util.covenant.GetRenownData(covenantInfo.ID);
-			if renownInfo.hasMaximumRenown then
+			if covenantInfo then
 				local covenantName = covenantInfo.color:WrapTextInColorCode(covenantInfo.name);
-				ns.cprint(COVENANT_SANCTUM_RENOWN_REWARD_DESC_COMPLETE:format(covenantName));
+				ns.cprint(covenantName..L.TEXT_DASH_DELIMITER..COVENANT_SANCTUM_RENOWN_LEVEL_UNLOCKED:format(newRenownLevel));
+				local renownInfo = util.covenant.GetRenownData(covenantInfo.ID);
+				if renownInfo.hasMaximumRenown then
+					ns.cprint(COVENANT_SANCTUM_RENOWN_REWARD_DESC_COMPLETE:format(covenantName));
+				end
 			end
 
 		elseif (event == "COVENANT_CALLINGS_UPDATED") then

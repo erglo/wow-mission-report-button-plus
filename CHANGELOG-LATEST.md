@@ -11,12 +11,14 @@
   + `Battle for Azeroth`
   + `Legion`
   + `Warlords of Draenor`
+* Shadowlands: added optional bonus faction reputation details related to the covenants `Night Fae`, `Necrolord` and `Venthyr`.
 * Battle for Azeroth: added optional bonus faction reputation details for `Nazjatar friends`.
 * Legion: added optional bonus faction reputation details, eg. for `Chromie` and the `Kirin Tor` (from _Wrath of the Lich King_).
 * Warlords of Draenor: added as optional bonus `Barracks Bodyguards` faction reputation details.
 
 ### Changed
 
+* Chat: updated notification message to show the Covenant name when renown level changes.
 * Shadowlands: the Covenant renown level details can now be optionally displayed in the separate reputation tooltip.
 * L10n: updated locale files.
 
