@@ -56,18 +56,18 @@ L.StringIsEmpty = function(self, str)
 	return str == nil or strlen(str) == 0
 end
 
-local function GetBarracksBodyguardsLabel()
-    local factionCategoryID = 1735;
-    local factionData = GetFactionDataByID(factionCategoryID);
+local function GetDraenorBonusFactionsLabel()
+    local fallbackName = "Barracks Bodyguards"
+    local factionCategoryID = 1735
+    local factionData = GetFactionDataByID(factionCategoryID)
 
-    local fallbackName = "Barracks Bodyguards";
-    return factionData and factionData.name or fallbackName;
+    return factionData and factionData.name or fallbackName
 end
 
 ----- Constants -----
 
 L.TEXT_DELIMITER = ITEM_NAME_DESCRIPTION_DELIMITER
-L.TEXT_DASH_DELIMITER = L.TEXT_DELIMITER..QUEST_DASH..L.TEXT_DELIMITER;
+L.TEXT_DASH_DELIMITER = L.TEXT_DELIMITER..QUEST_DASH..L.TEXT_DELIMITER
 L.PARENS_TEMPLATE = PARENS_TEMPLATE
 L.HEADER_COLON = HEADER_COLON
 L.NEWLINE = "|n"
@@ -119,7 +119,7 @@ L["hideEventDescriptions"] = L.ENTRYTOOLTIP_DF_HIDE_EVENT_DESCRIPTIONS_LABEL
 L["MainFactionReputationLabel"] = MAJOR_FACTION_LIST_TITLE..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION)
 L["BonusFactionReputationLabel"] = FACTION_OTHER..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION)
 L["BonusFactionReputationLabel7"] = WARDROBE_TOOLTIP_ENCOUNTER_SOURCE:format(FRIENDS, SPLASH_BATTLEFORAZEROTH_8_2_0_RIGHT_TITLE)..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION)
-L["BonusFactionReputationLabel5"] = GetBarracksBodyguardsLabel()..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION)
+L["BonusFactionReputationLabel5"] = GetDraenorBonusFactionsLabel()..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(REPUTATION)
 
 L.defaultLabels = {  -- English defaults
     ["showLegionAssaultsInfo"] = "Legion Assault",                              -- Legion
@@ -363,7 +363,7 @@ end
 -- Clean up variable strings already saved in this file
 --> (See eg. "PLAYER_QUITING" event in main file)
 function LocalL10nUtil:CleanUpLabels()
-    if not MRBP_GlobalSettings then return; end
+    if not MRBP_GlobalSettings then return end
 
     if MRBP_GlobalSettings.labels then
         if (MRBP_GlobalSettings.labels[L.currentLocale] and TableIsEmpty(MRBP_GlobalSettings.labels[L.currentLocale])) then
