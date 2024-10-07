@@ -101,6 +101,7 @@ ns.L = {
 	CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TOOLTIP = "Displays your Major Factions renown progress in a separate tooltip.",
 	CFG_FACTION_REPUTATION_TOOLTIP_S = "Displays your reputation progress with the factions of %s.",
 	CFG_FACTION_REPUTATION_BARRACKS_BODYGUARDS_TOOLTIP = "Displays your reputation progress with the Barracks Bodyguards.",
+	CFG_FACTION_REPUTATION_OTHER_FACTIONS_TOOLTIP = "Displays your reputation progress with other factions relevant to this expansion, if available.",
 	CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP = "Displays your reputation progress in a separate tooltip.",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TEMPLATE_TOOLTIP = "Displays brief availability details about %s in the tooltip.",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_LEGION_INVASION = "the Legion Invasions on the Broken Isles",

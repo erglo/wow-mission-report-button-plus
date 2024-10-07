@@ -746,7 +746,7 @@ local function MenuLine_OnEnter(...)
 	ExpansionTooltip:SetCellMarginV(0)  --> needs to be set every time, since it has been reset by ":Clear()".
 	ReputationTooltip:SetCellMarginV(0)											--> TODO - add to style options ???
 	-- Tooltip header (title + description)
-	local garrisonInfo = LandingPageInfo:GetLandingPageInfo(expansionInfo.ID);
+	local garrisonInfo = LandingPageInfo:GetLandingPageInfo(expansionInfo.ID);  --> == landingPageInfo
 	local isSettingsLine = expansionInfo.ID == nil
 	local tooltipTitle = (ns.settings.preferExpansionName and not isSettingsLine) and garrisonInfo.title or expansionInfo.name
 	LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, isSettingsLine and expansionInfo.label or tooltipTitle, nil, true)
@@ -781,7 +781,7 @@ local function MenuLine_OnEnter(...)
 
 	----- Reputation -----
 
-	if (expansionInfo.ID < ExpansionInfo.data.DRAGONFLIGHT.ID) then
+	if (expansionInfo.ID < ExpansionInfo.data.DRAGONFLIGHT.ID and LocalRequirementInfo:CanShowExpansionLandingPage(garrisonInfo)) then
 		if ns.IsExpansionOptionSet("showFactionReputation", expansionInfo.ID) then
 			local tooltip = ns.IsExpansionOptionSet("separateFactionTooltip", expansionInfo.ID) and ReputationTooltip or ExpansionTooltip
 			LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)

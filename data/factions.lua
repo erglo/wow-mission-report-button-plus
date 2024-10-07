@@ -36,14 +36,14 @@
 local AddonID, ns = ...;
 local L = ns.L;
 
--- Upvalues
-local C_Reputation = C_Reputation;
+local tonumber = tonumber;
 local BreakUpLargeNumbers = BreakUpLargeNumbers;
-local HasMajorFactionMaximumRenown = C_MajorFactions.HasMaximumRenown;
-local GetMajorFactionData = C_MajorFactions.GetMajorFactionData;
+local CreateAtlasMarkup = CreateAtlasMarkup;
+local C_Reputation = C_Reputation;
 local GetFriendshipReputation = C_GossipInfo.GetFriendshipReputation;
 local GetFriendshipReputationRanks = C_GossipInfo.GetFriendshipReputationRanks;
-local CreateAtlasMarkup = CreateAtlasMarkup;
+local GetMajorFactionData = C_MajorFactions.GetMajorFactionData;
+local HasMajorFactionMaximumRenown = C_MajorFactions.HasMaximumRenown;
 
 local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
@@ -170,10 +170,48 @@ LocalFactionInfo.UnitFactionGroupID = EnumUtil.MakeEnum(
 );
 LocalFactionInfo.UnitFactionGroupID["Player"] = LocalFactionInfo.UnitFactionGroupID[LocalFactionInfo.PlayerFactionGroupID];
 
-function LocalFactionInfo:IsSuitableFactionGroupForPlayer(unitFactionGroup)
-    return (unitFactionGroup == self.UnitFactionGroupID.Player or
-            unitFactionGroup == self.UnitFactionGroupID.Neutral);
+----- Covenants -----
+
+function LocalFactionInfo:IsAbominationFactoryAvailable()
+    local ABOMINABLE_STITCHING_AND_ME_QUEST_ID = 63058;
+    return C_QuestLog.IsComplete(ABOMINABLE_STITCHING_AND_ME_QUEST_ID);
 end
+
+function LocalFactionInfo:IsEmberCourtAvailable()
+    local A_NEW_COURT_QUEST_ID = 59660;
+    return C_QuestLog.IsComplete(A_NEW_COURT_QUEST_ID);
+end
+
+function LocalFactionInfo:HasBonusFactions(expansionID)
+    if (expansionID == ExpansionInfo.data.SHADOWLANDS.ID) then
+        local playerCovenantID = PlayerInfo:GetActiveCovenantID();
+        if tContains({Enum.CovenantType.Kyrian, Enum.CovenantType.None}, playerCovenantID) then
+            return false;
+        end
+    end
+
+    return true;
+end
+
+function LocalFactionInfo:IsSuitableCovenantForPlayer(covenantID)
+    -- Enum.CovenantType
+    local playerCovenantID = PlayerInfo:GetActiveCovenantID();
+    return covenantID == playerCovenantID;
+end
+
+function LocalFactionInfo:IsSuitableGroupForPlayer(unitAffiliatedGroup, expansionID, isBonusFaction)
+    local isSuitableFactionGroup = (
+        unitAffiliatedGroup == self.UnitFactionGroupID.Player or
+        unitAffiliatedGroup == self.UnitFactionGroupID.Neutral
+    );
+
+    if (isBonusFaction and expansionID == ExpansionInfo.data.SHADOWLANDS.ID) then
+        return isSuitableFactionGroup and self:IsSuitableCovenantForPlayer(unitAffiliatedGroup);
+    end
+
+    return isSuitableFactionGroup;
+end
+
 
 ----- Reputation Type -----
 
@@ -222,7 +260,6 @@ local FACTION_ID_LIST = {
             ["2413"] = {englishName="Court of Harvesters", icon=3540525},       -- Revendreth, criteria-of=14315/shadowlands-diplomat
             ["2432"] = {englishName="Ve'nari", icon=1392953},                   -- The Maw
             ["2439"] = {englishName="The Avowed", icon=460694},                 -- Revendreth (Halls of Atonement dungeon) 3601526
-            ["2464"] = {englishName="Court of Night", icon=3235306},           -- Ardenweald
             ["2465"] = {englishName="The Wild Hunt", icon=3517784},             -- Ardenweald, criteria-of=14315/shadowlands-diplomat
             ["2470"] = {englishName="Death's Advance", icon=4083292},           -- Korthia, The Maw (Added in 9.1)
             ["2472"] = {englishName="The Archivists' Codex", icon=2101967},     -- Korthia, The Maw (Added in 9.1)
@@ -292,9 +329,40 @@ local FACTION_ID_LIST = {
 };
 
 local friendshipType = LocalFactionInfo.ReputationType.Friendship;
--- C_GossipInfo.GetFriendshipReputation(2376)
+local IsEmberCourtAvailable = function() return LocalFactionInfo:IsEmberCourtAvailable(); end
 
 local BONUS_FACTION_ID_LIST = {
+    [ExpansionInfo.data.SHADOWLANDS.ID] = {
+        [Enum.CovenantType.Necrolord] = {
+            ["2462"] = {englishName="Stitchmasters", icon=3222063}, requirement=LocalFactionInfo.IsAbominationFactoryAvailable,
+        },
+        [Enum.CovenantType.NightFae] = {
+            ["2463"] = {englishName="Marasmius", icon=0},
+            ["2464"] = {englishName="Court of Night", icon=3235306},
+        },
+        [Enum.CovenantType.Venthyr] = {
+            -- REF.: <https://www.wowhead.com/guide/venthyr-covenant-ember-court>
+            -- REF.: <https://www.wowhead.com/factions/shadowlands/the-ember-court>
+            ["2445"] = {englishName="The Ember Court", icon=3675493, requirement=IsEmberCourtAvailable},
+            -- Ember Court Guests (achievementID=14723)
+            ["2446"] = {englishName="Baroness Vashj", icon=460696, requirement=IsEmberCourtAvailable},                  --, requiredFactionID=2445, affiliatedFactions={2445}},
+            ["2447"] = {englishName="Lady Moonberry", icon=237424, requirement=IsEmberCourtAvailable},                  --, requiredFactionID=2445, affiliatedFactions={2445, 2451}},
+            ["2448"] = {englishName="Mikanikos", icon=3610526, requirement=IsEmberCourtAvailable},                      --,  requiredFactionID=2445, affiliatedFactions={2445, 2450, 2452}},
+            ["2449"] = {englishName="The Countess", icon=132702, requirement=IsEmberCourtAvailable},                    --, requiredFactionID=2445, affiliatedFactions={2445, 2453}},
+            ["2450"] = {englishName="Alexandros Mograine", icon=3087527, requirement=IsEmberCourtAvailable},            --, requiredFactionID=2445, affiliatedFactions={2445, 2448, 2450}},
+            ["2451"] = {englishName="Hunt-Captain Korayn", icon=298661, requirement=IsEmberCourtAvailable},             --, requiredFactionID=2445, affiliatedFactions={2445, 2446, 2447}},
+            ["2452"] = {englishName="Polemarch Adrestes", icon=3196822, requirement=IsEmberCourtAvailable},             --, requiredFactionID=2445, affiliatedFactions={2445}},
+            ["2453"] = {englishName="Rendle and Cudgelface", icon=3554190, requirement=IsEmberCourtAvailable},          --, requiredFactionID=2445, affiliatedFactions={2445, 2449}},
+            ["2454"] = {englishName="Choofa", requirement=IsEmberCourtAvailable},                                       --, affiliatedFactions={2446, 2447, 2451}},
+            ["2455"] = {englishName="Cryptkeeper Kassir", requirement=IsEmberCourtAvailable},                           --, affiliatedFactions={2449, 2453}},
+            ["2456"] = {englishName="Droman Aliothe", requirement=IsEmberCourtAvailable},                               --, affiliatedFactions={2449, 2453}},
+            ["2457"] = {englishName="Grandmaster Vole", requirement=IsEmberCourtAvailable},                             --, affiliatedFactions={2446, 2451, 2452}},
+            ["2458"] = {englishName="Kleia and Pelagos", requirement=IsEmberCourtAvailable},                            --, affiliatedFactions={2448, 2450}},
+            ["2459"] = {englishName="Sika", requirement=IsEmberCourtAvailable},                                         --, affiliatedFactions={2448, 2452, 2450}},
+            ["2460"] = {englishName="Stonehead", requirement=IsEmberCourtAvailable},                                    --, affiliatedFactions=2447},
+            ["2461"] = {englishName="Plague Deviser Marileth", requirement=IsEmberCourtAvailable},                      --, affiliatedFactions={2448, 2452, 2450}},
+        },
+    },
     [ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = {
         [LocalFactionInfo.UnitFactionGroupID.Alliance] = {
             ["2375"] = {englishName="Hunter Akana", reputationType=friendshipType, parentFactionID=2400},      -- achievements={13743, 13753, 13758} -- criteria-of=13704/nautical-battlefield-training
@@ -378,16 +446,17 @@ function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, isBonusFact
     if not factionIDs then return; end
 
     local factionData = {};
-    for unitFactionGroup, expansionFactionIDs in pairs(factionIDs) do
-        if self:IsSuitableFactionGroupForPlayer(unitFactionGroup) then
+    for unitAffiliatedGroup, expansionFactionIDs in pairs(factionIDs) do
+        if self:IsSuitableGroupForPlayer(unitAffiliatedGroup, expansionID, isBonusFaction) then
             for factionIDstring, factionTbl in pairs(expansionFactionIDs) do
-                local factionInfo = self:GetFactionDataByID(tonumber(factionIDstring));
+                local factionID = tonumber(factionIDstring);
+                local factionInfo = self:GetFactionDataByID(factionID);
 
                 if (not factionInfo and factionTbl.reputationType == self.ReputationType.Friendship) then
                     -- Note: some factions, eg. BfA bonus factions, are not in the ReputationFrame and don't seem to
                     -- have faction data directly available, but their friendshipInfo has enough data in a slightly
                     -- different format which we are going to use.
-                    local friendshipData = GetFriendshipReputation(tonumber(factionIDstring));
+                    local friendshipData = GetFriendshipReputation(factionID);
                     factionInfo = ConvertFriendshipToFactionInfo(friendshipData);
                 end
 
@@ -404,7 +473,9 @@ function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, isBonusFact
                         local appendText = true;
                         factionInfo.name = factionInfo.name..GetColoredPvPIconText(nil, appendText);
                     end
-                    tinsert(factionData, factionInfo);
+                    if (not factionTbl.requirement) or (factionTbl.requirement and factionTbl.requirement()) then
+                        tinsert(factionData, factionInfo);
+                    end
                 end
             end
         end

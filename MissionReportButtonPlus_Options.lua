@@ -38,6 +38,7 @@ local util = ns.utilities;
 
 local PlayerInfo = ns.PlayerInfo;  --> <data\player.lua>
 local ExpansionInfo = ns.ExpansionInfo;  --> <data\expansion.lua>
+local LocalFactionInfo = ns.FactionInfo;  --> <data\factions.lua>
 local LocalRequirementInfo = ns.RequirementInfo;  --> <data\requirements.lua>
 
 local _, addonTitle, addonNotes = C_AddOns.GetAddOnInfo(AddonID);
@@ -121,6 +122,8 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showExpansion8"] = true,
 	["showFactionReputation8"] = true,
 	["separateFactionTooltip8"] = true,
+	["showBonusFactionReputation8"] = true,
+	["separateBonusFactionTooltip8"] = true,
 	["showCovenantMissionInfo"] = true,
 	["showCovenantBounties"] = true,
 	["showMawThreats"] = true,
@@ -478,6 +481,9 @@ local function CheckBox_CreateFromList(category, checkBoxList)
 		end
 		if cb.modifyPredicate then
 			initializer:AddModifyPredicate(cb.modifyPredicate);
+		end
+		if cb.shownPredicate then
+			initializer:AddShownPredicate(cb.shownPredicate);
 		end
 		data[setting] = initializer;
 	end
@@ -875,7 +881,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.LEGION.ID] = {
 	{
 		variable = "showBonusFactionReputation6",
 		name = L["BonusFactionReputationLabel"],
-		tooltip = L.CFG_FACTION_REPUTATION_BARRACKS_BODYGUARDS_TOOLTIP,
+		tooltip = L.CFG_FACTION_REPUTATION_OTHER_FACTIONS_TOOLTIP,
 		tag = Settings.Default.True,
 	},
 	{
@@ -936,7 +942,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = {
 	{
 		variable = "showFactionReputation7",
 		name = L["MainFactionReputationLabel"],
-		tooltip = L.CFG_FACTION_REPUTATION_TOOLTIP_S:format(LIGHT_GRAY(ExpansionInfo.data.LEGION.name)),
+		tooltip = L.CFG_FACTION_REPUTATION_TOOLTIP_S:format(LIGHT_GRAY(ExpansionInfo.data.BATTLE_FOR_AZEROTH.name)),
 		tag = Settings.Default.True,
 	},
 	{
@@ -948,7 +954,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = {
 	{
 		variable = "showBonusFactionReputation7",
 		name = L["BonusFactionReputationLabel7"],
-		tooltip = L.CFG_FACTION_REPUTATION_BARRACKS_BODYGUARDS_TOOLTIP,
+		tooltip = L.CFG_FACTION_REPUTATION_OTHER_FACTIONS_TOOLTIP,
 		tag = Settings.Default.True,
 	},
 	{
@@ -999,7 +1005,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.SHADOWLANDS.ID] = {
 	{
 		variable = "showFactionReputation8",
 		name = L["MainFactionReputationLabel"],
-		tooltip = L.CFG_FACTION_REPUTATION_TOOLTIP_S:format(LIGHT_GRAY(ExpansionInfo.data.LEGION.name)),
+		tooltip = L.CFG_FACTION_REPUTATION_TOOLTIP_S:format(LIGHT_GRAY(ExpansionInfo.data.SHADOWLANDS.name)),
 		tag = Settings.Default.True,
 	},
 	{
@@ -1007,6 +1013,20 @@ ExpansionTooltipSettings[ExpansionInfo.data.SHADOWLANDS.ID] = {
 		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
 		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
 		parentVariable = "showFactionReputation8",
+	},
+	{
+		variable = "showBonusFactionReputation8",
+		name = L["BonusFactionReputationLabel"],
+		tooltip = L.CFG_FACTION_REPUTATION_OTHER_FACTIONS_TOOLTIP,
+		shownPredicate = function() return LocalFactionInfo:HasBonusFactions(ExpansionInfo.data.SHADOWLANDS.ID); end,
+		tag = Settings.Default.True,
+	},
+	{
+		variable = "separateBonusFactionTooltip8",
+		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
+		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
+		shownPredicate = function() return LocalFactionInfo:HasBonusFactions(ExpansionInfo.data.SHADOWLANDS.ID); end,
+		parentVariable = "showBonusFactionReputation8",
 	},
 	{
 		variable = "showCovenantMissionInfo",
@@ -1324,6 +1344,7 @@ function MRBP_Settings_Register()
 			local categoryID = format("%sExpansion%02dSettings", mainCategory.ID, expansionInfo.ID);
 			local OnExpansionButtonClick = function()
 				mainCategory.expanded = Settings.Default.True;  --> is not properly set by default
+				mainCategory:SetExpanded(Settings.Default.True);
 				MRBP_Settings_OpenToAddonCategory(mainCategory.ID.."MenuTooltipSettings");
 				MRBP_Settings_OpenToAddonCategory(categoryID);
 			end
