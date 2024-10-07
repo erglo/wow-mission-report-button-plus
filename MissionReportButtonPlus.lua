@@ -936,9 +936,9 @@ local function MenuLine_OnEnter(...)
 	----- Dragonflight -----
 
 	if isForDragonflight then
-		-- Faction Reputation Progress
+		-- Faction reputation progress
 		if ns.IsExpansionOptionSet("showMajorFactionRenownLevel", expansionInfo.ID) then
-			local tooltip = ns.settings.separateMajorFactionTooltip9 and ReputationTooltip or ExpansionTooltip
+			local tooltip = ns.IsExpansionOptionSet("separateMajorFactionTooltip", expansionInfo.ID) and ReputationTooltip or ExpansionTooltip
 			LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 		end
 		if ns.IsExpansionOptionSet("showBonusFactionReputation", expansionInfo.ID) then
@@ -1100,13 +1100,17 @@ local function MenuLine_OnEnter(...)
 	----- The War Within -----
 
 	if isForWarWithin then
-		-- Major Factions renown level and progress
-		if ns.settings.showMajorFactionRenownLevel10 then
-			local tooltip = ns.settings.separateMajorFactionTooltip10 and ReputationTooltip or ExpansionTooltip
+		-- Faction reputation progress
+		if ns.IsExpansionOptionSet("showMajorFactionRenownLevel", expansionInfo.ID) then
+			local tooltip = ns.IsExpansionOptionSet("separateMajorFactionTooltip", expansionInfo.ID) and ReputationTooltip or ExpansionTooltip
 			LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 		end
+		if ns.IsExpansionOptionSet("showBonusFactionReputation", expansionInfo.ID) then
+			local tooltip = ns.IsExpansionOptionSet("separateBonusFactionTooltip", expansionInfo.ID) and ReputationTooltip or ExpansionTooltip
+			LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)
+		end
 		-- Dragon Glyphs
-		if ns.settings.showDragonGlyphs10 then
+		if ns.IsExpansionOptionSet("showDragonGlyphs", expansionInfo.ID) then
 			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showDragonGlyphs"])
 			LocalTooltipUtil:AddDragonGlyphLines(ExpansionTooltip, expansionInfo.ID)
 		end

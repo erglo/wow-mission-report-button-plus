@@ -333,12 +333,12 @@ local IsEmberCourtAvailable = function() return LocalFactionInfo:IsEmberCourtAva
 
 local BONUS_FACTION_ID_LIST = {
     [ExpansionInfo.data.WAR_WITHIN.ID] = {
-        [LocalFactionInfo.UnitFactionGroupID.Neutral] = {,
-	    ["2640"] = {englishName="Brann Bronzebeard", icon=236444},
+        [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
             ["2601"] = {englishName="The Weaver", icon=4549278, parentFactionID=2600},
             ["2605"] = {englishName="The General", icon=4549279, parentFactionID=2600},
             ["2607"] = {englishName="The Vizier", icon=4549280, parentFactionID=2600},
-	},
+            ["2640"] = {englishName="Brann Bronzebeard", icon=236444},
+	    },
     },
     [ExpansionInfo.data.DRAGONFLIGHT.ID] = {
         [LocalFactionInfo.UnitFactionGroupID.Neutral] = {

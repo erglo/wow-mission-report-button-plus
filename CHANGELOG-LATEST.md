@@ -11,6 +11,7 @@
   + `Battle for Azeroth`
   + `Legion`
   + `Warlords of Draenor`
+* War Within: added optional bonus faction reputation details for the three `Severed Threads members` and the Delve companion `Brann Bronzebeard`.
 * Dragonflight: added optional bonus faction reputation details, eg. for the `Azerothian Archives` or `Soridormi`.
 * Shadowlands: added optional bonus faction reputation details related to the covenants `Night Fae`, `Necrolord` and `Venthyr`.
 * Battle for Azeroth: added optional bonus faction reputation details for `Nazjatar friends`.

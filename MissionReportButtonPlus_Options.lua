@@ -94,6 +94,8 @@ ns.defaultSettings = {  --> default + fallback settings
 	["applyMajorFactionColors10"] = true,
 	["hideMajorFactionUnlockDescription10"] = false,
 	["separateMajorFactionTooltip10"] = false,
+	["showBonusFactionReputation10"] = true,
+	["separateBonusFactionTooltip10"] = true,
 	["showDragonGlyphs10"] = true,
 	["autoHideCompletedDragonGlyphZones10"] = false,
 	-- Dragonflight
@@ -1222,6 +1224,18 @@ ExpansionTooltipSettings[ExpansionInfo.data.WAR_WITHIN.ID] = {
 		parentVariable = "showMajorFactionRenownLevel10",
 	},
 	{
+		variable = "showBonusFactionReputation10",
+		name = L["BonusFactionReputationLabel"],
+		tooltip = L.CFG_FACTION_REPUTATION_OTHER_FACTIONS_TOOLTIP,
+		tag = Settings.Default.True,
+	},
+	{
+		variable = "separateBonusFactionTooltip10",
+		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
+		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
+		parentVariable = "showBonusFactionReputation10",
+	},
+	{
 		variable = "showDragonGlyphs10",
 		name = L["showDragonGlyphs"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_DRAGON_GLYPHS_TOOLTIP,
@@ -1364,10 +1378,11 @@ function MRBP_Settings_Register()
 			end
 			local expansionButtonInitializer = CreateSettingsButtonInitializer('', expansionInfo.name, OnExpansionButtonClick, '', addSearchTags);
 			mainLayout:AddInitializer(expansionButtonInitializer);
-			if (expansionInfo.ID >= ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) and
-			   (expansionInfo.ID <= ExpansionInfo.data.DRAGONFLIGHT.ID) then
-				expansionButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
-			end
+			-- if (expansionInfo.ID >= ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) and
+			--    (expansionInfo.ID <= ExpansionInfo.data.WAR_WITHIN.ID) then
+			-- 	expansionButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
+			-- end
+			expansionButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
 		end
 	end
 
