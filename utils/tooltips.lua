@@ -291,19 +291,30 @@ local function IsMainFactionShownInReputationTooltip(expansionID)
 	return ns.IsExpansionOptionSet("showFactionReputation", expansionID) and ns.IsExpansionOptionSet("separateFactionTooltip", expansionID)
 end
 
-local function HighlightWatchedFactionLines(tooltip, lineIndex, factionData)
+-----
+
+local LinesHighlightUtil = {}
+
+function LinesHighlightUtil:HighlightFactionLines(tooltip, lineIndex, numLinesBack, color, colorAlpha)
+	-- Highlight all given lines, eg, faction name + faction progress
+	local r, g, b, a = color:GetRGBA()
+	for linesBack=0, numLinesBack do
+		tooltip:SetLineColor(lineIndex - linesBack, r, g, b, colorAlpha)
+	end
+end
+
+function LinesHighlightUtil:HighlightWatchedFactionLines(tooltip, lineIndex, factionData)
 	if not ns.settings.highlightWatchedFaction then return end
 
 	local watchedFactionData = LocalFactionInfo:GetWatchedFactionData()
 	if not watchedFactionData or watchedFactionData.factionID == 0 then return end
 
 	if (watchedFactionData.factionID == factionData.factionID) then
-		-- Highlight both lines, faction name + faction progress
-		local r, g, b, a = FRIENDS_GRAY_COLOR:GetRGBA()
-		tooltip:SetLineColor(lineIndex-1, r, g, b, 0.6)
-		tooltip:SetLineColor(lineIndex, r, g, b, 0.6)
+		self:HighlightFactionLines(tooltip, lineIndex, 1, FRIENDS_GRAY_COLOR, 0.6)
 	end
 end
+
+-----
 
 -- Requires expansionInfo, eg. ExpansionInfo.data.DRAGONFLIGHT
 function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
@@ -344,7 +355,7 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 				end
 			end
 
-			HighlightWatchedFactionLines(tooltip, lineIndex, factionData)
+			LinesHighlightUtil:HighlightWatchedFactionLines(tooltip, lineIndex, factionData)
 		else
 			-- Major Faction is not unlocked, yet :(
 			self:AddObjectiveLine(tooltip, MAJOR_FACTION_BUTTON_FACTION_LOCKED, nil, DISABLED_FONT_COLOR)
@@ -546,7 +557,7 @@ function LocalTooltipUtil:AddFactionReputationProgressLine(tooltip, factionData)
 		end
 	end
 
-	HighlightWatchedFactionLines(tooltip, lineIndex, factionData)
+	LinesHighlightUtil:HighlightWatchedFactionLines(tooltip, lineIndex, factionData)
 	return lineIndex, columnIndex
 end
 
