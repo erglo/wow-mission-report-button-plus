@@ -87,6 +87,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showTimewalkingVendorHint"] = true,
 	["highlightCurrentZone"] = true,
 	["highlightWatchedFaction"] = true,
+	["highlightRewardPendingFaction"] = true,
 	-- Menu entries
 	["activeMenuEntries"] = {"5", "6", "7", "8", "9", "10", "99"},
 	-- The War Within
@@ -730,6 +731,12 @@ local function CreateMenuTooltipSettings(category, layout)
 			variable = "highlightWatchedFaction",
 			name = L.CFG_DDMENU_HIGHLIGHT_WATCHED_FACTION_TEXT,
 			tooltip = L.CFG_DDMENU_HIGHLIGHT_WATCHED_FACTION_TOOLTIP,
+			tag = Settings.Default.True,
+		},
+		{
+			variable = "highlightRewardPendingFaction",
+			name = L.CFG_DDMENU_REWARD_PENDING_FACTION_TEXT,
+			tooltip = L.CFG_DDMENU_REWARD_PENDING_FACTION_TOOLTIP,
 			tag = Settings.Default.True,
 		},
 	};

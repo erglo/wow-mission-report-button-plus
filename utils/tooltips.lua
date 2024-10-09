@@ -314,6 +314,13 @@ function LinesHighlightUtil:HighlightWatchedFactionLines(tooltip, lineIndex, fac
 	end
 end
 
+function LinesHighlightUtil:HighlightRewardPendingFactionLines(tooltip, lineIndex)
+	if not ns.settings.highlightRewardPendingFaction then return end
+
+	-- Highlight all three lines, faction name + faction progress + go-to-instructions
+	self:HighlightFactionLines(tooltip, lineIndex, 2, GREEN_FONT_COLOR, 0.2)
+end
+
 -----
 
 -- Requires expansionInfo, eg. ExpansionInfo.data.DRAGONFLIGHT
@@ -352,6 +359,7 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 				if paragonInfo.hasRewardPending then
 					local completionText = LocalMajorFactionInfo:GetParagonCompletionText(paragonInfo)
 					lineIndex, columnIndex = self:AddObjectiveLine(tooltip, completionText)
+					LinesHighlightUtil:HighlightRewardPendingFactionLines(tooltip, lineIndex)
 				end
 			end
 
@@ -553,7 +561,8 @@ function LocalTooltipUtil:AddFactionReputationProgressLine(tooltip, factionData)
 
 		if paragonInfo.hasRewardPending then
 			local completionText = LocalMajorFactionInfo:GetParagonCompletionText(paragonInfo)
-			lineIndex, columnIndex = self:AddObjectiveLine(tooltip, completionText, nil, LIGHTERBLUE_FONT_COLOR)  -- TUTORIAL_BLUE_FONT_COLOR, ACCOUNT_WIDE_FONT_COLOR
+			lineIndex, columnIndex = self:AddObjectiveLine(tooltip, completionText)
+			LinesHighlightUtil:HighlightRewardPendingFactionLines(tooltip, lineIndex)
 		end
 	end
 
