@@ -293,7 +293,11 @@ local function IsReputationTooltip(tooltip)
 end
 
 local function IsMainFactionShownInReputationTooltip(expansionID)
-	return ns.IsExpansionOptionSet("showFactionReputation", expansionID) and ns.IsExpansionOptionSet("separateFactionTooltip", expansionID)
+	if (expansionID >= ExpansionInfo.data.DRAGONFLIGHT.ID) then
+		return ns.IsExpansionOptionSet("showMajorFactionRenownLevel", expansionID) and ns.IsExpansionOptionSet("separateMajorFactionTooltip", expansionID)
+	else
+		return ns.IsExpansionOptionSet("showFactionReputation", expansionID) and ns.IsExpansionOptionSet("separateFactionTooltip", expansionID)
+	end
 end
 
 -----
