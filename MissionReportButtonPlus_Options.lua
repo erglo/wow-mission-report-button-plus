@@ -88,6 +88,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["highlightCurrentZone"] = true,
 	["highlightWatchedFaction"] = true,
 	["highlightRewardPendingFaction"] = true,
+	["showWarbandReputationIcon"] = true,
 	-- Menu entries
 	["activeMenuEntries"] = {"5", "6", "7", "8", "9", "10", "99"},
 	-- The War Within
@@ -737,6 +738,12 @@ local function CreateMenuTooltipSettings(category, layout)
 			variable = "highlightRewardPendingFaction",
 			name = L.CFG_DDMENU_REWARD_PENDING_FACTION_TEXT,
 			tooltip = L.CFG_DDMENU_REWARD_PENDING_FACTION_TOOLTIP,
+			tag = Settings.Default.True,
+		},
+		{
+			variable = "showWarbandReputationIcon",
+			name = L.CFG_DDMENU_REPUTATION_SHOW_WARBAND_ICON_TEXT,
+			tooltip = L.CFG_DDMENU_REPUTATION_SHOW_WARBAND_ICON_TOOLTIP,
 			tag = Settings.Default.True,
 		},
 	};

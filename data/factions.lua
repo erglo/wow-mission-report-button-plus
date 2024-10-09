@@ -117,7 +117,11 @@ function LocalFactionInfo:GetWatchedFactionData()
 end
 
 function LocalFactionInfo:IsMajorFaction(factionID)
-    C_Reputation.IsMajorFaction(factionID);
+    return C_Reputation.IsMajorFaction(factionID);
+end
+
+function LocalFactionInfo:IsAccountWideReputation(factionID)
+    return C_Reputation.IsAccountWideReputation(factionID);
 end
 
 ----- Helper Functions ---------------------------------------------------------
@@ -611,7 +615,6 @@ end
 
 --> TODO
 -- C_Reputation.AreLegacyReputationsShown()
--- C_Reputation.IsAccountWideReputation(factionID)
 -- Include achievements, eg. "criteria-of" as iconString
 
 -- [ExpansionInfo.data.LEGION.ID] = {

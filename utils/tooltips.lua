@@ -87,6 +87,11 @@ local function AppendColoredText(text, color)
     return L.TEXT_DELIMITER..FontColor:WrapTextInColorCode(text)
 end
 
+local function AppendAccountIconText()
+	local iconString = CreateAtlasMarkup("questlog-questtypeicon-account", 16, 16, 2);
+    return iconString
+end
+
 ----- LibQTip -----
 
 -- REF.: qTip:SetCell(lineNum, colNum, value[, font][, justification][, colSpan][, provider][, leftPadding][, rightPadding][, maxWidth][, minWidth][, ...])
@@ -338,6 +343,9 @@ function LocalTooltipUtil:AddMajorFactionsRenownLines(tooltip, expansionInfo)
 	for _, factionData in ipairs(majorFactionData) do
 		local factionIcon = GetMajorFactionIcon(factionData)
 		local FactionColor = ShouldApplyFactionColors(expansionInfo.ID) and LocalMajorFactionInfo:GetMajorFactionColor(factionData) or TOOLTIP_TEXT_FONT_COLOR
+		if (ns.settings.showWarbandReputationIcon and LocalFactionInfo:IsAccountWideReputation(factionData.factionID)) then
+			factionData.name = factionData.name..AppendAccountIconText();
+		end
 		self:AddIconLine(tooltip, factionData.name, factionIcon, FactionColor)
 
 		if factionData.isUnlocked then
@@ -582,8 +590,9 @@ function LocalTooltipUtil:AddFactionReputationLines(tooltip, expansionInfo)
 
 	-- Body
     for i, faction in ipairs(factionData) do
-		-- local ExpansionColor = _G["EXPANSION_COLOR_"..expansionInfo.ID]		--> TODO - Currently not valid color, re-check from time to time
-		-- self:AddTextLine(tooltip, faction.name, ExpansionColor)
+		if (ns.settings.showWarbandReputationIcon and faction.isAccountWide) then
+			faction.name = faction.name..AppendAccountIconText();
+		end
 		self:AddIconLine(tooltip, faction.name, faction.icon)  --, LIGHTYELLOW_FONT_COLOR)
 		self:AddFactionReputationProgressLine(tooltip, faction)
     end
@@ -603,6 +612,9 @@ function LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)
 
 	-- Body
 	for i, bonusFaction in ipairs(bonusFactionData) do
+		if (ns.settings.showWarbandReputationIcon and bonusFaction.isAccountWide) then
+			bonusFaction.name = bonusFaction.name..AppendAccountIconText();
+		end
 		self:AddIconLine(tooltip, bonusFaction.name, bonusFaction.icon)
 		self:AddFactionReputationProgressLine(tooltip, bonusFaction)
 	end

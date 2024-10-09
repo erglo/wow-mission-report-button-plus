@@ -6,6 +6,8 @@
 
 ### Added
 
+* Tooltip: added an optional warband reputation icon for Dragonflight + War Within reputation.
+* Tooltip: added optional line highlight for factions with pending paragon reputation reward.
 * Tooltip: added optional line highlight for the currently watched faction (reputation bar).
 * Data + Tooltip: added optional `faction reputation` details for:
   + `Shadowlands`
