@@ -21,6 +21,7 @@
 -- Further reading:
 -- + REF.: <https://warcraft.wiki.gg/wiki/Reputation>
 -- + REF.: <https://warcraft.wiki.gg/wiki/FactionID>
+-- + REF.: <https://www.wowhead.com/guide/the-ultimate-reputation-guide-10726>
 -- + REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_APIDocumentationGenerated/ReputationInfoDocumentation.lua>  
 -- + REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_UIPanels_Game/ReputationFrame.lua>
 -- + REF.: <https://www.townlong-yak.com/framexml/live/Blizzard_ActionBar/ReputationBar.lua>
@@ -269,16 +270,17 @@ local FACTION_ID_LIST = {
     [ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = {
         -- REF.: [Battle for Azeroth Reputation Overview](https://www.wowhead.com/guide/battle-for-azeroth-reputation-overview)
         [LocalFactionInfo.UnitFactionGroupID.Alliance] = {
-            ["2159"] = {englishName="7th Legion", icon=2065569},
+            ["2159"] = {englishName="7th Legion", icon=2065569},                -- War Campaign
             ["2160"] = {englishName="Proudmoore Admiralty", icon=2065573},      -- criteria-of=12947/azerothian-diplomat
             ["2161"] = {englishName="Order of Embers", icon=2065572},           -- criteria-of=12947/azerothian-diplomat
             ["2162"] = {englishName="Storm's Wake", icon=2065574},              -- criteria-of=12947/azerothian-diplomat
             ["2400"] = {englishName="Waveblade Ankoan", icon=2909045},          -- criteria-of=13250/battle-for-azeroth-pathfinder-part-two (Added in 8.2)
+            --> TODO - Add faction "Honeyback Hive" (Alliance only, Battle Pet)
         },
         [LocalFactionInfo.UnitFactionGroupID.Horde] = {
             ["2103"] = {englishName="Zandalari Empire", icon=2065579},
             ["2156"] = {englishName="Talanji's Expedition", icon=2065575},
-            ["2157"] = {englishName="The Honorbound", icon=2065571},            -- criteria-of=12947/azerothian-diplomat
+            ["2157"] = {englishName="The Honorbound", icon=2065571},            -- criteria-of=12947/azerothian-diplomat, War Campaign
             ["2158"] = {englishName="Voldunai", icon=2065577},
             ["2373"] = {englishName="The Unshackled", icon=2821782},            -- criteria-of=13250/battle-for-azeroth-pathfinder-part-two (Added in 8.2)
         },
@@ -299,9 +301,9 @@ local FACTION_ID_LIST = {
             ["1894"] = {englishName="The Wardens", icon=1451000},               -- , achievements={10672, 11159}},
             ["1900"] = {englishName="Court of Farondis", icon=1450994},         -- , achievements={10672, 11159}},
             ["1948"] = {englishName="Valarjar", icon=1450999},                  -- , achievements={10672, 11159}},
-            ["2045"] = {englishName="Armies of Legionfall", icon=1708507},
-            ["2165"] = {englishName="Army of the Light", icon=1708506},
-            ["2170"] = {englishName="Argussian Reach", icon=1708505},
+            ["2045"] = {englishName="Armies of Legionfall", icon=1708507},      -- (Added in 7.2.0), Broken Shore
+            ["2165"] = {englishName="Army of the Light", icon=1708506},         -- (Added in 7.3.0), Argus
+            ["2170"] = {englishName="Argussian Reach", icon=1708505},           -- (Added in 7.3.0), Argus
         },
     },
     [ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
@@ -399,7 +401,8 @@ local BONUS_FACTION_ID_LIST = {
         [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
             ["1090"] = {englishName="Kirin Tor", icon=1450997},
             ["2135"] = {englishName="Chromie"},
-            ["2018"] = {englishName="Talon's Vengeance", icon=134496, isPVP=true},
+            ["2018"] = {englishName="Talon's Vengeance", icon=134496, isPVP=true},  -- only partially PvP
+            --> TODO - Add fishing profession-related factions, eg. Margoss (see end of file)
         },
     },
     [ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {                             --> TODO -  achievementID=9499 "Wingmen"
@@ -606,21 +609,16 @@ end
 
 ----- Bonus Factions -----
 
+--> TODO
+-- C_Reputation.AreLegacyReputationsShown()
+-- C_Reputation.IsAccountWideReputation(factionID)
+-- Include achievements, eg. "criteria-of" as iconString
+
 -- [ExpansionInfo.data.LEGION.ID] = {
 --     [LocalFactionInfo.UnitFactionGroupID.Neutral] = {
---         ["1090"] = {englishName="Kirin Tor", icon=1450997},
---         ["2135"] = {englishName="Chromie"},
---         -- ["1899"] = {englishName="Moonguard"},  --> for Hunters only ???
---         -- ["2018"] = {englishName="Talon's Vengeance", icon=134496, isPVP=true},  --> via Battlepet quests ???
---         -- ["1975"] = {englishName="Conjurer Margoss"},
---         -- [""] = {englishName="", icon=0},
+--         ["1899"] = {englishName="Moonguard"},  --> for Hunters only!
+--         ["1974"] = {englishName="Illidari"},  --> for Demon Hunters only!
+--         ["1975"] = {englishName="Conjurer Margoss"},  --> + 6? others - Fishing Friends - add to own category ???
 
---         --> TODO
---         -- C_Reputation.AreLegacyReputationsShown()
---         -- C_Reputation.IsAccountWideReputation(factionID)
---         -- Add Faction 1947 "Illidari" - neutral, but for Demon Hunters only!
---         -- Add Faction 1975 "Conjurer Margoss" + 4? others - Fishing - add to own category ???
---         -- Include achievements, eg. "criteria-of" as iconString
---     },
--- },
+--------------------------------------------------------------------------------
 --@end-do-not-package@
