@@ -23,9 +23,9 @@
 
 ### Changed
 
+* L10n: updated locale files.
 * Chat: updated notification message to show the Covenant name when renown level changes.
 * Shadowlands: the Covenant renown level details can now be optionally displayed in the separate reputation tooltip.
-* L10n: updated locale files.
 
 ## Previous Changes
 

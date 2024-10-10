@@ -91,12 +91,12 @@ ns.L = {
 	CFG_DDMENU_HINT_TIMEWALKING_VENDOR_TOOLTIP = "Auf der linken Seite des Menüs erscheint ein Hinweissymbol, sobald der Zeitwanderungshändler verfügbar wird.",
 	CFG_DDMENU_HIGHLIGHT_CURRENT_ZONE_TEXT = "Aktuelle Zone hervorheben",
 	CFG_DDMENU_HIGHLIGHT_CURRENT_ZONE_TOOLTIP = "Wenn aktiviert, wird die Zeile der zur aktuellen Zone passenden Erweiterung farblich hervorgehoben.",
-	CFG_DDMENU_HIGHLIGHT_WATCHED_FACTION_TEXT = "Rufleisten-Fraktion hervorheben",
-	CFG_DDMENU_HIGHLIGHT_WATCHED_FACTION_TOOLTIP = "Die aktuell in der Rufleiste angezeigte Fraktion, wird im Tooltip hervorgehoben.",
-	CFG_DDMENU_REWARD_PENDING_FACTION_TEXT = "Fraktion mit Belohnung hervorheben",
-	CFG_DDMENU_REWARD_PENDING_FACTION_TOOLTIP = "Die Fraktionen von denen man eine Belohnung abholen kann, werden im Tooltip hervorgehoben.",
+	CFG_DDMENU_REPUTATION_HIGHLIGHT_WATCHED_FACTION_TEXT = "Rufleisten-Fraktion hervorheben",
+	CFG_DDMENU_REPUTATION_HIGHLIGHT_WATCHED_FACTION_TOOLTIP = "Die aktuell in der Rufleiste angezeigte Fraktion, wird im Tooltip hervorgehoben.",
+	CFG_DDMENU_REPUTATION_REWARD_PENDING_FACTION_TEXT = "Fraktion mit Belohnung hervorheben",
+	CFG_DDMENU_REPUTATION_REWARD_PENDING_FACTION_TOOLTIP = "Die Fraktionen von denen man eine Belohnung abholen kann, werden im Tooltip hervorgehoben.",
 	CFG_DDMENU_REPUTATION_SHOW_WARBAND_ICON_TEXT = "Kriegsmeutenruf-Symbol anzeigen",
-	CFG_DDMENU_REPUTATION_SHOW_WARBAND_ICON_TOOLTIP = "Hinter dem Namen einer Fraktion wird ein Kriegsmeuten-Symbol angezeigt, falls es sich dabei um Kriegsmeutenruf handelt.|n|n(Dies betrifft nur die Erweiterungen Dragonflight und neuer.)",
+	CFG_DDMENU_REPUTATION_SHOW_WARBAND_ICON_TOOLTIP = "Hinter dem Namen einer Fraktion wird ein Kriegsmeuten-Symbol angezeigt, falls es sich dabei um Kriegsmeutenruf handelt.",
 	CFG_DDMENU_ENTRYTOOLTIP_LABEL = "Details-Tooltip",
 	CFG_DDMENU_ENTRYTOOLTIP_SHOW_TEXT = "Details-Tooltip anzeigen",
 	CFG_DDMENU_ENTRYTOOLTIP_SHOW_TOOLTIP = "Bei Maus über einem Menüeintrag werden Details zu Missionen der jeweiligen Erweiterung in einem Tooltip angezeigt.|n|nWenn deaktiviert, wird dieser Tooltip nicht mehr angezeigt.",
@@ -184,7 +184,8 @@ ns.L = {
 	--[[ Testing ]]--
 	WORK_IS_EXPERIMENTAL = "(Experimentell)",
 	WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION = "(Diese Funktion befindet sich in einer experimentellen Entwicklungsphase und kann unvollständige Informationen liefern oder nicht ordnungsgemäß funktionieren.)",
-	WORKS_ONLY_FOR_EXPANSION_S = "(Funktioniert z.Z. nur für %s)",
+	WORKS_ONLY_FOR_EXPANSION_S = "(Funktioniert z.Z. nur für %s und neuere Erweiterungen.)",
+	AFFECTS_ONLY_EXPANSIONS_DF_AND_NEWER = "(Dies betrifft nur die Erweiterungen Dragonflight und neuer.)",
 };
 --------------------------------------------------------------------------------
 --@end-do-not-package@

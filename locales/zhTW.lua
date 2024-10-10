@@ -5,7 +5,7 @@ end
 local ns = select(2, ...);
 
 -- Translated by EK (EKE00372)
---> @Translators: replace the line above with your name and/or email address or homepage
+--> @Translators: add to the line above your name and/or email address or homepage
 
 local L;
 -- @localization(locale="zhTW", format="lua_table", handle-unlocalized="english")@
@@ -29,7 +29,7 @@ ns.L = {
 	SLASHCMD_DESC_CHATMSG = "切換聊天通知",
 	SLASHCMD_DESC_SHOW = "顯示小地圖按鈕",
 	SLASHCMD_DESC_HIDE = "隱藏小地圖按鈕",
-	SLASHCMD_DESC_HOOK = "Updates the minimap button hooks",
+	-- SLASHCMD_DESC_HOOK = "Updates the minimap button hooks",
 	--[[ Chat messages ]]--
 	CHATMSG_SYNTAX_INFO_S = "請使用指令： '%s <argument>'",
 	CHATMSG_SILENT_S = "聊天通知已關閉，如要重新打開，請輸入：%s",
@@ -37,7 +37,7 @@ ns.L = {
 	CHATMSG_RESET = "已將設定重置為預設值。",
 	CHATMSG_UNLOCKED_COMMANDTABLES_REQUIRED = "無法顯示小地圖按鈕：至少要解鎖一個資料片，才會顯示資料片按鈕。",
 	CHATMSG_MINIMAPBUTTON_ALREADY_SHOWN = "小地圖按鈕已啟用",
-	CHATMSG_MINIMAPBUTTON_HOOKS_UPDATED = "Minimap button hooks have been updated.",
+	-- CHATMSG_MINIMAPBUTTON_HOOKS_UPDATED = "Minimap button hooks have been updated.",
 	--[[ Menu entry tooltip ]]--
 	ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL = "世界地圖事件",
 	ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL = "陣營染色",
@@ -67,7 +67,7 @@ ns.L = {
 	CFG_MINIMAPBUTTON_SHOWBUTTON_TEXT = "顯示小地圖按鈕",
 	CFG_MINIMAPBUTTON_SHOWBUTTON_TOOLTIP = "在你達到可以開啟當前版本資料片內容的等級之前，小地圖的資料片按鈕都是隱藏的。|n|n啟用此選項後，只要你解鎖了任意資料片，就可以強制顯示按鈕。",
 	CFG_TRACK_ACHIEVEMENTS_TEXT = "追蹤成就",
-	CFG_TRACK_ACHIEVEMENTS_TOOLTIP = "Events linked to the achievements below will be displayed in a gray colored text and marked with a yellow check mark symbol.",
+	-- CFG_TRACK_ACHIEVEMENTS_TOOLTIP = "Events linked to the achievements below will be displayed in a gray colored text and marked with a yellow check mark symbol.",
 	CFG_SHOW_ADDON_COMPARTMENT_TEXT = "暴雪插件按鈕",
 	CFG_SHOW_ADDON_COMPARTMENT_TOOLTIP = "在暴雪的插件收納按鈕顯示這個插件。這個按鈕的預設位置在小地圖右上方。",
 	CFG_DDMENU_SEPARATOR_HEADING = "下拉選單",
@@ -81,10 +81,10 @@ ns.L = {
 	CFG_DDMENU_HINT_MISSIONS_TOOLTIP = "任務完成後，在選單的資料片名稱後面顯示一個驚嘆號。|n|n關閉此選項將不顯示驚嘆號提示。",
 	CFG_DDMENU_HINT_MISSIONS_ALL_TEXT = "所有任務",
 	CFG_DDMENU_HINT_MISSIONS_ALL_TOOLTIP = "所有任務都完成才顯示驚嘆號。",
-	CFG_DDMENU_HINT_REPUTATION_TEXT = "Hint Reputation Reward",
-	CFG_DDMENU_HINT_REPUTATION_TOOLTIP = "An icon appears on the left side of the menu as soon as reputation reward is available.",
-	CFG_DDMENU_HINT_TIMEWALKING_VENDOR_TEXT = "Hint Timewalking Vendor",
-	CFG_DDMENU_HINT_TIMEWALKING_VENDOR_TOOLTIP = "An icon appears on the left side of the menu as soon as the Timewalking Vendor is available.",
+	-- CFG_DDMENU_HINT_REPUTATION_TEXT = "Hint Reputation Reward",
+	-- CFG_DDMENU_HINT_REPUTATION_TOOLTIP = "An icon appears on the left side of the menu as soon as reputation reward is available.",
+	-- CFG_DDMENU_HINT_TIMEWALKING_VENDOR_TEXT = "Hint Timewalking Vendor",
+	-- CFG_DDMENU_HINT_TIMEWALKING_VENDOR_TOOLTIP = "An icon appears on the left side of the menu as soon as the Timewalking Vendor is available.",
 	CFG_DDMENU_ENTRYTOOLTIP_LABEL = "提示資訊",
 	CFG_DDMENU_ENTRYTOOLTIP_SHOW_TEXT = "顯示滑鼠提示",
 	CFG_DDMENU_ENTRYTOOLTIP_SHOW_TOOLTIP = "滑鼠指向選單時，顯示該資料片的詳細資訊。如果禁用此選項則不會顯示滑鼠提示。",
@@ -117,28 +117,27 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DRAGONBANE_KEEP = "甦醒海岸的攻打龍禍要塞",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ELEMENTAL_STORMS = "巨龍群島的元素風暴",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_FYRAKK_ASSAULTS = "巨龍群島的菲拉卡襲擊",
-	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TIME_RIFTS = "the Time Rifts in Thaldraszus",
-	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE = "Researchers Under Fire in the Zaralek Cavern",
-	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN = "(Works in Zaralek Cavern only!)",
+	-- CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_TIME_RIFTS = "the Time Rifts in Thaldraszus",
+	-- CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE = "Researchers Under Fire in the Zaralek Cavern",
+	-- CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN = "(Works in Zaralek Cavern only!)",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS = "隱藏事件內容的描述。",
 	CFG_DDMENU_ENTRYSELECTION_LABEL = "選單選項",
-	CFG_DDMENU_ENTRYSELECTION_TOOLTIP = "Choose the dropdown menu's entry items that should be displayed. Simply uncheck those items which are no longer of interest to you.",
-	CFG_DDMENU_ENTRYSELECTION_TEXT_D = "%d |4menu item:menu items; selected",
-	CFG_DDMENU_ENTRYSELECTION_TEXT_WARNING = "At least 1 menu item required",
+	-- CFG_DDMENU_ENTRYSELECTION_TOOLTIP = "Choose the dropdown menu's entry items that should be displayed. Simply uncheck those items which are no longer of interest to you.",
+	-- CFG_DDMENU_ENTRYSELECTION_TEXT_D = "%d |4menu item:menu items; selected",
+	-- CFG_DDMENU_ENTRYSELECTION_TEXT_WARNING = "At least 1 menu item required",
 	CFG_DDMENU_STYLESELECTION_LABEL = "選單樣式",
-	CFG_DDMENU_STYLESELECTION_TOOLTIP = "Choose your favorite dropdown menu style.|n|n(More to come.)",
+	-- CFG_DDMENU_STYLESELECTION_TOOLTIP = "Choose your favorite dropdown menu style.|n|n(More to come.)",
 	CFG_DDMENU_STYLESELECTION_VALUE1_TEXT = "滑鼠提示",
-	CFG_DDMENU_STYLESELECTION_VALUE1_TOOLTIP = "The look of this style is that of a common tooltip bubble.",
+	-- CFG_DDMENU_STYLESELECTION_VALUE1_TOOLTIP = "The look of this style is that of a common tooltip bubble.",
 	CFG_DDMENU_STYLESELECTION_VALUE2_TEXT = "下拉選單",
-	CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP = "This style represents the look of a common dialog (pre-Dragonflight).",
-	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT = "Hide Alert Icon",
-	CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP = "Hide the Invasion Alert icon on top of the Draenor Garrison Landing Page frame, even if an invasion is available.",
+	-- CFG_DDMENU_STYLESELECTION_VALUE2_TOOLTIP = "This style represents the look of a common dialog (pre-Dragonflight).",
+	-- CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TEXT = "Hide Alert Icon",
+	-- CFG_WOD_HIDE_GARRISON_INVASION_ALERT_ICON_TOOLTIP = "Hide the Invasion Alert icon on top of the Draenor Garrison Landing Page frame, even if an invasion is available.",
 	CFG_ABOUT_ADDON_LABEL = "關於本插件",
 	CFG_ABOUT_SLASHCMD_LABEL = "聊天指令",
 	--[[ Testing ]]--
 	WORK_IS_EXPERIMENTAL = "（實驗性功能）",
 	WORK_IS_EXPERIMENTAL_TOOLTIP_ADDITION = "（實驗性功能尚未開發完成，功能可能不完整，甚至可能無法正常運作。）",
-	WORKS_ONLY_FOR_EXPANSION_S = "(Currently only supported for %s)",
 };
 --------------------------------------------------------------------------------
 --@end-do-not-package@

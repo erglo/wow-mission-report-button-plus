@@ -737,20 +737,20 @@ local function CreateMenuTooltipReputationSettings(category, layout)
 	local checkBoxList = {
 		{
 			variable = "highlightWatchedFaction",
-			name = L.CFG_DDMENU_HIGHLIGHT_WATCHED_FACTION_TEXT,
-			tooltip = L.CFG_DDMENU_HIGHLIGHT_WATCHED_FACTION_TOOLTIP,
+			name = L.CFG_DDMENU_REPUTATION_HIGHLIGHT_WATCHED_FACTION_TEXT,
+			tooltip = L.CFG_DDMENU_REPUTATION_HIGHLIGHT_WATCHED_FACTION_TOOLTIP,
 			tag = Settings.Default.True,
 		},
 		{
 			variable = "highlightRewardPendingFaction",
-			name = L.CFG_DDMENU_REWARD_PENDING_FACTION_TEXT,
-			tooltip = L.CFG_DDMENU_REWARD_PENDING_FACTION_TOOLTIP,
+			name = L.CFG_DDMENU_REPUTATION_REWARD_PENDING_FACTION_TEXT,
+			tooltip = L.CFG_DDMENU_REPUTATION_REWARD_PENDING_FACTION_TOOLTIP,
 			tag = Settings.Default.True,
 		},
 		{
 			variable = "showWarbandReputationIcon",
 			name = L.CFG_DDMENU_REPUTATION_SHOW_WARBAND_ICON_TEXT,
-			tooltip = L.CFG_DDMENU_REPUTATION_SHOW_WARBAND_ICON_TOOLTIP,
+			tooltip = L.CFG_DDMENU_REPUTATION_SHOW_WARBAND_ICON_TOOLTIP..NEW_PARAGRAPH..GRAY(L.AFFECTS_ONLY_EXPANSIONS_DF_AND_NEWER),
 			tag = Settings.Default.True,
 		},
 	};
