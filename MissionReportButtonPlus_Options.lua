@@ -728,6 +728,13 @@ local function CreateMenuTooltipSettings(category, layout)
 			name = L.CFG_DDMENU_HIGHLIGHT_CURRENT_ZONE_TEXT,
 			tooltip = L.CFG_DDMENU_HIGHLIGHT_CURRENT_ZONE_TOOLTIP,
 		},
+	};
+
+	CheckBox_CreateFromList(category, checkBoxList_DropDownMenuSettings);
+end
+
+local function CreateMenuTooltipReputationSettings(category, layout)
+	local checkBoxList = {
 		{
 			variable = "highlightWatchedFaction",
 			name = L.CFG_DDMENU_HIGHLIGHT_WATCHED_FACTION_TEXT,
@@ -748,7 +755,7 @@ local function CreateMenuTooltipSettings(category, layout)
 		},
 	};
 
-	CheckBox_CreateFromList(category, checkBoxList_DropDownMenuSettings);
+	CheckBox_CreateFromList(category, checkBoxList);
 end
 
 local function CreateMenuEntriesSelection(category, layout)
@@ -1428,6 +1435,10 @@ function MRBP_Settings_Register()
 
 	----- Right-click menu settings -----
 	CreateMenuTooltipSettings(menuTooltipCategory, menuTooltipLayout);
+
+	----- Reputation tooltip settings -----
+	menuTooltipLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(REPUTATION));
+	CreateMenuTooltipReputationSettings(menuTooltipCategory, menuTooltipLayout);
 
 	----- Menu entries selection -----
 	menuTooltipLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYSELECTION_LABEL));
