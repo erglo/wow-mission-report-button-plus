@@ -456,11 +456,13 @@ end
 
 -- Check whether the Timewalking Vendor details should be shown.
 local function ShouldShowTimewalkingVendorText(expansionInfo)
+	if (expansionInfo.ID > ExpansionInfo.data.LEGION.ID) then return end
+
 	if (expansionInfo.ID == ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) then
-		return ns.settings.showWoDWorldMapEvents and ns.settings.showWoDTimewalkingVendor
+		return ns.IsExpansionOptionSet("showWorldMapEvents", expansionInfo.ID) and ns.settings.showWoDTimewalkingVendor
 	end
 	if (expansionInfo.ID == ExpansionInfo.data.LEGION.ID) then
-		return ns.settings.showLegionWorldMapEvents and ns.settings.showLegionTimewalkingVendor
+		return ns.IsExpansionOptionSet("showWorldMapEvents", expansionInfo.ID) and ns.settings.showLegionTimewalkingVendor
 	end
 	return false
 end
@@ -828,7 +830,7 @@ local function MenuLine_OnEnter(...)
 			LocalTooltipUtil:AddTextLine(ExpansionTooltip, GARRISON_LANDING_INVASION_TOOLTIP)
 		end
 		-- Draenor Treasures
-		if (ns.settings.showWoDWorldMapEvents and ns.settings.showDraenorTreasures) then
+		if (ns.IsExpansionOptionSet("showWorldMapEvents", expansionInfo.ID) and ns.settings.showDraenorTreasures) then
 			LocalTooltipUtil:AddDraenorTreasureLines(ExpansionTooltip)
 		end
 	end
@@ -841,7 +843,7 @@ local function MenuLine_OnEnter(...)
 
 	----- Legion -----
 
-	if (isForLegion and ns.settings.showLegionWorldMapEvents) then
+	if (isForLegion and ns.IsExpansionOptionSet("showWorldMapEvents", expansionInfo.ID)) then
 		-- Legion Invasion
 		if ns.settings.showLegionAssaultsInfo then
 			local legionAssaultsAreaPoiInfo = util.poi.GetLegionAssaultsInfo()
@@ -905,7 +907,7 @@ local function MenuLine_OnEnter(...)
 	----- Battle for Azeroth -----
 
 	if isForBattleForAzeroth then
-		if (ns.settings.showBfAWorldMapEvents and ns.settings.showBfAFactionAssaultsInfo) then
+		if (ns.IsExpansionOptionSet("showWorldMapEvents", expansionInfo.ID) and ns.settings.showBfAFactionAssaultsInfo) then
 			local factionAssaultsAreaPoiInfo = util.poi.GetBfAFactionAssaultsInfo()
 			if factionAssaultsAreaPoiInfo then
 				LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showBfAFactionAssaultsInfo"])
@@ -951,7 +953,7 @@ local function MenuLine_OnEnter(...)
 			LocalTooltipUtil:AddDragonGlyphLines(ExpansionTooltip, expansionInfo.ID)
 		end
 		----- World Map events -----
-		if ns.settings.showDragonflightWorldMapEvents then
+		if ns.IsExpansionOptionSet("showWorldMapEvents", expansionInfo.ID) then
 			-- Dragonriding Race
 			if ns.settings.showDragonRaceInfo then
 				local raceAreaPoiInfo = util.poi.GetDragonRaceInfo()
