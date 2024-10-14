@@ -1398,7 +1398,7 @@ end
 
 -- Main POI retrieval function; Gets all POIs of given map info.
 ---@param mapInfo table|UiMapDetails
----@param includeAreaName boolean|nil
+---@param eventData table
 ---@return AreaPOIInfo[]|nil activeAreaPOIs
 ---@class AreaPOIInfo
 --
@@ -1440,6 +1440,9 @@ function LocalMapUtil.GetAreaPOIForMapInfo(mapInfo, eventData)
 					-- local areaName = MapUtil.FindBestAreaNameAtMouse(mapInfo.mapID, poiInfo.position:GetXY())
 					-- poiInfo.areaName = areaName and areaName or mapInfo.name
 					poiInfo.areaName = MapUtil.FindBestAreaNameAtMouse(mapInfo.mapID, poiInfo.position:GetXY())
+				end
+				if (eventData and eventData.debug) then
+					poiInfo.name = format("%s |cff808080(p%d-w%d)|r", poiInfo.name, poiInfo.areaPoiID, poiInfo.tooltipWidgetSet);
 				end
 				poiInfo.mapInfo = mapInfo;
 				tinsert(activeAreaPOIs, poiInfo);

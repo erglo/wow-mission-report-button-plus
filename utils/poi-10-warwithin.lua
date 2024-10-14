@@ -33,6 +33,8 @@ local LocalAchievementUtil = ns.achievement;
 local LocalQuestUtil = ns.questUtil;
 local util = ns.utilities;
 
+local SPEC_ACTIVE = SPEC_ACTIVE;
+
 --------------------------------------------------------------------------------
 ----- POI event handler --------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -45,3 +47,57 @@ local util = ns.utilities;
 
 local LocalPoiData = {};
 ns.poi10 = LocalPoiData;  --> for project-wide use
+
+
+----- Theater Troupe -----
+
+local TheaterTroupeData = {};
+TheaterTroupeData.widgetSetID = 1016;
+TheaterTroupeData.mapID = 2248;  -- Isle of Dorn
+TheaterTroupeData.mapInfo = LocalMapUtil.GetMapInfo(TheaterTroupeData.mapID);
+TheaterTroupeData.CompareFunction = LocalPoiUtil.DoesEventDataMatchWidgetSetID;
+TheaterTroupeData.includeAreaName = true;
+TheaterTroupeData.isMapEvent = true;
+
+TheaterTroupeData.GetNextEventTime = function(self)
+	-- The Superbloom event occurs every full hour.
+	local now = GetServerTime();
+	local waitTimeSeconds = 3600;
+	local eventTime = now + C_DateAndTime.GetSecondsUntilDailyReset();
+	while eventTime > (now + waitTimeSeconds) do
+		eventTime = eventTime - waitTimeSeconds;
+	end
+	return eventTime - now;
+end
+TheaterTroupeData.GetTimeLeft = function(self)
+	-- The event starts every full hour: 
+	--> 5 minutes for preparations before (!) main event (part of normal countdown),
+	--> 10 minutes for main event (display as countdown)
+	local secondsLeft = self:GetNextEventTime();
+	local isActive = (3600-secondsLeft) <= 600;  -- event lasts for 10 minutes
+	if (secondsLeft >= 0) then
+		local timeLeftSeconds = isActive and (secondsLeft-3000) or secondsLeft;
+		local timeLeftInfo = LocalQuestUtil.GetQuestTimeLeftInfo(nil, timeLeftSeconds);
+		local timeLeftString = timeLeftInfo and timeLeftInfo.coloredTimeLeftString;
+		return timeLeftString, isActive;
+	end
+end
+
+function LocalPoiData.GetTheaterTroupeInfo()
+	local poiInfo = LocalPoiUtil.SingleArea.GetAreaPoiInfo(TheaterTroupeData);
+	if poiInfo then
+		-- Note: don't save name, it always changes.
+        -- Show 'timeString2' only during theater preparations and event duration.
+		local timeLeftString, isActive = TheaterTroupeData:GetTimeLeft();
+		if (poiInfo.secondsLeft and poiInfo.secondsLeft >= 3300) then
+			poiInfo.timeString2 = timeLeftString..util.CreateInlineIcon("activities-clock-standard", 13, 13, 3);
+		end
+		if isActive then
+			poiInfo.isActive = isActive;
+			poiInfo.timeString2 = timeLeftString..L.TEXT_DELIMITER..GREEN_FONT_COLOR:WrapTextInColorCode(SPEC_ACTIVE);
+		end
+
+		return poiInfo;
+	end
+end
+-- Test_GetTheaterTroupeInfo = LocalPoiData.GetTheaterTroupeInfo;

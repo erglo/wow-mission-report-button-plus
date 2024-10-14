@@ -1116,6 +1116,27 @@ local function MenuLine_OnEnter(...)
 			LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, L["showDragonGlyphs"])
 			LocalTooltipUtil:AddDragonGlyphLines(ExpansionTooltip, expansionInfo.ID)
 		end
+		----- World Map events -----
+		if ns.IsExpansionOptionSet("showWorldMapEvents", expansionInfo.ID) then
+			-- Theater Troupe
+			if ns.settings.showTheaterTroupeInfo then
+				local twwTheaterTroupeInfo = ns.poi10.GetTheaterTroupeInfo()
+				if twwTheaterTroupeInfo then
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, twwTheaterTroupeInfo.isActive and twwTheaterTroupeInfo.name or L["showTheaterTroupeInfo"])
+					LocalTooltipUtil:AddIconLine(ExpansionTooltip, twwTheaterTroupeInfo.mapInfo.name, twwTheaterTroupeInfo.atlasName)
+					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, twwTheaterTroupeInfo.areaName)
+					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, twwTheaterTroupeInfo.timeString)  -- time until next event
+					if twwTheaterTroupeInfo.timeString2 then
+						LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, twwTheaterTroupeInfo.timeString2)  -- preparations + active timer
+					end
+					-- The world map POI's tooltip info doesn't update unless we are in the same zone as the event.
+					local landingPageInfo = LandingPageInfo:GetPlayerLocationLandingPageInfo()
+					if (landingPageInfo.landingPageTypeID == garrisonInfo.landingPageTypeID and not L:StringIsEmpty(twwTheaterTroupeInfo.description)) then  -- and not ns.settings.hideEventDescriptions then
+						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, twwTheaterTroupeInfo.description)
+					end
+				end
+			end
+		end
 	end
 
 	----- Tests -----

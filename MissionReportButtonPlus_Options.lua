@@ -101,6 +101,8 @@ ns.defaultSettings = {  --> default + fallback settings
 	["separateBonusFactionTooltip10"] = true,
 	["showDragonGlyphs10"] = true,
 	["autoHideCompletedDragonGlyphZones10"] = false,
+	["showWorldMapEvents10"] = true,
+	["showTheaterTroupeInfo"] = true,
 	-- Dragonflight
 	["showExpansion9"] = true,
 	["showMajorFactionRenownLevel9"] = true,
@@ -1274,6 +1276,17 @@ ExpansionTooltipSettings[ExpansionInfo.data.WAR_WITHIN.ID] = {
 		name = L["autoHideCompletedDragonGlyphZones"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_HIDE_DRAGON_GLYPHS_TOOLTIP,
 		parentVariable = "showDragonGlyphs10",
+	},
+	{
+		variable = "showWorldMapEvents10",
+		name = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TEXT,
+		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
+	},
+	{
+		variable = "showTheaterTroupeInfo",
+		name = L["showTheaterTroupeInfo"],
+		tooltip = FormatTooltipTemplate("showTheaterTroupeInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_THEATER_TROUPE),
+		parentVariable = "showWorldMapEvents10",
 	},
 };
 

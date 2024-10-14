@@ -141,6 +141,7 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_DREAMSURGE = "des Traumsprungs auf den Dracheninseln",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_SUPERBLOOM = "der Superblüte im Smaragdgrünen Traum",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_THE_BIG_DIG = "über das große Buddeln auf den Dracheninseln",
+	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_THEATER_TROUPE = "der Theatertruppe auf der Insel von Dorn",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_RESEARCHERS_UNDER_FIRE = "von Forscher unter Feuer in der Zaralekhöhle",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_ONLY_IN_ZARALEK_CAVERN = "(Funktioniert nur in der Zaralekhöhle!)",
 	CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS = "Wenn aktiviert, werden Texte die weitere Details zu einem Ereignis beschreiben, ausgeblendet.",

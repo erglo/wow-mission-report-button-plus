@@ -135,6 +135,7 @@ L.defaultLabels = {  -- English defaults
     ["showDreamsurgeInfo"] = "Dreamsurge",
     ["showSuperbloomInfo"] = "Superbloom",
     ["showTheBigDigInfo"] = "Azerothian Archives",
+    ["showTheaterTroupeInfo"] = "The Theater Troupe",                           -- War Within
 }
 --> TODO - Add Shadowlands "Covenant Assaults"
 --> TODO - Add BfA "Faction Assaults"
@@ -159,6 +160,7 @@ local SAVED_LABELS = {
         ["showDreamsurgeInfo"] = "Traumsprung",
         ["showSuperbloomInfo"] = "Superblüte",
         ["showTheBigDigInfo"] = "Archive von Azeroth",
+        ["showTheaterTroupeInfo"] = "Die Theatertruppe",                        -- War Within
     },
     ["esES"] = {
         ["showLegionAssaultsInfo"] = "Asalto de la Legión",                     -- Legion
@@ -177,6 +179,7 @@ local SAVED_LABELS = {
         ["showDreamsurgeInfo"] = "Pico Onírico",
         ["showSuperbloomInfo"] = "Superfloración",
         ["showTheBigDigInfo"] = "Archivos de Azeroth",
+        ["showTheaterTroupeInfo"] = "La compañía teatral",                      -- War Within
     },
     ["frFR"] = {
         ["showLegionAssaultsInfo"] = "Assaut de la Légion",                     -- Legion
@@ -195,6 +198,7 @@ local SAVED_LABELS = {
         ["showDreamsurgeInfo"] = "Poussée onirique",
         ["showSuperbloomInfo"] = "Superfloraison",
         ["showTheBigDigInfo"] = "Archives d’Azeroth",
+        ["showTheaterTroupeInfo"] = "La troupe de théâtre",                     -- War Within
     },
     ["itIT"] = {
         ["showLegionAssaultsInfo"] = "Assalto della Legione ",                  -- Legion
@@ -213,6 +217,7 @@ local SAVED_LABELS = {
         ["showDreamsurgeInfo"] = "Sovronirico",
         ["showSuperbloomInfo"] = "Superfioritura",
         ["showTheBigDigInfo"] = "Archivi Azerothiani",
+        ["showTheaterTroupeInfo"] = "La Compagnia Teatrale",                    -- War Within
     },
     ["ptBR"] = {
         ["showLegionAssaultsInfo"] = "Ataque da Legião",                        -- Legion
@@ -231,6 +236,7 @@ local SAVED_LABELS = {
         ["showDreamsurgeInfo"] = "Surto Onírico",
         ["showSuperbloomInfo"] = "Superflorada",
         ["showTheBigDigInfo"] = "Arquivo Azerothiano",
+        ["showTheaterTroupeInfo"] = "Os saltimbancos",                          -- War Within
     },
     ["ruRU"] = {
         ["showLegionAssaultsInfo"] = "Атака Легиона",                           -- Legion
@@ -249,6 +255,7 @@ local SAVED_LABELS = {
         ["showDreamsurgeInfo"] = "Прилив Снов",
         ["showSuperbloomInfo"] = "Цветочный бум",
         ["showTheBigDigInfo"] = "Азеротские Архивы",
+        ["showTheaterTroupeInfo"] = "Театральная труппа",                       -- War Within
     },
     ["zhCN"] = {
         ["showLegionAssaultsInfo"] = "军团入侵",                                 -- Legion
@@ -267,6 +274,7 @@ local SAVED_LABELS = {
         ["showDreamsurgeInfo"] = "梦涌",
         ["showSuperbloomInfo"] = "超然",
         ["showTheBigDigInfo"] = "艾泽拉斯档案馆",
+        ["showTheaterTroupeInfo"] = "剧场巡演",                                  -- War Within
     },
     ["zhTW"] = {
         ["showLegionAssaultsInfo"] = "軍團入侵",                                 -- Legion
@@ -285,6 +293,7 @@ local SAVED_LABELS = {
         -- ["showDreamsurgeInfo"] = "",
         -- ["showSuperbloomInfo"] = "",
         -- ["showTheBigDigInfo"] = "",
+        -- ["showTheaterTroupeInfo"] = "",                                      -- War Within
     },
 }
 
@@ -399,4 +408,6 @@ LocalL10nUtil.LoadInGameLabels = function(self)
     L["showDreamsurgeInfo"] = GetLabel("showDreamsurgeInfo")
     L["showSuperbloomInfo"] = GetLabel("showSuperbloomInfo")
     L["showTheBigDigInfo"] = GetLabel("showTheBigDigInfo")
+    -- War Within
+    L["showTheaterTroupeInfo"] = GetLabel("showTheaterTroupeInfo")
 end
