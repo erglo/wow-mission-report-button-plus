@@ -496,13 +496,14 @@ local function CheckBox_CreateFromList(category, checkBoxList)
 	end
 	-- Set dependencies for each checkbox after (!) it has been created
 	for setting, initializer in pairs(data) do
-		local hasParentInitializer = setting.parentVariable ~= nil;
-		if hasParentInitializer then
+		if setting.parentVariable then
 			local parentSetting = Settings.GetSetting(setting.parentVariable);
-			local function IsModifiable()
-				return parentSetting:GetValue();
+			if parentSetting then
+				local function IsModifiable()
+					return parentSetting:GetValue();
+				end
+				initializer:SetParentInitializer(parentSetting.initializer, IsModifiable);
 			end
-			initializer:SetParentInitializer(parentSetting.initializer, IsModifiable);
 		end
 	end
 end
