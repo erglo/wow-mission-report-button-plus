@@ -25,7 +25,7 @@ ns.L = {
 	CHATMSG_MINIMAPBUTTON_ALREADY_SHOWN = "Minimap button is already visible.",
 	CHATMSG_MINIMAPBUTTON_HOOKS_UPDATED = "Minimap button hooks have been updated.",
 	--[[ Menu entry tooltip ]]--
-	ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL = "World Map Events",
+	-- ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL = "World Map Events",
 	ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL = "Apply Faction Colors",
 	ENTRYTOOLTIP_TIMEWALKING_VENDOR_LABEL = "Timewalking Vendor",
 	ENTRYTOOLTIP_LEGION_APPLY_INVASION_COLORS_LABEL = "Apply Invasion Colors",
@@ -90,6 +90,7 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_HIDE_DRAGON_GLYPHS_TOOLTIP = "Zones in which all dragon glyphs have been collected will be hidden, instead of being checked.",
 	CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP = "Displays a brief summary of your currently active missions you started at the mission table.",
 	CFG_DDMENU_ENTRYTOOLTIP_GARRISON_INVASION_ALERT_TOOLTIP = "Shows an alert when an invasion in your Garrison is active.",
+	CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TEXT = "World Map Events",
 	CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP = "Scans the World Map for active events and provides brief availability details.",
 	CFG_DDMENU_ENTRYTOOLTIP_TIMEWALKING_VENDOR_TOOLTIP = "Displays a brief reminder about the whereabouts of the vendor during Timewalking events.",
 	CFG_DDMENU_ENTRYTOOLTIP_LEGION_BOUNTIES_TOOLTIP = "Lists the currently active Emissary Quests available on the Broken Isles and Argus in the tooltip.",

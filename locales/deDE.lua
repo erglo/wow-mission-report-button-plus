@@ -39,7 +39,7 @@ ns.L = {
 	CHATMSG_MINIMAPBUTTON_ALREADY_SHOWN = "Minikarten-Button ist bereits eingeblendet.",
 	CHATMSG_MINIMAPBUTTON_HOOKS_UPDATED = "Die Mauserkennung des Minikarten-Buttons wurde aktualisiert.",
 	--[[ Menu entry tooltip ]]--
-	ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL = "Weltkartenereignisse",
+	-- ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL = "Weltkartenereignisse",
 	ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL = "Fraktionsfarben verwenden",
 	ENTRYTOOLTIP_TIMEWALKING_VENDOR_LABEL = "Zeitwanderungshändler",
 	ENTRYTOOLTIP_LEGION_APPLY_INVASION_COLORS_LABEL = "Invasionsfarben verwenden",
@@ -104,6 +104,7 @@ ns.L = {
 	CFG_DDMENU_ENTRYTOOLTIP_HIDE_DRAGON_GLYPHS_TOOLTIP = "Zonen in denen alle Drachenglyphen eingesammelt wurden, werden automatisch ausgeblendet, anstatt sie abzuhaken.",
 	CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP = "Zeigt eine kompakte Zusammenfassung aktiver Missionen an, die am Befehlstisch gestartet wurden.",
 	CFG_DDMENU_ENTRYTOOLTIP_GARRISON_INVASION_ALERT_TOOLTIP = "Zeigt eine Benachrichtigung an, sobald eine Garnisonsinvasion aktiv ist.",
+	CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TEXT = "Weltkartenereignisse",
 	CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP = "Scannt die Weltkarte auf die unten aufgelisteten Ereignisse und zeigt sie in kompakter Form an.",
 	CFG_DDMENU_ENTRYTOOLTIP_TIMEWALKING_VENDOR_TOOLTIP = "Zeigt während Zeitwanderungsereignissen eine Erinnerung zur Verfügbarkeit des Händlers an.",
 	CFG_DDMENU_ENTRYTOOLTIP_LEGION_BOUNTIES_TOOLTIP = "Listet die verfügbaren Abgesandtenquests der Verheerten Inseln und Argus im Tooltip auf.",

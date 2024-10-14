@@ -880,7 +880,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID] = {
 	},
 	{
 		variable = "showWorldMapEvents5",
-		name = L["showWoDWorldMapEvents"],
+		name = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TEXT,
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
 	},
 	{
@@ -935,7 +935,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.LEGION.ID] = {
 	},
 	{
 		variable = "showWorldMapEvents6",
-		name = L["showLegionWorldMapEvents"],
+		name = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TEXT,
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
 	},
 	{
@@ -1012,7 +1012,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.BATTLE_FOR_AZEROTH.ID] = {
 	},
 	{
 		variable = "showWorldMapEvents7",
-		name = L["showBfAWorldMapEvents"],
+		name = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TEXT,
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
 	},
 	{
@@ -1143,7 +1143,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.DRAGONFLIGHT.ID] = {
 	},
 	{
 		variable = "showWorldMapEvents9",
-		name = L["showDragonflightWorldMapEvents"],
+		name = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TEXT,
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_WORLD_MAP_EVENTS_TOOLTIP,
 	},
 	{

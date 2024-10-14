@@ -84,20 +84,17 @@ L.UNKNOWN = UNKNOWN
 -- Warlords of Draenor
 L["showWoDMissionInfo"] = GARRISON_MISSIONS_TITLE
 L["showWoDGarrisonInvasionAlert"] = GARRISON_LANDING_INVASION
-L["showWoDWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL              --> TODO - Replace in locale files and remove from this file
 L["showWoDTimewalkingVendor"] = L.ENTRYTOOLTIP_TIMEWALKING_VENDOR_LABEL
 L["showDraenorTreasures"] = LOOT_NOUN
 -- Legion
 L["showLegionMissionInfo"] = GARRISON_MISSIONS
 L["showLegionBounties"] = BOUNTY_BOARD_LOCKED_TITLE
-L["showLegionWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL
 L["applyInvasionColors"] = L.ENTRYTOOLTIP_LEGION_APPLY_INVASION_COLORS_LABEL
 L["showLegionTimewalkingVendor"] = L.ENTRYTOOLTIP_TIMEWALKING_VENDOR_LABEL
 -- Battle for Azeroth
 L["showBfAMissionInfo"] = GARRISON_MISSIONS
 L["showBfABounties"] = BOUNTY_BOARD_LOCKED_TITLE
 L["showNzothThreats"] = WORLD_MAP_THREATS
-L["showBfAWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL
 L["showBfAFactionAssaultsInfo"] = L.ENTRYTOOLTIP_BFA_FACTION_ASSAULTS_LABEL     --> TODO - achievementID=13284
 L["applyBfAFactionColors"] = L.ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL
 L["showBfAIslandExpeditionsInfo"] = ISLANDS_HEADER
@@ -112,7 +109,6 @@ L["showMajorFactionRenownLevel"] = MAJOR_FACTION_LIST_TITLE..L.TEXT_DELIMITER..P
 L["applyMajorFactionColors"] = L.ENTRYTOOLTIP_APPLY_FACTION_COLORS_LABEL
 L["hideMajorFactionUnlockDescription"] = L.ENTRYTOOLTIP_DF_HIDE_MF_UNLOCK_DESCRIPTION_LABEL
 L["autoHideCompletedDragonGlyphZones"] = L.ENTRYTOOLTIP_DF_HIDE_DRAGON_GLYPHS_LABEL
-L["showDragonflightWorldMapEvents"] = L.ENTRYTOOLTIP_WORLD_MAP_EVENTS_LABEL
 L["hideEventDescriptions"] = L.ENTRYTOOLTIP_DF_HIDE_EVENT_DESCRIPTIONS_LABEL
 
 -- Faction Reputation
