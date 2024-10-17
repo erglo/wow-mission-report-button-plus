@@ -98,14 +98,9 @@ ExpansionInfo.data = {
 		["garrisonTypeID"] = Enum.ExpansionLandingPageType.None,  --> 0
 		["landingPageTypeID"] = Enum.ExpansionLandingPageType.WarWithin,
 		["continents"] = {2274},  -- Khaz Algar
+		["poiZones"] = {2214, 2215, 2248, 2255},  -- Ringing Deeps, Hallowfall, Isle of Dorn, Azj Kahet
 	},
 };
-
--- LocalMapUtils.KHAZ_ALGAR_MAP_ID = 2274
--- LocalMapUtils.RINGING_DEEPS_MAP_ID = 2214
--- LocalMapUtils.HALLOWFALL_MAP_ID = 2215
--- LocalMapUtils.ISLE_OF_DORN_MAP_ID = 2248
--- LocalMapUtils.AZJ_KAHET_MAP_ID = 2255
 
 ----- Data Handler -------------------------------------------------------------
 
