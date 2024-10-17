@@ -690,11 +690,6 @@ local function CreateMenuTooltipSettings(category, layout)
 			parentVariable = "showMissionCompletedHint",
 		},
 		{
-			variable = "showReputationRewardPendingHint",
-			name = L.CFG_DDMENU_HINT_REPUTATION_TEXT,
-			tooltip = L.CFG_DDMENU_HINT_REPUTATION_TOOLTIP..NEW_PARAGRAPH..GRAY(L.WORKS_ONLY_FOR_EXPANSION_S:format(ExpansionInfo.data.DRAGONFLIGHT.name)),
-		},
-		{
 			variable = "showTimewalkingVendorHint",
 			name = L.CFG_DDMENU_HINT_TIMEWALKING_VENDOR_TEXT,
 			tooltip = L.CFG_DDMENU_HINT_TIMEWALKING_VENDOR_TOOLTIP,
@@ -711,6 +706,11 @@ end
 
 local function CreateMenuTooltipReputationSettings(category, layout)
 	local checkBoxList = {
+		{
+			variable = "showReputationRewardPendingHint",
+			name = L.CFG_DDMENU_HINT_REPUTATION_TEXT,
+			tooltip = L.CFG_DDMENU_HINT_REPUTATION_TOOLTIP,
+		},
 		{
 			variable = "highlightWatchedFaction",
 			name = L.CFG_DDMENU_REPUTATION_HIGHLIGHT_WATCHED_FACTION_TEXT,

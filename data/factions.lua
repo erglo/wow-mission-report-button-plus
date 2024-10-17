@@ -513,6 +513,27 @@ function LocalFactionInfo:GetAllFactionDataForExpansion(expansionID, isBonusFact
     return factionData;
 end
 
+function LocalFactionInfo:HasExpansionAnyReputationRewardPending(expansionID, isBonusFaction)
+    if (expansionID < ExpansionInfo.data.LEGION.ID) then return; end
+
+    local factionData = self:GetAllFactionDataForExpansion(expansionID, isBonusFaction)
+    if (not factionData or #factionData == 0) then return; end
+
+    for i, faction in ipairs(factionData) do
+        if self:IsFactionParagon(faction.factionID) then
+            local paragonInfo = self:GetFactionParagonInfo(faction.factionID);
+            if paragonInfo.hasRewardPending then
+                return true;
+            end
+        end
+    end
+
+    if not isBonusFaction then
+        -- If nothing found, also check bonus factions
+        return self:HasExpansionAnyReputationRewardPending(expansionID, true);
+    end
+end
+
 ----- Formatting -----
 
 -- Retrieve the player's current reputation standing with given faction as text.

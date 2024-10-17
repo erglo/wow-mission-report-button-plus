@@ -655,14 +655,18 @@ end
 
 -- Return suitable information about eg. mission hints for given expansion.
 local function GetExpansionHintIconInfo(expansionInfo)
-	local missionsAvailable, reputationRewardPending, timeWalkingVendorAvailable = false, false, false;
+	local missionsAvailable, reputationRewardPending, timeWalkingVendorAvailable
+
 	if (expansionInfo.ID < ExpansionInfo.data.DRAGONFLIGHT.ID) then
-		missionsAvailable = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID);
-		timeWalkingVendorAvailable = ns.settings.showTimewalkingVendorHint and util.poi.HasTimewalkingVendor(expansionInfo.ID);
-	elseif ns.settings.showReputationRewardPendingHint then
-		reputationRewardPending = LocalMajorFactionInfo:HasMajorFactionReputationReward(expansionInfo.ID);
+		missionsAvailable = ShouldShowMissionCompletedHint(expansionInfo.garrisonTypeID)
+		reputationRewardPending = ns.settings.showReputationRewardPendingHint and LocalFactionInfo:HasExpansionAnyReputationRewardPending(expansionInfo.ID)
+		timeWalkingVendorAvailable = ns.settings.showTimewalkingVendorHint and util.poi.HasTimewalkingVendor(expansionInfo.ID)
+
+	else
+		reputationRewardPending = ns.settings.showReputationRewardPendingHint and LocalMajorFactionInfo:HasMajorFactionReputationReward(expansionInfo.ID)
 	end
-	return {missionsAvailable, reputationRewardPending, timeWalkingVendorAvailable};
+
+	return {missionsAvailable, reputationRewardPending, timeWalkingVendorAvailable}
 end
 
 local function ShouldShowHintColumn()
