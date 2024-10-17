@@ -6,21 +6,21 @@
 
 ### Added
 
-* War Within: added `Theater Troupe` details to tooltip and Addon Compartment.
-* War Within: added optional bonus faction reputation details for the three `Severed Threads members` and the Delve companion `Brann Bronzebeard`.
 * Tooltip: added an optional warband reputation icon for Dragonflight + War Within reputation.
 * Tooltip: added optional line highlight for factions with pending paragon reputation reward.
 * Tooltip: added optional line highlight for the currently watched faction (reputation bar).
-* Data + Tooltip: added optional `faction reputation` details for:
-  + `Shadowlands`
-  + `Battle for Azeroth`
-  + `Legion`
-  + `Warlords of Draenor`
+* War Within: added `Theater Troupe` details to tooltip and Addon Compartment.
+* War Within: added optional bonus faction reputation details for the three `Severed Threads members` and the Delve companion `Brann Bronzebeard`.
 * Dragonflight: added optional bonus faction reputation details, eg. for the `Azerothian Archives` or `Soridormi`.
 * Shadowlands: added optional bonus faction reputation details related to the covenants `Night Fae`, `Necrolord` and `Venthyr`.
 * Battle for Azeroth: added optional bonus faction reputation details for `Nazjatar friends`.
 * Legion: added optional bonus faction reputation details, eg. for `Chromie` and the `Kirin Tor` (from _Wrath of the Lich King_).
 * Warlords of Draenor: added as optional bonus `Barracks Bodyguards` faction reputation details.
+* Data + Tooltip: added optional `faction reputation` details for:
+  + `Shadowlands`
+  + `Battle for Azeroth`
+  + `Legion`
+  + `Warlords of Draenor`
 
 ### Changed
 

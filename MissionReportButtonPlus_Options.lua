@@ -1064,6 +1064,18 @@ ExpansionTooltipSettings[ExpansionInfo.data.SHADOWLANDS.ID] = {
 		parentVariable = "showBonusFactionReputation8",
 	},
 	{
+		variable = "showCovenantRenownLevel",
+		name = L["showCovenantRenownLevel"],
+		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_COVENANT_RENOWN_TOOLTIP,
+	},
+	{
+		variable = "separateCovenantRenownLevelTooltip",
+		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
+		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
+		parentVariable = "showCovenantRenownLevel",
+		tag = Settings.Default.True,
+	},
+	{
 		variable = "showCovenantMissionInfo",
 		name = L["showCovenantMissionInfo"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MISSION_INFO_TOOLTIP,
@@ -1077,18 +1089,6 @@ ExpansionTooltipSettings[ExpansionInfo.data.SHADOWLANDS.ID] = {
 		variable = "showMawThreats",
 		name = L["showMawThreats"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_MAW_THREATS_TOOLTIP,
-	},
-	{
-		variable = "showCovenantRenownLevel",
-		name = L["showCovenantRenownLevel"],
-		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_COVENANT_RENOWN_TOOLTIP,
-	},
-	{
-		variable = "separateCovenantRenownLevelTooltip",
-		name = L.CFG_MAJOR_FACTION_SEPARATE_TOOLTIP_TEXT,
-		tooltip = L.CFG_FACTION_REPUTATION_SEPARATE_TOOLTIP_TOOLTIP,
-		parentVariable = "showCovenantRenownLevel",
-		tag = Settings.Default.True,
 	},
 	{
 		variable = "applyCovenantColors",

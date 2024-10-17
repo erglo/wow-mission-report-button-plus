@@ -795,6 +795,10 @@ local function MenuLine_OnEnter(...)
 			LocalTooltipUtil:AddBonusFactionReputationLines(tooltip, expansionInfo)
 		end
 	end
+	if (isForShadowlands and ns.settings.showCovenantRenownLevel) then
+		local tooltip = ns.settings.separateCovenantRenownLevelTooltip and ReputationTooltip or ExpansionTooltip
+		LocalTooltipUtil:AddCovenantRenownLevelLines(tooltip)
+	end
 
 	----- In-progress missions -----
 
@@ -926,13 +930,6 @@ local function MenuLine_OnEnter(...)
 				LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, islandExpeditionInfo.progressText..L.TEXT_DELIMITER..appendedText, islandExpeditionInfo.isCompleted)
 			end
 		end
-	end
-
-	----- Shadowlands -----
-
-	if (isForShadowlands and ns.settings.showCovenantRenownLevel) then
-		local tooltip = ns.settings.separateCovenantRenownLevelTooltip and ReputationTooltip or ExpansionTooltip
-		LocalTooltipUtil:AddCovenantRenownLevelLines(tooltip)
 	end
 
 	----- Dragonflight -----
