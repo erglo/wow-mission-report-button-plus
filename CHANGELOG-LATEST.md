@@ -28,6 +28,10 @@
 * Chat: updated notification message to show the Covenant name when renown level changes.
 * Shadowlands: the Covenant renown level details can now be optionally displayed in the separate reputation tooltip.
 
+### Fixed
+
+* Settings: adjusted font size for Chinese (`zhCN` + `zhTW`) in "about" section; some lines where longer than the frame due to the wide-space characters.
+
 ## Previous Changes
 
 * For a complete history of changes see the [changelog file on GitHub](https://github.com/erglo/mission-report-button-plus/blob/main/CHANGELOG.md "CHANGELOG.md").

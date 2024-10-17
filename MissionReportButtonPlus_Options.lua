@@ -137,7 +137,7 @@ ns.defaultSettings = {  --> default + fallback settings
 	["showCovenantBounties"] = true,
 	["showMawThreats"] = true,
 	["showCovenantRenownLevel"] = true,
-	["separateCovenantRenownLevelTooltip"] = true,
+	["separateCovenantRenownLevelTooltip"] = false,
 	["applyCovenantColors"] = true,
 	-- Battle for Azeroth
 	["showExpansion7"] = true,
@@ -1680,7 +1680,7 @@ function MRBP_Settings_Register()
 		{"[4]", "X-Project-Homepage-WOWInterface"},
 		{L.CFG_ADDONINFOS_LICENSE, "X-License"},
 	};
-	local contributions = {"zhTW", "enUS"};
+	local contributions = {"zhCN", "zhTW", "enUS"};
 	if tContains(contributions, L.currentLocale) then
 		tinsert(addonInfos, {L.CFG_ADDONINFOS_L10N_S:format(L.currentLocale), nil, HIGHLIGHT_FONT_COLOR:WrapTextInColorCode(L.CFG_ADDONINFOS_L10N_CONTACT)});
 	end
@@ -1696,7 +1696,8 @@ function MRBP_Settings_Register()
 		metaLabel:SetText(labelText..HEADER_COLON);
 
 		if infoLabel then
-			local metaValue = aboutFrame:CreateFontString(aboutFrame:GetName().."MetaValue"..tostring(i), "ARTWORK", "GameFontHighlightSmall");
+			local metaValueFontName = tContains({"zhCN", "zhTW"}, L.currentLocale) and "GameFontHighlightSmall2" or "GameFontHighlightSmall";
+			local metaValue = aboutFrame:CreateFontString(aboutFrame:GetName().."MetaValue"..tostring(i), "ARTWORK", metaValueFontName);
 			metaValue:SetPoint("LEFT", metaLabel, "RIGHT", 4, 0);
 			metaValue:SetJustifyH("LEFT");
 			if ( strlower(infoLabel) == "author" ) then
