@@ -193,14 +193,9 @@ ns.defaultSettings = {  --> default + fallback settings
 	["menuAnchorOffsetY"] = 4,
 };
 
----Loads the saved variables for the current game character.
----**Note:** Always use `ns.settings` in this project. It holds ALL setting infos after loading,
----not so the saved variables. Variable names might also change after a while.
----
----REF.: <FrameXML/TableUtil.lua>
----
----@param verbose boolean|nil  If true, prints debug messages to chat
----
+-- Loads the saved variables for the current game character.
+-- **Note:** Always use `ns.settings` in this project. It holds ALL setting infos after loading,
+-- not so the saved variables. Variable names might also change after a while.
 local function LoadSettings(verbose)
 	local prev_loglvl = _log.level;
 	_log.level = verbose and _log.DEBUG or _log.level;
@@ -248,10 +243,7 @@ local function LoadSettings(verbose)
 	_log.level = verbose and prev_loglvl or _log.level;
 end
 
----Save a given value for a given variable name.
----@param varName string  The name of the variable
----@param value any  The new value of the given variable
----
+-- Save a given value for a given variable name.
 local function SaveSingleSetting(varName, value)
 	if (tocVersion < 110002) then												--> TODO - Remove in later release
 		-- Save project-wide (namespace) settings
@@ -267,10 +259,7 @@ local function SaveSingleSetting(varName, value)
 	end
 end
 
----Print a user-friendly chat message about the currently selected setting.
----@param text string  The name of a given option
----@param isEnabled boolean|table  The value of given option
----
+-- Print a user-friendly chat message about the currently selected setting.
 local function printOption(text, isEnabled)
 	local msg = isEnabled and VIDEO_OPTIONS_ENABLED or VIDEO_OPTIONS_DISABLED;
 	if (type(isEnabled) ~= "boolean") then
@@ -334,11 +323,7 @@ local FontSizeValueFormatter = function(value)
 	return FONT_SIZE_TEMPLATE:format(value);
 end
 
----Handle the value of given setting control.
----@param owner table  The owner of given control (ignorable)
----@param setting table  The given setting control
----@param value boolean|table  The value of the given control
----
+-- Handle the value of given setting control.
 local function CheckBox_OnValueChanged(owner, setting, value)
 	if (setting.variable == "showChatNotifications") then
 		if not value then
@@ -401,11 +386,8 @@ local function CheckBox_OnValueChanged(owner, setting, value)
 	SaveSingleSetting(varName, value);
 end
 
----Intercept the value of the dropdown menu entry (expansions) items to block the last entry from being disabled.
----The dropdown menu **needs** at least one entry in order to appear. 
----@param value boolean  The clicked value
----@return boolean
----
+-- Intercept the value of the dropdown menu entry (expansion) items to block the last entry from being disabled.
+-- The dropdown menu **needs** at least one entry in order to appear.
 local function Checkbox_OnInterceptActiveMenuEntries(value)
 	-- REF.: <FrameXML/Settings/Blizzard_SettingControls.lua>
 	--> Note: This function must return a boolean value; a nil value is NOT allowed!
@@ -432,14 +414,7 @@ function settingMixin:IsNewTagShown()
 	return self.newTagShown;
 end
 
----Create a checkbox control and register it's setting and add it to the given category.
----@param category table  Add and register checkbox to this category.
----@param variableName string  The name of this checkbox' variable.
----@param name string  Label text of this checkbox.
----@param tooltip string|nil  Tooltip text for this checkbox. (Nilable)
----@return table setting  The registered setting
----@return table initializer The checkbox control
----
+-- Create a checkbox control and register it's setting and add it to the given category.
 local function CheckBox_Create(category, variableName, name, tooltip, OnValueChangedCallback)
 	-- Prepare values
 	local defaultValue = ns.settings[variableName];
@@ -472,10 +447,7 @@ local function CheckBox_Create(category, variableName, name, tooltip, OnValueCha
 	return setting, initializer;
 end
 
----Create multiple checkboxes from a list of data.
----@param category table  The destination category.
----@param checkBoxList table  The list of data for each checkbox.
----
+-- Create multiple checkboxes from a list of data.
 local function CheckBox_CreateFromList(category, checkBoxList)
 	-- Create checkboxes
 	local data = {};
@@ -578,8 +550,9 @@ local function OnEntryEnter_SetFontPreview(optionData)
 	previewFontString:SetFontObject(selectedFontObject);
 end
 
--- valueList: {{key, label, tooltip_description}, ...}
--- allowed key types: see Settings.VarType
+-- Create a dropdown element including initializer.
+--> valueList: {{key, label, tooltip_description}, ...}
+--> allowed key types: see Settings.VarType
 local function DropDown_Create(category, variableName, valueList, defaultText, tooltip)
 	-- "menuTextFont#1-4" will be handled separately
 	local varName, menuTextFontIndexString = strsplit('#', variableName);
@@ -672,8 +645,8 @@ function MRBP_Settings_OpenToAddonCategory(categoryID, scrollToElementName)
 	return Settings.OpenToCategory(categoryID, scrollToElementName);
 end
 
+-- Toggle settings frame
 function MRBP_Settings_ToggleSettingsPanel(categoryID, scrollToElementName)
-	-- Toggle settings frame
 	if SettingsPanel:IsShown() then
 		HideUIPanel(SettingsPanel);
 	else
@@ -1226,7 +1199,6 @@ ExpansionTooltipSettings[ExpansionInfo.data.DRAGONFLIGHT.ID] = {
 		name = L["hideEventDescriptions"],
 		tooltip = L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_HIDE_EVENT_DESCRIPTIONS,
 		parentVariable = "showWorldMapEvents9",
-		-- modifyPredicate = ShouldShowEntryTooltip,
 	},
 };
 
@@ -1291,6 +1263,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.WAR_WITHIN.ID] = {
 	},
 };
 
+-- Create checkbox elements from the given table (see above).
 local function CreateExpansionTooltipSettings(category, expansionInfo)
 	local checkBoxList = ExpansionTooltipSettings[expansionInfo.ID];
 	if checkBoxList then
@@ -1358,13 +1331,6 @@ function MRBP_Settings_Register()
 			tooltip = L.CFG_MINIMAPBUTTON_USE_MIDDLE_BUTTON_TOOLTIP,
 			parentVariable = "showMinimapButton",
 		},
-		-- {
-		-- 	variable = "useSingleExpansionLandingPageType",						--> TODO - L10n
-		-- 	name = "Eine Erweiterung für alle Zonen",
-		-- 	tooltip = "Wenn aktiviert, wird eine der im Menü verfügbaren Erweiterungen als Minikarten-Button durchgehend in allen Zonen angezeigt.",
-		-- 	parentVariable = "showMinimapButton",
-		-- 	tag = Settings.Default.True,
-		-- },
 		util.AddonCompartment.IsAddonCompartmentAvailable() and {
 			variable = "showInAddonCompartment",
 			name = L.CFG_SHOW_ADDON_COMPARTMENT_TEXT,
@@ -1422,10 +1388,6 @@ function MRBP_Settings_Register()
 			end
 			local expansionButtonInitializer = CreateSettingsButtonInitializer('', expansionInfo.name, OnExpansionButtonClick, '', addSearchTags);
 			mainLayout:AddInitializer(expansionButtonInitializer);
-			-- if (expansionInfo.ID >= ExpansionInfo.data.WARLORDS_OF_DRAENOR.ID) and
-			--    (expansionInfo.ID <= ExpansionInfo.data.WAR_WITHIN.ID) then
-			-- 	expansionButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
-			-- end
 			expansionButtonInitializer.IsNewTagShown = function() return Settings.Default.True end;
 		end
 	end
@@ -1469,31 +1431,29 @@ function MRBP_Settings_Register()
 		end
 	end
 
-	if ns.settings.showEntryTooltip then
-		for _, expansionInfo in ipairs(GetOwnedExpansionInfoList()) do
-			-- Register expansion in its own subcategory
-			local expansionCategory, expansionLayout = Settings.RegisterVerticalLayoutSubcategory(menuTooltipCategory, expansionInfo.name);
-			expansionCategory.ID = format("%sExpansion%02dSettings", AddonID, expansionInfo.ID);
+	for _, expansionInfo in ipairs(GetOwnedExpansionInfoList()) do
+		-- Register expansion in its own subcategory
+		local expansionCategory, expansionLayout = Settings.RegisterVerticalLayoutSubcategory(menuTooltipCategory, expansionInfo.name);
+		expansionCategory.ID = format("%sExpansion%02dSettings", AddonID, expansionInfo.ID);
 
-			-- Add show/hide entry checkboxes for each expansion details settings
-			if (ns.settingsMenuEntry ~= tostring(expansionInfo.ID)) then
-				local expansionTooltipName = BANK_TAB_EXPANSION_ASSIGNMENT:format(expansionInfo.name);
-				local cbShowHide = {
-					{
-						variable = "showExpansion"..tostring(expansionInfo.ID),
-						name = L.CFG_DDMENU_SHOW_EXPANSION_ENTRY_TEXT,
-						tooltip = L.CFG_DDMENU_SHOW_EXPANSION_ENTRY_TOOLTIP_S:format(expansionTooltipName),
-						modifyPredicate = function() return ExpansionInfo:DoesPlayerOwnExpansion(expansionInfo.ID); end,
-						onValueChanged = cbOnValueChangedCallback,
-					},
-				};
-				CheckBox_CreateFromList(expansionCategory, cbShowHide);
-			end
-
-			-- Add subcategory content
-			expansionLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
-			CreateExpansionTooltipSettings(expansionCategory, expansionInfo);
+		-- Add show/hide entry checkboxes for each expansion details settings
+		if (ns.settingsMenuEntry ~= tostring(expansionInfo.ID)) then
+			local expansionTooltipName = BANK_TAB_EXPANSION_ASSIGNMENT:format(expansionInfo.name);
+			local cbShowHide = {
+				{
+					variable = "showExpansion"..tostring(expansionInfo.ID),
+					name = L.CFG_DDMENU_SHOW_EXPANSION_ENTRY_TEXT,
+					tooltip = L.CFG_DDMENU_SHOW_EXPANSION_ENTRY_TOOLTIP_S:format(expansionTooltipName),
+					modifyPredicate = function() return ExpansionInfo:DoesPlayerOwnExpansion(expansionInfo.ID); end,
+					onValueChanged = cbOnValueChangedCallback,
+				},
+			};
+			CheckBox_CreateFromList(expansionCategory, cbShowHide);
 		end
+
+		-- Add subcategory content
+		expansionLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(L.CFG_DDMENU_ENTRYTOOLTIP_LABEL));
+		CreateExpansionTooltipSettings(expansionCategory, expansionInfo);
 	end
 
 	----------------------------------------------------------------------------
@@ -1508,9 +1468,9 @@ function MRBP_Settings_Register()
 	------- MenuTooltip: Anchor -----
 	do
 		appearanceLayout:AddInitializer(CreateSettingsListSectionHeaderInitializer(menuNameTemplate:format(L.CFG_APPEARANCE_ANCHOR_LABEL)));
-		-- REF.: frame:SetPoint(point [, relativeTo [, relativePoint]] [, offsetX, offsetY])
 
 		-- Point
+		-- REF.: frame:SetPoint(point [, relativeTo [, relativePoint]] [, offsetX, offsetY])
 		local pointValues = {
 			{"TOPLEFT", "TOPLEFT", nil},
 			{"TOPRIGHT", "TOPRIGHT", nil},
@@ -1872,6 +1832,15 @@ GRAY(APPEARANCE_LABEL..L.TEXT_DELIMITER..PARENS_TEMPLATE:format(FEATURE_NOT_YET_
 	-- appearanceCategory:SetCategoryTutorialInfo("This it a tutorial test.", function(buttonTbl, buttonName, isDown)
 	-- 	print("Clicked tutorial button:", buttonTbl:GetName(), buttonName, isDown);
 	-- end)
+
+	
+-- {
+-- 	variable = "useSingleExpansionLandingPageType",						--> TODO - L10n
+-- 	name = "Eine Erweiterung für alle Zonen",
+-- 	tooltip = "Wenn aktiviert, wird eine der im Menü verfügbaren Erweiterungen als Minikarten-Button durchgehend in allen Zonen angezeigt.",
+-- 	parentVariable = "showMinimapButton",
+-- 	tag = Settings.Default.True,
+-- },
 
 ]]--
 --------------------------------------------------------------------------------
