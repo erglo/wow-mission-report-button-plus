@@ -1287,6 +1287,7 @@ ExpansionTooltipSettings[ExpansionInfo.data.WAR_WITHIN.ID] = {
 		name = L["showTheaterTroupeInfo"],
 		tooltip = FormatTooltipTemplate("showTheaterTroupeInfo", L.CFG_DDMENU_ENTRYTOOLTIP_EVENT_POI_THEATER_TROUPE),
 		parentVariable = "showWorldMapEvents10",
+		tag = Settings.Default.True,
 	},
 };
 

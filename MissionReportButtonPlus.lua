@@ -1833,6 +1833,23 @@ function ns.MissionReportButtonPlus_OnAddonCompartmentEnter(button)
 					local isCompleted = numGlyphsCollected == numGlyphsTotal;
 					util.GameTooltip_AddObjectiveLine(tooltip, L["showDragonGlyphs"]..": "..collectedAmountString, isCompleted, wrapLine, leftOffset, treeCurrencyInfo.texture);
 				end
+
+				----- The War Within -----
+
+				if (expansion.ID == ExpansionInfo.data.WAR_WITHIN.ID) then
+					-- Theater Troupe
+					if ns.settings.showTheaterTroupeInfo then
+						local twwTheaterTroupeInfo = ns.poi10.GetTheaterTroupeInfo()
+						if twwTheaterTroupeInfo then
+							local timeLeft = twwTheaterTroupeInfo.timeString2 or twwTheaterTroupeInfo.timeString or "..."
+							local lineText = format("%s @ %s", L["showTheaterTroupeInfo"], twwTheaterTroupeInfo.mapInfo.name)..": "..timeLeft;
+							util.GameTooltip_AddObjectiveLine(tooltip, lineText, nil, wrapLine, leftOffset, twwTheaterTroupeInfo.atlasName);
+						end
+					end
+				end
+
+				----- Dragonflight -----
+
 				if (expansion.ID == ExpansionInfo.data.DRAGONFLIGHT.ID) then
 					-- Dragonriding Race
 					if ns.settings.showDragonRaceInfo then
