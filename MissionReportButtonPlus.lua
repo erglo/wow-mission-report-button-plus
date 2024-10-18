@@ -1123,16 +1123,17 @@ local function MenuLine_OnEnter(...)
 			if ns.settings.showTheaterTroupeInfo then
 				local twwTheaterTroupeInfo = ns.poi10.GetTheaterTroupeInfo()
 				if twwTheaterTroupeInfo then
-					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, twwTheaterTroupeInfo.isActive and twwTheaterTroupeInfo.name or L["showTheaterTroupeInfo"])
+					-- The world map POI's tooltip info doesn't update unless we are in the same zone as the event.
+					local mapIDonly = true
+					local isPlayerInIsleOfDorn = (twwTheaterTroupeInfo.mapInfo.mapID == PlayerInfo:GetPlayerMapLocation(mapIDonly))
+					LocalTooltipUtil:AddHeaderLine(ExpansionTooltip, isPlayerInIsleOfDorn and twwTheaterTroupeInfo.name or L["showTheaterTroupeInfo"])
 					LocalTooltipUtil:AddIconLine(ExpansionTooltip, twwTheaterTroupeInfo.mapInfo.name, twwTheaterTroupeInfo.atlasName)
 					LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, twwTheaterTroupeInfo.areaName)
 					LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, twwTheaterTroupeInfo.timeString)  -- time until next event
 					if twwTheaterTroupeInfo.timeString2 then
 						LocalTooltipUtil:AddTimeRemainingLine(ExpansionTooltip, twwTheaterTroupeInfo.timeString2)  -- preparations + active timer
 					end
-					-- The world map POI's tooltip info doesn't update unless we are in the same zone as the event.
-					local landingPageInfo = LandingPageInfo:GetPlayerLocationLandingPageInfo()
-					if (landingPageInfo.landingPageTypeID == garrisonInfo.landingPageTypeID and not L:StringIsEmpty(twwTheaterTroupeInfo.description)) then  -- and not ns.settings.hideEventDescriptions then
+					if (isPlayerInIsleOfDorn and not L:StringIsEmpty(twwTheaterTroupeInfo.description)) then  -- and not ns.settings.hideEventDescriptions then
 						LocalTooltipUtil:AddObjectiveLine(ExpansionTooltip, twwTheaterTroupeInfo.description)
 					end
 				end

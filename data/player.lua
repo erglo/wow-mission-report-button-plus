@@ -24,7 +24,10 @@ local AddonID, ns = ...;
 
 local UnitFactionGroup = UnitFactionGroup;
 local UnitClass = UnitClass;
+local UnitSex = UnitSex;
 local C_Covenants = C_Covenants;
+local C_Map = C_Map;
+local MapUtil_GetDisplayableMapForPlayer = MapUtil.GetDisplayableMapForPlayer;
 
 local PlayerInfo = {};
 ns.PlayerInfo = PlayerInfo;
@@ -137,4 +140,16 @@ end
 
 function PlayerInfo:GetPlayerSex()
     return UnitSex("player");
+end
+
+----- Location -----
+
+function PlayerInfo:GetPlayerMapLocation(mapIDonly)
+    local mapID = MapUtil_GetDisplayableMapForPlayer();
+    if mapIDonly then return mapID; end
+
+    local mapInfo = C_Map.GetMapInfo(mapID);
+    local position = C_Map.GetPlayerMapPosition(mapID, "player");
+
+    return mapInfo, position;
 end
