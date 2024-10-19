@@ -4,6 +4,37 @@ All notable changes to this project will be documented in this file (or linked t
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2024-10-19
+
+### Added
+
+* Tooltip: added an optional warband reputation icon for Dragonflight + War Within reputation.
+* Tooltip: added optional line highlight for factions with pending paragon reputation reward.
+* Tooltip: added optional line highlight for the currently watched faction (reputation bar).
+* War Within: added `Theater Troupe` details to tooltip and Addon Compartment.
+* War Within: added optional bonus faction reputation details for the three `Severed Threads members` and the Delve companion `Brann Bronzebeard`.
+* Dragonflight: added optional bonus faction reputation details, eg. for the `Azerothian Archives` or `Soridormi`.
+* Shadowlands: added optional bonus faction reputation details related to the covenants `Night Fae`, `Necrolord` and `Venthyr`.
+* Battle for Azeroth: added optional bonus faction reputation details for `Nazjatar friends`.
+* Legion: added optional bonus faction reputation details, eg. for `Chromie` and the `Kirin Tor` (from _Wrath of the Lich King_).
+* Warlords of Draenor: added as optional bonus `Barracks Bodyguards` faction reputation details.
+* Data + Tooltip: added optional `faction reputation` details for:
+  + `Shadowlands`
+  + `Battle for Azeroth`
+  + `Legion`
+  + `Warlords of Draenor`
+
+### Changed
+
+* Updated TOC file version to `WoW 11.0.5`.
+* L10n: updated locale files.
+* Chat: updated notification message to show the Covenant name when renown level changes.
+* Shadowlands: the Covenant renown level details can now be optionally displayed in the separate reputation tooltip.
+
+### Fixed
+
+* Settings: adjusted font size for Chinese (`zhCN` + `zhTW`) in "about" section; some lines where longer than the frame due to the wide-space characters.
+
 ## [1.3.1] - 2024-09-17
 
 ### Fixed
@@ -129,13 +160,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 * Tooltips: removed legacy tooltip.
 
-## [v0.21.1+100205] - 2024-01-23
+## [0.21.1+100205] - 2024-01-23
 
 ### Changed
 
 * Uploaded locale files.
 
-## [v0.21.0+100205] - 2024-01-23
+## [0.21.0+100205] - 2024-01-23
 
 ### Added
 
@@ -145,13 +176,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 * Updated TOC file version to `WoW 10.2.5`.
 
-## [v0.20.1+100200] - 2023-12-07
+## [0.20.1+100200] - 2023-12-07
 
 ### Changed
 
 * Updated dragon glyphs counter for Emerald Dream.
 
-## [v0.20.0+100200] - 2023-11-09
+## [0.20.0+100200] - 2023-11-09
 
 ### Added
 
@@ -167,7 +198,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 * [Issue #19] Due to additional arguments in `CreateSettingsButtonInitializer(...)` an assertion error occurred. (Thanks to [SpareSimian](https://github.com/SpareSimian) this has been a quick fix.)
 
-## [v0.19.0+100107] - 2023-10-07
+## [0.19.0+100107] - 2023-10-07
 
 ### Added
 
